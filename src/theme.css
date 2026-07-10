@@ -470,13 +470,77 @@ select { background: var(--surface-inset); color: var(--text); border: 1px solid
 .widget .wbody { padding: 1.1rem; }
 .widget canvas { display: block; width: 100%; border-radius: var(--radius-sm); background: #060608; touch-action: none; }
 .widget .controls { display: grid; gap: 0.6rem; margin-top: 1rem; }
-.widget .ctl { display: grid; grid-template-columns: 130px 1fr 60px; align-items: center; gap: 0.6rem; font-size: 0.85rem; }
-.widget .ctl label { color: var(--text-dim); font-family: var(--mono); font-size: 0.76rem; }
-.widget .ctl output { font-family: var(--mono); color: var(--accent); text-align: right; font-size: 0.8rem; }
-.widget .readout { font-family: var(--mono); font-size: 0.82rem; color: var(--text-dim); display: grid; gap: 0.2rem; margin-top: 0.9rem; }
+.widget .controls { display: grid; gap: 0.85rem; margin-top: 1.2rem; }
+.widget .ctl { display: grid; grid-template-columns: 116px 1fr 52px; align-items: center; gap: 0.9rem; font-size: 0.85rem; }
+.widget .ctl label { color: var(--text-dim); font-family: var(--mono); font-size: 0.74rem; letter-spacing: 0.03em; }
+.widget .ctl output { font-family: var(--mono); color: var(--accent); text-align: right; font-size: 0.82rem; font-weight: 500; }
+.widget .ctl select { width: 100%; }
+.widget .readout { font-family: var(--mono); font-size: 0.82rem; line-height: 1.7; color: var(--text-dim); margin-top: 1rem; }
 .widget .readout b { color: var(--accent); font-weight: 500; }
+.widget canvas + .controls, .widget canvas + .toggle-row { margin-top: 1.2rem; }
+/* toggle rows (checkbox controls) */
+.toggle-row { display: flex; flex-wrap: wrap; gap: 0.7rem 1.2rem; margin-top: 1.2rem; }
+.toggle { display: inline-flex; align-items: center; gap: 0.55rem; font-family: var(--mono); font-size: 0.82rem; color: var(--text-dim); cursor: pointer; }
+.toggle:hover { color: var(--text); }
 
-input[type="range"] { width: 100%; accent-color: var(--accent); }
+/* ============ Precision form controls ============ */
+input[type="range"] {
+  -webkit-appearance: none; appearance: none;
+  width: 100%; height: 20px; background: transparent; cursor: pointer; margin: 0;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px; border-radius: 999px;
+  background: var(--surface-inset); border: 1px solid var(--border);
+}
+input[type="range"]::-moz-range-track {
+  height: 4px; border-radius: 999px;
+  background: var(--surface-inset); border: 1px solid var(--border);
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 14px; height: 14px; margin-top: -6px; border-radius: 50%;
+  background: var(--accent); border: 2px solid var(--bg);
+  box-shadow: 0 0 0 1px var(--border-glow), 0 2px 6px rgba(0, 0, 0, 0.5);
+  transition: box-shadow var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+input[type="range"]::-moz-range-thumb {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--accent); border: 2px solid var(--bg);
+  box-shadow: 0 0 0 1px var(--border-glow), 0 2px 6px rgba(0, 0, 0, 0.5);
+  transition: box-shadow var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+input[type="range"]:hover::-webkit-slider-thumb { transform: scale(1.12); box-shadow: 0 0 0 4px var(--accent-soft), 0 2px 8px rgba(0, 0, 0, 0.5); }
+input[type="range"]:hover::-moz-range-thumb { transform: scale(1.12); box-shadow: 0 0 0 4px var(--accent-soft), 0 2px 8px rgba(0, 0, 0, 0.5); }
+input[type="range"]:focus-visible { outline: none; }
+input[type="range"]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px var(--accent-soft), 0 0 12px rgba(255, 176, 0, 0.5); }
+input[type="range"]:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 4px var(--accent-soft), 0 0 12px rgba(255, 176, 0, 0.5); }
+
+input[type="checkbox"] {
+  -webkit-appearance: none; appearance: none;
+  width: 18px; height: 18px; flex: none; margin: 0; cursor: pointer;
+  border-radius: 6px; background: var(--surface-inset); border: 1px solid var(--border-bright);
+  display: inline-grid; place-content: center;
+  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+input[type="checkbox"]::before {
+  content: ""; width: 10px; height: 10px; transform: scale(0);
+  transition: transform var(--dur) var(--ease);
+  background: var(--on-accent);
+  clip-path: polygon(14% 47%, 0 60%, 40% 100%, 100% 22%, 86% 10%, 38% 72%);
+}
+input[type="checkbox"]:checked { background: var(--accent-grad); border-color: transparent; }
+input[type="checkbox"]:checked::before { transform: scale(1); }
+input[type="checkbox"]:focus-visible { outline: 2px solid var(--border-glow); outline-offset: 2px; }
+
+/* Code / shader editor input */
+.code-input {
+  width: 100%; background: var(--surface-inset);
+  color: var(--text); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 0.95rem 1.05rem; font-family: var(--mono); font-size: 0.8rem; line-height: 1.7;
+  resize: vertical; tab-size: 2;
+  transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+.code-input:focus { outline: none; border-color: var(--border-glow); box-shadow: 0 0 0 1px rgba(255, 176, 0, 0.16), inset 0 0 30px rgba(255, 138, 0, 0.04); }
 
 .notice { border-left: 2px solid var(--accent); background: var(--surface); padding: 0.9rem 1.1rem; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; margin: 1.6rem 0; font-size: 0.9rem; color: var(--text-dim); }
 .notice.warn { border-left-color: var(--warn); }
@@ -506,10 +570,13 @@ table.rosetta th { background: var(--surface); font-family: var(--mono); font-si
 table.rosetta td { color: var(--text-dim); }
 table.rosetta td code { background: none; border: none; padding: 0; }
 
-/* ============ Playground ============ */
+/* ============ Playground — balanced masonry ============ */
 .pg-head { margin-bottom: 2rem; }
-.pg-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 1.4rem; align-items: start; }
-.pg-grid > div > h3 { font-family: var(--display); font-size: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+.pg-grid { columns: 2; column-gap: 1.5rem; }
+@media (max-width: 900px) { .pg-grid { columns: 1; } }
+.pg-item { break-inside: avoid; margin: 0 0 1.5rem; }
+.pg-item .widget { margin: 0; }
+/* the widget's own .wtitle is the heading — no external duplicate needed */
 
 /* ============ Notes, capture & tutor ============ */
 .note-overlay { position: fixed; inset: 0; background: rgba(6, 6, 9, 0.62); backdrop-filter: blur(3px); display: flex; justify-content: flex-end; z-index: 60; animation: fade 0.2s var(--ease) both; }

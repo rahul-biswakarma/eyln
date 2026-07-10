@@ -61,11 +61,10 @@ export function TransformPipeline3D() {
   flags.current = { useModel, useView, useProj };
 
   return (
-    <>
-      <WebGPUCanvas
-        title="Model · View · Projection — live cube"
-        height={340}
-        setup={(gpu) => {
+    <WebGPUCanvas
+      title="Model · View · Projection — live cube"
+      height={340}
+      setup={(gpu) => {
           const { device, context, format, canvas } = gpu;
           const verts = cubeData();
           const vbuf = makeBuffer(device, verts, GPUBufferUsage.VERTEX);
@@ -128,28 +127,24 @@ export function TransformPipeline3D() {
           });
 
           return () => { loop.stop(); depthTex?.destroy(); vbuf.destroy(); ubuf.destroy(); };
-        }}
-      />
-      <div className="widget" style={{ marginTop: "-0.6rem" }}>
-        <div className="wbody">
-          <div className="row" style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-            <label style={{ display: "flex", gap: 6, alignItems: "center", fontFamily: "var(--mono)", fontSize: "0.82rem" }}>
-              <input type="checkbox" checked={useModel} onChange={(e) => setUseModel(e.target.checked)} /> M_model (spin)
-            </label>
-            <label style={{ display: "flex", gap: 6, alignItems: "center", fontFamily: "var(--mono)", fontSize: "0.82rem" }}>
-              <input type="checkbox" checked={useView} onChange={(e) => setUseView(e.target.checked)} /> M_view (camera)
-            </label>
-            <label style={{ display: "flex", gap: 6, alignItems: "center", fontFamily: "var(--mono)", fontSize: "0.82rem" }}>
-              <input type="checkbox" checked={useProj} onChange={(e) => setUseProj(e.target.checked)} /> M_proj (perspective)
-            </label>
-          </div>
-          <div className="readout">
-            Turn off <b>M_proj</b>: the cube goes flat/orthographic. Turn off <b>M_view</b>: the camera
-            snaps to the origin. Turn off <b>M_model</b>: the cube stops spinning. This is the whole
-            <code> P_clip = M_proj · M_view · M_model · v</code> chain.
-          </div>
-        </div>
+      }}
+    >
+      <div className="toggle-row">
+        <label className="toggle">
+          <input type="checkbox" checked={useModel} onChange={(e) => setUseModel(e.target.checked)} /> M_model (spin)
+        </label>
+        <label className="toggle">
+          <input type="checkbox" checked={useView} onChange={(e) => setUseView(e.target.checked)} /> M_view (camera)
+        </label>
+        <label className="toggle">
+          <input type="checkbox" checked={useProj} onChange={(e) => setUseProj(e.target.checked)} /> M_proj (perspective)
+        </label>
       </div>
-    </>
+      <div className="readout">
+        Turn off <b>M_proj</b>: the cube goes flat/orthographic. Turn off <b>M_view</b>: the camera
+        snaps to the origin. Turn off <b>M_model</b>: the cube stops spinning. This is the whole
+        <code> P_clip = M_proj · M_view · M_model · v</code> chain.
+      </div>
+    </WebGPUCanvas>
   );
 }

@@ -25,30 +25,12 @@ export function Playground() {
       </div>
 
       <div className="pg-grid">
-        <div>
-          <h3 style={{ marginTop: 0 }}>🔩 Live shader</h3>
-          <ShaderEditor />
-        </div>
-        <div>
-          <h3 style={{ marginTop: 0 }}>🧊 Model · View · Projection</h3>
-          <TransformPipeline3D />
-        </div>
-        <div>
-          <h3 style={{ marginTop: 0 }}>🌱 Noise → terrain</h3>
-          <NoiseExplorer />
-        </div>
-        <div>
-          <h3 style={{ marginTop: 0 }}>🏔️ Heightfield terrain</h3>
-          <TerrainField />
-        </div>
-        <div>
-          <h3 style={{ marginTop: 0 }}>🧱 Spline → wall</h3>
-          <SplineEditor />
-        </div>
-        <div>
-          <h3 style={{ marginTop: 0 }}>📐 Vectors</h3>
-          <VectorPlayground />
-        </div>
+        <div className="pg-item"><ShaderEditor /></div>
+        <div className="pg-item"><TransformPipeline3D /></div>
+        <div className="pg-item"><NoiseExplorer /></div>
+        <div className="pg-item"><TerrainField /></div>
+        <div className="pg-item"><SplineEditor /></div>
+        <div className="pg-item"><VectorPlayground /></div>
       </div>
     </div>
   );

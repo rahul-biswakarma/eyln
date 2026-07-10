@@ -103,23 +103,17 @@ export function ShaderEditor() {
     <div className="widget">
       <div className="wtitle"><span className="dotlive" /> Live shader · edit and watch it recompile</div>
       <div className="wbody">
-        <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-          <canvas ref={canvasRef} style={{ width: 260, height: 260, flex: "none" }} />
-          <div style={{ flex: 1, minWidth: 260, display: "flex", flexDirection: "column" }}>
-            <textarea
-              value={src}
-              onChange={(e) => setSrc(e.target.value)}
-              spellCheck={false}
-              style={{
-                flex: 1, minHeight: 200, width: "100%", background: "var(--bg-inset)",
-                color: "var(--text)", border: "1px solid var(--border-bright)", borderRadius: 8,
-                padding: "0.6rem 0.8rem", fontFamily: "var(--mono)", fontSize: "0.8rem", resize: "vertical",
-              }}
-            />
-            <div style={{ fontFamily: "var(--mono)", fontSize: "0.78rem", marginTop: 6, color: status.startsWith("✓") ? "var(--good)" : "var(--bad)" }}>
-              {status}
-            </div>
-          </div>
+        <canvas ref={canvasRef} style={{ width: "100%", aspectRatio: "16 / 9", height: "auto", marginBottom: "1rem" }} />
+        <textarea
+          className="code-input"
+          value={src}
+          onChange={(e) => setSrc(e.target.value)}
+          spellCheck={false}
+          rows={8}
+        />
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontFamily: "var(--mono)", fontSize: "0.76rem", marginTop: "0.7rem", color: status.startsWith("✓") ? "var(--good)" : "var(--bad)" }}>
+          <span style={{ width: 6, height: 6, borderRadius: "50%", background: "currentColor", boxShadow: "0 0 6px currentColor" }} />
+          {status}
         </div>
       </div>
     </div>
