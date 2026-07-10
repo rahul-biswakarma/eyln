@@ -348,19 +348,38 @@ a.card:hover { color: inherit; }
 .road-node:first-child::before { display: none; }
 .road-node.done::before, .road-node.current::before { background: var(--accent); box-shadow: 0 0 8px rgba(255, 176, 0, 0.5); }
 
-/* ============ Module cards — metadata-driven ============ */
+/* ============ Module cards — per-module identity ============ */
 .mod-grid { display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); }
-.mod-card { padding: 1.9rem; display: flex; flex-direction: column; }
-.mod-card .top { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.6rem; }
-.mod-card .ic {
-  font-size: 1.2rem; width: 50px; height: 50px; flex: none;
-  display: grid; place-items: center; border-radius: 14px;
-  background: var(--surface-inset); border: 1px solid var(--border);
+.mod-card { --mod-accent: var(--accent); padding: 1.9rem; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+/* top accent bar in the module's own color */
+.mod-card::after {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--mod-accent), transparent 85%);
+  opacity: 0.55; transition: opacity var(--dur) var(--ease);
 }
-.mod-card.grad .ic { background: rgba(11, 11, 14, 0.45); border-color: var(--border-glow); }
-.mod-card .kicker { font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 0.35rem; }
+.mod-card:hover::after { opacity: 1; }
+.mod-card:hover { border-color: color-mix(in srgb, var(--mod-accent) 40%, var(--border-bright)); box-shadow: var(--shadow), 0 0 0 1px color-mix(in srgb, var(--mod-accent) 22%, transparent); }
+/* large watermark index for at-a-glance identity */
+.mod-idx {
+  position: absolute; top: 0.7rem; right: 1.1rem;
+  font-family: var(--display); font-weight: 700; font-size: 3.4rem; line-height: 1;
+  color: var(--mod-accent); opacity: 0.1; letter-spacing: -0.04em;
+  pointer-events: none; transition: opacity var(--dur) var(--ease);
+}
+.mod-card:hover .mod-idx { opacity: 0.18; }
+.mod-card .top { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.6rem; position: relative; z-index: 1; }
+.mod-card .ic {
+  font-size: 1.25rem; width: 52px; height: 52px; flex: none;
+  display: grid; place-items: center; border-radius: 14px;
+  background:
+    radial-gradient(120% 120% at 30% 20%, color-mix(in srgb, var(--mod-accent) 26%, transparent), transparent 70%),
+    var(--surface-inset);
+  border: 1px solid color-mix(in srgb, var(--mod-accent) 34%, var(--border));
+  box-shadow: inset 0 0 16px color-mix(in srgb, var(--mod-accent) 14%, transparent);
+}
+.mod-card .kicker { font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.14em; text-transform: uppercase; color: color-mix(in srgb, var(--mod-accent) 70%, var(--text-faint)); margin-bottom: 0.35rem; }
 .mod-card h3 { margin: 0; font-family: var(--display); font-size: 1.2rem; }
-.mod-card .blurb { color: var(--text-dim); font-size: 0.9rem; line-height: 1.65; margin: 0 0 1.7rem; }
+.mod-card .blurb { color: var(--text-dim); font-size: 0.9rem; line-height: 1.65; margin: 0 0 1.7rem; position: relative; z-index: 1; }
 
 /* metadata grid */
 .mod-meta { display: flex; flex-wrap: wrap; gap: 0.55rem; margin-bottom: 1.7rem; }
@@ -387,11 +406,10 @@ a.card:hover { color: inherit; }
 .mod-cta {
   flex: none; white-space: nowrap;
   display: inline-flex; align-items: center; gap: 0.4rem;
-  font-family: var(--display); font-size: 0.82rem; font-weight: 500; color: var(--accent);
+  font-family: var(--display); font-size: 0.82rem; font-weight: 600; color: var(--mod-accent);
   transition: gap var(--dur) var(--ease);
 }
 .mod-card:hover .mod-cta { gap: 0.65rem; }
-.mod-card.grad .mod-cta { color: var(--highlight); }
 
 .ring { --p: 0; width: 40px; height: 40px; flex: none; display: grid; place-items: center; position: relative; }
 .ring svg { transform: rotate(-90deg); }
