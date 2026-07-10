@@ -1,9 +1,17 @@
-# Forge — Learn to build a 3D game engine (Odin + Metal)
+# Forge — an interactive engineering academy
 
-An interactive course that takes a programmer from a single triangle to
-procedural, Tiny-Glade-style terrain and walls — built by hand in **Odin + Metal**
-on macOS. Live demos run in the browser with **WebGPU** (conceptually ~1:1 with
-Metal); every lesson also shows the equivalent **Odin + Metal** code to run locally.
+Forge is an interactive learning platform with three tracks:
+
+- **3D Game Engine** — build a renderer by hand in **Odin + Metal**, from a single
+  triangle to procedural, Tiny-Glade-style terrain. Live demos run in the browser
+  with **WebGPU**; every lesson also shows the equivalent Odin + Metal code.
+- **Data Structures & Algorithms** — complexity, the core data structures, and the
+  algorithmic patterns behind them.
+- **Mathematics** — functions, limits, calculus, curves, and vector calculus — the
+  math underneath both other tracks.
+
+23 modules / 110 lessons in all, each with rigorous prose, KaTeX math, code, and
+auto-graded quizzes.
 
 ## Run the site
 
@@ -37,22 +45,30 @@ and tagging them — and schedule review reminders. Everything is browsable on t
 **Notes** page and persisted to localStorage. Due reminders surface as a badge on
 the top-nav bell and, if you grant permission, as browser notifications.
 
+## Accounts & cloud sync (optional)
+
+With Firebase configured, Forge adds **Google sign-in** and syncs your progress
+(completions, quiz scores, notes, bookmarks, reminders) to **Firestore**, so it
+follows you across devices. Copy `.env.example` to `.env` and fill the
+`VITE_FIREBASE_*` values from your Firebase web app config (enable Authentication →
+Google and Firestore). Without them, the app runs fully on localStorage — single
+device, no sign-in. Cloud state is merged with local on sign-in (union of
+completions, best scores, newest notes).
+
 ## Curriculum
 
-Nine modules, ordered by dependency:
+Three tracks, each a set of modules topologically sorted by their `dependsOn`
+edges (defined in `src/content/tracks.ts`; modules tagged with a `track`):
 
-1. **Linear Algebra** — vectors, dot/cross products, matrices, MVP, quaternions, clip space
-2. **Odin** — the systems language, data-oriented design, memory, allocators & arenas, calling Metal
-3. **Procedural Math** — noise, fBm, Voronoi, splines, extrusion
-4. **Physics** — game loop, integration, forces, collision
-5. **Metal** — GPU model, pipeline objects, runtime shaders, live WGSL/MSL editor
-6. **Rendering Capstone** — triangle → 3D camera → terrain → spline walls
-7. **Lighting & Shading** — normals, diffuse/specular, a PBR primer
-8. **Textures & Sampling** — UVs, samplers/filtering, mipmaps & atlases
-9. **Optimization & Profiling** — frame budget, batching/instancing, culling
+**3D Game Engine** — Linear Algebra · Odin · Procedural Math · Physics · Metal ·
+Rendering Capstone · Lighting & Shading · Textures & Sampling · Optimization & Profiling
 
-Modules are topologically sorted by their `dependsOn` edges, so the curriculum
-always reads in a valid order even as modules are added.
+**Data Structures & Algorithms** — Complexity & Big-O · Arrays & Strings ·
+Hashing & Maps · Linked Lists/Stacks/Queues · Trees & Heaps · Graphs ·
+Sorting & Searching · Recursion & Dynamic Programming
+
+**Mathematics** — Functions & Graphs · Limits & Continuity · Derivatives ·
+Integrals · Curves & Parametric Geometry · Vector Calculus
 
 ## Local Odin + Metal examples
 
@@ -68,12 +84,13 @@ cd odin-examples/01-triangle && odin run .
 
 ```
 src/
-  content/      # Module/Lesson types + the registry that orders the curriculum
-  modules/      # one folder per module; each exports a Module descriptor
+  content/      # Module/Lesson/Track types, tracks.ts, and the registry that orders the curriculum
+  modules/      # one folder per module; each exports a Module descriptor (dsa/ and math/ are barrels)
   components/   # LessonLayout, CodeBlock (WGSL|MSL|Odin tabs), Quiz, Exercise, Math, WebGPUCanvas
   widgets/      # interactive teaching widgets (vectors, matrices, noise, splines, shader editor, 3D)
   engine/       # shared math (vec/mat), noise, spline, and WebGPU helpers
-  lib/          # progress + notes stores, reminder scheduler, Gemini client, study coach
+  lib/          # progress + notes stores, reminder scheduler, Gemini client, study coach,
+                # firebase (auth + Firestore sync)
 odin-examples/  # runnable Odin+Metal programs (not built by the site)
 ```
 

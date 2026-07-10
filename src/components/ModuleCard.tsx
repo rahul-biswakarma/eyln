@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
 import type { Module } from "../content/types";
 import {
-  modules,
+  modulesForTrack,
+  trackIdOf,
   lessonPath,
   moduleProgress,
   lessonKey,
@@ -9,24 +10,28 @@ import {
   moduleDifficulty,
   modulePrereqTitles,
 } from "../content/registry";
+import { getTrack } from "../content/tracks";
 import { useProgress } from "../lib/progress";
 import { formatMinutes } from "../lib/stats";
 
 /**
  * Per-module accent — a curated warm/earthy spectrum so each card has its own
  * identity. Stays inside the industrial palette (amber → orange → red, plus
- * sage/steel/clay); no neon, blue, or purple.
+ * sage/steel/clay); no neon, blue, or purple. Modules without an explicit
+ * accent fall back to their track color.
  */
 const MODULE_ACCENT: Record<string, string> = {
-  "linear-algebra": "#FFB000", // amber — geometry
-  odin: "#FF8A00",             // deep orange — systems language
-  "procedural-math": "#8FBF6B", // sage — organic noise
-  physics: "#FF6B57",          // coral — motion & forces
-  metal: "#C2C6CE",            // steel — the GPU
-  rendering: "#FFD35C",        // gold — the capstone
-  lighting: "#FFC24B",         // warm yellow — light
-  textures: "#D0A06A",         // clay — surfaces
-  optimization: "#FF9E2C",     // bright amber — speed
+  // Engine
+  "linear-algebra": "#FFB000", odin: "#FF8A00", "procedural-math": "#8FBF6B",
+  physics: "#FF6B57", metal: "#C2C6CE", rendering: "#FFD35C",
+  lighting: "#FFC24B", textures: "#D0A06A", optimization: "#FF9E2C",
+  // DSA
+  "dsa-complexity": "#FF8A00", "dsa-arrays": "#FFB000", "dsa-hashing": "#FFC24B",
+  "dsa-linear": "#FF9E2C", "dsa-trees": "#8FBF6B", "dsa-graphs": "#D0A06A",
+  "dsa-sorting": "#FF6B57", "dsa-recursion": "#FFD35C",
+  // Math
+  "math-functions": "#8FBF6B", "math-limits": "#A6C880", "math-derivatives": "#FFC24B",
+  "math-integrals": "#FFB000", "math-curves": "#D0A06A", "math-vector-calc": "#FF9E2C",
 };
 
 export function ModuleCard({ module, highlight }: { module: Module; highlight?: boolean }) {
@@ -37,8 +42,9 @@ export function ModuleCard({ module, highlight }: { module: Module; highlight?: 
   const minutes = moduleMinutes(module);
   const started = pct > 0;
   const complete = pct >= 1;
-  const accent = MODULE_ACCENT[module.id] ?? "var(--accent)";
-  const idx = modules.findIndex((m) => m.id === module.id) + 1;
+  const trackModules = modulesForTrack(trackIdOf(module));
+  const accent = MODULE_ACCENT[module.id] ?? getTrack(trackIdOf(module))?.accent ?? "var(--accent)";
+  const idx = trackModules.findIndex((m) => m.id === module.id) + 1;
   // Deep-link to the first not-yet-done lesson in this module, else the first.
   const target = module.lessons.find((l) => !done[lessonKey(module.id, l.id)]) ?? module.lessons[0];
 

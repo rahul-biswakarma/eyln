@@ -60,5 +60,19 @@ export interface Module {
   icon: string;
   /** Module ids this one builds on. */
   dependsOn: string[];
+  /** Which learning track this module belongs to. Defaults to "engine". */
+  track?: TrackId;
   lessons: Lesson[];
+}
+
+export type TrackId = "engine" | "dsa" | "math";
+
+export interface Track {
+  id: TrackId;
+  title: string;
+  /** Short tagline shown on the track card / header. */
+  blurb: string;
+  icon: string;
+  /** Accent color for the track (warm industrial palette). */
+  accent: string;
 }

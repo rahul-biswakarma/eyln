@@ -1,4 +1,6 @@
-import type { Module, Lesson } from "./types";
+import type { Module, Lesson, TrackId } from "./types";
+import { tracks, DEFAULT_TRACK } from "./tracks";
+// Engine track
 import { linearAlgebra } from "../modules/linear-algebra";
 import { odin } from "../modules/odin";
 import { proceduralMath } from "../modules/procedural-math";
@@ -8,11 +10,17 @@ import { rendering } from "../modules/rendering";
 import { lighting } from "../modules/lighting";
 import { textures } from "../modules/textures";
 import { optimization } from "../modules/optimization";
+// DSA track
+import { dsaModules } from "../modules/dsa";
+// Math track
+import { mathModules } from "../modules/math";
 
-const raw: Module[] = [
+const engineModules: Module[] = [
   linearAlgebra, odin, proceduralMath, physics, metal, rendering,
   lighting, textures, optimization,
-];
+].map((m) => ({ ...m, track: "engine" as TrackId }));
+
+const raw: Module[] = [...engineModules, ...dsaModules, ...mathModules];
 
 /** Topologically sort modules by dependsOn so the curriculum reads in order. */
 function topoSort(mods: Module[]): Module[] {
@@ -32,10 +40,22 @@ function topoSort(mods: Module[]): Module[] {
   return out;
 }
 
-export const modules: Module[] = topoSort(raw);
+/** All modules, grouped by track (each track internally topo-sorted). */
+export const modules: Module[] = tracks.flatMap((t) =>
+  topoSort(raw.filter((m) => (m.track ?? DEFAULT_TRACK) === t.id))
+);
 
 export function getModule(id: string): Module | undefined {
   return modules.find((m) => m.id === id);
+}
+
+/** Modules belonging to a given track, in curriculum order. */
+export function modulesForTrack(trackId: TrackId): Module[] {
+  return modules.filter((m) => (m.track ?? DEFAULT_TRACK) === trackId);
+}
+
+export function trackIdOf(module: Module): TrackId {
+  return module.track ?? DEFAULT_TRACK;
 }
 
 export interface LessonRef {
@@ -45,9 +65,14 @@ export interface LessonRef {
 }
 
 /** Flatten all lessons in curriculum order for prev/next navigation. */
-export const allLessons: LessonRef[] = modules.flatMap((module) =>
-  module.lessons.map((lesson, i) => ({ module, lesson, index: 0 + i }))
-).map((ref, i) => ({ ...ref, index: i }));
+export const allLessons: LessonRef[] = modules
+  .flatMap((module) => module.lessons.map((lesson) => ({ module, lesson, index: 0 })))
+  .map((ref, i) => ({ ...ref, index: i }));
+
+/** Lessons within a single track, in order (for track-aware next/prev). */
+export function lessonsForTrack(trackId: TrackId): LessonRef[] {
+  return allLessons.filter((r) => (r.module.track ?? DEFAULT_TRACK) === trackId);
+}
 
 export function findLesson(moduleId: string, lessonId: string): LessonRef | undefined {
   return allLessons.find((r) => r.module.id === moduleId && r.lesson.id === lessonId);
@@ -88,4 +113,15 @@ export function modulePrereqTitles(module: Module): string[] {
   return module.dependsOn
     .map((id) => getModule(id)?.title)
     .filter((t): t is string => !!t);
+}
+
+/** The next unstarted lesson within a track (for per-track "continue"). */
+export function nextLessonInTrack(
+  trackId: TrackId,
+  done: Record<string, boolean>
+): LessonRef | undefined {
+  const lessons = lessonsForTrack(trackId);
+  return (
+    lessons.find((r) => !done[lessonKey(r.module.id, r.lesson.id)]) ?? lessons[0]
+  );
 }

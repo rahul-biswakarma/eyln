@@ -1,13 +1,14 @@
 import { Link } from "react-router-dom";
-import { modules, lessonPath } from "../content/registry";
+import { lessonPath } from "../content/registry";
 import { useProgress } from "../lib/progress";
 import { computeStats, formatMinutes, recentActivity, relativeTime } from "../lib/stats";
 import { StatCard } from "../components/StatCard";
 import { Sparkline } from "../components/Sparkline";
-import { ModuleCard } from "../components/ModuleCard";
 import { RoadmapRail } from "../components/RoadmapRail";
 import { ProgressRing } from "../components/ProgressRing";
 import { CoachCard } from "../components/CoachCard";
+import { TrackCard } from "../components/TrackCard";
+import { tracks } from "../content/tracks";
 
 export function Dashboard() {
   const done = useProgress((s) => s.done);
@@ -112,16 +113,27 @@ export function Dashboard() {
         </div>
       </div>
 
-      {/* Capstone roadmap — full width */}
+      {/* Tracks */}
       <div className="section-title">
-        <h3>Capstone roadmap</h3>
+        <h3>Learning tracks</h3>
+        <Link className="more" to="/curriculum">all modules →</Link>
+      </div>
+      <div className="track-grid">
+        {tracks.map((t) => (
+          <TrackCard key={t.id} track={t} />
+        ))}
+      </div>
+
+      {/* Engine capstone roadmap — full width */}
+      <div className="section-title">
+        <h3>Engine capstone roadmap</h3>
         <Link className="more" to={lessonPath("rendering", "triangle")}>the build →</Link>
       </div>
       <div className="card">
         <RoadmapRail />
       </div>
 
-      {/* Recent activity + Modules */}
+      {/* Recent activity */}
       <div className="section-title">
         <h3>Recent activity</h3>
       </div>
@@ -147,16 +159,6 @@ export function Dashboard() {
             ))}
           </div>
         )}
-      </div>
-
-      <div className="section-title">
-        <h3>Modules</h3>
-        <Link className="more" to="/curriculum">view all →</Link>
-      </div>
-      <div className="mod-grid">
-        {modules.map((m) => (
-          <ModuleCard key={m.id} module={m} highlight={next?.module.id === m.id} />
-        ))}
       </div>
     </div>
   );

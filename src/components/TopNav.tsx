@@ -2,6 +2,7 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useProgress } from "../lib/progress";
 import { useNotes, dueReminders } from "../lib/notes";
 import { computeStats } from "../lib/stats";
+import { AuthButton } from "./AuthButton";
 
 const NAV = [
   { to: "/", label: "Dashboard", end: true },
@@ -67,11 +68,11 @@ export function TopNav() {
         >
           ⟲
         </button>
-        <button className="icon-btn" title="Curriculum" onClick={() => navigate("/curriculum")}>☰</button>
         <div className="level-chip">
           <span>Lv {level}</span>
           <span className="lvl-badge">{stats.lessonsDone}</span>
         </div>
+        <AuthButton />
       </div>
     </header>
   );
