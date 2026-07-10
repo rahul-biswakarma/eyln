@@ -7,6 +7,7 @@ import { Sparkline } from "../components/Sparkline";
 import { ModuleCard } from "../components/ModuleCard";
 import { RoadmapRail } from "../components/RoadmapRail";
 import { ProgressRing } from "../components/ProgressRing";
+import { CoachCard } from "../components/CoachCard";
 
 export function Dashboard() {
   const done = useProgress((s) => s.done);
@@ -134,9 +135,14 @@ export function Dashboard() {
           </div>
         </div>
 
-        {/* Right column: activity */}
+        {/* Right column: coach + activity */}
         <div>
           <div className="section-title" style={{ marginTop: 0 }}>
+            <h3>Your coach</h3>
+          </div>
+          <CoachCard />
+
+          <div className="section-title">
             <h3>Recent activity</h3>
           </div>
           <div className="card">

@@ -10,7 +10,7 @@ function WhyOdin() {
         slices, proper arrays, <code>defer</code>, and real modules. For graphics that combination
         is ideal — you control memory precisely, but the code stays readable.
       </p>
-      <p>Coming from TypeScript, here's the Rosetta Stone:</p>
+      <p>If you come from a higher-level language like TypeScript, here's the Rosetta Stone:</p>
       <table className="rosetta">
         <thead><tr><th>Concept</th><th>TypeScript</th><th>Odin</th></tr></thead>
         <tbody>
@@ -63,8 +63,8 @@ function DOD() {
   return (
     <div className="prose">
       <p>
-        This is the biggest mental shift from web dev. React trains you to think in{" "}
-        <strong>objects and components</strong>: an array of <code>Enemy</code> objects, each a
+        This is the biggest mental shift from typical high-level programming. Object-oriented habits
+        train you to think in <strong>objects</strong>: an array of <code>Enemy</code> objects, each a
         little bag of fields and methods. The GPU — and your cache — hate that. They want{" "}
         <strong>contiguous arrays of plain numbers</strong>.
       </p>
@@ -240,6 +240,56 @@ main :: proc() {
   );
 }
 
+function Allocators() {
+  return (
+    <div className="prose">
+      <p>
+        In a language with no garbage collector, <em>who frees this and when?</em> is a question you
+        answer deliberately. Odin's answer is <strong>allocators as first-class context</strong>: every
+        allocating call takes an implicit <code>context.allocator</code>, so you can swap the memory
+        strategy for a whole region of code without rewriting it.
+      </p>
+      <p>
+        The single most useful strategy for a game is the <strong>arena</strong> (bump allocator):
+        reserve one big block, hand out slices by bumping a pointer, and free the <em>entire</em> arena
+        in one instruction at the end of the frame. No per-object <code>free</code>, no fragmentation,
+        no leaks — allocation becomes almost free.
+      </p>
+      <Code
+        lang="odin" filename="arena.odin"
+        code={`import "core:mem"
+
+// Per-frame scratch memory: allocate freely, reset once.
+frame_buf: [4 * mem.Megabyte]byte
+arena: mem.Arena
+mem.arena_init(&arena, frame_buf[:])
+
+for running {
+    context.allocator = mem.arena_allocator(&arena)
+
+    // Everything here allocates from the arena — temp meshes,
+    // culling lists, string formatting — with zero individual frees.
+    build_and_render_frame()
+
+    mem.arena_free_all(&arena)   // reclaim the whole frame at once
+}`}
+      />
+      <div className="notice">
+        <span className="lbl">Match the allocator to the lifetime</span>
+        Use an <strong>arena</strong> for per-frame scratch, the <strong>default heap</strong> for
+        long-lived resources (textures, meshes), and <code>context.temp_allocator</code> for tiny
+        throwaway work. Choosing by lifetime is what keeps a no-GC engine both fast and leak-free.
+      </div>
+      <div className="notice warn">
+        <span className="lbl">The dangling-pointer trap</span>
+        Never hold an arena pointer past <code>arena_free_all</code>. The memory is instantly reusable,
+        so a stale reference reads whatever the next frame wrote there. Arena data lives exactly as long
+        as the arena — treat it as scratch, and copy anything you need to keep.
+      </div>
+    </div>
+  );
+}
+
 export const odin: Module = {
   id: "odin",
   title: "Odin",
@@ -248,7 +298,7 @@ export const odin: Module = {
   dependsOn: [],
   lessons: [
     {
-      id: "why-odin", title: "Why Odin (for web devs)", minutes: 12,
+      id: "why-odin", title: "Why Odin", minutes: 12,
       summary: "A clean systems language, mapped from what you already know.",
       Body: WhyOdin,
       quiz: {
@@ -308,6 +358,27 @@ export const odin: Module = {
           { q: "Which prefix means YOU own the returned object (must release it)?", choices: ["get / read", "alloc / new / copy", "make / build", "any method"], answer: 1, explain: "Cocoa's ownership rule: alloc/new/copy transfer ownership to you." },
         ],
       },
+    },
+    {
+      id: "allocators", title: "Allocators & Arenas", minutes: 14,
+      summary: "Context allocators and the per-frame arena — fast, leak-free memory.",
+      Body: Allocators,
+      quiz: {
+        questions: [
+          { q: "An arena (bump) allocator frees memory by…", choices: ["Calling free on each object", "Resetting the whole block at once", "Waiting for the GC", "Reference counting"], answer: 1, explain: "You bump a pointer to allocate and reset the entire arena in one step — no per-object frees." },
+          { q: "The best allocator for per-frame scratch data is…", choices: ["The default heap", "An arena reset each frame", "A reference-counted pool", "None — use globals"], answer: 1, explain: "Frame-scoped scratch matches an arena's reset-all lifetime perfectly." },
+          { q: "Holding a pointer into an arena after arena_free_all is…", choices: ["Fine, it's copied", "A dangling reference — the memory is reused", "Automatically nil", "A compile error"], answer: 1, explain: "Freed arena memory is immediately reusable; stale pointers read the next frame's data." },
+        ],
+      },
+      exercises: [
+        {
+          id: "arena-open", kind: "open",
+          prompt: "You build a temporary list of visible objects each frame from an arena, then keep a pointer to it to reuse next frame. What goes wrong, and what's the correct approach?",
+          starter: "",
+          rubric: "Full credit: after arena_free_all the pointer dangles and next frame overwrites that memory, so the reused list is garbage; correct approach is to rebuild it each frame from the arena (or copy it into longer-lived storage if it must persist). Partial: identifies the dangling pointer without the fix.",
+          hint: "How long does arena memory live relative to the frame?",
+        },
+      ],
     },
   ],
 };

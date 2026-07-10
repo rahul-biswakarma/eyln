@@ -16,11 +16,13 @@ export interface Quiz {
   questions: QuizQuestion[];
 }
 
-export type ExerciseKind = "wgsl" | "ts" | "predict" | "numeric";
+export type ExerciseKind = "wgsl" | "ts" | "predict" | "numeric" | "open" | "code-open";
 
 export interface ExerciseResult {
   pass: boolean;
   message: string;
+  /** Longer LLM feedback, shown below the pass/fail line for open exercises. */
+  feedback?: string;
 }
 
 export interface Exercise {
@@ -28,8 +30,13 @@ export interface Exercise {
   prompt: string;
   kind: ExerciseKind;
   starter: string;
-  /** For "predict"/"numeric": the validator gets the user's raw input. */
-  validate: (input: string) => ExerciseResult;
+  /**
+   * For deterministic kinds ("predict"/"numeric"/"wgsl"/"ts"): validates the raw input.
+   * Optional for open kinds, which are graded by the LLM against `rubric`.
+   */
+  validate?: (input: string) => ExerciseResult;
+  /** Grading guidance for LLM-graded "open"/"code-open" exercises. */
+  rubric?: string;
   hint?: string;
 }
 

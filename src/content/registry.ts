@@ -5,8 +5,14 @@ import { proceduralMath } from "../modules/procedural-math";
 import { physics } from "../modules/physics";
 import { metal } from "../modules/metal";
 import { rendering } from "../modules/rendering";
+import { lighting } from "../modules/lighting";
+import { textures } from "../modules/textures";
+import { optimization } from "../modules/optimization";
 
-const raw: Module[] = [linearAlgebra, odin, proceduralMath, physics, metal, rendering];
+const raw: Module[] = [
+  linearAlgebra, odin, proceduralMath, physics, metal, rendering,
+  lighting, textures, optimization,
+];
 
 /** Topologically sort modules by dependsOn so the curriculum reads in order. */
 function topoSort(mods: Module[]): Module[] {

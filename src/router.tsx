@@ -5,6 +5,7 @@ import { Curriculum } from "./pages/Curriculum";
 import { Playground } from "./pages/Playground";
 import { LessonPage } from "./pages/LessonPage";
 import { Resources } from "./pages/Resources";
+import { Notes } from "./pages/Notes";
 
 export const router = createBrowserRouter([
   {
@@ -16,6 +17,7 @@ export const router = createBrowserRouter([
       { path: "playground", element: <Playground /> },
       { path: "m/:moduleId/:lessonId", element: <LessonPage /> },
       { path: "resources", element: <Resources /> },
+      { path: "notes", element: <Notes /> },
     ],
   },
 ]);

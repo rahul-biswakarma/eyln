@@ -9,8 +9,8 @@ function Vectors() {
   return (
     <div className="prose">
       <p>
-        In web dev, a "position" is usually two CSS numbers you never think about together. In 3D,
-        position and direction are first-class values called <strong>vectors</strong> — an ordered
+        In most everyday code a "position" is a couple of numbers you never think about together. In
+        3D, position and direction are first-class values called <strong>vectors</strong> — an ordered
         tuple of numbers. A point in space is <M>{`(x, y, z)`}</M>. A direction is <em>also</em>{" "}
         <M>{`(x, y, z)`}</M> — the difference is only in how you use it.
       </p>
@@ -234,6 +234,110 @@ vertex float4 vs(const device float3* pos [[buffer(0)]],
   );
 }
 
+function Quaternions() {
+  return (
+    <div className="prose">
+      <p>
+        Euler angles (yaw/pitch/roll) seem intuitive but bite you: apply three sequential rotations and
+        near the poles two axes collapse into one — <strong>gimbal lock</strong> — and you lose a degree
+        of freedom. Interpolating them also wobbles. Rotations in a real engine use{" "}
+        <strong>quaternions</strong>: a 4-tuple <M>{`q = (w, x, y, z)`}</M> that encodes a rotation of
+        angle <M>{`\\theta`}</M> about a unit axis <M>{`\\hat{n}`}</M>.
+      </p>
+      <MBlock>{`q = \\left(\\cos\\tfrac{\\theta}{2},\\; \\hat{n}\\,\\sin\\tfrac{\\theta}{2}\\right)`}</MBlock>
+      <p>
+        A <strong>unit</strong> quaternion (length 1) represents a pure rotation. Composing rotations is
+        quaternion multiplication (order matters, like matrices); rotating a vector is{" "}
+        <M>{`v' = q\\,v\\,q^{-1}`}</M>. The payoff: no gimbal lock, cheap to renormalize against drift,
+        and smooth shortest-arc interpolation via <strong>slerp</strong> — essential for cameras and
+        animation.
+      </p>
+      <CodeTabs
+        tabs={[
+          {
+            label: "Odin", lang: "odin", filename: "rotate.odin",
+            code: `import "core:math/linalg"
+
+// Axis-angle -> quaternion, then compose and convert to a matrix.
+q_yaw   := linalg.quaternion_angle_axis_f32(yaw,   {0, 1, 0})
+q_pitch := linalg.quaternion_angle_axis_f32(pitch, {1, 0, 0})
+q := linalg.quaternion_mul(q_yaw, q_pitch)   // yaw then pitch
+
+// Smoothly blend toward a target orientation (t in 0..1).
+q_smooth := linalg.quaternion_slerp(q_current, q_target, t)
+
+model := linalg.matrix4_from_quaternion(q_smooth)`,
+          },
+          {
+            label: "WGSL (rotate a vector)", lang: "wgsl",
+            code: `// q = (x, y, z, w). Rodrigues form avoids a full q*v*q^-1.
+fn rotate(q : vec4<f32>, v : vec3<f32>) -> vec3<f32> {
+  let u = q.xyz;
+  return v + 2.0 * cross(u, cross(u, v) + q.w * v);
+}`,
+          },
+        ]}
+      />
+      <div className="notice warn">
+        <span className="lbl">Renormalize</span>
+        Repeated multiplication accumulates floating-point error and the quaternion drifts off the unit
+        sphere, shearing your model. Renormalize (<code>q / |q|</code>) periodically — it's far cheaper
+        than re-orthonormalizing a 3×3 matrix.
+      </div>
+    </div>
+  );
+}
+
+function ClipSpace() {
+  return (
+    <div className="prose">
+      <p>
+        The projection matrix doesn't just squash 3D to 2D — it outputs <strong>clip space</strong>, a
+        4D homogeneous coordinate <M>{`(x, y, z, w)`}</M> where <M>{`w`}</M> carries depth. The GPU then
+        does the <strong>perspective divide</strong>, dividing by <M>{`w`}</M> to reach{" "}
+        <strong>normalized device coordinates (NDC)</strong>. That divide is what makes distant things
+        small — perspective itself lives in the <M>{`w`}</M> component.
+      </p>
+      <MBlock>{`\\text{NDC} = \\left(\\tfrac{x}{w},\\, \\tfrac{y}{w},\\, \\tfrac{z}{w}\\right)`}</MBlock>
+      <p>
+        In NDC, everything visible fits a canonical box. This is where <strong>clipping</strong> and{" "}
+        <strong>frustum culling</strong> happen: a point is on-screen only if{" "}
+        <M>{`-w \\le x, y \\le w`}</M> and it's within the near/far depth range — a test you can run
+        <em>before</em> the divide, cheaply, on whole objects using their bounding volumes.
+      </p>
+      <div className="notice">
+        <span className="lbl">The clip-space box differs by API</span>
+        NDC x/y are <M>{`[-1, 1]`}</M> everywhere, but the depth (z) range is{" "}
+        <strong>0…1 in Metal, WebGPU, and D3D</strong>, and <strong>−1…1 in OpenGL</strong>. Use the
+        matrix builder that matches your target, or your depth buffer will be wrong.
+      </div>
+      <CodeTabs
+        tabs={[
+          {
+            label: "Odin (frustum check)", lang: "odin",
+            code: `// Is a clip-space point inside the view frustum? (before divide)
+in_frustum :: proc(c: [4]f32) -> bool {
+    w := c.w
+    return -w <= c.x && c.x <= w &&
+           -w <= c.y && c.y <= w &&
+            0 <= c.z && c.z <= w   // Metal/WebGPU depth is 0..w
+}`,
+          },
+          {
+            label: "WGSL (implicit divide)", lang: "wgsl",
+            code: `@vertex
+fn vs(@location(0) p : vec3<f32>) -> @builtin(position) vec4<f32> {
+  // Return CLIP space (x,y,z,w). The GPU divides by w for you
+  // to produce NDC, then maps to the viewport.
+  return u.mvp * vec4<f32>(p, 1.0);
+}`,
+          },
+        ]}
+      />
+    </div>
+  );
+}
+
 export const linearAlgebra: Module = {
   id: "linear-algebra",
   title: "Linear Algebra",
@@ -310,6 +414,38 @@ export const linearAlgebra: Module = {
         questions: [
           { q: "In P = proj·view·model·v, which transform is applied to the vertex FIRST?", choices: ["Projection", "View", "Model", "They're simultaneous"], answer: 2, explain: "Read right-to-left: model acts on v first, then view, then projection." },
           { q: "The view matrix is essentially…", choices: ["The camera's world transform", "The inverse of the camera's transform", "The projection", "The identity"], answer: 1, explain: "To put the camera at the origin, you transform the world by the camera's inverse." },
+        ],
+      },
+    },
+    {
+      id: "quaternions", title: "Quaternions & Rotation", minutes: 14,
+      summary: "Gimbal-lock-free rotation, composition, and smooth slerp.",
+      Body: Quaternions,
+      quiz: {
+        questions: [
+          { q: "The main problem with Euler angles that quaternions solve is…", choices: ["They use too much memory", "Gimbal lock — losing a degree of freedom", "They can't rotate at all", "They're slower to store"], answer: 1, explain: "At certain orientations two Euler axes align and you lose a rotational DOF." },
+          { q: "A quaternion represents a pure rotation when it is…", choices: ["All positive", "Unit length (|q| = 1)", "Integer-valued", "Equal to (1,0,0,0) only"], answer: 1, explain: "Unit quaternions map one-to-two onto rotations; non-unit ones also scale." },
+          { q: "Slerp is used to…", choices: ["Normalize a matrix", "Smoothly interpolate between two orientations", "Compute a cross product", "Cull triangles"], answer: 1, explain: "Spherical linear interpolation blends along the shortest arc on the unit sphere." },
+        ],
+      },
+      exercises: [
+        {
+          id: "quat-open", kind: "open",
+          prompt: "In your own words, explain why we renormalize a quaternion periodically during gameplay, and what visual artifact appears if we don't.",
+          starter: "",
+          rubric: "Full credit: mentions floating-point error accumulating from repeated multiplication pushing |q| away from 1, and that a non-unit quaternion introduces scaling/shear (model stretching/skewing). Partial: mentions drift OR the artifact but not both.",
+          hint: "Think about what repeated multiplication does to |q|, and what a non-unit quaternion does when converted to a matrix.",
+        },
+      ],
+    },
+    {
+      id: "clip-space", title: "Clip Space, NDC & the Frustum", minutes: 13,
+      summary: "Homogeneous w, the perspective divide, and where culling happens.",
+      Body: ClipSpace,
+      quiz: {
+        questions: [
+          { q: "The perspective divide is…", choices: ["Multiplying by the model matrix", "Dividing (x,y,z) by w to get NDC", "Adding the view matrix", "Normalizing the normal"], answer: 1, explain: "Dividing the clip-space coordinate by w produces normalized device coordinates." },
+          { q: "In Metal/WebGPU, the NDC depth (z) range is…", choices: ["−1 to 1", "0 to 1", "0 to 255", "−∞ to ∞"], answer: 1, explain: "Metal, WebGPU, and D3D use 0..1 depth; OpenGL uses −1..1." },
         ],
       },
     },

@@ -3,6 +3,8 @@ dist
 *.tsbuildinfo
 .playwright-mcp
 .DS_Store
+.env
+.env.local
 # compiled odin example binaries
 odin-examples/**/*.bin
 odin-examples/01-triangle/01-triangle

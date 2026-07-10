@@ -3,17 +3,25 @@ import { Link } from "react-router-dom";
 import type { LessonRef } from "../content/registry";
 import { allLessons, lessonPath, lessonKey } from "../content/registry";
 import { useProgress } from "../lib/progress";
+import { useNotes } from "../lib/notes";
 import { Quiz } from "./Quiz";
 import { Exercise } from "./Exercise";
+import { NotePanel } from "./NotePanel";
+import { TutorChat } from "./TutorChat";
 
 export function LessonLayout({ data }: { data: LessonRef }) {
   const { module, lesson, index } = data;
   const done = useProgress((s) => s.done);
   const toggleDone = useProgress((s) => s.toggleDone);
   const visit = useProgress((s) => s.visit);
+  const bookmarks = useNotes((s) => s.bookmarks);
+  const toggleBookmark = useNotes((s) => s.toggleBookmark);
   const key = lessonKey(module.id, lesson.id);
   const isDone = !!done[key];
+  const isBookmarked = !!bookmarks[key];
   const [readPct, setReadPct] = useState(0);
+  const [noteOpen, setNoteOpen] = useState(false);
+  const [selection, setSelection] = useState<string | undefined>();
 
   const prev = allLessons[index - 1];
   const next = allLessons[index + 1];
@@ -38,6 +46,12 @@ export function LessonLayout({ data }: { data: LessonRef }) {
     };
   }, [key]);
 
+  function openNote() {
+    const sel = window.getSelection?.()?.toString().trim();
+    setSelection(sel && sel.length > 0 ? sel : undefined);
+    setNoteOpen(true);
+  }
+
   return (
     <div className="content">
       <div className="readbar"><i style={{ width: `${readPct * 100}%` }} /></div>
@@ -54,6 +68,19 @@ export function LessonLayout({ data }: { data: LessonRef }) {
           <span className="badge time">⏱ {lesson.minutes} min</span>
           {isDone && <span className="badge" style={{ color: "var(--good)", borderColor: "var(--good)" }}>✓ completed</span>}
           <span style={{ color: "var(--text-dim)" }}>{lesson.summary}</span>
+          <span style={{ marginLeft: "auto", display: "flex", gap: "0.5rem" }}>
+            <button
+              className="icon-btn"
+              title={isBookmarked ? "Remove bookmark" : "Bookmark this lesson"}
+              onClick={() => toggleBookmark(key)}
+              style={isBookmarked ? { color: "var(--accent)", borderColor: "var(--border-glow)" } : undefined}
+            >
+              {isBookmarked ? "★" : "☆"}
+            </button>
+            <button className="icon-btn" title="Add a note (select text first to quote it)" onClick={openNote}>
+              ✎
+            </button>
+          </span>
         </div>
 
         <Body />
@@ -61,7 +88,9 @@ export function LessonLayout({ data }: { data: LessonRef }) {
         {lesson.exercises?.map((ex) => (
           <Exercise key={ex.id} ex={ex} />
         ))}
-        {lesson.quiz && <Quiz id={key} quiz={lesson.quiz} />}
+        {lesson.quiz && <Quiz id={key} quiz={lesson.quiz} lessonTitle={lesson.title} lessonSummary={lesson.summary} />}
+
+        <TutorChat lessonTitle={lesson.title} lessonSummary={lesson.summary} />
 
         <div className="done-toggle">
           <button className={"btn" + (isDone ? " primary" : "")} onClick={() => toggleDone(key)}>
@@ -88,6 +117,16 @@ export function LessonLayout({ data }: { data: LessonRef }) {
           )}
         </div>
       </div>
+
+      {noteOpen && (
+        <NotePanel
+          lessonKey={key}
+          moduleId={module.id}
+          lessonTitle={lesson.title}
+          selection={selection}
+          onClose={() => setNoteOpen(false)}
+        />
+      )}
     </div>
   );
 }

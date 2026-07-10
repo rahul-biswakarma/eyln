@@ -7,7 +7,7 @@ function GameLoop() {
   return (
     <div className="prose">
       <p>
-        In web dev, your code sleeps until an event wakes it. A game is the opposite: it runs a{" "}
+        Most application code sleeps until an event wakes it. A game is the opposite: it runs a{" "}
         <strong>loop</strong> forever, and each turn of the loop produces one frame. The time
         between frames is <M>{`\\Delta t`}</M> (dt) — everything that moves is scaled by it, so the
         simulation runs at the same speed whether you're at 30 or 144 fps.
