@@ -255,8 +255,10 @@ kbd {
 .chip.active { background: var(--accent-soft); color: var(--highlight); border-color: var(--border-glow); }
 .chip.ghost { background: transparent; }
 
-.grid-dash { display: grid; grid-template-columns: 1.7fr 1fr; gap: 1.2rem; align-items: start; }
+.grid-dash { display: grid; grid-template-columns: 1.35fr 1fr; gap: 1.5rem; align-items: stretch; }
 @media (max-width: 960px) { .grid-dash { grid-template-columns: 1fr; } }
+.col-stack { display: flex; flex-direction: column; gap: 1.5rem; }
+.col-stack > * { flex: 1; }
 
 .stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.2rem; }
 
@@ -302,19 +304,24 @@ a.card:hover { color: inherit; }
 .delta.down { color: var(--warn); background: rgba(255, 211, 92, 0.12); }
 
 /* Continue hero — mission briefing */
-.continue { display: flex; align-items: center; gap: 1.4rem; padding: 1.8rem; }
+.continue {
+  display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto 1fr auto;
+  gap: 0.2rem 1.3rem; padding: 1.9rem;
+}
 .continue .cta-ic {
+  grid-row: 1 / 2; grid-column: 1;
   font-size: 1.6rem; width: 62px; height: 62px; flex: none;
   display: grid; place-items: center; border-radius: 16px;
   background: rgba(11, 11, 14, 0.45); border: 1px solid var(--border-glow);
   box-shadow: inset 0 0 22px rgba(255, 176, 0, 0.16);
 }
-.continue .meta { flex: 1; min-width: 0; }
+.continue .meta { grid-column: 2; grid-row: 1 / 3; min-width: 0; align-self: start; }
 .continue .eyebrow { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); }
-.continue h2 { font-family: var(--display); margin: 0.35rem 0 0.3rem; font-size: 1.55rem; }
+.continue h2 { font-family: var(--display); margin: 0.5rem 0 0.4rem; font-size: 1.55rem; }
 .continue .desc { color: var(--text-dim); font-size: 0.92rem; }
 .continue .go {
-  flex: none; display: inline-flex; align-items: center; gap: 0.5rem;
+  grid-column: 2; grid-row: 3; justify-self: start; margin-top: 1.4rem;
+  display: inline-flex; align-items: center; gap: 0.5rem;
   background: var(--accent-grad); border: none; color: var(--on-accent);
   padding: 0.7rem 1.3rem; border-radius: var(--radius-pill); font-weight: 600;
   font-family: var(--display); box-shadow: 0 6px 22px rgba(255, 138, 0, 0.32);

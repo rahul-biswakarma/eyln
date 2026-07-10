@@ -48,13 +48,6 @@ export function Dashboard() {
         )}
       </div>
 
-      <div className="chip-row">
-        <span className="chip active">Overview</span>
-        <Link className="chip" to="/curriculum">All modules</Link>
-        <Link className="chip" to="/playground">Playground</Link>
-        <Link className="chip ghost" to="/resources">Resources</Link>
-      </div>
-
       {/* Stat cards */}
       <div className="stat-row">
         <StatCard
@@ -89,10 +82,10 @@ export function Dashboard() {
         />
       </div>
 
+      {/* Focus band: current mission + coach, side by side and height-matched */}
       <div className="grid-dash">
-        <div>
-          {/* Continue hero */}
-          {next && (
+        <div className="col-stack">
+          {next ? (
             <Link className="card grad continue hover" to={lessonPath(next.module.id, next.lesson.id)}>
               <span className="cta-ic">{next.module.icon}</span>
               <div className="meta">
@@ -102,8 +95,7 @@ export function Dashboard() {
               </div>
               <span className="go">{next.lesson.minutes}m →</span>
             </Link>
-          )}
-          {!next && (
+          ) : (
             <div className="card grad continue">
               <span className="cta-ic">🏆</span>
               <div className="meta">
@@ -113,85 +105,58 @@ export function Dashboard() {
               </div>
             </div>
           )}
+        </div>
 
-          {/* Roadmap */}
-          <div className="section-title">
-            <h3>Capstone roadmap</h3>
-            <Link className="more" to={lessonPath("rendering", "triangle")}>the build →</Link>
-          </div>
-          <div className="card">
-            <RoadmapRail />
-          </div>
+        <div className="col-stack">
+          <CoachCard />
+        </div>
+      </div>
 
-          {/* Modules */}
-          <div className="section-title">
-            <h3>Modules</h3>
-            <Link className="more" to="/curriculum">view all →</Link>
-          </div>
-          <div className="mod-grid">
-            {modules.map((m) => (
-              <ModuleCard key={m.id} module={m} highlight={next?.module.id === m.id} />
+      {/* Capstone roadmap — full width */}
+      <div className="section-title">
+        <h3>Capstone roadmap</h3>
+        <Link className="more" to={lessonPath("rendering", "triangle")}>the build →</Link>
+      </div>
+      <div className="card">
+        <RoadmapRail />
+      </div>
+
+      {/* Recent activity + Modules */}
+      <div className="section-title">
+        <h3>Recent activity</h3>
+      </div>
+      <div className="card">
+        {activity.length === 0 ? (
+          <div className="empty-note">No activity yet. Open a lesson and it'll show up here.</div>
+        ) : (
+          <div className="activity">
+            {activity.map((a) => (
+              <Link
+                key={a.ref.module.id + a.ref.lesson.id}
+                className="row"
+                to={lessonPath(a.ref.module.id, a.ref.lesson.id)}
+                style={{ color: "inherit" }}
+              >
+                <span className="ic">{a.done ? "✓" : a.ref.module.icon}</span>
+                <div className="txt">
+                  <div className="t">{a.ref.lesson.title}</div>
+                  <div className="s">{a.ref.module.title}</div>
+                </div>
+                <span className="when">{relativeTime(a.when, now)}</span>
+              </Link>
             ))}
           </div>
-        </div>
+        )}
+      </div>
 
-        {/* Right column: coach + activity */}
-        <div>
-          <div className="section-title" style={{ marginTop: 0 }}>
-            <h3>Your coach</h3>
-          </div>
-          <CoachCard />
-
-          <div className="section-title">
-            <h3>Recent activity</h3>
-          </div>
-          <div className="card">
-            {activity.length === 0 ? (
-              <div className="empty-note">No activity yet. Open a lesson and it'll show up here.</div>
-            ) : (
-              <div className="activity">
-                {activity.map((a) => (
-                  <Link
-                    key={a.ref.module.id + a.ref.lesson.id}
-                    className="row"
-                    to={lessonPath(a.ref.module.id, a.ref.lesson.id)}
-                    style={{ color: "inherit" }}
-                  >
-                    <span className="ic">{a.done ? "✓" : a.ref.module.icon}</span>
-                    <div className="txt">
-                      <div className="t">{a.ref.lesson.title}</div>
-                      <div className="s">{a.ref.module.title}</div>
-                    </div>
-                    <span className="when">{relativeTime(a.when, now)}</span>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="section-title">
-            <h3>Jump in</h3>
-          </div>
-          <div className="card">
-            <div className="activity">
-              <Link className="row" to="/playground" style={{ color: "inherit" }}>
-                <span className="ic">🎮</span>
-                <div className="txt"><div className="t">Playground</div><div className="s">Live shaders, noise, splines</div></div>
-                <span className="when">→</span>
-              </Link>
-              <Link className="row" to="/curriculum" style={{ color: "inherit" }}>
-                <span className="ic">🗺️</span>
-                <div className="txt"><div className="t">Full curriculum</div><div className="s">All {s.totalModules} modules</div></div>
-                <span className="when">→</span>
-              </Link>
-              <Link className="row" to="/resources" style={{ color: "inherit" }}>
-                <span className="ic">📚</span>
-                <div className="txt"><div className="t">Resources</div><div className="s">Papers, people, books</div></div>
-                <span className="when">→</span>
-              </Link>
-            </div>
-          </div>
-        </div>
+      <div className="section-title">
+        <h3>Modules</h3>
+        <Link className="more" to="/curriculum">view all →</Link>
+      </div>
+      <div className="mod-grid">
+        {modules.map((m) => (
+          <ModuleCard key={m.id} module={m} highlight={next?.module.id === m.id} />
+        ))}
       </div>
     </div>
   );
