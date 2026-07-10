@@ -13,7 +13,7 @@ export function Curriculum() {
           <div className="eyebrow">Flight Plan</div>
           <h1>Curriculum</h1>
           <div className="sub">
-            Six modules, ordered by dependency, from linear algebra to a spline-driven wall generator.
+            {s.totalModules} modules, ordered by dependency, from linear algebra to a spline-driven wall generator.
           </div>
         </div>
       </div>
