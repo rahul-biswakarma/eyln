@@ -17,12 +17,12 @@ export function Sparkline({ values, width = 120, height = 34 }: {
     <svg width={width} height={height} style={{ display: "block" }}>
       <defs>
         <linearGradient id="spark" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="rgba(77,163,255,0.4)" />
-          <stop offset="100%" stopColor="rgba(77,163,255,0)" />
+          <stop offset="0%" stopColor="rgba(255,176,0,0.42)" />
+          <stop offset="100%" stopColor="rgba(255,176,0,0)" />
         </linearGradient>
       </defs>
       <path d={area} fill="url(#spark)" />
-      <path d={line} fill="none" stroke="#4da3ff" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+      <path d={line} fill="none" stroke="#FFB000" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }

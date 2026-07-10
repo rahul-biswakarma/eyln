@@ -24,7 +24,7 @@ export function VectorPlayground() {
 
     ctx.clearRect(0, 0, W, H);
     // grid
-    ctx.strokeStyle = "#1a2230";
+    ctx.strokeStyle = "#1A1D26";
     ctx.lineWidth = 1;
     for (let x = cx % unit; x < W; x += unit) {
       ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
@@ -33,7 +33,7 @@ export function VectorPlayground() {
       ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
     }
     // axes
-    ctx.strokeStyle = "#33404f";
+    ctx.strokeStyle = "#3A3F4B";
     ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(W, cy); ctx.moveTo(cx, 0); ctx.lineTo(cx, H); ctx.stroke();
 
     const arrow = (v: Vec2, color: string, label: string) => {
@@ -55,14 +55,14 @@ export function VectorPlayground() {
     // Shaded parallelogram to visualize the cross product (signed area).
     const [ax, ay] = toScreen(a);
     const [bx, by] = toScreen(b);
-    ctx.fillStyle = "rgba(255,122,69,0.12)";
+    ctx.fillStyle = "rgba(255,176,0,0.12)";
     ctx.beginPath();
     ctx.moveTo(cx, cy); ctx.lineTo(ax, ay);
     ctx.lineTo(ax + bx - cx, ay + by - cy); ctx.lineTo(bx, by);
     ctx.closePath(); ctx.fill();
 
-    arrow(a, "#ff7a45", "a");
-    arrow(b, "#4fb3ff", "b");
+    arrow(a, "#FFB000", "a");
+    arrow(b, "#F4F4F5", "b");
   }, [a, b]);
 
   function pick(e: React.PointerEvent) {

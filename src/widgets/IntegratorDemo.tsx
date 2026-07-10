@@ -57,15 +57,15 @@ export function IntegratorDemo() {
       while (acc >= h) { step(h); acc -= h; }
 
       ctx.clearRect(0, 0, W, H);
-      ctx.strokeStyle = "#33404f"; ctx.beginPath(); ctx.moveTo(0, floor + 10); ctx.lineTo(W, floor + 10); ctx.stroke();
+      ctx.strokeStyle = "#3A3F4B"; ctx.beginPath(); ctx.moveTo(0, floor + 10); ctx.lineTo(W, floor + 10); ctx.stroke();
       trail.push(y); if (trail.length > 120) trail.shift();
       trail.forEach((ty, i) => {
-        ctx.fillStyle = `rgba(79,179,255,${i / trail.length * 0.5})`;
+        ctx.fillStyle = `rgba(255,211,92,${i / trail.length * 0.5})`;
         ctx.beginPath(); ctx.arc(W / 2, ty, 3, 0, Math.PI * 2); ctx.fill();
       });
-      ctx.fillStyle = "#ff7a45";
+      ctx.fillStyle = "#FFB000";
       ctx.beginPath(); ctx.arc(W / 2, y, 12, 0, Math.PI * 2); ctx.fill();
-      ctx.font = "12px ui-monospace, monospace"; ctx.fillStyle = "#8b98a8";
+      ctx.font = "12px ui-monospace, monospace"; ctx.fillStyle = "#A3A9B8";
       ctx.fillText(`v = ${vy.toFixed(0)} px/s`, 12, 20);
       raf = requestAnimationFrame(frame);
     };

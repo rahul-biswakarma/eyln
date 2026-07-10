@@ -48,7 +48,7 @@ export function TriangleDemo() {
           const pass = enc.beginRenderPass({
             colorAttachments: [{
               view: context.getCurrentTexture().createView(),
-              clearValue: { r: 0.03, g: 0.04, b: 0.06, a: 1 },
+              clearValue: { r: 0.043, g: 0.043, b: 0.055, a: 1 },
               loadOp: "clear", storeOp: "store",
             }],
           });

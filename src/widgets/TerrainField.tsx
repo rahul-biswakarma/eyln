@@ -116,7 +116,7 @@ export function TerrainField() {
             if (!vbuf) return;
             const enc = device.createCommandEncoder();
             const pass = enc.beginRenderPass({
-              colorAttachments: [{ view: context.getCurrentTexture().createView(), clearValue: { r: 0.02, g: 0.03, b: 0.05, a: 1 }, loadOp: "clear", storeOp: "store" }],
+              colorAttachments: [{ view: context.getCurrentTexture().createView(), clearValue: { r: 0.035, g: 0.035, b: 0.043, a: 1 }, loadOp: "clear", storeOp: "store" }],
               depthStencilAttachment: { view: depthTex.createView(), depthClearValue: 1, depthLoadOp: "clear", depthStoreOp: "store" },
             });
             pass.setPipeline(pipeline); pass.setBindGroup(0, bind); pass.setVertexBuffer(0, vbuf); pass.draw(vertCount); pass.end();

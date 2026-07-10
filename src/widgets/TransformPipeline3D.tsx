@@ -111,7 +111,7 @@ export function TransformPipeline3D() {
             const pass = enc.beginRenderPass({
               colorAttachments: [{
                 view: context.getCurrentTexture().createView(),
-                clearValue: { r: 0.02, g: 0.03, b: 0.04, a: 1 },
+                clearValue: { r: 0.035, g: 0.035, b: 0.043, a: 1 },
                 loadOp: "clear", storeOp: "store",
               }],
               depthStencilAttachment: {

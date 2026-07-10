@@ -26,14 +26,14 @@ export function SplineEditor() {
     if (showRibbon && curve.length > 1) {
       const { left, right } = extrudeRibbon(curve, halfWidth);
       // fill ribbon
-      ctx.fillStyle = "rgba(255,122,69,0.18)";
+      ctx.fillStyle = "rgba(255,176,0,0.18)";
       ctx.beginPath();
       ctx.moveTo(left[0][0], left[0][1]);
       for (const p of left) ctx.lineTo(p[0], p[1]);
       for (let i = right.length - 1; i >= 0; i--) ctx.lineTo(right[i][0], right[i][1]);
       ctx.closePath(); ctx.fill();
       // triangle strip edges (show the generated mesh)
-      ctx.strokeStyle = "rgba(255,122,69,0.35)";
+      ctx.strokeStyle = "rgba(255,176,0,0.35)";
       ctx.lineWidth = 1;
       for (let i = 0; i < left.length; i++) {
         ctx.beginPath(); ctx.moveTo(left[i][0], left[i][1]); ctx.lineTo(right[i][0], right[i][1]); ctx.stroke();
@@ -41,20 +41,20 @@ export function SplineEditor() {
     }
 
     // centerline curve
-    ctx.strokeStyle = "#4fb3ff"; ctx.lineWidth = 2;
+    ctx.strokeStyle = "#FFD35C"; ctx.lineWidth = 2;
     ctx.beginPath();
     curve.forEach((p, i) => (i === 0 ? ctx.moveTo(p[0], p[1]) : ctx.lineTo(p[0], p[1])));
     ctx.stroke();
 
     // control points + control polygon
-    ctx.strokeStyle = "#33404f"; ctx.setLineDash([4, 4]); ctx.lineWidth = 1;
+    ctx.strokeStyle = "#3A3F4B"; ctx.setLineDash([4, 4]); ctx.lineWidth = 1;
     ctx.beginPath();
     pts.forEach((p, i) => (i === 0 ? ctx.moveTo(p[0], p[1]) : ctx.lineTo(p[0], p[1])));
     ctx.stroke(); ctx.setLineDash([]);
     pts.forEach((p, i) => {
-      ctx.fillStyle = "#ffd9c7";
+      ctx.fillStyle = "#FFD35C";
       ctx.beginPath(); ctx.arc(p[0], p[1], 6, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = "#0b0d10"; ctx.font = "600 10px ui-monospace, monospace";
+      ctx.fillStyle = "#1A1205"; ctx.font = "600 10px ui-monospace, monospace";
       ctx.fillText(String(i), p[0] - 3, p[1] + 3);
     });
   }, [pts, halfWidth, showRibbon]);

@@ -24,7 +24,7 @@ export function MatrixTransform2D() {
     ctx.clearRect(0, 0, W, H);
 
     // transformed grid
-    ctx.strokeStyle = "#1c2836";
+    ctx.strokeStyle = "#1E212B";
     ctx.lineWidth = 1;
     for (let i = -6; i <= 6; i++) {
       let p = toScreen(...apply(i, -6)); ctx.beginPath(); ctx.moveTo(p[0], p[1]);
@@ -34,8 +34,8 @@ export function MatrixTransform2D() {
     }
 
     // transformed unit square
-    ctx.fillStyle = "rgba(255,122,69,0.14)";
-    ctx.strokeStyle = "#ff7a45";
+    ctx.fillStyle = "rgba(255,176,0,0.14)";
+    ctx.strokeStyle = "#FFB000";
     ctx.lineWidth = 2;
     ctx.beginPath();
     const sq: [number, number][] = [[0, 0], [1, 0], [1, 1], [0, 1]];
@@ -53,8 +53,8 @@ export function MatrixTransform2D() {
       ctx.font = "600 13px ui-monospace, monospace";
       ctx.fillText(label, s[0] + 6, s[1] - 4);
     };
-    drawBasis(m.a, m.b, "#ff7a45", "î");
-    drawBasis(m.c, m.d, "#4fb3ff", "ĵ");
+    drawBasis(m.a, m.b, "#FFB000", "î");
+    drawBasis(m.c, m.d, "#F4F4F5", "ĵ");
   }, [m]);
 
   const det = m.a * m.d - m.b * m.c;

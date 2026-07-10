@@ -17,8 +17,8 @@ export function ProgressRing({ value, size = 40, stroke = 4, showText = true }: 
         />
         <defs>
           <linearGradient id="ringgrad" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#4da3ff" />
-            <stop offset="100%" stopColor="#5b6cff" />
+            <stop offset="0%" stopColor="#FFD35C" />
+            <stop offset="100%" stopColor="#FF8A00" />
           </linearGradient>
         </defs>
       </svg>
