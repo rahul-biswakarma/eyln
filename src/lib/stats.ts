@@ -1,0 +1,103 @@
+// Pure helpers deriving dashboard metrics from the curriculum + saved progress.
+// Everything here is real data — no invented numbers.
+import { modules, allLessons, moduleProgress, lessonKey, type LessonRef } from "../content/registry";
+
+export interface DashStats {
+  lessonsDone: number;
+  totalLessons: number;
+  overallPct: number;        // 0..100
+  modulesStarted: number;
+  modulesComplete: number;
+  totalModules: number;
+  minutesRemaining: number;
+  minutesTotal: number;
+  avgQuizScore: number | null; // 0..100 or null if no quizzes taken
+  nextRef: LessonRef | undefined;
+  /** completed lessons per module, in curriculum order — feeds the sparkline */
+  perModuleDone: number[];
+}
+
+export function computeStats(
+  done: Record<string, boolean>,
+  quizScores: Record<string, number> = {}
+): DashStats {
+  const totalLessons = allLessons.length;
+  const lessonsDone = allLessons.filter((r) => done[lessonKey(r.module.id, r.lesson.id)]).length;
+
+  let modulesStarted = 0;
+  let modulesComplete = 0;
+  const perModuleDone: number[] = [];
+  for (const m of modules) {
+    const p = moduleProgress(m, done);
+    const n = m.lessons.filter((l) => done[lessonKey(m.id, l.id)]).length;
+    perModuleDone.push(n);
+    if (p > 0) modulesStarted++;
+    if (p >= 1) modulesComplete++;
+  }
+
+  let minutesRemaining = 0;
+  let minutesTotal = 0;
+  for (const r of allLessons) {
+    minutesTotal += r.lesson.minutes;
+    if (!done[lessonKey(r.module.id, r.lesson.id)]) minutesRemaining += r.lesson.minutes;
+  }
+
+  const scores = Object.values(quizScores);
+  const avgQuizScore = scores.length ? Math.round((scores.reduce((a, b) => a + b, 0) / scores.length) * 100) : null;
+
+  const nextRef = allLessons.find((r) => !done[lessonKey(r.module.id, r.lesson.id)]);
+
+  return {
+    lessonsDone,
+    totalLessons,
+    overallPct: totalLessons ? Math.round((lessonsDone / totalLessons) * 100) : 0,
+    modulesStarted,
+    modulesComplete,
+    totalModules: modules.length,
+    minutesRemaining,
+    minutesTotal,
+    avgQuizScore,
+    nextRef,
+    perModuleDone,
+  };
+}
+
+export function formatMinutes(min: number): string {
+  if (min < 60) return `${min}m`;
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  return m ? `${h}h ${m}m` : `${h}h`;
+}
+
+export interface ActivityItem {
+  ref: LessonRef;
+  when: number;
+  done: boolean;
+}
+
+/** Recent lesson visits, newest first. */
+export function recentActivity(
+  lastVisited: Record<string, number>,
+  done: Record<string, boolean>,
+  limit = 5
+): ActivityItem[] {
+  return Object.entries(lastVisited)
+    .map(([key, when]) => {
+      const ref = allLessons.find((r) => lessonKey(r.module.id, r.lesson.id) === key);
+      return ref ? { ref, when, done: !!done[key] } : null;
+    })
+    .filter((x): x is ActivityItem => x !== null)
+    .sort((a, b) => b.when - a.when)
+    .slice(0, limit);
+}
+
+export function relativeTime(ms: number, now: number): string {
+  const s = Math.max(0, Math.floor((now - ms) / 1000));
+  if (s < 60) return "just now";
+  const m = Math.floor(s / 60);
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  const d = Math.floor(h / 24);
+  return `${d}d ago`;
+}

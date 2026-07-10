@@ -1,0 +1,20 @@
+import { useParams } from "react-router-dom";
+import { findLesson } from "../content/registry";
+import { LessonLayout } from "../components/LessonLayout";
+
+export function LessonPage() {
+  const { moduleId, lessonId } = useParams();
+  const found = moduleId && lessonId ? findLesson(moduleId, lessonId) : undefined;
+  if (!found) {
+    return (
+      <div className="content">
+        <div className="prose">
+          <h1>Lesson not found</h1>
+          <p>That lesson doesn’t exist. Head back to the curriculum.</p>
+        </div>
+      </div>
+    );
+  }
+  // Remount body when the route changes so widgets reset cleanly.
+  return <LessonLayout key={`${moduleId}/${lessonId}`} data={found} />;
+}

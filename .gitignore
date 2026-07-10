@@ -1,0 +1,11 @@
+node_modules
+dist
+*.tsbuildinfo
+.playwright-mcp
+.DS_Store
+# compiled odin example binaries
+odin-examples/**/*.bin
+odin-examples/01-triangle/01-triangle
+odin-examples/02-cube-camera/02-cube-camera
+odin-examples/03-terrain/03-terrain
+odin-examples/04-spline-wall/04-spline-wall
