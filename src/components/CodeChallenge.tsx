@@ -1,7 +1,11 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Editor, { type OnMount } from "@monaco-editor/react";
-import { CheckCircle, XCircle, Play, Lightbulb, ArrowClockwise } from "@phosphor-icons/react";
+import {
+  CheckCircle, XCircle, CircleNotch, Circle, Play, Lightbulb,
+  ArrowClockwise, Trophy, Clock, Lightning,
+} from "@phosphor-icons/react";
 import type { CodeChallenge as Challenge } from "../content/types";
+import { EST_MINUTES, xpForChallenge } from "../content/challenges";
 import { useProgress } from "../lib/progress";
 import { ensureForgeTheme, FORGE_MONACO_THEME } from "../lib/monacoSetup";
 
@@ -12,29 +16,56 @@ interface CaseResult {
   error?: string;
 }
 
+type CaseStatus = "waiting" | "running" | "pass" | "fail";
+
 const RUN_TIMEOUT_MS = 4000;
 
-export function CodeChallenge({ challenge }: { challenge: Challenge }) {
+export function CodeChallenge({
+  challenge,
+  missionIndex,
+  missionTotal,
+}: {
+  challenge: Challenge;
+  missionIndex: number;
+  missionTotal: number;
+}) {
   const [code, setCode] = useState(challenge.starter);
+  const [statuses, setStatuses] = useState<CaseStatus[]>(() => challenge.tests.map(() => "waiting"));
   const [results, setResults] = useState<CaseResult[] | null>(null);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showHint, setShowHint] = useState(false);
   const [showSolution, setShowSolution] = useState(false);
-  const [tab, setTab] = useState<"tests" | "output">("tests");
+  const [celebrate, setCelebrate] = useState(false);
   const workerRef = useRef<Worker | null>(null);
+  const revealTimers = useRef<number[]>([]);
   const recordChallenge = useProgress((s) => s.recordChallenge);
+  const alreadySolved = useProgress((s) => !!s.solvedChallenges[challenge.id]);
+
+  useEffect(() => {
+    return () => {
+      workerRef.current?.terminate();
+      revealTimers.current.forEach(clearTimeout);
+    };
+  }, []);
 
   const onMount: OnMount = (_editor, monaco) => {
     ensureForgeTheme(monaco);
     monaco.editor.setTheme(FORGE_MONACO_THEME);
   };
 
-  function run() {
-    setRunning(true);
+  function resetRunState() {
+    revealTimers.current.forEach(clearTimeout);
+    revealTimers.current = [];
     setResults(null);
     setError(null);
-    setTab("output");
+    setCelebrate(false);
+    setStatuses(challenge.tests.map(() => "running"));
+  }
+
+  function run() {
+    setRunning(true);
+    resetRunState();
 
     const worker = new Worker(new URL("../lib/runnerWorker.ts", import.meta.url), { type: "module" });
     workerRef.current = worker;
@@ -44,23 +75,46 @@ export function CodeChallenge({ challenge }: { challenge: Challenge }) {
       workerRef.current = null;
       setRunning(false);
       setError("Timed out (possible infinite loop). Execution stopped after 4s.");
+      setStatuses(challenge.tests.map(() => "fail"));
     }, RUN_TIMEOUT_MS);
 
     worker.onmessage = (e: MessageEvent) => {
       clearTimeout(timer);
       worker.terminate();
       workerRef.current = null;
-      setRunning(false);
       const data = e.data as { ok: boolean; error?: string; results?: CaseResult[] };
       if (!data.ok) {
+        setRunning(false);
         setError(data.error ?? "Unknown error");
+        setStatuses(challenge.tests.map(() => "fail"));
         return;
       }
       const res = data.results ?? [];
       setResults(res);
-      if (res.length > 0 && res.every((r) => r.passed)) {
-        recordChallenge(challenge.id);
-      }
+
+      // Reveal each test result sequentially for a "running" feel.
+      res.forEach((r, i) => {
+        const t = window.setTimeout(() => {
+          setStatuses((prev) => {
+            const next = [...prev];
+            next[r.index] = r.passed ? "pass" : "fail";
+            return next;
+          });
+          if (i === res.length - 1) {
+            setRunning(false);
+            const allPass = res.length > 0 && res.every((x) => x.passed);
+            if (allPass) {
+              const wasNew = !alreadySolved;
+              recordChallenge(challenge.id);
+              if (wasNew) {
+                setCelebrate(true);
+                window.setTimeout(() => setCelebrate(false), 2600);
+              }
+            }
+          }
+        }, 220 * (i + 1));
+        revealTimers.current.push(t);
+      });
     };
 
     worker.postMessage({ code, fnName: challenge.fnName, tests: challenge.tests });
@@ -68,148 +122,148 @@ export function CodeChallenge({ challenge }: { challenge: Challenge }) {
 
   const passCount = results?.filter((r) => r.passed).length ?? 0;
   const total = challenge.tests.length;
-  const allPass = results !== null && passCount === total;
+  const allPass = results !== null && passCount === total && statuses.every((s) => s === "pass");
+  const xp = xpForChallenge(challenge);
 
   return (
-    <div className="ch-split">
-      <div className="ch-pane ch-problem">
-        <div className="ch-head">
-          <div className="ch-title">
-            <h3>{challenge.title}</h3>
-            <span className={"ch-diff " + challenge.difficulty.toLowerCase()}>{challenge.difficulty}</span>
+    <div className={"mission" + (celebrate ? " celebrate" : "")}>
+      {celebrate && (
+        <div className="mission-complete" role="status">
+          <Trophy size={40} weight="duotone" />
+          <div className="mc-title">Mission Complete</div>
+          <div className="mc-xp">+{xp} XP</div>
+          {missionIndex < missionTotal && <div className="mc-next">Next mission unlocked →</div>}
+        </div>
+      )}
+
+      <div className="mission-body">
+        <section className="mission-brief">
+          <div className="mb-kicker">Mission {missionIndex} / {missionTotal}</div>
+          <h1 className="mb-title">{challenge.title}</h1>
+          <div className="mb-meta">
+            <span className={"mb-diff " + challenge.difficulty.toLowerCase()}>{challenge.difficulty}</span>
+            <span className="dot">·</span>
+            {challenge.tags.join(" · ")}
+            <span className="dot">·</span>
+            <Clock size={13} weight="duotone" /> {EST_MINUTES[challenge.difficulty]} min
+            <span className="dot">·</span>
+            <Lightning size={13} weight="duotone" /> {xp} XP
           </div>
-          <div className="ch-tags">
-            {challenge.source && <span className="ch-source">{challenge.source}</span>}
-            {challenge.tags.map((t) => (
-              <span key={t} className="ch-tag">{t}</span>
+
+          <div className="mb-prompt" dangerouslySetInnerHTML={{ __html: challenge.prompt }} />
+
+          <div className="mb-examples">
+            {challenge.tests.slice(0, 3).map((t, i) => (
+              <div key={i} className="mb-example">
+                <span className="ex-n">Example {i + 1}</span>
+                <div className="ex-line"><span className="ex-k">Input</span><code>{t.args.map((a) => JSON.stringify(a)).join(", ")}</code></div>
+                <div className="ex-line"><span className="ex-k">Output</span><code>{JSON.stringify(t.expected)}</code></div>
+              </div>
             ))}
           </div>
-        </div>
 
-        <div className="ch-prompt" dangerouslySetInnerHTML={{ __html: challenge.prompt }} />
-
-        <div className="ch-examples">
-          <div className="fld-lbl">Examples</div>
-          {challenge.tests.slice(0, 3).map((t, i) => (
-            <div key={i} className="ch-example">
-              <div><span className="ex-k">Input</span> <code>{t.args.map((a) => JSON.stringify(a)).join(", ")}</code></div>
-              <div><span className="ex-k">Output</span> <code>{JSON.stringify(t.expected)}</code></div>
+          {showHint && challenge.hint && (
+            <div className="notice"><span className="lbl">Hint</span>{challenge.hint}</div>
+          )}
+          {showSolution && challenge.solution && (
+            <div className="ch-solution">
+              <div className="fld-lbl">Reference solution</div>
+              <pre><code>{challenge.solution}</code></pre>
             </div>
-          ))}
-        </div>
+          )}
+        </section>
 
-        {showHint && challenge.hint && (
-          <div className="notice"><span className="lbl">Hint</span>{challenge.hint}</div>
-        )}
-        {showSolution && challenge.solution && (
-          <div className="ch-solution">
-            <div className="fld-lbl">Reference solution</div>
-            <pre><code>{challenge.solution}</code></pre>
-          </div>
-        )}
-      </div>
-
-      <div className="ch-pane ch-workspace">
-        <div className="ch-editor-bar">
-          <span className="ch-lang">JavaScript</span>
-          <div className="ch-editor-tools">
-            <button className="icon-btn sm" title="Reset code" onClick={() => setCode(challenge.starter)}>
+        <section className="mission-workspace">
+          <div className="ws-editorbar">
+            <span className={"ws-dot" + (running ? " run" : "")} />
+            <span className="ws-file">{challenge.fnName}.js</span>
+            <span className="ws-status">
+              {running ? "Executing…" : results ? (allPass ? "All checks passed" : `${passCount}/${total} passing`) : "Ready"}
+            </span>
+            <button className="icon-btn sm" title="Reset to starter code" onClick={() => setCode(challenge.starter)}>
               <ArrowClockwise size={15} weight="bold" />
             </button>
           </div>
-        </div>
 
-        <div className="ch-editor-wrap">
-          <Editor
-            height="100%"
-            defaultLanguage="javascript"
-            theme={FORGE_MONACO_THEME}
-            value={code}
-            onChange={(v) => setCode(v ?? "")}
-            onMount={onMount}
-            options={{
-              fontSize: 13,
-              fontFamily: "var(--mono)",
-              minimap: { enabled: false },
-              scrollBeyondLastLine: false,
-              padding: { top: 14, bottom: 14 },
-              lineNumbersMinChars: 3,
-              renderLineHighlight: "line",
-              smoothScrolling: true,
-              tabSize: 2,
-              automaticLayout: true,
-              scrollbar: { verticalScrollbarSize: 8, horizontalScrollbarSize: 8 },
-            }}
-          />
-        </div>
+          <div className="ws-editor">
+            <Editor
+              height="100%"
+              defaultLanguage="javascript"
+              theme={FORGE_MONACO_THEME}
+              value={code}
+              onChange={(v) => setCode(v ?? "")}
+              onMount={onMount}
+              options={{
+                fontSize: 13,
+                minimap: { enabled: false },
+                scrollBeyondLastLine: false,
+                padding: { top: 14, bottom: 14 },
+                lineNumbersMinChars: 3,
+                renderLineHighlight: "line",
+                smoothScrolling: true,
+                tabSize: 2,
+                automaticLayout: true,
+                scrollbar: { verticalScrollbarSize: 8, horizontalScrollbarSize: 8 },
+              }}
+            />
+          </div>
 
-        <div className="ch-console">
-          <div className="ch-console-tabs">
-            <button className={"ch-ctab" + (tab === "tests" ? " active" : "")} onClick={() => setTab("tests")}>
-              Test cases
-            </button>
-            <button className={"ch-ctab" + (tab === "output" ? " active" : "")} onClick={() => setTab("output")}>
-              Result
-              {results && <span className={"ch-score " + (allPass ? "pass" : "fail")}>{passCount}/{total}</span>}
-            </button>
-            <div className="ch-console-actions">
+          <div className="ws-console">
+            <div className="ws-console-head">
+              <span className="wc-label">Test Console</span>
+              {results && !error && (
+                <span className={"wc-badge " + (allPass ? "pass" : "fail")}>
+                  {allPass ? <CheckCircle size={13} weight="fill" /> : <XCircle size={13} weight="fill" />}
+                  {passCount}/{total}
+                </span>
+              )}
+            </div>
+
+            <div className="ws-console-body">
+              {error && <div className="ch-error"><XCircle size={16} weight="fill" /> {error}</div>}
+              <div className="ws-cases">
+                {challenge.tests.map((t, i) => {
+                  const st = statuses[i];
+                  const r = results?.find((x) => x.index === i);
+                  return (
+                    <div key={i} className={"ws-case " + st}>
+                      <span className="wc-ic">
+                        {st === "pass" && <CheckCircle size={16} weight="fill" />}
+                        {st === "fail" && <XCircle size={16} weight="fill" />}
+                        {st === "running" && <CircleNotch size={16} weight="bold" className="spin" />}
+                        {st === "waiting" && <Circle size={16} weight="duotone" />}
+                      </span>
+                      <code className="wc-call">{challenge.fnName}({t.args.map((a) => JSON.stringify(a)).join(", ")})</code>
+                      <span className="wc-out">
+                        {st === "fail" && r?.error ? `threw ${r.error}`
+                          : st === "fail" && r ? `got ${r.got}`
+                          : `→ ${JSON.stringify(t.expected)}`}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="ws-actionbar">
               {challenge.hint && (
-                <button className="btn sm" onClick={() => setShowHint((h) => !h)}>
+                <button className="btn ghost sm" onClick={() => setShowHint((h) => !h)}>
                   <Lightbulb size={14} weight="duotone" /> Hint
                 </button>
               )}
               {challenge.solution && (
-                <button className="btn sm" onClick={() => setShowSolution((s) => !s)}>
-                  {showSolution ? "Hide" : "Solution"}
+                <button className="btn ghost sm" onClick={() => setShowSolution((s) => !s)}>
+                  {showSolution ? "Hide solution" : "Solution"}
                 </button>
               )}
-              <button className="btn primary sm" onClick={run} disabled={running}>
-                <Play size={13} weight="fill" /> {running ? "Running…" : "Run"}
+              <div className="ab-spacer" />
+              <button className="btn sm" onClick={() => setCode(challenge.starter)}>Reset</button>
+              <button className="btn primary sm run-btn" onClick={run} disabled={running}>
+                <Play size={13} weight="fill" /> {running ? "Running…" : "Run tests"}
               </button>
             </div>
           </div>
-
-          <div className="ch-console-body">
-            {tab === "tests" && (
-              <div className="ch-cases">
-                {challenge.tests.map((t, i) => (
-                  <div key={i} className="ch-case idle">
-                    <code className="ch-args">{challenge.fnName}({t.args.map((a) => JSON.stringify(a)).join(", ")})</code>
-                    <span className="ch-got">expected {JSON.stringify(t.expected)}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {tab === "output" && (
-              <>
-                {!results && !error && <div className="empty-note" style={{ padding: "0.5rem 0" }}>Run your code to see results.</div>}
-                {error && <div className="ch-error"><XCircle size={16} weight="fill" /> {error}</div>}
-                {results && (
-                  <div className="ch-cases">
-                    {allPass && (
-                      <div className="ch-solved"><CheckCircle size={18} weight="fill" /> Accepted — all {total} tests passed!</div>
-                    )}
-                    {results.map((r) => {
-                      const t = challenge.tests[r.index];
-                      return (
-                        <div key={r.index} className={"ch-case " + (r.passed ? "pass" : "fail")}>
-                          {r.passed ? <CheckCircle size={16} weight="fill" /> : <XCircle size={16} weight="fill" />}
-                          <code className="ch-args">{challenge.fnName}({t.args.map((a) => JSON.stringify(a)).join(", ")})</code>
-                          {r.error ? (
-                            <span className="ch-got">threw: {r.error}</span>
-                          ) : (
-                            <span className="ch-got">→ {r.got} {!r.passed && <em>(expected {JSON.stringify(t.expected)})</em>}</span>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-        </div>
+        </section>
       </div>
     </div>
   );

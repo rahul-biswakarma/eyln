@@ -260,3 +260,15 @@ export function challengesByDifficulty() {
   const order = { Easy: 0, Medium: 1, Hard: 2 } as const;
   return [...challenges].sort((a, b) => order[a.difficulty] - order[b.difficulty]);
 }
+
+export const XP_BY_DIFFICULTY = { Easy: 50, Medium: 100, Hard: 200 } as const;
+
+export const EST_MINUTES = { Easy: 10, Medium: 25, Hard: 45 } as const;
+
+export function xpForChallenge(c: CodeChallenge): number {
+  return XP_BY_DIFFICULTY[c.difficulty];
+}
+
+export function totalXpEarned(solvedIds: Record<string, number>): number {
+  return challenges.reduce((sum, c) => (solvedIds[c.id] ? sum + xpForChallenge(c) : sum), 0);
+}
