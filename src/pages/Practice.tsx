@@ -32,19 +32,6 @@ export function Practice() {
             <span className="tp-mission">Mission {activeIdx + 1} of {challenges.length}</span>
           </div>
 
-          <div className="tp-now">
-            <div className="tp-slot">
-              <span className="tp-k">Current</span>
-              <span className="tp-v">{active.title}</span>
-            </div>
-            {nextUp && (
-              <div className="tp-slot">
-                <span className="tp-k">Next</span>
-                <span className="tp-v muted">{nextUp.title}</span>
-              </div>
-            )}
-          </div>
-
           {nextUp && (
             <button className="tp-cta" onClick={() => setActiveId(nextUp.id)}>
               {solved[active.id] ? "Continue" : "Skip ahead"} <ArrowRight size={15} weight="bold" />

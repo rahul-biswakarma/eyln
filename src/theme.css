@@ -261,7 +261,7 @@ a.level-chip:hover { border-color: var(--border-glow); box-shadow: 0 0 0 3px var
 .tp-v.muted { color: var(--text-dim); }
 
 .tp-cta {
-  width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; cursor: pointer;
+  width: 100%; margin-top: 1.3rem; display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; cursor: pointer;
   background: var(--accent-grad); color: var(--on-accent); border: none; border-radius: var(--radius-sm);
   padding: 0.65rem 1rem; font-family: var(--display); font-weight: 600; font-size: 0.9rem;
   box-shadow: 0 6px 20px rgba(255, 138, 0, 0.28);
