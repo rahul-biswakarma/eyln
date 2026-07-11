@@ -878,13 +878,15 @@ select { background: var(--surface-inset); color: var(--text); border: 1px solid
 
 /* Mission hero */
 .lesson-hero {
-  position: relative; overflow: hidden;
+  position: relative;
   margin: 0 0 2.6rem; padding: 2.4rem 0 2rem;
   border-bottom: 1px solid var(--border);
 }
+/* Ambient glow spans the full content column, unclipped, bleeding to the edge. */
 .lesson-hero::after {
-  content: ""; position: absolute; top: -40%; right: -10%; width: 320px; height: 320px; z-index: -1;
-  background: radial-gradient(circle, rgba(255, 138, 0, 0.10), transparent 68%); pointer-events: none;
+  content: ""; position: absolute; top: -160px; right: -40vw; left: 20%; height: 420px; z-index: -1;
+  background: radial-gradient(60% 100% at 75% 0%, rgba(255, 138, 0, 0.12), transparent 70%);
+  pointer-events: none;
 }
 .lh-kicker { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin: 0.4rem 0 0.6rem; }
 .lh-title { margin: 0 0 0.7rem; font-size: clamp(2rem, 4vw, 2.9rem); }
@@ -1055,7 +1057,7 @@ input[type="checkbox"]:focus-visible { outline: 2px solid var(--border-glow); ou
 .exercise h4 { margin: 0 0 1rem; font-family: var(--display); display: flex; align-items: center; gap: 0.5rem; }
 
 /* ============ Quiz — knowledge checkpoint cards ============ */
-.qz { margin: 2rem 0; }
+.qz { margin: 2rem 0; max-width: 640px; }
 .qz-head { margin-bottom: 1.4rem; }
 .qz-head-top { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 0.6rem; }
 .qz-title { font-family: var(--display); font-weight: 600; font-size: 1.05rem; }
@@ -1065,20 +1067,23 @@ input[type="checkbox"]:focus-visible { outline: 2px solid var(--border-glow); ou
 .qz-seg.done { background: var(--accent-grad); box-shadow: 0 0 8px rgba(255, 176, 0, 0.4); }
 .qz-seg.current { background: color-mix(in srgb, var(--accent) 45%, var(--surface-inset)); }
 
-/* Stacked-card illusion */
-.qz-stack { position: relative; }
+/* Stacked-card illusion — a subtly fanned hand behind the active card */
+.qz-stack { position: relative; max-width: 640px; padding: 14px 18px 0; margin: 0 -18px; }
 .qz-ghost {
-  position: absolute; left: 0; right: 0; border-radius: 20px; border: 1px solid var(--border);
-  background: var(--surface); pointer-events: none; z-index: 0;
+  position: absolute; top: 14px; left: 18px; right: 18px; bottom: 0;
+  border-radius: 20px; border: 1px solid var(--border);
+  background: var(--surface-2); pointer-events: none; z-index: 0;
+  transform-origin: 50% 88%;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
 }
-.qz-ghost.g1 { top: -10px; height: 40px; margin: 0 10px; background: var(--surface-2); opacity: 0.9; }
-.qz-ghost.g2 { top: -20px; height: 40px; margin: 0 22px; background: var(--surface); opacity: 0.55; }
+.qz-ghost.g1 { transform: rotate(-2.5deg); opacity: 0.85; }
+.qz-ghost.g2 { transform: rotate(2deg); background: var(--surface); opacity: 0.65; }
 
 .qz-card {
-  position: relative; z-index: 1;
+  position: relative; z-index: 1; max-width: 640px;
   border: 1px solid var(--border-bright); border-radius: 20px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 40%), var(--surface);
-  padding: 2rem; box-shadow: 0 14px 40px rgba(0, 0, 0, 0.36);
+  padding: 2rem; box-shadow: 0 18px 46px rgba(0, 0, 0, 0.42);
   animation: qz-rise 0.28s var(--ease) both;
 }
 @keyframes qz-rise { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: none; } }

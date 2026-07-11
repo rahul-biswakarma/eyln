@@ -131,7 +131,6 @@ export function LessonLayout({ data }: { data: LessonRef }) {
 
       {lesson.quiz && (
         <div className="prose lesson-section">
-          <div className="section-eyebrow amber">Knowledge check</div>
           <Quiz id={key} quiz={lesson.quiz} lessonTitle={lesson.title} lessonSummary={lesson.summary} />
         </div>
       )}
