@@ -1,4 +1,4 @@
-import { doc, getDoc, setDoc, onSnapshot } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { getDb } from "./firebase";
 import { useAuth } from "./auth";
 import { useProgress } from "./progress";
@@ -73,39 +73,32 @@ function userDocRef(uid: string) {
 let writeTimer: ReturnType<typeof setTimeout> | null = null;
 let unsubProgress: (() => void) | null = null;
 let unsubNotes: (() => void) | null = null;
-let unsubRemote: (() => void) | null = null;
 let unsubAuth: (() => void) | null = null;
 let activeUid: string | null = null;
-// True while we're writing local state from a remote snapshot, so the store
-// subscriptions don't echo that change straight back to the DB.
-let applyingRemote = false;
 
 /** Merge a cloud document into the local stores (union / newest-wins). */
 function applyCloud(cloud: CloudDoc) {
-  applyingRemote = true;
-  try {
-    const p = useProgress.getState();
-    const n = useNotes.getState();
-    useProgress.setState({
-      done: orMerge(p.done, cloud.done),
-      quizScores: maxMerge(p.quizScores, cloud.quizScores),
-      lastVisited: maxMerge(p.lastVisited, cloud.lastVisited),
-      solvedChallenges: maxMerge(p.solvedChallenges, cloud.solvedChallenges),
-    });
-    useNotes.setState({
-      notes: mergeById(n.notes, cloud.notes),
-      bookmarks: maxMerge(n.bookmarks, cloud.bookmarks),
-      reminders: mergeById(n.reminders, cloud.reminders),
-      openScores: mergeOpenScores(n.openScores, cloud.openScores),
-    });
-  } finally {
-    applyingRemote = false;
-  }
+  const p = useProgress.getState();
+  const n = useNotes.getState();
+  useProgress.setState({
+    done: orMerge(p.done, cloud.done),
+    quizScores: maxMerge(p.quizScores, cloud.quizScores),
+    lastVisited: maxMerge(p.lastVisited, cloud.lastVisited),
+    solvedChallenges: maxMerge(p.solvedChallenges, cloud.solvedChallenges),
+  });
+  useNotes.setState({
+    notes: mergeById(n.notes, cloud.notes),
+    bookmarks: maxMerge(n.bookmarks, cloud.bookmarks),
+    reminders: mergeById(n.reminders, cloud.reminders),
+    openScores: mergeOpenScores(n.openScores, cloud.openScores),
+  });
 }
 
 function scheduleWrite() {
-  if (!activeUid || applyingRemote) return;
+  if (!activeUid) return;
   if (writeTimer) clearTimeout(writeTimer);
+  // Debounced write-on-change: one setDoc per burst of edits, no open
+  // connection or continuous reads.
   writeTimer = setTimeout(async () => {
     const ref = activeUid ? userDocRef(activeUid) : null;
     if (!ref) return;
@@ -114,7 +107,7 @@ function scheduleWrite() {
     } catch {
       /* transient — next change reschedules */
     }
-  }, 1000);
+  }, 1500);
 }
 
 async function attach(uid: string) {
@@ -122,32 +115,28 @@ async function attach(uid: string) {
   const ref = userDocRef(uid);
   if (!ref) return;
 
-  // 1. Initial pull + merge (union of local and cloud), then push the union.
+  // One-time pull + merge (union of local and cloud) on sign-in.
   try {
     const snap = await getDoc(ref);
     if (snap.exists()) applyCloud(snap.data() as CloudDoc);
   } catch {
-    /* offline — keep local, still attach live listeners below */
+    /* offline — keep local */
   }
   scheduleWrite();
 
-  // 2. Live: DB is the source of truth — remote changes flow into local.
-  unsubRemote = onSnapshot(ref, (snap) => {
-    if (!snap.exists() || snap.metadata.hasPendingWrites) return; // ignore our own writes
-    applyCloud(snap.data() as CloudDoc);
-  });
-
-  // 3. Local changes (this device) are written up, debounced.
+  // Thereafter, write local changes up (debounced). No live listener.
   unsubProgress = useProgress.subscribe(scheduleWrite);
   unsubNotes = useNotes.subscribe(scheduleWrite);
 }
 
 function detach() {
-  activeUid = null;
+  // Flush any pending write immediately so nothing is lost on sign-out.
   if (writeTimer) { clearTimeout(writeTimer); writeTimer = null; }
+  const ref = activeUid ? userDocRef(activeUid) : null;
+  if (ref) { void setDoc(ref, { ...localSnapshot(), updatedAt: Date.now() }).catch(() => {}); }
+  activeUid = null;
   unsubProgress?.(); unsubProgress = null;
   unsubNotes?.(); unsubNotes = null;
-  unsubRemote?.(); unsubRemote = null;
 }
 
 export function initSync() {
