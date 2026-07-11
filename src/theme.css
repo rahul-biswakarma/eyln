@@ -527,6 +527,14 @@ a.level-chip:hover { border-color: var(--border-glow); box-shadow: 0 0 0 3px var
 }
 .content { flex: 1; min-width: 0; padding: 2rem clamp(1.2rem, 4vw, 3rem) 6rem; }
 .prose { max-width: var(--maxw); }
+/* Lesson uses the full column; prose text keeps a readable measure, but
+   widgets, code, and interactive blocks span the whole width. */
+.content.lesson { max-width: 1180px; }
+.content.lesson .prose { max-width: 100%; }
+.content.lesson .lesson-body > p,
+.content.lesson .lesson-body > ul,
+.content.lesson .lesson-body > ol,
+.content.lesson .lh-objective { max-width: 74ch; }
 .prose p, .prose ul, .prose ol { color: var(--text-dim); }
 .prose strong { color: var(--text); font-weight: 600; }
 .prose li { margin: 0.35rem 0; }
