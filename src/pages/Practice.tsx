@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CheckCircle } from "@phosphor-icons/react";
+import { CheckCircle, CaretDown } from "@phosphor-icons/react";
 import { challenges } from "../content/challenges";
 import { CodeChallenge } from "../components/CodeChallenge";
 import { useProgress } from "../lib/progress";
@@ -7,45 +7,42 @@ import { useProgress } from "../lib/progress";
 export function Practice() {
   const solved = useProgress((s) => s.solvedChallenges);
   const [activeId, setActiveId] = useState(challenges[0].id);
+  const [pickerOpen, setPickerOpen] = useState(false);
   const active = challenges.find((c) => c.id === activeId) ?? challenges[0];
   const solvedCount = challenges.filter((c) => solved[c.id]).length;
 
   return (
-    <div className="dash">
-      <div className="dash-head">
-        <div>
-          <div className="eyebrow">Practice Arena</div>
-          <h1>Coding Challenges</h1>
-          <div className="sub">
-            Classic interview problems (Blind 75 / NeetCode). Write a solution, run it against the
-            hidden test cases, and get instant pass/fail.
-          </div>
+    <div className="practice-page">
+      <div className="practice-topbar">
+        <div className="practice-picker" onMouseLeave={() => setPickerOpen(false)}>
+          <button className="picker-btn" onClick={() => setPickerOpen((o) => !o)}>
+            <span className={"pi-dot " + active.difficulty.toLowerCase()} />
+            <span className="picker-title">{active.title}</span>
+            <CaretDown size={14} weight="bold" />
+          </button>
+          {pickerOpen && (
+            <div className="picker-menu card">
+              {challenges.map((c) => (
+                <button
+                  key={c.id}
+                  className={"practice-item" + (c.id === activeId ? " active" : "")}
+                  onClick={() => { setActiveId(c.id); setPickerOpen(false); }}
+                >
+                  <span className={"pi-dot " + c.difficulty.toLowerCase()} />
+                  <span className="pi-title">{c.title}</span>
+                  {solved[c.id] && <CheckCircle size={15} weight="fill" className="pi-check" />}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+        <div className="practice-meta">
+          <span className="eyebrow" style={{ margin: 0 }}>Practice Arena</span>
+          <span className="practice-solved">{solvedCount}/{challenges.length} solved</span>
         </div>
       </div>
 
-      <div className="chip-row">
-        <span className="chip active">{solvedCount}/{challenges.length} solved</span>
-      </div>
-
-      <div className="practice-layout">
-        <aside className="practice-list">
-          {challenges.map((c) => (
-            <button
-              key={c.id}
-              className={"practice-item" + (c.id === activeId ? " active" : "")}
-              onClick={() => setActiveId(c.id)}
-            >
-              <span className={"pi-dot " + c.difficulty.toLowerCase()} />
-              <span className="pi-title">{c.title}</span>
-              {solved[c.id] && <CheckCircle size={15} weight="fill" className="pi-check" />}
-            </button>
-          ))}
-        </aside>
-
-        <div className="practice-main">
-          <CodeChallenge key={active.id} challenge={active} />
-        </div>
-      </div>
+      <CodeChallenge key={active.id} challenge={active} />
     </div>
   );
 }
