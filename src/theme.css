@@ -57,6 +57,10 @@
 html, body, #root { height: 100%; }
 html { scroll-behavior: smooth; }
 
+/* Hide scrollbars everywhere while keeping scroll behavior. */
+* { scrollbar-width: none; -ms-overflow-style: none; }
+*::-webkit-scrollbar { width: 0; height: 0; display: none; }
+
 body {
   margin: 0;
   color: var(--text);
@@ -111,8 +115,7 @@ kbd {
 
 /* ============ App shell — full-bleed cinematic ============ */
 .shell {
-  max-width: 1480px;
-  margin: 0 auto;
+  width: 100%;
   min-height: 100vh;
   position: relative;
 }
@@ -218,24 +221,67 @@ a.level-chip:hover { border-color: var(--border-glow); box-shadow: 0 0 0 3px var
   border-right: 1px solid var(--border); padding: 1.4rem 1rem;
   overflow-y: auto; display: flex; flex-direction: column; gap: 1.4rem;
 }
-.ps-head .ps-title { font-family: var(--display); font-size: 1.25rem; font-weight: 600; margin-top: 0.3rem; }
-.ps-progress { display: flex; flex-direction: column; gap: 0.6rem; padding: 1rem; border-radius: 14px; background: var(--surface); border: 1px solid var(--border); }
-.ps-stats { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; margin-top: 0.2rem; }
+/* Editorial track-progress panel — mission control */
+.track-panel {
+  position: relative; overflow: hidden; isolation: isolate; flex: none;
+  padding: 1.4rem 1.3rem; border-radius: 18px;
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(255, 176, 0, 0.05), transparent 42%), var(--surface);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.28);
+  transition: transform var(--dur) var(--ease), border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+.track-panel:hover {
+  transform: translateY(-2px); border-color: color-mix(in srgb, var(--accent) 30%, var(--border-bright));
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4), 0 0 30px rgba(255, 138, 0, 0.14);
+}
+/* faint blueprint grid identity */
+.tp-grid {
+  position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: 0.5;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 22px 22px;
+  mask-image: radial-gradient(circle at 80% 0%, #000, transparent 70%);
+}
+.tp-eyebrow { font-family: var(--mono); font-size: 0.64rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); }
+.tp-name { font-family: var(--display); font-size: 1.5rem; font-weight: 600; letter-spacing: -0.01em; margin: 0.25rem 0 1.2rem; }
 
-.mhp-label { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 0.66rem; color: var(--text-faint); letter-spacing: 0.04em; }
-.mhp-count { color: var(--accent); }
-.mhp-bar { height: 5px; border-radius: 3px; background: var(--surface-inset); overflow: hidden; }
-.mhp-bar > i { display: block; height: 100%; border-radius: 3px; background: var(--accent-grad); box-shadow: 0 0 10px rgba(255, 176, 0, 0.5); transition: width 0.6s var(--ease); }
-.mhp-stat { display: flex; align-items: center; gap: 0.35rem; font-family: var(--mono); font-size: 0.76rem; color: var(--text-faint); }
-.mhp-stat svg { color: var(--accent); }
-.mhp-stat b { color: var(--text); font-weight: 600; }
+.tp-segments { display: flex; gap: 3px; }
+.tp-seg { flex: 1; height: 6px; border-radius: 2px; background: var(--surface-inset); transition: background 0.4s var(--ease), box-shadow 0.4s var(--ease); }
+.tp-seg.done { background: var(--accent-grad); box-shadow: 0 0 8px rgba(255, 176, 0, 0.45); }
+.tp-seg.current { background: color-mix(in srgb, var(--accent) 45%, var(--surface-inset)); }
+.tp-pct-row { display: flex; align-items: baseline; justify-content: space-between; margin-top: 0.6rem; }
+.tp-pct { font-family: var(--display); font-size: 1.15rem; font-weight: 600; color: var(--text); }
+.tp-mission { font-family: var(--mono); font-size: 0.7rem; color: var(--text-faint); letter-spacing: 0.03em; }
 
-.ps-list { display: flex; flex-direction: column; gap: 0.15rem; }
+.tp-now { display: flex; flex-direction: column; gap: 0.7rem; margin: 1.3rem 0; }
+.tp-slot { display: flex; flex-direction: column; gap: 0.15rem; }
+.tp-k { font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-faint); }
+.tp-v { font-family: var(--display); font-size: 0.98rem; font-weight: 500; color: var(--text); }
+.tp-v.muted { color: var(--text-dim); }
+
+.tp-cta {
+  width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; cursor: pointer;
+  background: var(--accent-grad); color: var(--on-accent); border: none; border-radius: var(--radius-sm);
+  padding: 0.65rem 1rem; font-family: var(--display); font-weight: 600; font-size: 0.9rem;
+  box-shadow: 0 6px 20px rgba(255, 138, 0, 0.28);
+  transition: filter var(--dur) var(--ease), transform var(--dur) var(--ease), gap var(--dur) var(--ease);
+}
+.tp-cta:hover { filter: brightness(1.06); gap: 0.6rem; transform: translateY(-1px); }
+
+.ps-list { display: flex; flex-direction: column; gap: 0.9rem; flex: none; }
+.ps-group { display: flex; flex-direction: column; gap: 0.1rem; }
+.ps-group-head {
+  display: flex; align-items: center; justify-content: space-between;
+  font-family: var(--mono); font-size: 0.64rem; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--text-faint); padding: 0.2rem 0.7rem 0.4rem;
+}
+.ps-group-count { color: var(--accent); opacity: 0.8; }
 .ps-item {
   display: flex; align-items: center; gap: 0.6rem; text-align: left; cursor: pointer; width: 100%;
-  padding: 0.6rem 0.7rem; border-radius: var(--radius-sm);
+  padding: 0.5rem 0.7rem; border-radius: var(--radius-sm);
   background: transparent; border: none; color: var(--text-dim);
-  font-size: 0.86rem; position: relative;
+  font-size: 0.85rem; position: relative;
   transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
 }
 .ps-item:hover { background: var(--surface); color: var(--text); }
@@ -244,7 +290,6 @@ a.level-chip:hover { border-color: var(--border-glow); box-shadow: 0 0 0 3px var
   content: ""; position: absolute; left: 0; top: 22%; bottom: 22%; width: 2px;
   border-radius: 2px; background: var(--accent); box-shadow: 0 0 8px var(--accent);
 }
-.ps-idx { font-family: var(--mono); font-size: 0.68rem; color: var(--text-faint); flex: none; width: 18px; }
 .ps-item-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pi-check { color: var(--good); flex: none; }
 .pi-dot { width: 7px; height: 7px; border-radius: 50%; flex: none; }

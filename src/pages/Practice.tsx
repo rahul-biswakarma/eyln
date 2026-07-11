@@ -1,58 +1,80 @@
 import { useState } from "react";
-import { CheckCircle, Lightning, Flame, Target } from "@phosphor-icons/react";
-import { challenges, totalXpEarned } from "../content/challenges";
+import { CheckCircle, ArrowRight } from "@phosphor-icons/react";
+import { challenges, challengesByTopic } from "../content/challenges";
 import { CodeChallenge } from "../components/CodeChallenge";
 import { useProgress } from "../lib/progress";
-import { computeCoachSignals } from "../lib/coach";
 
 export function Practice() {
   const solved = useProgress((s) => s.solvedChallenges);
-  const done = useProgress((s) => s.done);
-  const quizScores = useProgress((s) => s.quizScores);
-  const lastVisited = useProgress((s) => s.lastVisited);
   const [activeId, setActiveId] = useState(challenges[0].id);
 
   const active = challenges.find((c) => c.id === activeId) ?? challenges[0];
   const activeIdx = challenges.findIndex((c) => c.id === active.id);
   const solvedCount = challenges.filter((c) => solved[c.id]).length;
   const pct = challenges.length ? solvedCount / challenges.length : 0;
-  const xp = totalXpEarned(solved);
-  const streak = computeCoachSignals(done, quizScores, lastVisited, Date.now()).streak;
+  const nextUp = challenges[activeIdx + 1];
 
   return (
     <div className="practice-shell">
       <aside className="practice-sidebar">
-        <div className="ps-head">
-          <div className="eyebrow" style={{ margin: 0 }}>Practice Arena</div>
-          <div className="ps-title">Missions</div>
-        </div>
+        <div className="track-panel">
+          <div className="tp-grid" aria-hidden />
+          <div className="tp-eyebrow">Practice Track</div>
+          <div className="tp-name">Blind 75</div>
 
-        <div className="ps-progress">
-          <div className="mhp-label">
-            <span>Track progress</span>
-            <span className="mhp-count">{solvedCount}/{challenges.length}</span>
+          <div className="tp-segments">
+            {challenges.map((c, i) => (
+              <span key={c.id} className={"tp-seg" + (solved[c.id] ? " done" : "") + (i === activeIdx ? " current" : "")} />
+            ))}
           </div>
-          <div className="mhp-bar"><i style={{ width: `${Math.max(pct * 100, 2)}%` }} /></div>
-          <div className="ps-stats">
-            <div className="mhp-stat"><Lightning size={14} weight="duotone" /><b>{xp}</b><span>XP</span></div>
-            <div className="mhp-stat"><Flame size={14} weight="duotone" /><b>{streak}</b><span>streak</span></div>
-            <div className="mhp-stat"><Target size={14} weight="duotone" /><b>{solvedCount}</b><span>solved</span></div>
+          <div className="tp-pct-row">
+            <span className="tp-pct">{Math.round(pct * 100)}%</span>
+            <span className="tp-mission">Mission {activeIdx + 1} of {challenges.length}</span>
           </div>
+
+          <div className="tp-now">
+            <div className="tp-slot">
+              <span className="tp-k">Current</span>
+              <span className="tp-v">{active.title}</span>
+            </div>
+            {nextUp && (
+              <div className="tp-slot">
+                <span className="tp-k">Next</span>
+                <span className="tp-v muted">{nextUp.title}</span>
+              </div>
+            )}
+          </div>
+
+          {nextUp && (
+            <button className="tp-cta" onClick={() => setActiveId(nextUp.id)}>
+              {solved[active.id] ? "Continue" : "Skip ahead"} <ArrowRight size={15} weight="bold" />
+            </button>
+          )}
         </div>
 
         <nav className="ps-list">
-          {challenges.map((c, i) => (
-            <button
-              key={c.id}
-              className={"ps-item" + (c.id === activeId ? " active" : "") + (solved[c.id] ? " solved" : "")}
-              onClick={() => setActiveId(c.id)}
-            >
-              <span className="ps-idx">{String(i + 1).padStart(2, "0")}</span>
-              <span className={"pi-dot " + c.difficulty.toLowerCase()} />
-              <span className="ps-item-title">{c.title}</span>
-              {solved[c.id] && <CheckCircle size={15} weight="fill" className="pi-check" />}
-            </button>
-          ))}
+          {challengesByTopic().map((group) => {
+            const groupSolved = group.items.filter((c) => solved[c.id]).length;
+            return (
+              <div key={group.topic} className="ps-group">
+                <div className="ps-group-head">
+                  <span>{group.topic}</span>
+                  <span className="ps-group-count">{groupSolved}/{group.items.length}</span>
+                </div>
+                {group.items.map((c) => (
+                  <button
+                    key={c.id}
+                    className={"ps-item" + (c.id === activeId ? " active" : "") + (solved[c.id] ? " solved" : "")}
+                    onClick={() => setActiveId(c.id)}
+                  >
+                    <span className={"pi-dot " + c.difficulty.toLowerCase()} />
+                    <span className="ps-item-title">{c.title}</span>
+                    {solved[c.id] && <CheckCircle size={15} weight="fill" className="pi-check" />}
+                  </button>
+                ))}
+              </div>
+            );
+          })}
         </nav>
       </aside>
 

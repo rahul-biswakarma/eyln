@@ -68,10 +68,25 @@ export interface TestCase {
   expected: unknown;
 }
 
+export type ChallengeTopic =
+  | "Arrays"
+  | "Strings"
+  | "Hashing"
+  | "Two Pointers"
+  | "Stacks & Queues"
+  | "Linked Lists"
+  | "Trees"
+  | "Sorting"
+  | "Searching"
+  | "Recursion & DP"
+  | "Math";
+
 export interface CodeChallenge {
   id: string;
   title: string;
   difficulty: "Easy" | "Medium" | "Hard";
+  /** Topic group for the mission list. */
+  topic: ChallengeTopic;
   /** Source sheet / origin, e.g. "Blind 75". */
   source?: string;
   tags: string[];
