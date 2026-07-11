@@ -68,24 +68,18 @@ export interface TestCase {
   expected: unknown;
 }
 
-export type ChallengeTopic =
-  | "Arrays"
-  | "Strings"
-  | "Hashing"
-  | "Two Pointers"
-  | "Stacks & Queues"
-  | "Linked Lists"
-  | "Trees"
-  | "Sorting"
-  | "Searching"
-  | "Recursion & DP"
-  | "Math";
+export type ChallengeTopic = string;
+
+/** Which practice track a challenge belongs to. */
+export type PracticeTrackId = "dsa" | "engine" | "math";
 
 export interface CodeChallenge {
   id: string;
   title: string;
   difficulty: "Easy" | "Medium" | "Hard";
-  /** Topic group for the mission list. */
+  /** Practice track (defaults to "dsa"). */
+  practiceTrack?: PracticeTrackId;
+  /** Topic group within the track's mission list. */
   topic: ChallengeTopic;
   /** Source sheet / origin, e.g. "Blind 75". */
   source?: string;

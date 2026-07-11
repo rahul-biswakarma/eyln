@@ -1,0 +1,617 @@
+import type { CodeChallenge } from "../types";
+
+export const mathChallenges: CodeChallenge[] = [
+  {
+    id: "math-factorial",
+    title: "Factorial",
+    difficulty: "Easy",
+    practiceTrack: "math",
+    topic: "Numbers & Sequences",
+    tags: ["numbers", "recursion", "product"],
+    prompt:
+      "Return n! (n factorial), the product of all positive integers up to n. By definition 0! = 1. Assume 0 &le; n &le; 12 so the result fits safely in a JS number.",
+    fnName: "factorial",
+    starter: "function factorial(n) {\n  // return n!\n}\n",
+    tests: [
+      { args: [0], expected: 1 },
+      { args: [1], expected: 1 },
+      { args: [5], expected: 120 },
+      { args: [10], expected: 3628800 },
+    ],
+    hint: "Start an accumulator at 1 and multiply by every integer from 2 to n.",
+    solution:
+      "function factorial(n) {\n  let r = 1;\n  for (let i = 2; i <= n; i++) r *= i;\n  return r;\n}\n",
+  },
+  {
+    id: "math-is-prime",
+    title: "Prime Check",
+    difficulty: "Easy",
+    practiceTrack: "math",
+    topic: "Numbers & Sequences",
+    tags: ["numbers", "primes"],
+    prompt:
+      "Return true if the integer n is prime, otherwise false. A prime has exactly two distinct positive divisors: 1 and itself. Note 0, 1 and negatives are not prime.",
+    fnName: "isPrime",
+    starter: "function isPrime(n) {\n  // true if n is prime\n}\n",
+    tests: [
+      { args: [2], expected: true },
+      { args: [1], expected: false },
+      { args: [15], expected: false },
+      { args: [97], expected: true },
+    ],
+    hint: "Only test divisors up to sqrt(n): if i*i <= n and n % i === 0 it is composite.",
+    solution:
+      "function isPrime(n) {\n  if (n < 2) return false;\n  for (let i = 2; i * i <= n; i++) if (n % i === 0) return false;\n  return true;\n}\n",
+  },
+  {
+    id: "math-sum-of-digits",
+    title: "Sum of Digits",
+    difficulty: "Easy",
+    practiceTrack: "math",
+    topic: "Numbers & Sequences",
+    tags: ["numbers", "digits"],
+    prompt:
+      "Return the sum of the decimal digits of the non-negative integer n. For example 1234 gives 1 + 2 + 3 + 4 = 10.",
+    fnName: "sumOfDigits",
+    starter: "function sumOfDigits(n) {\n  // sum the base-10 digits of n\n}\n",
+    tests: [
+      { args: [0], expected: 0 },
+      { args: [1234], expected: 10 },
+      { args: [9999], expected: 36 },
+      { args: [305], expected: 8 },
+    ],
+    hint: "Repeatedly take n % 10 to peel the last digit, then Math.floor(n / 10).",
+    solution:
+      "function sumOfDigits(n) {\n  let s = 0;\n  while (n > 0) {\n    s += n % 10;\n    n = Math.floor(n / 10);\n  }\n  return s;\n}\n",
+  },
+  {
+    id: "math-gcd",
+    title: "Greatest Common Divisor",
+    difficulty: "Easy",
+    practiceTrack: "math",
+    topic: "Numbers & Sequences",
+    tags: ["numbers", "gcd", "euclid"],
+    prompt:
+      "Return the greatest common divisor of two positive integers a and b using the Euclidean algorithm.",
+    fnName: "gcd",
+    starter: "function gcd(a, b) {\n  // greatest common divisor\n}\n",
+    tests: [
+      { args: [12, 18], expected: 6 },
+      { args: [17, 5], expected: 1 },
+      { args: [100, 80], expected: 20 },
+      { args: [7, 7], expected: 7 },
+    ],
+    hint: "gcd(a, b) = gcd(b, a % b); the answer is a when b becomes 0.",
+    solution:
+      "function gcd(a, b) {\n  a = Math.abs(a);\n  b = Math.abs(b);\n  while (b) {\n    const t = a % b;\n    a = b;\n    b = t;\n  }\n  return a;\n}\n",
+  },
+  {
+    id: "math-lcm",
+    title: "Least Common Multiple",
+    difficulty: "Medium",
+    practiceTrack: "math",
+    topic: "Numbers & Sequences",
+    tags: ["numbers", "lcm", "gcd"],
+    prompt:
+      "Return the least common multiple of two positive integers a and b. Use the identity lcm(a, b) = |a * b| / gcd(a, b).",
+    fnName: "lcm",
+    starter: "function lcm(a, b) {\n  // least common multiple\n}\n",
+    tests: [
+      { args: [4, 6], expected: 12 },
+      { args: [3, 7], expected: 21 },
+      { args: [12, 18], expected: 36 },
+      { args: [5, 5], expected: 5 },
+    ],
+    hint: "Compute gcd first with the Euclidean algorithm, then divide the product by it.",
+    solution:
+      "function lcm(a, b) {\n  const gcd = (x, y) => {\n    while (y) {\n      const t = x % y;\n      x = y;\n      y = t;\n    }\n    return x;\n  };\n  return Math.abs(a * b) / gcd(a, b);\n}\n",
+  },
+  {
+    id: "math-nth-fibonacci",
+    title: "Nth Fibonacci Number",
+    difficulty: "Medium",
+    practiceTrack: "math",
+    topic: "Numbers & Sequences",
+    tags: ["numbers", "fibonacci", "sequence"],
+    prompt:
+      "Return the nth Fibonacci number where F(0) = 0, F(1) = 1, and F(n) = F(n-1) + F(n-2). Use iteration to stay efficient for larger n.",
+    fnName: "fib",
+    starter: "function fib(n) {\n  // return F(n)\n}\n",
+    tests: [
+      { args: [0], expected: 0 },
+      { args: [1], expected: 1 },
+      { args: [10], expected: 55 },
+      { args: [20], expected: 6765 },
+    ],
+    hint: "Keep two running values a=0, b=1 and roll them forward n times.",
+    solution:
+      "function fib(n) {\n  if (n === 0) return 0;\n  let a = 0;\n  let b = 1;\n  for (let i = 2; i <= n; i++) {\n    const c = a + b;\n    a = b;\n    b = c;\n  }\n  return n === 1 ? 1 : b;\n}\n",
+  },
+  {
+    id: "math-digital-root",
+    title: "Digital Root",
+    difficulty: "Medium",
+    practiceTrack: "math",
+    topic: "Numbers & Sequences",
+    tags: ["numbers", "digits"],
+    prompt:
+      "Return the digital root of a non-negative integer n: repeatedly sum its digits until a single digit remains. For example 9875 &rarr; 29 &rarr; 11 &rarr; 2.",
+    fnName: "digitalRoot",
+    starter: "function digitalRoot(n) {\n  // reduce to a single digit\n}\n",
+    tests: [
+      { args: [0], expected: 0 },
+      { args: [9875], expected: 2 },
+      { args: [12345], expected: 6 },
+      { args: [9], expected: 9 },
+    ],
+    hint: "Loop the digit-sum step while n >= 10.",
+    solution:
+      "function digitalRoot(n) {\n  while (n >= 10) {\n    let s = 0;\n    while (n > 0) {\n      s += n % 10;\n      n = Math.floor(n / 10);\n    }\n    n = s;\n  }\n  return n;\n}\n",
+  },
+  {
+    id: "math-nth-prime",
+    title: "Nth Prime",
+    difficulty: "Medium",
+    practiceTrack: "math",
+    topic: "Numbers & Sequences",
+    tags: ["numbers", "primes"],
+    prompt:
+      "Return the kth prime number (1-indexed), so the 1st prime is 2, the 2nd is 3, and so on.",
+    fnName: "nthPrime",
+    starter: "function nthPrime(k) {\n  // return the kth prime (k >= 1)\n}\n",
+    tests: [
+      { args: [1], expected: 2 },
+      { args: [5], expected: 11 },
+      { args: [10], expected: 29 },
+      { args: [6], expected: 13 },
+    ],
+    hint: "Count primes by testing successive integers with a sqrt-bounded primality check.",
+    solution:
+      "function nthPrime(k) {\n  const isP = (m) => {\n    if (m < 2) return false;\n    for (let i = 2; i * i <= m; i++) if (m % i === 0) return false;\n    return true;\n  };\n  let count = 0;\n  let n = 1;\n  while (count < k) {\n    n++;\n    if (isP(n)) count++;\n  }\n  return n;\n}\n",
+  },
+  {
+    id: "math-collatz-steps",
+    title: "Collatz Steps",
+    difficulty: "Hard",
+    practiceTrack: "math",
+    topic: "Numbers & Sequences",
+    tags: ["numbers", "collatz", "sequence"],
+    prompt:
+      "Return the number of steps to reach 1 from a positive integer n under the Collatz rule: if n is even divide by 2, otherwise use 3n + 1. Starting at 1 takes 0 steps.",
+    fnName: "collatzSteps",
+    starter: "function collatzSteps(n) {\n  // steps to reach 1\n}\n",
+    tests: [
+      { args: [1], expected: 0 },
+      { args: [6], expected: 8 },
+      { args: [27], expected: 111 },
+      { args: [16], expected: 4 },
+    ],
+    hint: "Count each transformation in a loop until n === 1.",
+    solution:
+      "function collatzSteps(n) {\n  let steps = 0;\n  while (n !== 1) {\n    n = n % 2 === 0 ? n / 2 : 3 * n + 1;\n    steps++;\n  }\n  return steps;\n}\n",
+  },
+
+  {
+    id: "math-eval-polynomial",
+    title: "Evaluate a Polynomial",
+    difficulty: "Easy",
+    practiceTrack: "math",
+    topic: "Algebra",
+    tags: ["algebra", "polynomial"],
+    prompt:
+      "Given an array of coefficients ordered from the constant term upward (so coeffs[i] multiplies x^i) and a value x, return the polynomial's value rounded to 4 decimals. Example: [2, -3, 1] means 2 - 3x + x^2.",
+    fnName: "evalPoly",
+    starter:
+      "function evalPoly(coeffs, x) {\n  // sum coeffs[i] * x^i, rounded to 4 decimals\n}\n",
+    tests: [
+      { args: [[2, -3, 1], 4], expected: 6 },
+      { args: [[0, 0, 0, 1], 3], expected: 27 },
+      { args: [[1.5, 2], 2], expected: 5.5 },
+    ],
+    hint: "Accumulate coeffs[i] * Math.pow(x, i), then round with Math.round(v * 1e4) / 1e4.",
+    solution:
+      "function evalPoly(coeffs, x) {\n  let s = 0;\n  for (let i = 0; i < coeffs.length; i++) s += coeffs[i] * Math.pow(x, i);\n  return Math.round(s * 1e4) / 1e4;\n}\n",
+  },
+  {
+    id: "math-ncr",
+    title: "Combinations (nCr)",
+    difficulty: "Easy",
+    practiceTrack: "math",
+    topic: "Algebra",
+    tags: ["algebra", "combinatorics"],
+    prompt:
+      "Return the number of ways to choose k items from n without regard to order, n! / (k! (n-k)!). Return 0 if k < 0 or k > n. The result is a whole number.",
+    fnName: "nCr",
+    starter: "function nCr(n, k) {\n  // combinations\n}\n",
+    tests: [
+      { args: [5, 2], expected: 10 },
+      { args: [10, 3], expected: 120 },
+      { args: [6, 0], expected: 1 },
+      { args: [4, 5], expected: 0 },
+    ],
+    hint: "Use the symmetric form with k = min(k, n-k) and multiply/divide incrementally to avoid overflow.",
+    solution:
+      "function nCr(n, k) {\n  if (k < 0 || k > n) return 0;\n  k = Math.min(k, n - k);\n  let res = 1;\n  for (let i = 0; i < k; i++) res = (res * (n - i)) / (i + 1);\n  return Math.round(res);\n}\n",
+  },
+  {
+    id: "math-npr",
+    title: "Permutations (nPr)",
+    difficulty: "Medium",
+    practiceTrack: "math",
+    topic: "Algebra",
+    tags: ["algebra", "combinatorics"],
+    prompt:
+      "Return the number of ordered arrangements of k items chosen from n, equal to n! / (n-k)!. Assume 0 &le; k &le; n. The result is a whole number.",
+    fnName: "nPr",
+    starter: "function nPr(n, k) {\n  // permutations\n}\n",
+    tests: [
+      { args: [5, 2], expected: 20 },
+      { args: [6, 3], expected: 120 },
+      { args: [4, 4], expected: 24 },
+      { args: [7, 0], expected: 1 },
+    ],
+    hint: "Multiply the k descending factors n, n-1, ..., n-k+1.",
+    solution:
+      "function nPr(n, k) {\n  let res = 1;\n  for (let i = 0; i < k; i++) res *= n - i;\n  return res;\n}\n",
+  },
+  {
+    id: "math-quadratic-roots",
+    title: "Quadratic Roots",
+    difficulty: "Medium",
+    practiceTrack: "math",
+    topic: "Algebra",
+    tags: ["algebra", "quadratic"],
+    prompt:
+      "Given coefficients a, b, c of a x^2 + b x + c = 0 (a &ne; 0), return the real roots as an array sorted ascending, each rounded to 4 decimals. If there are no real roots (discriminant < 0) return an empty array. A repeated root appears twice.",
+    fnName: "quadraticRoots",
+    starter:
+      "function quadraticRoots(a, b, c) {\n  // sorted real roots rounded to 4 decimals, or []\n}\n",
+    tests: [
+      { args: [1, -3, 2], expected: [1, 2] },
+      { args: [1, 0, -2], expected: [-1.4142, 1.4142] },
+      { args: [1, 0, 1], expected: [] },
+      { args: [1, -2, 1], expected: [1, 1] },
+    ],
+    hint: "Compute the discriminant d = b*b - 4ac; if d < 0 return []. Otherwise use (-b ± sqrt(d)) / (2a), sort, and round.",
+    solution:
+      "function quadraticRoots(a, b, c) {\n  const d = b * b - 4 * a * c;\n  if (d < 0) return [];\n  const s = Math.sqrt(d);\n  const r1 = (-b - s) / (2 * a);\n  const r2 = (-b + s) / (2 * a);\n  return [r1, r2].sort((x, y) => x - y).map((r) => Math.round(r * 1e4) / 1e4);\n}\n",
+  },
+  {
+    id: "math-cramer-2x2",
+    title: "Solve 2x2 System (Cramer's Rule)",
+    difficulty: "Hard",
+    practiceTrack: "math",
+    topic: "Algebra",
+    tags: ["algebra", "linear-system", "cramer"],
+    prompt:
+      "Solve the system a x + b y = e and c x + d y = f using Cramer's rule. Return [x, y] each rounded to 4 decimals. Assume the determinant ad - bc is non-zero.",
+    fnName: "solveLinear2x2",
+    starter:
+      "function solveLinear2x2(a, b, c, d, e, f) {\n  // return [x, y] rounded to 4 decimals\n}\n",
+    tests: [
+      { args: [2, 1, 1, -1, 5, 1], expected: [2, 1] },
+      { args: [3, 2, 1, 2, 7, 4], expected: [1.5, 1.25] },
+      { args: [1, 1, 1, -1, 10, 4], expected: [7, 3] },
+    ],
+    hint: "det = ad - bc; x = (e d - b f) / det; y = (a f - e c) / det.",
+    solution:
+      "function solveLinear2x2(a, b, c, d, e, f) {\n  const det = a * d - b * c;\n  const x = (e * d - b * f) / det;\n  const y = (a * f - e * c) / det;\n  const r = (v) => Math.round(v * 1e4) / 1e4;\n  return [r(x), r(y)];\n}\n",
+  },
+
+  {
+    id: "math-average-rate-of-change",
+    title: "Average Rate of Change",
+    difficulty: "Easy",
+    practiceTrack: "math",
+    topic: "Functions & Limits",
+    tags: ["functions", "rate-of-change"],
+    prompt:
+      "For f(x) = x^2, return the average rate of change (f(b) - f(a)) / (b - a) over the interval [a, b], rounded to 4 decimals. Assume a &ne; b.",
+    fnName: "avgRateOfChange",
+    starter:
+      "function avgRateOfChange(a, b) {\n  // slope of the secant of f(x)=x^2, rounded to 4 decimals\n}\n",
+    tests: [
+      { args: [1, 3], expected: 4 },
+      { args: [2, 5], expected: 7 },
+      { args: [-1, 1], expected: 0 },
+    ],
+    hint: "Define f(x) = x*x and evaluate the difference quotient, then round.",
+    solution:
+      "function avgRateOfChange(a, b) {\n  const f = (x) => x * x;\n  return Math.round(((f(b) - f(a)) / (b - a)) * 1e4) / 1e4;\n}\n",
+  },
+  {
+    id: "math-limit-rational",
+    title: "Numeric Limit of a Rational Expression",
+    difficulty: "Medium",
+    practiceTrack: "math",
+    topic: "Functions & Limits",
+    tags: ["functions", "limits", "numeric"],
+    prompt:
+      "Estimate the limit of f(x) = (x^2 - 1) / (x - 1) as x approaches c. Approximate it by evaluating f at x = c + h and x = c - h with h = 1e-6 and averaging the two values. Return the estimate rounded to 4 decimals.",
+    fnName: "limitAt",
+    starter:
+      "function limitAt(c) {\n  // average of f(c+h) and f(c-h) with h=1e-6, rounded to 4 decimals\n}\n",
+    tests: [
+      { args: [1], expected: 2 },
+      { args: [3], expected: 4 },
+      { args: [0], expected: 1 },
+    ],
+    hint: "f(x) = (x*x - 1)/(x - 1); take h = 1e-6 and average the two one-sided samples.",
+    solution:
+      "function limitAt(c) {\n  const f = (x) => (x * x - 1) / (x - 1);\n  const h = 1e-6;\n  return Math.round(((f(c + h) + f(c - h)) / 2) * 1e4) / 1e4;\n}\n",
+  },
+  {
+    id: "math-limit-sinc",
+    title: "Numeric Limit of sin(x)/x at 0",
+    difficulty: "Medium",
+    practiceTrack: "math",
+    topic: "Functions & Limits",
+    tags: ["functions", "limits", "numeric"],
+    prompt:
+      "Estimate the limit of f(x) = sin(x) / x as x approaches 0. Approximate it by averaging f(h) and f(-h) with the given h, then return the estimate rounded to 4 decimals.",
+    fnName: "sincLimit",
+    starter:
+      "function sincLimit(h) {\n  // average of sin(h)/h and sin(-h)/(-h), rounded to 4 decimals\n}\n",
+    tests: [
+      { args: [1e-6], expected: 1 },
+      { args: [1e-4], expected: 1 },
+      { args: [0.001], expected: 1 },
+    ],
+    hint: "f(x) = Math.sin(x) / x; the true limit is 1, and small h should confirm it.",
+    solution:
+      "function sincLimit(h) {\n  const f = (x) => Math.sin(x) / x;\n  return Math.round(((f(h) + f(-h)) / 2) * 1e4) / 1e4;\n}\n",
+  },
+
+  {
+    id: "math-power-rule",
+    title: "Power Rule Derivative Value",
+    difficulty: "Easy",
+    practiceTrack: "math",
+    topic: "Calculus — Derivatives",
+    tags: ["calculus", "derivative", "power-rule"],
+    prompt:
+      "For f(x) = a * x^n, the derivative is f'(x) = a * n * x^(n-1). Given a, n and x, return f'(x) rounded to 4 decimals.",
+    fnName: "powerRuleDeriv",
+    starter:
+      "function powerRuleDeriv(a, n, x) {\n  // a * n * x^(n-1), rounded to 4 decimals\n}\n",
+    tests: [
+      { args: [3, 2, 4], expected: 24 },
+      { args: [1, 3, 2], expected: 12 },
+      { args: [5, 1, 10], expected: 5 },
+    ],
+    hint: "Apply the formula directly with Math.pow(x, n - 1), then round.",
+    solution:
+      "function powerRuleDeriv(a, n, x) {\n  return Math.round(a * n * Math.pow(x, n - 1) * 1e4) / 1e4;\n}\n",
+  },
+  {
+    id: "math-central-difference-cubic",
+    title: "Numeric Derivative of x^3",
+    difficulty: "Medium",
+    practiceTrack: "math",
+    topic: "Calculus — Derivatives",
+    tags: ["calculus", "derivative", "numeric"],
+    prompt:
+      "Estimate the derivative of f(x) = x^3 at the point x using the central difference formula (f(x + h) - f(x - h)) / (2h) with h = 1e-5. Return the result rounded to 4 decimals.",
+    fnName: "derivCubic",
+    starter:
+      "function derivCubic(x) {\n  // central difference of f(x)=x^3 with h=1e-5, rounded to 4 decimals\n}\n",
+    tests: [
+      { args: [2], expected: 12 },
+      { args: [1], expected: 3 },
+      { args: [0], expected: 0 },
+    ],
+    hint: "f(x) = x*x*x; plug into the symmetric difference quotient with h = 1e-5.",
+    solution:
+      "function derivCubic(x) {\n  const f = (t) => t * t * t;\n  const h = 1e-5;\n  return Math.round(((f(x + h) - f(x - h)) / (2 * h)) * 1e4) / 1e4;\n}\n",
+  },
+  {
+    id: "math-tangent-slope-reciprocal",
+    title: "Tangent Slope of 1/x",
+    difficulty: "Hard",
+    practiceTrack: "math",
+    topic: "Calculus — Derivatives",
+    tags: ["calculus", "derivative", "tangent"],
+    prompt:
+      "Return the slope of the tangent line to f(x) = 1/x at the point x, estimated with the central difference formula (f(x + h) - f(x - h)) / (2h) using h = 1e-5. Return the result rounded to 4 decimals. Assume x &ne; 0.",
+    fnName: "tangentSlopeReciprocal",
+    starter:
+      "function tangentSlopeReciprocal(x) {\n  // central difference of f(x)=1/x with h=1e-5, rounded to 4 decimals\n}\n",
+    tests: [
+      { args: [2], expected: -0.25 },
+      { args: [1], expected: -1 },
+      { args: [0.5], expected: -4 },
+    ],
+    hint: "f(x) = 1/x; the exact derivative is -1/x^2, and the numeric estimate should match after rounding.",
+    solution:
+      "function tangentSlopeReciprocal(x) {\n  const f = (t) => 1 / t;\n  const h = 1e-5;\n  return Math.round(((f(x + h) - f(x - h)) / (2 * h)) * 1e4) / 1e4;\n}\n",
+  },
+
+  {
+    id: "math-trapezoid-square",
+    title: "Trapezoid Rule for x^2",
+    difficulty: "Medium",
+    practiceTrack: "math",
+    topic: "Calculus — Integrals",
+    tags: ["calculus", "integral", "trapezoid"],
+    prompt:
+      "Approximate the integral of f(x) = x^2 over [a, b] using the trapezoid rule with n subintervals. The rule is h * (f(a)/2 + f(b)/2 + sum of f at the interior points), where h = (b - a) / n. Use n = 1000 exactly. Return the result rounded to 4 decimals.",
+    fnName: "trapezoidSquare",
+    starter:
+      "function trapezoidSquare(a, b) {\n  // trapezoid rule for x^2 with n=1000, rounded to 4 decimals\n}\n",
+    tests: [
+      { args: [0, 1], expected: 0.3333 },
+      { args: [0, 2], expected: 2.6667 },
+      { args: [1, 4], expected: 21 },
+    ],
+    hint: "Sum 0.5*(f(a)+f(b)) plus every interior f(a + i*h) for i = 1..n-1, then multiply by h.",
+    solution:
+      "function trapezoidSquare(a, b) {\n  const f = (x) => x * x;\n  const n = 1000;\n  const h = (b - a) / n;\n  let s = 0.5 * (f(a) + f(b));\n  for (let i = 1; i < n; i++) s += f(a + i * h);\n  return Math.round(s * h * 1e4) / 1e4;\n}\n",
+  },
+  {
+    id: "math-simpson-cubic",
+    title: "Simpson's Rule for x^3",
+    difficulty: "Hard",
+    practiceTrack: "math",
+    topic: "Calculus — Integrals",
+    tags: ["calculus", "integral", "simpson"],
+    prompt:
+      "Approximate the integral of f(x) = x^3 over [a, b] using Simpson's rule with n = 1000 subintervals (n is even). The rule is (h/3) * (f(a) + f(b) + 4*sum of odd-index points + 2*sum of even-index interior points), where h = (b - a) / n. Return the result rounded to 4 decimals.",
+    fnName: "simpsonCubic",
+    starter:
+      "function simpsonCubic(a, b) {\n  // Simpson's rule for x^3 with n=1000, rounded to 4 decimals\n}\n",
+    tests: [
+      { args: [0, 2], expected: 4 },
+      { args: [1, 3], expected: 20 },
+      { args: [0, 1], expected: 0.25 },
+    ],
+    hint: "Weight interior point i by 4 when i is odd and by 2 when i is even, then multiply the total by h/3.",
+    solution:
+      "function simpsonCubic(a, b) {\n  const f = (x) => x * x * x;\n  const n = 1000;\n  const h = (b - a) / n;\n  let s = f(a) + f(b);\n  for (let i = 1; i < n; i++) s += (i % 2 ? 4 : 2) * f(a + i * h);\n  return Math.round(((s * h) / 3) * 1e4) / 1e4;\n}\n",
+  },
+  {
+    id: "math-riemann-exp",
+    title: "Left Riemann Sum for e^x",
+    difficulty: "Medium",
+    practiceTrack: "math",
+    topic: "Calculus — Integrals",
+    tags: ["calculus", "integral", "riemann"],
+    prompt:
+      "Approximate the integral of f(x) = e^x over [a, b] using a left Riemann sum with n = 1000 subintervals: h * sum of f(a + i*h) for i = 0..n-1, where h = (b - a) / n. Use Math.exp. Return the result rounded to 4 decimals.",
+    fnName: "leftRiemannExp",
+    starter:
+      "function leftRiemannExp(a, b) {\n  // left Riemann sum for e^x with n=1000, rounded to 4 decimals\n}\n",
+    tests: [
+      { args: [0, 1], expected: 1.7174 },
+      { args: [0, 2], expected: 6.3827 },
+    ],
+    hint: "Add f(a + i*h) for i from 0 to n-1 (left endpoints), then multiply by h.",
+    solution:
+      "function leftRiemannExp(a, b) {\n  const f = (x) => Math.exp(x);\n  const n = 1000;\n  const h = (b - a) / n;\n  let s = 0;\n  for (let i = 0; i < n; i++) s += f(a + i * h);\n  return Math.round(s * h * 1e4) / 1e4;\n}\n",
+  },
+  {
+    id: "math-area-between-curves",
+    title: "Area Between Two Curves",
+    difficulty: "Hard",
+    practiceTrack: "math",
+    topic: "Calculus — Integrals",
+    tags: ["calculus", "integral", "area"],
+    prompt:
+      "Find the area between the curves g(x) = x (upper) and f(x) = x^2 (lower) over [a, b], where g(x) &ge; f(x) on the interval. Integrate g(x) - f(x) using the trapezoid rule with n = 1000 subintervals, h = (b - a) / n. Return the result rounded to 4 decimals.",
+    fnName: "areaBetween",
+    starter:
+      "function areaBetween(a, b) {\n  // trapezoid integral of (x - x^2) with n=1000, rounded to 4 decimals\n}\n",
+    tests: [
+      { args: [0, 1], expected: 0.1667 },
+      { args: [0, 0.5], expected: 0.0833 },
+    ],
+    hint: "Let d(x) = x - x*x and apply the trapezoid rule to d over [a, b].",
+    solution:
+      "function areaBetween(a, b) {\n  const d = (x) => x - x * x;\n  const n = 1000;\n  const h = (b - a) / n;\n  let s = 0.5 * (d(a) + d(b));\n  for (let i = 1; i < n; i++) s += d(a + i * h);\n  return Math.round(s * h * 1e4) / 1e4;\n}\n",
+  },
+
+  {
+    id: "math-degrees-to-radians",
+    title: "Degrees to Radians",
+    difficulty: "Easy",
+    practiceTrack: "math",
+    topic: "Applied / Geometry",
+    tags: ["geometry", "angles"],
+    prompt:
+      "Convert an angle in degrees to radians using radians = degrees * PI / 180 (use Math.PI). Return the result rounded to 4 decimals.",
+    fnName: "degToRad",
+    starter: "function degToRad(deg) {\n  // convert to radians, rounded to 4 decimals\n}\n",
+    tests: [
+      { args: [180], expected: 3.1416 },
+      { args: [90], expected: 1.5708 },
+      { args: [45], expected: 0.7854 },
+      { args: [0], expected: 0 },
+    ],
+    hint: "Multiply by Math.PI / 180 then round with Math.round(v * 1e4) / 1e4.",
+    solution:
+      "function degToRad(deg) {\n  return Math.round((deg * Math.PI) / 180 * 1e4) / 1e4;\n}\n",
+  },
+  {
+    id: "math-distance-2d",
+    title: "Distance Between Two Points",
+    difficulty: "Easy",
+    practiceTrack: "math",
+    topic: "Applied / Geometry",
+    tags: ["geometry", "distance"],
+    prompt:
+      "Return the Euclidean distance between points (x1, y1) and (x2, y2), rounded to 4 decimals.",
+    fnName: "distance2D",
+    starter:
+      "function distance2D(x1, y1, x2, y2) {\n  // Euclidean distance, rounded to 4 decimals\n}\n",
+    tests: [
+      { args: [0, 0, 3, 4], expected: 5 },
+      { args: [1, 1, 4, 5], expected: 5 },
+      { args: [-1, -1, 2, 3], expected: 5 },
+    ],
+    hint: "Use Math.hypot(x2 - x1, y2 - y1), then round.",
+    solution:
+      "function distance2D(x1, y1, x2, y2) {\n  return Math.round(Math.hypot(x2 - x1, y2 - y1) * 1e4) / 1e4;\n}\n",
+  },
+  {
+    id: "math-circle-metrics",
+    title: "Circle Area and Circumference",
+    difficulty: "Medium",
+    practiceTrack: "math",
+    topic: "Applied / Geometry",
+    tags: ["geometry", "circle"],
+    prompt:
+      "Given a radius r, return an array [area, circumference] where area = PI * r^2 and circumference = 2 * PI * r (use Math.PI). Round each value to 4 decimals.",
+    fnName: "circleMetrics",
+    starter:
+      "function circleMetrics(r) {\n  // return [area, circumference], each rounded to 4 decimals\n}\n",
+    tests: [
+      { args: [1], expected: [3.1416, 6.2832] },
+      { args: [2.5], expected: [19.635, 15.708] },
+      { args: [3], expected: [28.2743, 18.8496] },
+    ],
+    hint: "Compute both quantities with Math.PI and round each separately.",
+    solution:
+      "function circleMetrics(r) {\n  const round = (v) => Math.round(v * 1e4) / 1e4;\n  return [round(Math.PI * r * r), round(2 * Math.PI * r)];\n}\n",
+  },
+  {
+    id: "math-compound-interest",
+    title: "Compound Interest",
+    difficulty: "Medium",
+    practiceTrack: "math",
+    topic: "Applied / Geometry",
+    tags: ["applied", "finance"],
+    prompt:
+      "Return the future value of principal P invested at annual rate r (as a decimal) compounded n times per year for t years, using A = P * (1 + r/n)^(n*t). Round the result to 2 decimals.",
+    fnName: "compoundInterest",
+    starter:
+      "function compoundInterest(P, r, n, t) {\n  // future value, rounded to 2 decimals\n}\n",
+    tests: [
+      { args: [1000, 0.05, 12, 10], expected: 1647.01 },
+      { args: [500, 0.08, 4, 5], expected: 742.97 },
+      { args: [2000, 0.03, 1, 3], expected: 2185.45 },
+    ],
+    hint: "Apply the formula with Math.pow, then round with Math.round(v * 1e2) / 1e2.",
+    solution:
+      "function compoundInterest(P, r, n, t) {\n  return Math.round(P * Math.pow(1 + r / n, n * t) * 1e2) / 1e2;\n}\n",
+  },
+  {
+    id: "math-stddev",
+    title: "Mean, Variance and Standard Deviation",
+    difficulty: "Hard",
+    practiceTrack: "math",
+    topic: "Applied / Geometry",
+    tags: ["statistics", "variance"],
+    prompt:
+      "Given a non-empty array of numbers, return [mean, variance, stddev] using the population definitions: variance is the average of squared deviations from the mean, and stddev is its square root. Round each value to 4 decimals.",
+    fnName: "describe",
+    starter:
+      "function describe(arr) {\n  // return [mean, variance, stddev], each rounded to 4 decimals\n}\n",
+    tests: [
+      { args: [[1, 2, 3, 4, 5]], expected: [3, 2, 1.4142] },
+      { args: [[2, 4, 6, 8]], expected: [5, 5, 2.2361] },
+      { args: [[2, 4, 6]], expected: [4, 2.6667, 1.633] },
+    ],
+    hint: "Compute the mean first, then average (x - mean)^2 for variance, and Math.sqrt for stddev.",
+    solution:
+      "function describe(arr) {\n  const round = (v) => Math.round(v * 1e4) / 1e4;\n  const mean = arr.reduce((s, x) => s + x, 0) / arr.length;\n  const variance = arr.reduce((s, x) => s + (x - mean) * (x - mean), 0) / arr.length;\n  return [round(mean), round(variance), round(Math.sqrt(variance))];\n}\n",
+  },
+];

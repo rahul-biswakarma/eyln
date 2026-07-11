@@ -1,6 +1,9 @@
-import type { CodeChallenge, ChallengeTopic } from "./types";
+import type { CodeChallenge, ChallengeTopic, PracticeTrackId } from "./types";
+import { engineChallenges } from "./challenges/engine";
+import { mathChallenges } from "./challenges/math";
+import { dsaExtraChallenges } from "./challenges/dsa-extra";
 
-export const challenges: CodeChallenge[] = [
+const dsaChallenges: CodeChallenge[] = [
   {
     id: "two-sum",
     title: "Two Sum",
@@ -1085,9 +1088,22 @@ export const challenges: CodeChallenge[] = [
   },
 ];
 
+const DIFF_ORDER = { Easy: 0, Medium: 1, Hard: 2 } as const;
+
+function byDifficulty(a: CodeChallenge, b: CodeChallenge) {
+  return DIFF_ORDER[a.difficulty] - DIFF_ORDER[b.difficulty];
+}
+
+/** All practice challenges across every track. */
+export const challenges: CodeChallenge[] = [
+  ...dsaChallenges.map((c) => ({ ...c, practiceTrack: "dsa" as PracticeTrackId })),
+  ...dsaExtraChallenges,
+  ...engineChallenges,
+  ...mathChallenges,
+];
+
 export function challengesByDifficulty() {
-  const order = { Easy: 0, Medium: 1, Hard: 2 } as const;
-  return [...challenges].sort((a, b) => order[a.difficulty] - order[b.difficulty]);
+  return [...challenges].sort(byDifficulty);
 }
 
 export const XP_BY_DIFFICULTY = { Easy: 50, Medium: 100, Hard: 200 } as const;
@@ -1102,23 +1118,37 @@ export function totalXpEarned(solvedIds: Record<string, number>): number {
   return challenges.reduce((s, c) => (solvedIds[c.id] ? s + xpForChallenge(c) : s), 0);
 }
 
-export const TOPIC_ORDER: ChallengeTopic[] = [
-  "Arrays",
-  "Strings",
-  "Hashing",
-  "Two Pointers",
-  "Stacks & Queues",
-  "Linked Lists",
-  "Trees",
-  "Sorting",
-  "Searching",
-  "Recursion & DP",
-  "Math",
+export interface PracticeTrack {
+  id: PracticeTrackId;
+  title: string;
+  blurb: string;
+}
+
+export const PRACTICE_TRACKS: PracticeTrack[] = [
+  { id: "dsa", title: "Data Structures & Algorithms", blurb: "Blind 75 / NeetCode — the interview canon." },
+  { id: "engine", title: "3D Engine Math", blurb: "Vectors, matrices, and the geometry your renderer runs on." },
+  { id: "math", title: "Mathematics", blurb: "Numeric calculus, sequences, and applied math." },
 ];
 
-export function challengesByTopic(): { topic: ChallengeTopic; items: CodeChallenge[] }[] {
-  return TOPIC_ORDER.map((topic) => ({
+export function trackOf(c: CodeChallenge): PracticeTrackId {
+  return c.practiceTrack ?? "dsa";
+}
+
+export function challengesForTrack(track: PracticeTrackId): CodeChallenge[] {
+  return challenges.filter((c) => trackOf(c) === track);
+}
+
+/** Distinct topics within a track, in first-seen (author) order. */
+export function topicsForTrack(track: PracticeTrackId): string[] {
+  const seen: string[] = [];
+  for (const c of challengesForTrack(track)) if (!seen.includes(c.topic)) seen.push(c.topic);
+  return seen;
+}
+
+/** Challenges of a track grouped by topic; within each topic sorted easy→hard. */
+export function challengesByTopic(track: PracticeTrackId = "dsa"): { topic: ChallengeTopic; items: CodeChallenge[] }[] {
+  return topicsForTrack(track).map((topic) => ({
     topic,
-    items: challenges.filter((c) => c.topic === topic),
-  })).filter((g) => g.items.length > 0);
+    items: challengesForTrack(track).filter((c) => c.topic === topic).sort(byDifficulty),
+  }));
 }

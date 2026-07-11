@@ -1,35 +1,59 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { CheckCircle, ArrowRight } from "@phosphor-icons/react";
-import { challenges, challengesByTopic } from "../content/challenges";
+import {
+  challengesForTrack, challengesByTopic, PRACTICE_TRACKS,
+  type PracticeTrack,
+} from "../content/challenges";
+import type { PracticeTrackId } from "../content/types";
 import { CodeChallenge } from "../components/CodeChallenge";
 import { useProgress } from "../lib/progress";
 
 export function Practice() {
   const solved = useProgress((s) => s.solvedChallenges);
-  const [activeId, setActiveId] = useState(challenges[0].id);
+  const [trackId, setTrackId] = useState<PracticeTrackId>("dsa");
+  const trackList = useMemo(() => challengesForTrack(trackId), [trackId]);
+  const [activeId, setActiveId] = useState(trackList[0]?.id);
 
-  const active = challenges.find((c) => c.id === activeId) ?? challenges[0];
-  const activeIdx = challenges.findIndex((c) => c.id === active.id);
-  const solvedCount = challenges.filter((c) => solved[c.id]).length;
-  const pct = challenges.length ? solvedCount / challenges.length : 0;
-  const nextUp = challenges[activeIdx + 1];
+  const active = trackList.find((c) => c.id === activeId) ?? trackList[0];
+  const activeIdx = trackList.findIndex((c) => c.id === active.id);
+  const solvedCount = trackList.filter((c) => solved[c.id]).length;
+  const pct = trackList.length ? solvedCount / trackList.length : 0;
+  const nextUp = trackList[activeIdx + 1];
+  const track = PRACTICE_TRACKS.find((t) => t.id === trackId) as PracticeTrack;
+
+  function switchTrack(id: PracticeTrackId) {
+    setTrackId(id);
+    setActiveId(challengesForTrack(id)[0]?.id);
+  }
 
   return (
     <div className="practice-shell">
       <aside className="practice-sidebar">
+        <div className="track-switch">
+          {PRACTICE_TRACKS.map((t) => (
+            <button
+              key={t.id}
+              className={"track-tab" + (t.id === trackId ? " active" : "")}
+              onClick={() => switchTrack(t.id)}
+            >
+              {t.id === "dsa" ? "DSA" : t.id === "engine" ? "Engine" : "Math"}
+            </button>
+          ))}
+        </div>
+
         <div className="track-panel">
           <div className="tp-grid" aria-hidden />
           <div className="tp-eyebrow">Practice Track</div>
-          <div className="tp-name">Blind 75</div>
+          <div className="tp-name">{track.title}</div>
 
           <div className="tp-segments">
-            {challenges.map((c, i) => (
+            {trackList.map((c, i) => (
               <span key={c.id} className={"tp-seg" + (solved[c.id] ? " done" : "") + (i === activeIdx ? " current" : "")} />
             ))}
           </div>
           <div className="tp-pct-row">
             <span className="tp-pct">{Math.round(pct * 100)}%</span>
-            <span className="tp-mission">Mission {activeIdx + 1} of {challenges.length}</span>
+            <span className="tp-mission">Mission {activeIdx + 1} of {trackList.length}</span>
           </div>
 
           {nextUp && (
@@ -40,7 +64,7 @@ export function Practice() {
         </div>
 
         <nav className="ps-list">
-          {challengesByTopic().map((group) => {
+          {challengesByTopic(trackId).map((group) => {
             const groupSolved = group.items.filter((c) => solved[c.id]).length;
             return (
               <div key={group.topic} className="ps-group">
@@ -66,7 +90,7 @@ export function Practice() {
       </aside>
 
       <main className="practice-main">
-        <CodeChallenge key={active.id} challenge={active} missionIndex={activeIdx + 1} missionTotal={challenges.length} />
+        <CodeChallenge key={active.id} challenge={active} missionIndex={activeIdx + 1} missionTotal={trackList.length} />
       </main>
     </div>
   );

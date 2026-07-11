@@ -221,6 +221,16 @@ a.level-chip:hover { border-color: var(--border-glow); box-shadow: 0 0 0 3px var
   border-right: 1px solid var(--border); padding: 1.4rem 1rem;
   overflow-y: auto; display: flex; flex-direction: column; gap: 1.4rem;
 }
+/* Practice track switcher */
+.track-switch { display: flex; gap: 0.3rem; margin-bottom: 1rem; padding: 0.25rem; background: var(--surface-inset); border: 1px solid var(--border); border-radius: 12px; }
+.track-tab {
+  flex: 1; cursor: pointer; padding: 0.45rem 0.4rem; border-radius: 9px; border: none; background: transparent;
+  font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.04em; color: var(--text-faint);
+  transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+.track-tab:hover { color: var(--text); }
+.track-tab.active { background: var(--accent-soft); color: var(--highlight); }
+
 /* Editorial track-progress panel — mission control */
 .track-panel {
   position: relative; overflow: hidden; isolation: isolate; flex: none;
