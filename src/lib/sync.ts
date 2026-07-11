@@ -8,6 +8,7 @@ interface CloudDoc {
   done?: Record<string, boolean>;
   quizScores?: Record<string, number>;
   lastVisited?: Record<string, number>;
+  solvedChallenges?: Record<string, number>;
   notes?: Note[];
   bookmarks?: Record<string, number>;
   reminders?: Reminder[];
@@ -55,6 +56,7 @@ function localSnapshot(): CloudDoc {
     done: p.done,
     quizScores: p.quizScores,
     lastVisited: p.lastVisited,
+    solvedChallenges: p.solvedChallenges,
     notes: n.notes,
     bookmarks: n.bookmarks,
     reminders: n.reminders,
@@ -103,6 +105,7 @@ async function attach(uid: string) {
         done: orMerge(p.done, cloud.done),
         quizScores: maxMerge(p.quizScores, cloud.quizScores),
         lastVisited: maxMerge(p.lastVisited, cloud.lastVisited),
+        solvedChallenges: maxMerge(p.solvedChallenges, cloud.solvedChallenges),
       });
       useNotes.setState({
         notes: mergeById(n.notes, cloud.notes),

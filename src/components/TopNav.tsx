@@ -10,6 +10,7 @@ const NAV = [
   { to: "/", label: "Dashboard", end: true },
   { to: "/curriculum", label: "Curriculum", end: false },
   { to: "/playground", label: "Playground", end: false },
+  { to: "/practice", label: "Practice", end: false },
   { to: "/notes", label: "Notes", end: false },
   { to: "/resources", label: "Resources", end: false },
 ];

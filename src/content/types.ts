@@ -61,6 +61,32 @@ export interface Module {
   lessons: Lesson[];
 }
 
+export interface TestCase {
+  /** Args passed to the solution function, in order. */
+  args: unknown[];
+  /** Expected return value (deep-equality compared). */
+  expected: unknown;
+}
+
+export interface CodeChallenge {
+  id: string;
+  title: string;
+  difficulty: "Easy" | "Medium" | "Hard";
+  /** Source sheet / origin, e.g. "Blind 75". */
+  source?: string;
+  tags: string[];
+  /** Problem statement (may contain simple HTML via the renderer). */
+  prompt: string;
+  /** The function the user must implement (must be a global fn of this name). */
+  fnName: string;
+  /** Starter code seeded into the editor. */
+  starter: string;
+  tests: TestCase[];
+  hint?: string;
+  /** A known-good reference solution, revealable after solving/among hints. */
+  solution?: string;
+}
+
 export type TrackId = "engine" | "dsa" | "math";
 
 export interface Track {

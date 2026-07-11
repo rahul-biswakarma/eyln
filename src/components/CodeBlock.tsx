@@ -8,7 +8,7 @@ let highlighterPromise: Promise<HighlighterCore> | null = null;
 function getHighlighter(): Promise<HighlighterCore> {
   if (!highlighterPromise) {
     highlighterPromise = createHighlighterCore({
-      themes: [import("shiki/themes/vitesse-dark.mjs")],
+      themes: [import("shiki/themes/ayu-dark.mjs")],
       langs: [
         import("shiki/langs/wgsl.mjs"),
         import("shiki/langs/cpp.mjs"),
@@ -43,7 +43,7 @@ function useHighlighted(code: string, lang: Lang): string {
   useEffect(() => {
     let alive = true;
     getHighlighter()
-      .then((hl) => hl.codeToHtml(code, { lang: shikiLang[lang], theme: "vitesse-dark" }))
+      .then((hl) => hl.codeToHtml(code, { lang: shikiLang[lang], theme: "ayu-dark" }))
       .then((h) => alive && setHtml(h))
       .catch(() => alive && setHtml(`<pre>${escapeHtml(code)}</pre>`));
     return () => {
