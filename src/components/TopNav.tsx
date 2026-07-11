@@ -1,7 +1,9 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Bell } from "@phosphor-icons/react";
 import { useProgress } from "../lib/progress";
 import { useNotes, dueReminders } from "../lib/notes";
 import { computeStats } from "../lib/stats";
+import { levelFor } from "../lib/badges";
 import { AuthButton } from "./AuthButton";
 
 const NAV = [
@@ -14,11 +16,10 @@ const NAV = [
 
 export function TopNav() {
   const done = useProgress((s) => s.done);
-  const reset = useProgress((s) => s.reset);
   const reminders = useNotes((s) => s.reminders);
   const navigate = useNavigate();
   const stats = computeStats(done);
-  const level = 1 + Math.floor(stats.lessonsDone / 3); 
+  const level = levelFor(stats.lessonsDone);
   const due = dueReminders(reminders, Date.now()).length;
 
   return (
@@ -43,35 +44,13 @@ export function TopNav() {
           onClick={() => navigate("/notes")}
           style={{ position: "relative" }}
         >
-          🔔
-          {due > 0 && (
-            <span
-              style={{
-                position: "absolute", top: -4, right: -4, minWidth: 16, height: 16,
-                padding: "0 4px", borderRadius: 8, background: "var(--bad)", color: "#fff",
-                fontSize: "0.62rem", fontFamily: "var(--mono)", display: "grid", placeItems: "center",
-              }}
-            >
-              {due}
-            </span>
-          )}
+          <Bell size={19} weight="duotone" />
+          {due > 0 && <span className="nav-badge">{due}</span>}
         </button>
-        <button
-          className="icon-btn"
-          title="Reset all progress"
-          onClick={() => {
-            if (confirm("Reset all progress? This clears completed lessons and quiz scores.")) {
-              reset();
-              navigate("/");
-            }
-          }}
-        >
-          ⟲
-        </button>
-        <div className="level-chip">
+        <Link to="/profile" className="level-chip" title="Your profile">
           <span>Lv {level}</span>
           <span className="lvl-badge">{stats.lessonsDone}</span>
-        </div>
+        </Link>
         <AuthButton />
       </div>
     </header>

@@ -6,6 +6,7 @@ import { Playground } from "./pages/Playground";
 import { LessonPage } from "./pages/LessonPage";
 import { Resources } from "./pages/Resources";
 import { Notes } from "./pages/Notes";
+import { Profile } from "./pages/Profile";
 
 export const router = createBrowserRouter([
   {
@@ -18,6 +19,7 @@ export const router = createBrowserRouter([
       { path: "m/:moduleId/:lessonId", element: <LessonPage /> },
       { path: "resources", element: <Resources /> },
       { path: "notes", element: <Notes /> },
+      { path: "profile", element: <Profile /> },
     ],
   },
 ]);

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "../lib/auth";
 import { isFirebaseEnabled } from "../lib/firebase";
 
@@ -9,7 +10,7 @@ export function AuthButton() {
   const signOut = useAuth((s) => s.signOut);
   const [open, setOpen] = useState(false);
 
-  if (!isFirebaseEnabled()) return null; 
+  if (!isFirebaseEnabled()) return null;
   if (!ready) return <div className="auth-btn skeleton" aria-hidden />;
 
   if (!user) {
@@ -38,7 +39,10 @@ export function AuthButton() {
             {user.email && <div className="auth-email">{user.email}</div>}
           </div>
           <div className="auth-synced">✓ Progress synced to the cloud</div>
-          <button className="btn" onClick={() => { setOpen(false); void signOut(); }}>
+          <Link className="btn primary auth-menu-btn" to="/profile" onClick={() => setOpen(false)}>
+            View profile
+          </Link>
+          <button className="btn auth-menu-btn" onClick={() => { setOpen(false); void signOut(); }}>
             Sign out
           </button>
         </div>
