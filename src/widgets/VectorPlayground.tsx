@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import type { Vec2 } from "../engine/vec";
 import { dot2, cross2, len2, angleBetween, DEG } from "../engine/vec";
 
-/** Drag two vectors; watch dot product, cross product, and angle update live. */
 export function VectorPlayground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [a, setA] = useState<Vec2>([2, 1]);
@@ -19,11 +18,11 @@ export function VectorPlayground() {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     const cx = W / 2, cy = H / 2;
-    const unit = 45; // px per unit
+    const unit = 45; 
     const toScreen = (v: Vec2): Vec2 => [cx + v[0] * unit, cy - v[1] * unit];
 
     ctx.clearRect(0, 0, W, H);
-    // grid
+    
     ctx.strokeStyle = "#1A1D26";
     ctx.lineWidth = 1;
     for (let x = cx % unit; x < W; x += unit) {
@@ -32,7 +31,7 @@ export function VectorPlayground() {
     for (let y = cy % unit; y < H; y += unit) {
       ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
     }
-    // axes
+    
     ctx.strokeStyle = "#3A3F4B";
     ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(W, cy); ctx.moveTo(cx, 0); ctx.lineTo(cx, H); ctx.stroke();
 
@@ -52,7 +51,6 @@ export function VectorPlayground() {
       ctx.fillText(label, sx + 8, sy - 6);
     };
 
-    // Shaded parallelogram to visualize the cross product (signed area).
     const [ax, ay] = toScreen(a);
     const [bx, by] = toScreen(b);
     ctx.fillStyle = "rgba(255,176,0,0.12)";

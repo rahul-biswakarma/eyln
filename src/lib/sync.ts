@@ -1,8 +1,3 @@
-// Cloud sync: mirror the progress + notes stores to Firestore, one doc per user.
-// On sign-in we merge cloud data into local (union of completions, best scores,
-// newest notes), push the merged result up, then keep writing local changes to
-// the cloud (debounced). Sign-out detaches the writer. All of this is inert when
-// Firebase isn't configured, so the app still runs fully on localStorage.
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { getDb } from "./firebase";
 import { useAuth } from "./auth";
@@ -53,7 +48,6 @@ function mergeOpenScores(a: Record<string, OpenScore> = {}, b: Record<string, Op
   return out;
 }
 
-/** Current local state flattened into the cloud shape. */
 function localSnapshot(): CloudDoc {
   const p = useProgress.getState();
   const n = useNotes.getState();
@@ -89,7 +83,7 @@ function scheduleWrite() {
     try {
       await setDoc(ref, { ...localSnapshot(), updatedAt: Date.now() });
     } catch {
-      /* transient network error — the next change reschedules a write */
+      
     }
   }, 1200);
 }
@@ -99,7 +93,6 @@ async function attach(uid: string) {
   const ref = userDocRef(uid);
   if (!ref) return;
 
-  // 1. Pull the cloud doc and merge it into the local stores.
   try {
     const snap = await getDoc(ref);
     if (snap.exists()) {
@@ -119,10 +112,9 @@ async function attach(uid: string) {
       });
     }
   } catch {
-    /* offline / permission issue — keep local data, still attach writers */
+    
   }
 
-  // 2. Push the merged result and subscribe to future local changes.
   scheduleWrite();
   unsubProgress = useProgress.subscribe(scheduleWrite);
   unsubNotes = useNotes.subscribe(scheduleWrite);
@@ -135,9 +127,8 @@ function detach() {
   unsubNotes?.(); unsubNotes = null;
 }
 
-/** Start reacting to auth changes: attach sync on sign-in, detach on sign-out. */
 export function initSync() {
-  if (unsubAuth) return; // already initialized
+  if (unsubAuth) return; 
   unsubAuth = useAuth.subscribe((state) => {
     const uid = state.user?.uid ?? null;
     if (uid && uid !== activeUid) {
@@ -147,7 +138,7 @@ export function initSync() {
       detach();
     }
   });
-  // Handle the case where a user is already restored before this subscribe runs.
+  
   const existing = useAuth.getState().user?.uid;
   if (existing) void attach(existing);
 }

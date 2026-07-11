@@ -2,18 +2,14 @@ import { useEffect, useRef, useState } from "react";
 import { initWebGPU, webgpuSupported, type GpuContext } from "../engine/webgpu/gpu";
 
 interface Props {
-  /** Called once the device is ready. Return a cleanup fn (stop loops, destroy buffers). */
+  
   setup: (ctx: GpuContext) => void | (() => void);
   height?: number;
   title?: string;
-  /** Optional controls/readout rendered inside the same card, below the canvas. */
+  
   children?: React.ReactNode;
 }
 
-/**
- * Mounts a WebGPU canvas, requests a device, calls `setup`, and tears down on
- * unmount. Renders a graceful fallback when WebGPU is unavailable.
- */
 export function WebGPUCanvas({ setup, height = 320, title = "WebGPU · live", children }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [error, setError] = useState<string | null>(null);
@@ -38,7 +34,7 @@ export function WebGPUCanvas({ setup, height = 320, title = "WebGPU · live", ch
       cancelled = true;
       if (cleanup) cleanup();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, []);
 
   if (!webgpuSupported()) {

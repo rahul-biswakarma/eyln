@@ -1,8 +1,5 @@
-// Value, Perlin, and Simplex-flavored noise + fBm. Deterministic (seedable),
-// so the browser terrain preview and any shown Odin port can agree.
-
 function hash2(ix: number, iy: number, seed: number): number {
-  // Integer hash -> [0,1). Cheap but well-distributed enough for teaching.
+  
   let h = ix * 374761393 + iy * 668265263 + seed * 1442695040;
   h = (h ^ (h >>> 13)) >>> 0;
   h = (h * 1274126177) >>> 0;
@@ -10,12 +7,11 @@ function hash2(ix: number, iy: number, seed: number): number {
 }
 
 function fade(t: number): number {
-  // Perlin's 6t^5 - 15t^4 + 10t^3 smootherstep.
+  
   return t * t * t * (t * (t * 6 - 15) + 10);
 }
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
-/** Value noise in [0,1]. */
 export function valueNoise(x: number, y: number, seed = 0): number {
   const x0 = Math.floor(x), y0 = Math.floor(y);
   const fx = fade(x - x0), fy = fade(y - y0);
@@ -29,7 +25,6 @@ function grad(ix: number, iy: number, seed: number): [number, number] {
   return [Math.cos(a), Math.sin(a)];
 }
 
-/** Classic Perlin gradient noise, remapped to [0,1]. */
 export function perlin(x: number, y: number, seed = 0): number {
   const x0 = Math.floor(x), y0 = Math.floor(y);
   const dx = x - x0, dy = y - y0;
@@ -39,10 +34,9 @@ export function perlin(x: number, y: number, seed = 0): number {
   const dot11 = grad(x0 + 1, y0 + 1, seed)[0] * (dx - 1) + grad(x0 + 1, y0 + 1, seed)[1] * (dy - 1);
   const u = fade(dx), v = fade(dy);
   const n = lerp(lerp(dot00, dot10, u), lerp(dot01, dot11, u), v);
-  return n * 0.5 + 0.5; // [-1,1] -> [0,1]
+  return n * 0.5 + 0.5; 
 }
 
-// Simplex-2D. Compact, standard skew/unskew constants.
 const F2 = 0.5 * (Math.sqrt(3) - 1);
 const G2 = (3 - Math.sqrt(3)) / 6;
 export function simplex(xin: number, yin: number, seed = 0): number {
@@ -62,7 +56,7 @@ export function simplex(xin: number, yin: number, seed = 0): number {
     return tt * tt * (g[0] * dx + g[1] * dy);
   };
   const n = contrib(x0, y0, i, j) + contrib(x1, y1, i + i1, j + j1) + contrib(x2, y2, i + 1, j + 1);
-  return Math.max(0, Math.min(1, 70 * n * 0.5 + 0.5)); // scale + remap to [0,1]
+  return Math.max(0, Math.min(1, 70 * n * 0.5 + 0.5)); 
 }
 
 export type NoiseKind = "value" | "perlin" | "simplex";
@@ -79,18 +73,17 @@ export interface FbmOpts {
   kind: NoiseKind;
   octaves: number;
   frequency: number;
-  lacunarity: number; // frequency multiplier per octave (~2)
-  gain: number;       // amplitude multiplier per octave (~0.5)
+  lacunarity: number; 
+  gain: number;       
   ridged?: boolean;
   seed?: number;
 }
 
-/** Fractal Brownian motion in [0,1]. */
 export function fbm(x: number, y: number, o: FbmOpts): number {
   let freq = o.frequency, amp = 1, sum = 0, norm = 0;
   for (let i = 0; i < o.octaves; i++) {
     let n = sample(o.kind, x * freq, y * freq, (o.seed ?? 0) + i * 101);
-    if (o.ridged) n = 1 - Math.abs(n * 2 - 1); // fold to ridges
+    if (o.ridged) n = 1 - Math.abs(n * 2 - 1); 
     sum += n * amp;
     norm += amp;
     amp *= o.gain;

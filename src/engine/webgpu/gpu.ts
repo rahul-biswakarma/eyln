@@ -1,6 +1,3 @@
-// Tiny WebGPU helpers. Centralizes the fiddly parts: adapter/device request,
-// canvas configuration, a render loop with clean teardown, and buffer upload.
-
 export interface GpuContext {
   device: GPUDevice;
   context: GPUCanvasContext;
@@ -12,7 +9,6 @@ export function webgpuSupported(): boolean {
   return typeof navigator !== "undefined" && "gpu" in navigator;
 }
 
-/** Request a device and configure the canvas. Throws with a friendly message. */
 export async function initWebGPU(canvas: HTMLCanvasElement): Promise<GpuContext> {
   if (!webgpuSupported()) {
     throw new Error("WebGPU is not available in this browser.");
@@ -26,7 +22,6 @@ export async function initWebGPU(canvas: HTMLCanvasElement): Promise<GpuContext>
   return { device, context, format, canvas };
 }
 
-/** Resize the canvas backing store to match its CSS box * dpr. Returns [w,h]. */
 export function resizeToDisplay(canvas: HTMLCanvasElement, maxDpr = 2): [number, number] {
   const dpr = Math.min(window.devicePixelRatio || 1, maxDpr);
   const w = Math.max(1, Math.floor(canvas.clientWidth * dpr));
@@ -42,7 +37,6 @@ export interface Loop {
   stop: () => void;
 }
 
-/** requestAnimationFrame loop with a stop handle for React cleanup. */
 export function startLoop(fn: (tSec: number, dt: number) => void): Loop {
   let raf = 0;
   let last = performance.now();
@@ -69,7 +63,7 @@ export function makeBuffer(
   usage: GPUBufferUsageFlags
 ): GPUBuffer {
   const buf = device.createBuffer({
-    size: (data.byteLength + 3) & ~3, // align to 4 bytes
+    size: (data.byteLength + 3) & ~3, 
     usage: usage | GPUBufferUsage.COPY_DST,
     mappedAtCreation: true,
   });

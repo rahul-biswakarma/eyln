@@ -16,7 +16,6 @@ export function CoachCard() {
   const [aiText, setAiText] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Fetch a personalized recommendation once per mount when the LLM is on.
   useEffect(() => {
     let cancelled = false;
     if (!isLLMEnabled()) return;
@@ -34,8 +33,7 @@ export function CoachCard() {
     return () => {
       cancelled = true;
     };
-    // Re-run only when the coarse signal shape changes.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, [sig.streak, sig.weakModules.length, sig.staleLessons.length, sig.next?.lesson.id]);
 
   const recommendation = aiText ?? ruleBasedRecommendation(sig);

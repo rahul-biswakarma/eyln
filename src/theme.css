@@ -184,6 +184,17 @@ kbd {
   font-family: var(--display);
 }
 
+/* ============ Icons (Phosphor duotone) ============ */
+/* Inline icons in breadcrumbs / note links sit on the text baseline nicely. */
+.crumbs .seg svg, .section-title .more svg { vertical-align: -0.15em; }
+.side-track-label .tg svg { vertical-align: -0.2em; }
+/* Module/track icon tiles tint their glyph with the accent (duotone picks up
+   currentColor for the solid layer + a translucent secondary automatically). */
+.mod-card .ic { color: var(--mod-accent); }
+.tc-glyph, .track-header .track-glyph { color: var(--track-accent); }
+.sidebar .mod-title .ic { color: var(--text-dim); }
+.activity .ic svg, .continue .cta-ic svg { color: var(--accent); }
+
 /* ============ Sign-in gate ============ */
 .signin-screen {
   min-height: 100vh; display: grid; place-items: center; padding: 2rem;

@@ -1,6 +1,6 @@
 import type { Module, Lesson, TrackId } from "./types";
 import { tracks, DEFAULT_TRACK } from "./tracks";
-// Engine track
+
 import { linearAlgebra } from "../modules/linear-algebra";
 import { odin } from "../modules/odin";
 import { proceduralMath } from "../modules/procedural-math";
@@ -10,9 +10,9 @@ import { rendering } from "../modules/rendering";
 import { lighting } from "../modules/lighting";
 import { textures } from "../modules/textures";
 import { optimization } from "../modules/optimization";
-// DSA track
+
 import { dsaModules } from "../modules/dsa";
-// Math track
+
 import { mathModules } from "../modules/math";
 
 const engineModules: Module[] = [
@@ -22,7 +22,6 @@ const engineModules: Module[] = [
 
 const raw: Module[] = [...engineModules, ...dsaModules, ...mathModules];
 
-/** Topologically sort modules by dependsOn so the curriculum reads in order. */
 function topoSort(mods: Module[]): Module[] {
   const byId = new Map(mods.map((m) => [m.id, m]));
   const visited = new Set<string>();
@@ -40,7 +39,6 @@ function topoSort(mods: Module[]): Module[] {
   return out;
 }
 
-/** All modules, grouped by track (each track internally topo-sorted). */
 export const modules: Module[] = tracks.flatMap((t) =>
   topoSort(raw.filter((m) => (m.track ?? DEFAULT_TRACK) === t.id))
 );
@@ -49,7 +47,6 @@ export function getModule(id: string): Module | undefined {
   return modules.find((m) => m.id === id);
 }
 
-/** Modules belonging to a given track, in curriculum order. */
 export function modulesForTrack(trackId: TrackId): Module[] {
   return modules.filter((m) => (m.track ?? DEFAULT_TRACK) === trackId);
 }
@@ -61,15 +58,13 @@ export function trackIdOf(module: Module): TrackId {
 export interface LessonRef {
   module: Module;
   lesson: Lesson;
-  index: number; // global index across the flattened curriculum
+  index: number; 
 }
 
-/** Flatten all lessons in curriculum order for prev/next navigation. */
 export const allLessons: LessonRef[] = modules
   .flatMap((module) => module.lessons.map((lesson) => ({ module, lesson, index: 0 })))
   .map((ref, i) => ({ ...ref, index: i }));
 
-/** Lessons within a single track, in order (for track-aware next/prev). */
 export function lessonsForTrack(trackId: TrackId): LessonRef[] {
   return allLessons.filter((r) => (r.module.track ?? DEFAULT_TRACK) === trackId);
 }

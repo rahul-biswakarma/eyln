@@ -1,6 +1,5 @@
 import { useAuth } from "../lib/auth";
 
-/** Full-screen gate shown until the user signs in. */
 export function SignInScreen() {
   const signIn = useAuth((s) => s.signIn);
   const error = useAuth((s) => s.error);

@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { fbm, type NoiseKind } from "../engine/noise";
 
-/** Tune noise params; see the heightmap + a shaded pseudo-3D terrain preview. */
 export function NoiseExplorer() {
   const mapRef = useRef<HTMLCanvasElement>(null);
   const terrRef = useRef<HTMLCanvasElement>(null);
@@ -23,7 +22,6 @@ export function NoiseExplorer() {
       }
     }
 
-    // Heightmap (grayscale)
     const map = mapRef.current!;
     const mctx = map.getContext("2d")!;
     const size = Math.min(map.clientWidth, 220);
@@ -39,7 +37,6 @@ export function NoiseExplorer() {
       mctx.drawImage(bmp, 0, 0, size, size);
     });
 
-    // Pseudo-3D shaded terrain: isometric height columns with simple diffuse.
     const terr = terrRef.current!;
     const tctx = terr.getContext("2d")!;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -50,18 +47,18 @@ export function NoiseExplorer() {
     const step = 3;
     const tile = W / (N + 20);
     const zScale = 60;
-    // draw back-to-front
+    
     for (let y = 0; y < N - step; y += step) {
       for (let x = 0; x < N - step; x += step) {
         const h = heights[y * N + x];
         const hx = heights[y * N + Math.min(N - 1, x + step)];
         const hy = heights[Math.min(N - 1, (y + step)) * N + x];
-        // normal from finite differences -> lambert with a fixed light
+        
         const nx = h - hx, ny = h - hy, nz = 0.08;
         const nl = Math.max(0.2, (nx * 0.5 + ny * 0.5 + nz) / Math.hypot(nx, ny, nz) + 0.4);
         const iso_x = (x - y) * tile * 0.5 + W / 2;
         const iso_y = (x + y) * tile * 0.28 - h * zScale + 40;
-        // color ramp: water -> grass -> rock -> snow
+        
         let col: [number, number, number];
         if (h < 0.35) col = [40, 90, 140];
         else if (h < 0.55) col = [70, 130, 70];

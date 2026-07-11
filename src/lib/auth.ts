@@ -1,6 +1,3 @@
-// Auth state as a small zustand store, driven by Firebase's onAuthStateChanged.
-// When Firebase isn't configured, `ready` is true and `user` stays null, so the
-// UI simply shows a "sign in" affordance that explains it's disabled.
 import { create } from "zustand";
 import {
   onAuthStateChanged,
@@ -19,7 +16,7 @@ export interface AuthUser {
 
 interface AuthState {
   user: AuthUser | null;
-  /** false until the first auth-state callback (or immediately if disabled). */
+  
   ready: boolean;
   error: string | null;
   signIn: () => Promise<void>;
@@ -32,7 +29,7 @@ function toUser(u: User): AuthUser {
 
 export const useAuth = create<AuthState>((set) => ({
   user: null,
-  ready: !isFirebaseEnabled(), // nothing to wait for when disabled
+  ready: !isFirebaseEnabled(), 
   error: null,
 
   signIn: async () => {
@@ -56,7 +53,6 @@ export const useAuth = create<AuthState>((set) => ({
   },
 }));
 
-/** Wire Firebase auth changes into the store. Call once at app start. */
 export function initAuthListener() {
   const auth = getAuthClient();
   if (!auth) {

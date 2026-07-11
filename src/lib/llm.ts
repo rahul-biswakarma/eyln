@@ -1,10 +1,3 @@
-// Thin Gemini REST client. Key comes from the Vite env var VITE_GEMINI_API_KEY.
-// Every LLM feature in the app checks isLLMEnabled() first and falls back to
-// rule-based behavior when the key is absent, so the course works fully offline.
-//
-// NOTE: a browser-embedded key is visible to anyone with devtools. This build
-// targets local / personal use (all state is localStorage, single user).
-
 const API_KEY: string | undefined = import.meta.env.VITE_GEMINI_API_KEY;
 const MODEL = import.meta.env.VITE_GEMINI_MODEL || "gemini-2.0-flash";
 const BASE = "https://generativelanguage.googleapis.com/v1beta/models";
@@ -15,7 +8,7 @@ export function isLLMEnabled(): boolean {
 
 export interface GenerateOpts {
   system?: string;
-  /** 0..1; lower = more deterministic. Default 0.4. */
+  
   temperature?: number;
   signal?: AbortSignal;
 }
@@ -36,7 +29,6 @@ function buildBody(contents: GeminiContent[], opts: GenerateOpts) {
   return body;
 }
 
-/** Single-shot completion. Throws if the key is missing or the request fails. */
 export async function generate(prompt: string, opts: GenerateOpts = {}): Promise<string> {
   if (!isLLMEnabled()) throw new Error("LLM disabled: set VITE_GEMINI_API_KEY");
   const contents: GeminiContent[] = [{ role: "user", parts: [{ text: prompt }] }];
@@ -96,7 +88,7 @@ export function parseJSON<T>(raw: string): T | null {
   try {
     return JSON.parse(candidate) as T;
   } catch {
-    // Try to locate the first {...} or [...] block.
+    
     const obj = candidate.match(/[[{][\s\S]*[\]}]/);
     if (obj) {
       try {

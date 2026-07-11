@@ -8,6 +8,7 @@ import { Quiz } from "./Quiz";
 import { Exercise } from "./Exercise";
 import { NotePanel } from "./NotePanel";
 import { TutorChat } from "./TutorChat";
+import { ModuleIcon } from "./ModuleIcon";
 
 export function LessonLayout({ data }: { data: LessonRef }) {
   const { module, lesson, index } = data;
@@ -27,10 +28,8 @@ export function LessonLayout({ data }: { data: LessonRef }) {
   const next = allLessons[index + 1];
   const Body = lesson.Body;
 
-  // Stamp a visit for the activity feed (once per mount).
   useEffect(() => { visit(key); }, [key, visit]);
 
-  // Reading-progress bar tied to window scroll.
   useEffect(() => {
     const onScroll = () => {
       const h = document.documentElement;
@@ -59,7 +58,7 @@ export function LessonLayout({ data }: { data: LessonRef }) {
         <div className="crumbs">
           <Link to="/">Dashboard</Link>
           <span>/</span>
-          <span className="seg">{module.icon} {module.title}</span>
+          <span className="seg"><ModuleIcon id={module.id} size={14} /> {module.title}</span>
           <span>/</span>
           <span className="seg">{lesson.title}</span>
         </div>

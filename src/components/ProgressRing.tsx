@@ -1,4 +1,3 @@
-/** A small circular progress ring (0..1). */
 export function ProgressRing({ value, size = 40, stroke = 4, showText = true }: {
   value: number; size?: number; stroke?: number; showText?: boolean;
 }) {

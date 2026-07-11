@@ -6,7 +6,6 @@ import { mathIntegrals } from "../math-integrals";
 import { mathCurves } from "../math-curves";
 import { mathVectorCalc } from "../math-vector-calc";
 
-/** All Mathematics modules. */
 export const mathModules: Module[] = [
   mathFunctions,
   mathLimits,

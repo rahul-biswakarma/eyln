@@ -7,7 +7,6 @@ import { initSync } from "./lib/sync";
 import "katex/dist/katex.min.css";
 import "./theme.css";
 
-// Bootstrap auth + cloud sync (both no-ops when Firebase isn't configured).
 initAuthListener();
 initSync();
 

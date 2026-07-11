@@ -4,8 +4,6 @@ import { createOnigurumaEngine } from "shiki/engine/oniguruma";
 
 export type Lang = "wgsl" | "cpp" | "odin" | "ts" | "bash" | "c";
 
-// A single fine-grained highlighter loaded once, with only the languages we use.
-// This avoids bundling Shiki's full grammar registry (hundreds of languages).
 let highlighterPromise: Promise<HighlighterCore> | null = null;
 function getHighlighter(): Promise<HighlighterCore> {
   if (!highlighterPromise) {
@@ -31,12 +29,11 @@ export interface CodeTab {
   filename?: string;
 }
 
-// Shiki has no dedicated Odin grammar; C is the closest for MSL and Odin-ish.
 const shikiLang: Record<Lang, string> = {
   wgsl: "wgsl",
   cpp: "cpp",
   c: "c",
-  odin: "c", // approximate highlight for Odin
+  odin: "c", 
   ts: "typescript",
   bash: "bash",
 };

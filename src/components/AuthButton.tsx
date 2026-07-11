@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useAuth } from "../lib/auth";
 import { isFirebaseEnabled } from "../lib/firebase";
 
-/** Nav affordance: sign-in button, or the signed-in user's avatar + menu. */
 export function AuthButton() {
   const user = useAuth((s) => s.user);
   const ready = useAuth((s) => s.ready);
@@ -10,7 +9,7 @@ export function AuthButton() {
   const signOut = useAuth((s) => s.signOut);
   const [open, setOpen] = useState(false);
 
-  if (!isFirebaseEnabled()) return null; // no sync configured — hide entirely
+  if (!isFirebaseEnabled()) return null; 
   if (!ready) return <div className="auth-btn skeleton" aria-hidden />;
 
   if (!user) {

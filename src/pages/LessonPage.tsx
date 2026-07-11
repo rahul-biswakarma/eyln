@@ -15,6 +15,6 @@ export function LessonPage() {
       </div>
     );
   }
-  // Remount body when the route changes so widgets reset cleanly.
+  
   return <LessonLayout key={`${moduleId}/${lessonId}`} data={found} />;
 }

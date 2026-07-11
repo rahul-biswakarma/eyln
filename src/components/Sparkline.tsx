@@ -1,4 +1,3 @@
-/** Tiny inline SVG area sparkline from a series of values. */
 export function Sparkline({ values, width = 120, height = 34 }: {
   values: number[]; width?: number; height?: number;
 }) {

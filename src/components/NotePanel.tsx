@@ -2,10 +2,6 @@ import { useState } from "react";
 import { useNotes } from "../lib/notes";
 import { REMINDER_PRESETS, ensureNotifyPermission } from "../lib/reminders";
 
-/**
- * Slide-over for capturing a note about the current lesson. Optionally pre-fills
- * a highlighted passage, accepts tags, and can schedule a reminder in one step.
- */
 export function NotePanel({
   lessonKey,
   moduleId,
@@ -31,8 +27,7 @@ export function NotePanel({
       addNote({ lessonKey, moduleId, selectionText: selection, body: body.trim(), tags });
     }
     if (remindMs) {
-      // Store the reminder unconditionally — the in-app bell works even without
-      // OS notification permission. Request permission separately, fire-and-forget.
+      
       addReminder({
         lessonKey,
         note: `Review "${lessonTitle}"${body.trim() ? `: ${body.trim().slice(0, 60)}` : ""}`,

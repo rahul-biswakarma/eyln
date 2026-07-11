@@ -1,6 +1,7 @@
 import { modulesForTrack } from "../content/registry";
 import { tracks } from "../content/tracks";
 import { ModuleCard } from "../components/ModuleCard";
+import { TrackIcon } from "../components/ModuleIcon";
 import { useProgress } from "../lib/progress";
 import { computeStats } from "../lib/stats";
 
@@ -33,7 +34,7 @@ export function Curriculum() {
         return (
           <section key={track.id} className="track-section" style={{ "--track-accent": track.accent } as React.CSSProperties}>
             <div className="track-header">
-              <span className="track-glyph">{track.icon}</span>
+              <span className="track-glyph"><TrackIcon id={track.id} size={24} /></span>
               <div>
                 <h2>{track.title}</h2>
                 <p>{track.blurb}</p>

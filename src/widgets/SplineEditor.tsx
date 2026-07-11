@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import type { P2 } from "../engine/spline";
 import { catmullRomChain, extrudeRibbon, arcLength } from "../engine/spline";
 
-/** Click to drop control points; a Catmull-Rom curve is extruded into a wall ribbon. */
 export function SplineEditor() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [pts, setPts] = useState<P2[]>([
@@ -25,14 +24,14 @@ export function SplineEditor() {
 
     if (showRibbon && curve.length > 1) {
       const { left, right } = extrudeRibbon(curve, halfWidth);
-      // fill ribbon
+      
       ctx.fillStyle = "rgba(255,176,0,0.18)";
       ctx.beginPath();
       ctx.moveTo(left[0][0], left[0][1]);
       for (const p of left) ctx.lineTo(p[0], p[1]);
       for (let i = right.length - 1; i >= 0; i--) ctx.lineTo(right[i][0], right[i][1]);
       ctx.closePath(); ctx.fill();
-      // triangle strip edges (show the generated mesh)
+      
       ctx.strokeStyle = "rgba(255,176,0,0.35)";
       ctx.lineWidth = 1;
       for (let i = 0; i < left.length; i++) {
@@ -40,13 +39,11 @@ export function SplineEditor() {
       }
     }
 
-    // centerline curve
     ctx.strokeStyle = "#FFD35C"; ctx.lineWidth = 2;
     ctx.beginPath();
     curve.forEach((p, i) => (i === 0 ? ctx.moveTo(p[0], p[1]) : ctx.lineTo(p[0], p[1])));
     ctx.stroke();
 
-    // control points + control polygon
     ctx.strokeStyle = "#3A3F4B"; ctx.setLineDash([4, 4]); ctx.lineWidth = 1;
     ctx.beginPath();
     pts.forEach((p, i) => (i === 0 ? ctx.moveTo(p[0], p[1]) : ctx.lineTo(p[0], p[1])));

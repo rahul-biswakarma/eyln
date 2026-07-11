@@ -3,6 +3,7 @@ import { modulesForTrack, lessonPath, lessonKey, moduleProgress } from "../conte
 import { tracks } from "../content/tracks";
 import { useProgress } from "../lib/progress";
 import { ProgressRing } from "./ProgressRing";
+import { ModuleIcon, TrackIcon } from "./ModuleIcon";
 
 export function Sidebar() {
   const { moduleId, lessonId } = useParams();
@@ -16,13 +17,13 @@ export function Sidebar() {
         return (
           <div key={track.id} className="side-track" style={{ "--track-accent": track.accent } as React.CSSProperties}>
             <div className="side-track-label">
-              <span className="tg">{track.icon}</span>
+              <span className="tg"><TrackIcon id={track.id} size={15} /></span>
               {track.title}
             </div>
             {trackModules.map((m) => (
               <div className="mod-group" key={m.id}>
                 <div className="mod-title">
-                  <span className="ic">{m.icon}</span>
+                  <span className="ic"><ModuleIcon id={m.id} size={17} /></span>
                   <span>{m.title}</span>
                   <span className="ring"><ProgressRing value={moduleProgress(m, done)} size={26} stroke={3} showText={false} /></span>
                 </div>

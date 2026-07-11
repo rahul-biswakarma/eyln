@@ -1,9 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 
-/** Sliders for a 2x2 matrix; watch a grid + unit square + logo deform live. */
 export function MatrixTransform2D() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  // column-major-ish: [a c ; b d] applied as [x',y'] = [a*x + c*y, b*x + d*y]
+  
   const [m, setM] = useState({ a: 1, b: 0, c: 0, d: 1 });
 
   useEffect(() => {
@@ -23,7 +22,6 @@ export function MatrixTransform2D() {
 
     ctx.clearRect(0, 0, W, H);
 
-    // transformed grid
     ctx.strokeStyle = "#1E212B";
     ctx.lineWidth = 1;
     for (let i = -6; i <= 6; i++) {
@@ -33,7 +31,6 @@ export function MatrixTransform2D() {
       p = toScreen(...apply(6, i)); ctx.lineTo(p[0], p[1]); ctx.stroke();
     }
 
-    // transformed unit square
     ctx.fillStyle = "rgba(255,176,0,0.14)";
     ctx.strokeStyle = "#FFB000";
     ctx.lineWidth = 2;
@@ -45,7 +42,6 @@ export function MatrixTransform2D() {
     });
     ctx.closePath(); ctx.fill(); ctx.stroke();
 
-    // basis vectors i-hat (a,b) and j-hat (c,d)
     const drawBasis = (vx: number, vy: number, color: string, label: string) => {
       const s = toScreen(vx, vy);
       ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = 3;

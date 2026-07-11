@@ -1,17 +1,12 @@
-// 4x4 matrix math, column-major, right-handed — matching Odin's core:math/linalg
-// and Metal/WebGPU conventions. Stored as a flat Float32Array-friendly 16-tuple
-// in column-major order: m[col*4 + row].
-
 import type { Vec3 } from "./vec";
 import { cross, normalize, sub, dot } from "./vec";
 
-export type Mat4 = number[]; // length 16, column-major
+export type Mat4 = number[]; 
 
 export function identity(): Mat4 {
   return [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
 }
 
-/** C = A * B  (apply B first, then A — same as linalg). Column-major. */
 export function mul(a: Mat4, b: Mat4): Mat4 {
   const o = new Array(16).fill(0);
   for (let c = 0; c < 4; c++) {
@@ -24,7 +19,6 @@ export function mul(a: Mat4, b: Mat4): Mat4 {
   return o;
 }
 
-/** Multiply matrix by a column vector [x,y,z,w]. */
 export function mulVec4(m: Mat4, v: [number, number, number, number]): [number, number, number, number] {
   const o: [number, number, number, number] = [0, 0, 0, 0];
   for (let r = 0; r < 4; r++) {
@@ -66,11 +60,10 @@ export function rotateZ(a: number): Mat4 {
   return m;
 }
 
-/** Right-handed lookAt (matches linalg.matrix4_look_at). */
 export function lookAt(eye: Vec3, center: Vec3, up: Vec3): Mat4 {
-  const f = normalize(sub(center, eye)); // forward
-  const s = normalize(cross(f, up));     // right
-  const u = cross(s, f);                 // true up
+  const f = normalize(sub(center, eye)); 
+  const s = normalize(cross(f, up));     
+  const u = cross(s, f);                 
   return [
     s[0], u[0], -f[0], 0,
     s[1], u[1], -f[1], 0,
@@ -79,11 +72,6 @@ export function lookAt(eye: Vec3, center: Vec3, up: Vec3): Mat4 {
   ];
 }
 
-/**
- * Right-handed perspective with clip-space depth in [0,1] (Metal/WebGPU style),
- * matching linalg.matrix4_perspective(fovy, aspect, near, far) with the
- * flip_z_axis default. fovy in radians.
- */
 export function perspective(fovy: number, aspect: number, near: number, far: number): Mat4 {
   const t = 1 / Math.tan(fovy / 2);
   const m = new Array(16).fill(0);
@@ -95,7 +83,6 @@ export function perspective(fovy: number, aspect: number, near: number, far: num
   return m;
 }
 
-/** For debugging / display: pretty-print in row-major visual layout. */
 export function toRows(m: Mat4): number[][] {
   const rows: number[][] = [];
   for (let r = 0; r < 4; r++) rows.push([m[r], m[4 + r], m[8 + r], m[12 + r]]);

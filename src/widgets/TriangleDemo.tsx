@@ -1,7 +1,7 @@
 import { WebGPUCanvas } from "../components/WebGPUCanvas";
 import { makeBuffer, resizeToDisplay, startLoop } from "../engine/webgpu/gpu";
 
-const WGSL = /* wgsl */ `
+const WGSL =  `
 struct VSOut { @builtin(position) pos : vec4<f32>, @location(0) color : vec3<f32> };
 @vertex
 fn vs(@location(0) p : vec2<f32>, @location(1) c : vec3<f32>) -> VSOut {
@@ -11,7 +11,6 @@ fn vs(@location(0) p : vec2<f32>, @location(1) c : vec3<f32>) -> VSOut {
 fn fs(i : VSOut) -> @location(0) vec4<f32> { return vec4<f32>(i.color, 1.0); }
 `;
 
-/** The "hello triangle" of graphics — the smoke test for the whole pipeline. */
 export function TriangleDemo() {
   return (
     <WebGPUCanvas
@@ -19,7 +18,7 @@ export function TriangleDemo() {
       height={300}
       setup={(gpu) => {
         const { device, context, format, canvas } = gpu;
-        // 3 verts: x, y, r, g, b
+        
         const verts = new Float32Array([
           0.0, 0.7, 1.0, 0.48, 0.27,
           -0.7, -0.6, 0.31, 0.7, 1.0,

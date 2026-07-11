@@ -8,9 +8,8 @@ fn shade(uv : vec2<f32>, t : f32) -> vec3<f32> {
   return c;
 }`;
 
-// Full-screen triangle vertex shader + a fixed wrapper that calls user's shade().
 function buildWGSL(userBody: string): string {
-  return /* wgsl */ `
+  return  `
 struct U { t : f32, aspect : f32 };
 @group(0) @binding(0) var<uniform> u : U;
 

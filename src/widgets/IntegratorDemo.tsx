@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 
 type Method = "euler" | "semi" | "verlet";
 
-/** A bouncing ball under gravity, integrated three ways, side by side. */
 export function IntegratorDemo() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [method, setMethod] = useState<Method>("semi");
@@ -19,7 +18,7 @@ export function IntegratorDemo() {
     canvas.width = W * dpr; canvas.height = H * dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    const g = 900; // px/s^2
+    const g = 900; 
     const floor = H - 20;
     let y = 40, vy = 0, prevY = 40;
     let raf = 0, acc = 0, last = performance.now();
@@ -30,15 +29,15 @@ export function IntegratorDemo() {
       const m = cfg.current.method;
       const e = cfg.current.restitution;
       if (m === "euler") {
-        // explicit Euler: update pos with OLD velocity (gains energy)
+        
         y += vy * h;
         vy += g * h;
       } else if (m === "semi") {
-        // semi-implicit Euler: update velocity first (stable — game standard)
+        
         vy += g * h;
         y += vy * h;
       } else {
-        // position Verlet
+        
         const nextY = 2 * y - prevY + g * h * h;
         prevY = y; y = nextY;
         vy = (y - prevY) / h;

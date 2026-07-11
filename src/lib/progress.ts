@@ -2,11 +2,11 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 interface ProgressState {
-  /** lessonId -> completed */
+  
   done: Record<string, boolean>;
-  /** quizId -> best score (0..1) */
+  
   quizScores: Record<string, number>;
-  /** lessonKey -> epoch ms of last visit (for the activity feed) */
+  
   lastVisited: Record<string, number>;
   toggleDone: (lessonId: string) => void;
   setDone: (lessonId: string, value: boolean) => void;

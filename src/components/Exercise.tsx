@@ -5,7 +5,7 @@ import { useNotes } from "../lib/notes";
 
 interface GradeJSON {
   pass: boolean;
-  score: number; // 0..1
+  score: number; 
   feedback: string;
 }
 
@@ -20,7 +20,7 @@ export function Exercise({ ex }: { ex: ExerciseType }) {
   const multiline = ex.kind === "wgsl" || ex.kind === "ts" || ex.kind === "code-open";
 
   async function check() {
-    // Open-ended: grade with the LLM when enabled, otherwise a graceful notice.
+    
     if (isOpen) {
       if (!isLLMEnabled()) {
         setResult({

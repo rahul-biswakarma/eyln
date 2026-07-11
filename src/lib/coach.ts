@@ -1,24 +1,21 @@
-// The study coach turns raw progress into actionable signals. Rule-based signals
-// are ALWAYS available; the LLM recommendation is layered on when a key is set.
 import { modules, allLessons, lessonKey, type LessonRef } from "../content/registry";
 import { computeStats } from "./stats";
 
 const DAY = 24 * 60 * 60 * 1000;
 
 export interface CoachSignals {
-  /** Consecutive-day study streak ending today. */
+  
   streak: number;
-  /** Lessons started long ago and still unfinished / unreviewed. */
+  
   staleLessons: LessonRef[];
-  /** Modules with the weakest average quiz score (score below 0.6). */
+  
   weakModules: { module: string; score: number }[];
-  /** The next unstarted lesson in curriculum order. */
+  
   next: LessonRef | undefined;
-  /** Days since the last recorded activity, or null if none. */
+  
   daysIdle: number | null;
 }
 
-/** Count consecutive calendar days (ending today) that have at least one visit. */
 function computeStreak(lastVisited: Record<string, number>, now: number): number {
   const days = new Set<number>();
   for (const ts of Object.values(lastVisited)) {
@@ -27,7 +24,7 @@ function computeStreak(lastVisited: Record<string, number>, now: number): number
   if (days.size === 0) return 0;
   let streak = 0;
   let cursor = Math.floor(now / DAY);
-  // Allow the streak to count today OR yesterday as the anchor.
+  
   if (!days.has(cursor)) cursor -= 1;
   while (days.has(cursor)) {
     streak++;
@@ -44,7 +41,6 @@ export function computeCoachSignals(
 ): CoachSignals {
   const stats = computeStats(done, quizScores);
 
-  // Weak modules: average quiz score across a module's lessons.
   const weakModules: { module: string; score: number }[] = [];
   for (const m of modules) {
     const scores = m.lessons
@@ -57,7 +53,6 @@ export function computeCoachSignals(
   }
   weakModules.sort((a, b) => a.score - b.score);
 
-  // Stale: visited > 5 days ago and not marked done.
   const staleLessons = allLessons.filter((r) => {
     const key = lessonKey(r.module.id, r.lesson.id);
     const last = lastVisited[key];
@@ -76,7 +71,6 @@ export function computeCoachSignals(
   };
 }
 
-/** A short, deterministic recommendation used when the LLM is off. */
 export function ruleBasedRecommendation(sig: CoachSignals): string {
   if (sig.weakModules.length) {
     const w = sig.weakModules[0];
@@ -91,7 +85,6 @@ export function ruleBasedRecommendation(sig: CoachSignals): string {
   return "You've cleared the whole curriculum. Revisit any module to keep it sharp, or go build.";
 }
 
-/** Build the prompt fed to Gemini for a personalized recommendation. */
 export function coachPrompt(sig: CoachSignals): string {
   const weak = sig.weakModules.length
     ? sig.weakModules.map((w) => `${w.module} (${Math.round(w.score * 100)}%)`).join(", ")

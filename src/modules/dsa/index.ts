@@ -8,7 +8,6 @@ import { dsaGraphs } from "../dsa-graphs";
 import { dsaSorting } from "../dsa-sorting";
 import { dsaRecursion } from "../dsa-recursion";
 
-/** All Data Structures & Algorithms modules. */
 export const dsaModules: Module[] = [
   dsaComplexity,
   dsaArrays,

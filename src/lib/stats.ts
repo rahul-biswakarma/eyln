@@ -1,19 +1,17 @@
-// Pure helpers deriving dashboard metrics from the curriculum + saved progress.
-// Everything here is real data — no invented numbers.
 import { modules, allLessons, moduleProgress, lessonKey, type LessonRef } from "../content/registry";
 
 export interface DashStats {
   lessonsDone: number;
   totalLessons: number;
-  overallPct: number;        // 0..100
+  overallPct: number;        
   modulesStarted: number;
   modulesComplete: number;
   totalModules: number;
   minutesRemaining: number;
   minutesTotal: number;
-  avgQuizScore: number | null; // 0..100 or null if no quizzes taken
+  avgQuizScore: number | null; 
   nextRef: LessonRef | undefined;
-  /** completed lessons per module, in curriculum order — feeds the sparkline */
+  
   perModuleDone: number[];
 }
 

@@ -18,7 +18,7 @@ export function TopNav() {
   const reminders = useNotes((s) => s.reminders);
   const navigate = useNavigate();
   const stats = computeStats(done);
-  const level = 1 + Math.floor(stats.lessonsDone / 3); // 1 level per 3 lessons — real progress
+  const level = 1 + Math.floor(stats.lessonsDone / 3); 
   const due = dueReminders(reminders, Date.now()).length;
 
   return (

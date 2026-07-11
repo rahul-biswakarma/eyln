@@ -18,7 +18,7 @@ export function Quiz({
   const recordQuiz = useProgress((s) => s.recordQuiz);
 
   function choose(qi: number, oi: number) {
-    if (picked[qi] !== undefined) return; // lock after first answer
+    if (picked[qi] !== undefined) return; 
     const next = { ...picked, [qi]: oi };
     setPicked(next);
     const correct = quiz.questions.filter((q, i) => next[i] === q.answer).length;
@@ -90,7 +90,7 @@ function ExplainMistake({
   const [text, setText] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  if (!isLLMEnabled()) return null; // static `explain` already shown above
+  if (!isLLMEnabled()) return null; 
 
   async function explain() {
     setLoading(true);

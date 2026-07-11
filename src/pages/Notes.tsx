@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useNotes } from "../lib/notes";
 import { allLessons, lessonPath } from "../content/registry";
 import { relativeTime } from "../lib/stats";
+import { ModuleIcon } from "../components/ModuleIcon";
 
 function lessonForKey(key?: string) {
   if (!key) return undefined;
@@ -50,7 +51,6 @@ export function Notes() {
         </div>
       </div>
 
-      {/* Reminders */}
       <div className="section-title"><h3>Reminders</h3></div>
       <div className="card">
         {openReminders.length === 0 ? (
@@ -83,7 +83,6 @@ export function Notes() {
         )}
       </div>
 
-      {/* Bookmarks */}
       <div className="section-title"><h3>Bookmarks</h3></div>
       <div className="card">
         {bookmarkList.length === 0 ? (
@@ -95,7 +94,7 @@ export function Notes() {
               if (!ref) return null;
               return (
                 <Link key={key} className="row" to={lessonPath(ref.module.id, ref.lesson.id)} style={{ color: "inherit" }}>
-                  <span className="ic">{ref.module.icon}</span>
+                  <span className="ic"><ModuleIcon id={ref.module.id} size={18} /></span>
                   <div className="txt">
                     <div className="t">{ref.lesson.title}</div>
                     <div className="s">{ref.module.title}</div>
@@ -115,7 +114,6 @@ export function Notes() {
         )}
       </div>
 
-      {/* Notes */}
       <div className="section-title"><h3>Notes</h3></div>
       <div className="chip-row">
         <input
@@ -154,7 +152,7 @@ export function Notes() {
                 <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
                   {ref && (
                     <Link className="section-title" style={{ margin: 0 }} to={lessonPath(ref.module.id, ref.lesson.id)}>
-                      <span className="more">{ref.module.icon} {ref.lesson.title} →</span>
+                      <span className="more"><ModuleIcon id={ref.module.id} size={13} /> {ref.lesson.title} →</span>
                     </Link>
                   )}
                   <span className="when" style={{ marginLeft: "auto", fontFamily: "var(--mono)", fontSize: "0.72rem", color: "var(--text-faint)" }}>

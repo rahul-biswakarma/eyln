@@ -1,6 +1,3 @@
-// Firebase bootstrap. Config comes from Vite env vars (VITE_FIREBASE_*).
-// When the config is absent, isFirebaseEnabled() is false and the whole app
-// falls back to localStorage-only, single-device behavior — no auth, no sync.
 import { initializeApp, type FirebaseApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, type Auth } from "firebase/auth";
 import { getFirestore, type Firestore } from "firebase/firestore";
@@ -27,14 +24,12 @@ function ensureApp(): FirebaseApp {
   return app;
 }
 
-/** Lazily-created Auth instance (null when Firebase isn't configured). */
 export function getAuthClient(): Auth | null {
   if (!isFirebaseEnabled()) return null;
   if (!authInstance) authInstance = getAuth(ensureApp());
   return authInstance;
 }
 
-/** Lazily-created Firestore instance (null when Firebase isn't configured). */
 export function getDb(): Firestore | null {
   if (!isFirebaseEnabled()) return null;
   if (!dbInstance) dbInstance = getFirestore(ensureApp());

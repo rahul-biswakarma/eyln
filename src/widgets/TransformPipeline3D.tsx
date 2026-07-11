@@ -3,7 +3,7 @@ import { WebGPUCanvas } from "../components/WebGPUCanvas";
 import { makeBuffer, resizeToDisplay, startLoop } from "../engine/webgpu/gpu";
 import { identity, mul, perspective, lookAt, rotateY, rotateX, scaling } from "../engine/mat";
 
-const WGSL = /* wgsl */ `
+const WGSL =  `
 struct Uniforms { mvp : mat4x4<f32>, };
 @group(0) @binding(0) var<uniform> u : Uniforms;
 
@@ -26,7 +26,6 @@ fn fs(in : VSOut) -> @location(0) vec4<f32> {
 }
 `;
 
-// A unit cube: 8 corners, 12 triangles, per-face-ish vertex colors.
 function cubeData(): Float32Array {
   const c: [number, number, number][] = [
     [-1, -1, -1], [1, -1, -1], [1, 1, -1], [-1, 1, -1],
@@ -51,12 +50,11 @@ function cubeData(): Float32Array {
   return new Float32Array(verts);
 }
 
-/** The model → view → projection pipeline, live. Toggle each matrix on/off. */
 export function TransformPipeline3D() {
   const [useModel, setUseModel] = useState(true);
   const [useView, setUseView] = useState(true);
   const [useProj, setUseProj] = useState(true);
-  // refs so the render loop reads latest toggle state without re-creating the pipeline
+  
   const flags = useRef({ useModel, useView, useProj });
   flags.current = { useModel, useView, useProj };
 

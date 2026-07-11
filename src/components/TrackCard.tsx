@@ -2,8 +2,8 @@ import { Link } from "react-router-dom";
 import type { Track } from "../content/types";
 import { modulesForTrack, lessonsForTrack, nextLessonInTrack, lessonPath, lessonKey } from "../content/registry";
 import { useProgress } from "../lib/progress";
+import { TrackIcon } from "./ModuleIcon";
 
-/** A track overview card: progress, module count, and a jump-in link. */
 export function TrackCard({ track }: { track: Track }) {
   const done = useProgress((s) => s.done);
   const mods = modulesForTrack(track.id);
@@ -21,7 +21,7 @@ export function TrackCard({ track }: { track: Track }) {
       style={{ "--track-accent": track.accent } as React.CSSProperties}
     >
       <div className="tc-top">
-        <span className="tc-glyph">{track.icon}</span>
+        <span className="tc-glyph"><TrackIcon id={track.id} size={26} /></span>
         <div className="tc-head">
           <div className="kicker">Track</div>
           <h3>{track.title}</h3>

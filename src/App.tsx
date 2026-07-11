@@ -10,10 +10,9 @@ export function App() {
   const loc = useLocation();
   const user = useAuth((s) => s.user);
   const ready = useAuth((s) => s.ready);
-  // Scan reminders on an interval + tab focus; fires notifications when due.
+  
   useReminderScheduler();
 
-  // Auth gate: the app is only accessible once signed in.
   if (isFirebaseEnabled()) {
     if (!ready) {
       return (
@@ -26,7 +25,6 @@ export function App() {
     if (!user) return <SignInScreen />;
   }
 
-  // Sidebar only inside a lesson (route /m/:module/:lesson).
   const inLesson = loc.pathname.startsWith("/m/");
   return (
     <div className="shell">

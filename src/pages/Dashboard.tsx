@@ -8,6 +8,7 @@ import { RoadmapRail } from "../components/RoadmapRail";
 import { ProgressRing } from "../components/ProgressRing";
 import { CoachCard } from "../components/CoachCard";
 import { TrackCard } from "../components/TrackCard";
+import { ModuleIcon } from "../components/ModuleIcon";
 import { tracks } from "../content/tracks";
 
 export function Dashboard() {
@@ -24,7 +25,7 @@ export function Dashboard() {
   const activity = recentActivity(lastVisited, done);
   const now = Date.now();
   const next = s.nextRef;
-  // Cumulative completed-lessons series across modules → sparkline.
+  
   const series = s.perModuleDone.reduce<number[]>((acc, n) => {
     acc.push((acc[acc.length - 1] ?? 0) + n);
     return acc;
@@ -49,7 +50,6 @@ export function Dashboard() {
         )}
       </div>
 
-      {/* Stat cards */}
       <div className="stat-row">
         <StatCard
           label="Overall progress"
@@ -83,12 +83,11 @@ export function Dashboard() {
         />
       </div>
 
-      {/* Focus band: current mission + coach, side by side and height-matched */}
       <div className="grid-dash">
         <div className="col-stack">
           {next ? (
             <Link className="card grad continue hover" to={lessonPath(next.module.id, next.lesson.id)}>
-              <span className="cta-ic">{next.module.icon}</span>
+              <span className="cta-ic"><ModuleIcon id={next.module.id} size={28} /></span>
               <div className="meta">
                 <div className="eyebrow">{s.lessonsDone === 0 ? "Start here" : "Continue"} · {next.module.title}</div>
                 <h2>{next.lesson.title}</h2>
@@ -113,7 +112,6 @@ export function Dashboard() {
         </div>
       </div>
 
-      {/* Tracks */}
       <div className="section-title">
         <h3>Learning tracks</h3>
         <Link className="more" to="/curriculum">all modules →</Link>
@@ -124,7 +122,6 @@ export function Dashboard() {
         ))}
       </div>
 
-      {/* Engine capstone roadmap — full width */}
       <div className="section-title">
         <h3>Engine capstone roadmap</h3>
         <Link className="more" to={lessonPath("rendering", "triangle")}>the build →</Link>
@@ -133,7 +130,6 @@ export function Dashboard() {
         <RoadmapRail />
       </div>
 
-      {/* Recent activity */}
       <div className="section-title">
         <h3>Recent activity</h3>
       </div>
@@ -149,7 +145,7 @@ export function Dashboard() {
                 to={lessonPath(a.ref.module.id, a.ref.lesson.id)}
                 style={{ color: "inherit" }}
               >
-                <span className="ic">{a.done ? "✓" : a.ref.module.icon}</span>
+                <span className="ic">{a.done ? "✓" : <ModuleIcon id={a.ref.module.id} size={18} />}</span>
                 <div className="txt">
                   <div className="t">{a.ref.lesson.title}</div>
                   <div className="s">{a.ref.module.title}</div>

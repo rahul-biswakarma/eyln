@@ -1,10 +1,6 @@
 import { useState } from "react";
 import { isLLMEnabled, chat, type ChatTurn } from "../lib/llm";
 
-/**
- * Collapsible "ask about this lesson" chat, grounded in the lesson's title/summary.
- * Hidden behind a hint when no API key is set.
- */
 export function TutorChat({ lessonTitle, lessonSummary }: { lessonTitle: string; lessonSummary: string }) {
   const [open, setOpen] = useState(false);
   const [history, setHistory] = useState<ChatTurn[]>([]);

@@ -1,6 +1,5 @@
 import type { Track, TrackId } from "./types";
 
-/** The learning tracks. Ordered as they appear across the app. */
 export const tracks: Track[] = [
   {
     id: "engine",

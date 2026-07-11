@@ -4,7 +4,7 @@ import { makeBuffer, resizeToDisplay, startLoop } from "../engine/webgpu/gpu";
 import { mul, perspective, lookAt } from "../engine/mat";
 import { fbm } from "../engine/noise";
 
-const WGSL = /* wgsl */ `
+const WGSL =  `
 struct U { mvp : mat4x4<f32> };
 @group(0) @binding(0) var<uniform> u : U;
 struct VSOut { @builtin(position) pos : vec4<f32>, @location(0) h : f32, @location(1) shade : f32 };
@@ -31,7 +31,6 @@ fn fs(i : VSOut) -> @location(0) vec4<f32> {
 }
 `;
 
-/** Heightfield terrain: a grid of thousands of triangles, heights from fBm. */
 export function TerrainField() {
   const params = useRef({ freq: 3, octaves: 5, seed: 3 });
   const [, force] = useState(0);
@@ -44,7 +43,7 @@ export function TerrainField() {
         height={360}
         setup={(gpu) => {
           const { device, context, format, canvas } = gpu;
-          const N = 64; // N x N grid
+          const N = 64; 
           const ubuf = device.createBuffer({ size: 64, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST });
           let vbuf: GPUBuffer | null = null;
           let vertCount = 0;
