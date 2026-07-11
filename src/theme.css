@@ -540,7 +540,7 @@ a.level-chip:hover { border-color: var(--border-glow); box-shadow: 0 0 0 3px var
 .prose { max-width: var(--maxw); }
 /* Lesson uses the full column; prose text keeps a readable measure, but
    widgets, code, and interactive blocks span the whole width. */
-.content.lesson { max-width: 1180px; }
+.content.lesson { max-width: 1180px; margin: 0 auto; }
 .content.lesson .prose { max-width: 100%; }
 .content.lesson .lesson-body > p,
 .content.lesson .lesson-body > ul,
@@ -886,7 +886,6 @@ select { background: var(--surface-inset); color: var(--text); border: 1px solid
 /* Ambient glow bleeds toward the right edge without creating overflow. */
 .lesson-hero::after {
   content: ""; position: absolute; top: -160px; right: 0; left: 20%; height: 420px; z-index: -1;
-  background: radial-gradient(70% 100% at 90% 0%, rgba(255, 138, 0, 0.12), transparent 72%);
   pointer-events: none;
 }
 .lh-kicker { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin: 0.4rem 0 0.6rem; }

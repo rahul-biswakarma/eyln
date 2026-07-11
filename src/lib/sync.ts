@@ -1,4 +1,4 @@
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, onSnapshot } from "firebase/firestore";
 import { getDb } from "./firebase";
 import { useAuth } from "./auth";
 import { useProgress } from "./progress";
@@ -73,11 +73,38 @@ function userDocRef(uid: string) {
 let writeTimer: ReturnType<typeof setTimeout> | null = null;
 let unsubProgress: (() => void) | null = null;
 let unsubNotes: (() => void) | null = null;
+let unsubRemote: (() => void) | null = null;
 let unsubAuth: (() => void) | null = null;
 let activeUid: string | null = null;
+// True while we're writing local state from a remote snapshot, so the store
+// subscriptions don't echo that change straight back to the DB.
+let applyingRemote = false;
+
+/** Merge a cloud document into the local stores (union / newest-wins). */
+function applyCloud(cloud: CloudDoc) {
+  applyingRemote = true;
+  try {
+    const p = useProgress.getState();
+    const n = useNotes.getState();
+    useProgress.setState({
+      done: orMerge(p.done, cloud.done),
+      quizScores: maxMerge(p.quizScores, cloud.quizScores),
+      lastVisited: maxMerge(p.lastVisited, cloud.lastVisited),
+      solvedChallenges: maxMerge(p.solvedChallenges, cloud.solvedChallenges),
+    });
+    useNotes.setState({
+      notes: mergeById(n.notes, cloud.notes),
+      bookmarks: maxMerge(n.bookmarks, cloud.bookmarks),
+      reminders: mergeById(n.reminders, cloud.reminders),
+      openScores: mergeOpenScores(n.openScores, cloud.openScores),
+    });
+  } finally {
+    applyingRemote = false;
+  }
+}
 
 function scheduleWrite() {
-  if (!activeUid) return;
+  if (!activeUid || applyingRemote) return;
   if (writeTimer) clearTimeout(writeTimer);
   writeTimer = setTimeout(async () => {
     const ref = activeUid ? userDocRef(activeUid) : null;
@@ -85,9 +112,9 @@ function scheduleWrite() {
     try {
       await setDoc(ref, { ...localSnapshot(), updatedAt: Date.now() });
     } catch {
-      
+      /* transient — next change reschedules */
     }
-  }, 1200);
+  }, 1000);
 }
 
 async function attach(uid: string) {
@@ -95,30 +122,22 @@ async function attach(uid: string) {
   const ref = userDocRef(uid);
   if (!ref) return;
 
+  // 1. Initial pull + merge (union of local and cloud), then push the union.
   try {
     const snap = await getDoc(ref);
-    if (snap.exists()) {
-      const cloud = snap.data() as CloudDoc;
-      const p = useProgress.getState();
-      const n = useNotes.getState();
-      useProgress.setState({
-        done: orMerge(p.done, cloud.done),
-        quizScores: maxMerge(p.quizScores, cloud.quizScores),
-        lastVisited: maxMerge(p.lastVisited, cloud.lastVisited),
-        solvedChallenges: maxMerge(p.solvedChallenges, cloud.solvedChallenges),
-      });
-      useNotes.setState({
-        notes: mergeById(n.notes, cloud.notes),
-        bookmarks: maxMerge(n.bookmarks, cloud.bookmarks),
-        reminders: mergeById(n.reminders, cloud.reminders),
-        openScores: mergeOpenScores(n.openScores, cloud.openScores),
-      });
-    }
+    if (snap.exists()) applyCloud(snap.data() as CloudDoc);
   } catch {
-    
+    /* offline — keep local, still attach live listeners below */
   }
-
   scheduleWrite();
+
+  // 2. Live: DB is the source of truth — remote changes flow into local.
+  unsubRemote = onSnapshot(ref, (snap) => {
+    if (!snap.exists() || snap.metadata.hasPendingWrites) return; // ignore our own writes
+    applyCloud(snap.data() as CloudDoc);
+  });
+
+  // 3. Local changes (this device) are written up, debounced.
   unsubProgress = useProgress.subscribe(scheduleWrite);
   unsubNotes = useNotes.subscribe(scheduleWrite);
 }
@@ -128,10 +147,11 @@ function detach() {
   if (writeTimer) { clearTimeout(writeTimer); writeTimer = null; }
   unsubProgress?.(); unsubProgress = null;
   unsubNotes?.(); unsubNotes = null;
+  unsubRemote?.(); unsubRemote = null;
 }
 
 export function initSync() {
-  if (unsubAuth) return; 
+  if (unsubAuth) return;
   unsubAuth = useAuth.subscribe((state) => {
     const uid = state.user?.uid ?? null;
     if (uid && uid !== activeUid) {
@@ -141,7 +161,6 @@ export function initSync() {
       detach();
     }
   });
-  
   const existing = useAuth.getState().user?.uid;
   if (existing) void attach(existing);
 }
