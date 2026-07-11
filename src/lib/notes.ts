@@ -1,6 +1,10 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+function save() {
+  void import("./persistence").then((m) => m.saveState());
+}
+
 export interface Note {
   id: string;
   
@@ -65,51 +69,70 @@ export const useNotes = create<NotesState>()(
       reminders: [],
       openScores: {},
 
-      addNote: (n) =>
+      addNote: (n) => {
         set((s) => {
           const now = Date.now();
           return { notes: [{ ...n, id: uid(), createdAt: now, updatedAt: now }, ...s.notes] };
-        }),
-      updateNote: (id, patch) =>
+        });
+        save();
+      },
+      updateNote: (id, patch) => {
         set((s) => ({
           notes: s.notes.map((n) =>
             n.id === id ? { ...n, ...patch, updatedAt: Date.now() } : n
           ),
-        })),
-      deleteNote: (id) => set((s) => ({ notes: s.notes.filter((n) => n.id !== id) })),
+        }));
+        save();
+      },
+      deleteNote: (id) => {
+        set((s) => ({ notes: s.notes.filter((n) => n.id !== id) }));
+        save();
+      },
 
-      toggleBookmark: (key) =>
+      toggleBookmark: (key) => {
         set((s) => {
           const next = { ...s.bookmarks };
           if (next[key]) delete next[key];
           else next[key] = Date.now();
           return { bookmarks: next };
-        }),
+        });
+        save();
+      },
 
-      addReminder: (r) =>
+      addReminder: (r) => {
         set((s) => ({
           reminders: [
             { ...r, id: uid(), createdAt: Date.now(), done: false, notified: false },
             ...s.reminders,
           ],
-        })),
-      completeReminder: (id) =>
+        }));
+        save();
+      },
+      completeReminder: (id) => {
         set((s) => ({
           reminders: s.reminders.map((r) => (r.id === id ? { ...r, done: true } : r)),
-        })),
-      deleteReminder: (id) =>
-        set((s) => ({ reminders: s.reminders.filter((r) => r.id !== id) })),
-      markNotified: (id) =>
+        }));
+        save();
+      },
+      deleteReminder: (id) => {
+        set((s) => ({ reminders: s.reminders.filter((r) => r.id !== id) }));
+        save();
+      },
+      markNotified: (id) => {
         set((s) => ({
           reminders: s.reminders.map((r) => (r.id === id ? { ...r, notified: true } : r)),
-        })),
+        }));
+        save();
+      },
 
-      recordOpenScore: (exerciseId, score) =>
+      recordOpenScore: (exerciseId, score) => {
         set((s) => {
           const prev = s.openScores[exerciseId];
           if (prev && prev.score >= score) return s;
           return { openScores: { ...s.openScores, [exerciseId]: { score, at: Date.now() } } };
-        }),
+        });
+        save();
+      },
     }),
     { name: "forge-notes" }
   )

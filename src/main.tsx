@@ -3,12 +3,12 @@ import ReactDOM from "react-dom/client";
 import { RouterProvider } from "react-router-dom";
 import { router } from "./router";
 import { initAuthListener } from "./lib/auth";
-import { initSync } from "./lib/sync";
+import { initPersistence } from "./lib/persistence";
 import "katex/dist/katex.min.css";
 import "./theme.css";
 
 initAuthListener();
-initSync();
+initPersistence();
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
