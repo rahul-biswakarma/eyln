@@ -35,13 +35,21 @@ export function TrackCard({ track }: { track: Track }) {
         <span>{lessons.length} lessons</span>
       </div>
 
-      <div className="pbar-row">
-        <span>{complete ? "Complete" : started ? "In progress" : "Not started"}</span>
-        <span>{Math.round(pct * 100)}%</span>
-      </div>
-      <div className="pbar">
-        <i style={{ width: `${Math.max(pct * 100, started ? 6 : 0)}%`, background: track.accent, boxShadow: `0 0 10px ${track.accent}80` }} />
-      </div>
+      {started ? (
+        <>
+          <div className="pbar-row">
+            <span>{complete ? "Complete" : "In progress"}</span>
+            <span>{doneCount}/{lessons.length}</span>
+          </div>
+          <div className="pbar">
+            <i style={{ width: `${Math.max(pct * 100, 6)}%`, background: track.accent, boxShadow: `0 0 10px ${track.accent}80` }} />
+          </div>
+        </>
+      ) : (
+        <div className="tc-cue" style={{ color: track.accent }}>
+          Begin with <b>{next?.lesson.title}</b>
+        </div>
+      )}
 
       <div className="tc-cta">
         {complete ? "Review track" : started ? "Continue" : "Start track"} →
