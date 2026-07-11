@@ -8,7 +8,6 @@ import {
   lessonKey,
   moduleMinutes,
   moduleDifficulty,
-  modulePrereqTitles,
 } from "../content/registry";
 import { getTrack } from "../content/tracks";
 import { useProgress } from "../lib/progress";
@@ -33,7 +32,6 @@ export function ModuleCard({ module, highlight }: { module: Module; highlight?: 
   const done = useProgress((s) => s.done);
   const pct = moduleProgress(module, done);
   const diff = moduleDifficulty(module);
-  const prereqs = modulePrereqTitles(module);
   const minutes = moduleMinutes(module);
   const started = pct > 0;
   const complete = pct >= 1;
@@ -43,43 +41,36 @@ export function ModuleCard({ module, highlight }: { module: Module; highlight?: 
   
   const target = module.lessons.find((l) => !done[lessonKey(module.id, l.id)]) ?? module.lessons[0];
 
+  const pctLabel = Math.round(pct * 100);
+
   return (
     <Link
-      className={"card mod-card hover" + (highlight ? " grad" : "")}
+      className={"mod-card" + (highlight ? " highlight" : "")}
       to={lessonPath(module.id, target.id)}
       style={{ "--mod-accent": accent } as React.CSSProperties}
     >
-      <span className="mod-idx">{String(idx).padStart(2, "0")}</span>
-      <div className="top">
-        <span className="ic"><ModuleIcon id={module.id} size={24} /></span>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div className="kicker">Module {String(idx).padStart(2, "0")}</div>
-          <h3>{module.title}</h3>
-        </div>
-      </div>
+      <span className="mod-idx" aria-hidden>{String(idx).padStart(2, "0")}</span>
 
-      <p className="blurb">{module.blurb}</p>
+      <span className="mod-ic"><ModuleIcon id={module.id} size={22} /></span>
+
+      <h3 className="mod-name">{module.title}</h3>
+      <p className="mod-desc">{module.blurb}</p>
 
       <div className="mod-meta">
-        <span className={"meta-pill diff-" + diff.level}>{diff.label}</span>
-        <span className="meta-pill"><span className="k">Lessons</span> {module.lessons.length}</span>
-        <span className="meta-pill"><span className="k">Est.</span> {formatMinutes(minutes)}</span>
+        {diff.label} <span className="dot">·</span> {module.lessons.length} lessons{" "}
+        <span className="dot">·</span> {formatMinutes(minutes)}
       </div>
 
-      <div className="pbar-row">
-        <span>{complete ? "Mission complete" : started ? "In progress" : "Not started"}</span>
-        <span>{Math.round(pct * 100)}%</span>
-      </div>
-      <div className="pbar"><i style={{ width: `${Math.max(pct * 100, started ? 6 : 0)}%`, background: accent, boxShadow: `0 0 10px ${accent}80` }} /></div>
+      {started && (
+        <div className="mod-progress">
+          <div className="pbar"><i style={{ width: `${Math.max(pctLabel, 4)}%` }} /></div>
+          <span className="mod-pct">{complete ? "Complete" : `${pctLabel}%`}</span>
+        </div>
+      )}
 
-      <div className="foot">
-        <span className="prereq">
-          {prereqs.length > 0 ? <>Requires <b>{prereqs.join(" · ")}</b></> : "No prerequisites"}
-        </span>
-        <span className="mod-cta">
-          {complete ? "Review" : started ? "Continue" : "Begin Mission"} →
-        </span>
-      </div>
+      <span className="mod-cta">
+        {complete ? "Review" : started ? "Continue" : "Begin"} →
+      </span>
     </Link>
   );
 }
