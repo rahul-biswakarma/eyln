@@ -519,10 +519,10 @@ a.level-chip:hover { border-color: var(--border-glow); box-shadow: 0 0 0 3px var
 .layout { display: flex; align-items: flex-start; }
 .sidebar {
   position: sticky; top: 70px;
-  width: 280px; flex: none;
+  width: 292px; flex: none;
   height: calc(100vh - 70px);
   overflow-y: auto;
-  padding: 1.4rem 1rem 4rem;
+  padding: 1.6rem 1.1rem 4rem;
   border-right: 1px solid var(--border);
 }
 .content { flex: 1; min-width: 0; padding: 2rem clamp(1.2rem, 4vw, 3rem) 6rem; }
@@ -531,35 +531,48 @@ a.level-chip:hover { border-color: var(--border-glow); box-shadow: 0 0 0 3px var
 .prose strong { color: var(--text); font-weight: 600; }
 .prose li { margin: 0.35rem 0; }
 
-/* ============ Sidebar ============ */
-.sidebar .mod-group { margin-bottom: 1.4rem; }
-.sidebar .mod-title {
-  display: flex; align-items: center; gap: 0.55rem;
-  font-family: var(--display);
-  font-size: 0.7rem; font-weight: 600; color: var(--text-faint);
-  text-transform: uppercase; letter-spacing: 0.14em;
-  padding: 0.5rem 0.6rem;
+/* ============ Sidebar — vertical skill tree ============ */
+.skill-tree { --track-accent: var(--accent); }
+.st-head { display: flex; align-items: center; gap: 0.7rem; padding: 0.2rem 0.4rem 1.2rem; }
+.st-ic {
+  width: 36px; height: 36px; flex: none; display: grid; place-items: center; border-radius: 11px;
+  color: var(--track-accent);
+  background: radial-gradient(120% 120% at 30% 20%, color-mix(in srgb, var(--track-accent) 24%, transparent), transparent 70%), var(--surface-inset);
+  border: 1px solid color-mix(in srgb, var(--track-accent) 30%, var(--border));
 }
-.sidebar .mod-title .ic { width: 18px; height: 18px; flex: none; display: grid; place-items: center; color: var(--text-dim); }
-.sidebar .mod-title > span:nth-child(2) { flex: 1; min-width: 0; line-height: 1.2; }
-.sidebar .mod-title .ring { margin-left: auto; flex: none; }
-.sidebar .les-link {
-  position: relative;
-  display: flex; align-items: center; gap: 0.7rem;
-  padding: 0.5rem 0.7rem; border-radius: var(--radius-sm);
-  color: var(--text-dim); font-size: 0.86rem;
-  transition: color var(--dur) var(--ease), background var(--dur) var(--ease);
+.st-track { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-faint); }
+.st-module { font-family: var(--display); font-weight: 600; font-size: 0.98rem; color: var(--text); margin-top: 0.1rem; }
+
+.st-timeline { position: relative; padding-left: 0.4rem; }
+.st-node {
+  position: relative; display: flex; align-items: center; gap: 0.7rem;
+  padding: 0.5rem 0.6rem 0.5rem 0; color: var(--text-dim); font-size: 0.86rem;
+  transition: color var(--dur) var(--ease);
 }
-.sidebar .les-link:hover { background: var(--surface); color: var(--text); }
-.sidebar .les-link.active { background: var(--accent-soft); color: var(--highlight); }
-.sidebar .les-link.active::before {
-  content: ""; position: absolute; left: 0; top: 20%; bottom: 20%;
-  width: 2px; border-radius: 2px; background: var(--accent);
-  box-shadow: 0 0 8px var(--accent);
+/* timeline connector between markers */
+.st-node:not(:last-child) .st-marker::after {
+  content: ""; position: absolute; left: 50%; top: 100%; transform: translateX(-50%);
+  width: 2px; height: calc(100% - 17px); background: var(--border); z-index: 0;
 }
-.sidebar .les-link .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--border-bright); flex: none; transition: background var(--dur) var(--ease); }
-.sidebar .les-link.active .dot { background: var(--accent); }
-.sidebar .les-link.done .dot { background: var(--good); box-shadow: 0 0 6px rgba(70, 217, 138, 0.6); }
+.st-marker { position: relative; width: 20px; flex: none; display: grid; place-items: center; color: var(--text-faint); z-index: 1; }
+.st-label { flex: 1; min-width: 0; line-height: 1.35; }
+.st-node:hover { color: var(--text); }
+.st-node.done { color: var(--text-dim); }
+.st-node.done .st-marker { color: var(--good); }
+.st-node.done:not(:last-child) .st-marker::after { background: color-mix(in srgb, var(--good) 40%, var(--border)); }
+.st-node.active { color: var(--highlight); font-weight: 500; }
+.st-node.active .st-marker { color: var(--track-accent); }
+.st-node.next .st-marker { color: var(--track-accent); }
+.st-node.upcoming { opacity: 0.6; }
+
+.st-modules { margin-top: 1.8rem; padding-top: 1.2rem; border-top: 1px solid var(--border); }
+.st-modules-label { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-faint); padding: 0 0.4rem 0.5rem; }
+.st-mod { display: flex; align-items: center; gap: 0.6rem; padding: 0.5rem 0.5rem; border-radius: var(--radius-sm); color: var(--text-dim); font-size: 0.82rem; transition: background var(--dur) var(--ease), color var(--dur) var(--ease); }
+.st-mod:hover { background: var(--surface); color: var(--text); }
+.st-mod.current { color: var(--track-accent); }
+.st-mod-ic { flex: none; opacity: 0.85; }
+.st-mod-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.st-mod-pct { font-family: var(--mono); font-size: 0.68rem; color: var(--text-faint); flex: none; }
 
 /* ============ Dashboard ============ */
 .dash { padding: clamp(1.5rem, 4vw, 3rem) clamp(1.2rem, 4vw, 3rem) 5rem; max-width: 1240px; margin: 0 auto; }
@@ -841,6 +854,63 @@ select { background: var(--surface-inset); color: var(--text); border: 1px solid
 /* ============ Lesson page ============ */
 .readbar { position: sticky; top: 70px; z-index: 20; height: 2px; background: transparent; }
 .readbar > i { display: block; height: 100%; background: var(--accent-line); width: 0; box-shadow: 0 0 12px rgba(255, 176, 0, 0.7); transition: width 0.1s linear; }
+
+/* ---- Lesson as an engineering notebook ---- */
+.content.lesson { padding-top: 0; }
+
+/* Mission hero */
+.lesson-hero {
+  position: relative; overflow: hidden;
+  margin: 0 0 2.6rem; padding: 2.4rem 0 2rem;
+  border-bottom: 1px solid var(--border);
+}
+.lesson-hero::after {
+  content: ""; position: absolute; top: -40%; right: -10%; width: 320px; height: 320px; z-index: -1;
+  background: radial-gradient(circle, rgba(255, 138, 0, 0.10), transparent 68%); pointer-events: none;
+}
+.lh-kicker { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin: 0.4rem 0 0.6rem; }
+.lh-title { margin: 0 0 0.7rem; font-size: clamp(2rem, 4vw, 2.9rem); }
+.lh-objective { color: var(--text-dim); font-size: 1.05rem; line-height: 1.6; max-width: 60ch; margin: 0 0 1.4rem; }
+.lh-meta { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.lh-chip {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  font-family: var(--mono); font-size: 0.74rem; color: var(--text-dim);
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-pill);
+  padding: 0.35rem 0.75rem;
+}
+.lh-chip svg { color: var(--text-faint); }
+.lh-chip.interactive { color: #7fb0ff; border-color: rgba(127, 176, 255, 0.3); }
+.lh-chip.interactive svg { color: #7fb0ff; }
+.lh-chip.done { color: var(--good); border-color: color-mix(in srgb, var(--good) 40%, var(--border)); }
+.lh-chip.done svg { color: var(--good); }
+.lh-actions { margin-left: auto; display: flex; gap: 0.5rem; }
+.lh-actions .icon-btn.on { color: var(--accent); border-color: var(--border-glow); }
+
+/* Progressive reveal of body blocks */
+.reveal { opacity: 0; transform: translateY(14px); transition: opacity 0.5s var(--ease), transform 0.5s var(--ease); }
+.reveal.revealed { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; } }
+
+/* Lesson sections + eyebrows */
+.lesson-section { margin-top: 2.6rem; }
+.section-eyebrow { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 0.9rem; display: flex; align-items: center; gap: 0.5rem; }
+.section-eyebrow::before { content: ""; width: 18px; height: 1px; }
+.section-eyebrow.amber { color: var(--accent); } .section-eyebrow.amber::before { background: var(--accent); }
+.section-eyebrow.emerald { color: var(--good); } .section-eyebrow.emerald::before { background: var(--good); }
+
+/* Mission summary */
+.lesson-summary { margin-top: 3rem; }
+.ls-card {
+  display: flex; align-items: center; gap: 1.2rem; padding: 1.5rem 1.6rem; border-radius: 18px;
+  border: 1px solid var(--border);
+  background: radial-gradient(120% 160% at 100% 0%, rgba(255, 138, 0, 0.10), transparent 55%), var(--surface);
+}
+.ls-card.done { border-color: color-mix(in srgb, var(--good) 34%, var(--border)); background: radial-gradient(120% 160% at 100% 0%, rgba(70, 217, 138, 0.12), transparent 55%), var(--surface); }
+.ls-icon { color: var(--accent); flex: none; }
+.ls-card.done .ls-icon { color: var(--good); }
+.ls-body { flex: 1; min-width: 0; }
+.ls-body h3 { margin: 0 0 0.25rem; font-size: 1.15rem; }
+.ls-body p { margin: 0; color: var(--text-dim); font-size: 0.9rem; }
 
 .crumbs { display: flex; align-items: center; gap: 0.5rem; font-size: 0.74rem; color: var(--text-faint); margin-bottom: 1rem; flex-wrap: wrap; font-family: var(--mono); }
 .crumbs a, .crumbs .seg { color: var(--text-dim); }

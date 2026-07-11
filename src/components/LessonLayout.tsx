@@ -1,7 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import {
+  Clock, Gauge, Sparkle, BookmarkSimple, PencilSimpleLine, CheckCircle, ArrowRight,
+} from "@phosphor-icons/react";
 import type { LessonRef } from "../content/registry";
-import { allLessons, lessonPath, lessonKey } from "../content/registry";
+import { allLessons, lessonPath, lessonKey, moduleDifficulty } from "../content/registry";
 import { useProgress } from "../lib/progress";
 import { useNotes } from "../lib/notes";
 import { Quiz } from "./Quiz";
@@ -27,8 +30,33 @@ export function LessonLayout({ data }: { data: LessonRef }) {
   const prev = allLessons[index - 1];
   const next = allLessons[index + 1];
   const Body = lesson.Body;
+  const bodyRef = useRef<HTMLDivElement>(null);
+
+  const lessonNumInModule = module.lessons.findIndex((l) => l.id === lesson.id) + 1;
+  const diff = moduleDifficulty(module);
+  const isInteractive = /widget|playground|canvas|demo|editor/i.test(String(Body));
 
   useEffect(() => { visit(key); }, [key, visit]);
+
+  useEffect(() => {
+    const root = bodyRef.current;
+    if (!root) return;
+    const blocks = Array.from(root.children) as HTMLElement[];
+    if (!("IntersectionObserver" in window)) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            e.target.classList.add("revealed");
+            io.unobserve(e.target);
+          }
+        }
+      },
+      { rootMargin: "0px 0px -8% 0px", threshold: 0.05 }
+    );
+    blocks.forEach((b) => { b.classList.add("reveal"); io.observe(b); });
+    return () => io.disconnect();
+  }, [key]);
 
   useEffect(() => {
     const onScroll = () => {
@@ -52,48 +80,75 @@ export function LessonLayout({ data }: { data: LessonRef }) {
   }
 
   return (
-    <div className="content">
+    <div className="content lesson">
       <div className="readbar"><i style={{ width: `${readPct * 100}%` }} /></div>
-      <div className="prose">
+
+      <header className="lesson-hero prose">
         <div className="crumbs">
           <Link to="/">Dashboard</Link>
           <span>/</span>
-          <span className="seg"><ModuleIcon id={module.id} size={14} /> {module.title}</span>
-          <span>/</span>
-          <span className="seg">{lesson.title}</span>
+          <Link className="seg" to={lessonPath(module.id, module.lessons[0].id)}>
+            <ModuleIcon id={module.id} size={14} /> {module.title}
+          </Link>
         </div>
-        <h1>{lesson.title}</h1>
-        <div className="lesson-head">
-          <span className="badge time">⏱ {lesson.minutes} min</span>
-          {isDone && <span className="badge" style={{ color: "var(--good)", borderColor: "var(--good)" }}>✓ completed</span>}
-          <span style={{ color: "var(--text-dim)" }}>{lesson.summary}</span>
-          <span style={{ marginLeft: "auto", display: "flex", gap: "0.5rem" }}>
+
+        <div className="lh-kicker">Mission {lessonNumInModule} / {module.lessons.length}</div>
+        <h1 className="lh-title">{lesson.title}</h1>
+        <p className="lh-objective">{lesson.summary}</p>
+
+        <div className="lh-meta">
+          <span className="lh-chip"><Clock size={14} weight="duotone" /> {lesson.minutes} min</span>
+          <span className="lh-chip"><Gauge size={14} weight="duotone" /> {diff.label}</span>
+          {isInteractive && <span className="lh-chip interactive"><Sparkle size={14} weight="fill" /> Interactive</span>}
+          {isDone && <span className="lh-chip done"><CheckCircle size={14} weight="fill" /> Completed</span>}
+          <span className="lh-actions">
             <button
-              className="icon-btn"
+              className={"icon-btn" + (isBookmarked ? " on" : "")}
               title={isBookmarked ? "Remove bookmark" : "Bookmark this lesson"}
               onClick={() => toggleBookmark(key)}
-              style={isBookmarked ? { color: "var(--accent)", borderColor: "var(--border-glow)" } : undefined}
             >
-              {isBookmarked ? "★" : "☆"}
+              <BookmarkSimple size={16} weight={isBookmarked ? "fill" : "regular"} />
             </button>
             <button className="icon-btn" title="Add a note (select text first to quote it)" onClick={openNote}>
-              ✎
+              <PencilSimpleLine size={16} weight="regular" />
             </button>
           </span>
         </div>
+      </header>
 
+      <div className="prose lesson-body" ref={bodyRef}>
         <Body />
+      </div>
 
-        {lesson.exercises?.map((ex) => (
-          <Exercise key={ex.id} ex={ex} />
-        ))}
-        {lesson.quiz && <Quiz id={key} quiz={lesson.quiz} lessonTitle={lesson.title} lessonSummary={lesson.summary} />}
+      {lesson.exercises && lesson.exercises.length > 0 && (
+        <div className="prose lesson-section">
+          <div className="section-eyebrow emerald">Checkpoint</div>
+          {lesson.exercises.map((ex) => (
+            <Exercise key={ex.id} ex={ex} />
+          ))}
+        </div>
+      )}
 
+      {lesson.quiz && (
+        <div className="prose lesson-section">
+          <div className="section-eyebrow amber">Knowledge check</div>
+          <Quiz id={key} quiz={lesson.quiz} lessonTitle={lesson.title} lessonSummary={lesson.summary} />
+        </div>
+      )}
+
+      <div className="prose lesson-section">
         <TutorChat lessonTitle={lesson.title} lessonSummary={lesson.summary} />
+      </div>
 
-        <div className="done-toggle">
-          <button className={"btn" + (isDone ? " primary" : "")} onClick={() => toggleDone(key)}>
-            {isDone ? "✓ Completed — click to undo" : "Mark as complete"}
+      <div className="prose lesson-summary">
+        <div className={"ls-card" + (isDone ? " done" : "")}>
+          <div className="ls-icon"><CheckCircle size={28} weight={isDone ? "fill" : "duotone"} /></div>
+          <div className="ls-body">
+            <h3>{isDone ? "Mission accomplished" : "Ready to lock it in?"}</h3>
+            <p>{isDone ? "You've completed this mission. Carry the momentum forward." : "Mark this mission complete once the concept clicks."}</p>
+          </div>
+          <button className={"btn" + (isDone ? "" : " primary")} onClick={() => toggleDone(key)}>
+            {isDone ? "Completed ✓" : "Mark complete"}
           </button>
         </div>
 
@@ -103,17 +158,13 @@ export function LessonLayout({ data }: { data: LessonRef }) {
               <div className="k">← previous</div>
               <div className="t">{prev.lesson.title}</div>
             </Link>
-          ) : (
-            <span />
-          )}
+          ) : <span />}
           {next ? (
             <Link className="next" to={lessonPath(next.module.id, next.lesson.id)}>
-              <div className="k">next →</div>
-              <div className="t">{next.lesson.title}</div>
+              <div className="k">next mission</div>
+              <div className="t">{next.lesson.title} <ArrowRight size={14} weight="bold" /></div>
             </Link>
-          ) : (
-            <span />
-          )}
+          ) : <span />}
         </div>
       </div>
 
