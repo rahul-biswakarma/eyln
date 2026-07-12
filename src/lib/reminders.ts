@@ -29,7 +29,7 @@ export function useReminderScheduler() {
       const now = Date.now();
       for (const r of dueReminders(reminders, now)) {
         if (r.notified) continue;
-        fireNotification("Forge — time to review", r.note);
+        fireNotification("Eyln — time to review", r.note);
         markNotified(r.id);
       }
     };

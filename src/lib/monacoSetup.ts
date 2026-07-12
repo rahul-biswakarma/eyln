@@ -12,13 +12,13 @@ self.MonacoEnvironment = {
 
 loader.config({ monaco });
 
-const FORGE_THEME = "forge-dark";
+const EYLN_THEME = "eyln-dark";
 let defined = false;
 
-export function ensureForgeTheme(m: typeof monaco) {
+export function ensureEylnTheme(m: typeof monaco) {
   if (defined) return;
   defined = true;
-  m.editor.defineTheme(FORGE_THEME, {
+  m.editor.defineTheme(EYLN_THEME, {
     base: "vs-dark",
     inherit: true,
     rules: [
@@ -43,4 +43,4 @@ export function ensureForgeTheme(m: typeof monaco) {
   });
 }
 
-export const FORGE_MONACO_THEME = FORGE_THEME;
+export const EYLN_MONACO_THEME = EYLN_THEME;

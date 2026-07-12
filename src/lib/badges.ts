@@ -12,7 +12,7 @@ export const BADGES: Badge[] = [
   { id: "engineer", name: "Engineer", desc: "Complete 15 lessons", icon: "Gear", need: 15 },
   { id: "architect", name: "Architect", desc: "Complete 30 lessons", icon: "Blueprint", need: 30 },
   { id: "master", name: "Master Builder", desc: "Complete 50 lessons", icon: "Medal", need: 50 },
-  { id: "legend", name: "Forge Legend", desc: "Complete 90 lessons", icon: "Crown", need: 90 },
+  { id: "legend", name: "Eyln Legend", desc: "Complete 90 lessons", icon: "Crown", need: 90 },
 ];
 
 export function badgeState(lessonsDone: number) {

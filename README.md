@@ -1,6 +1,6 @@
-# Forge — an interactive engineering academy
+# Eyln — an interactive engineering academy
 
-Forge is an interactive learning platform with three tracks:
+Eyln is an interactive learning platform with three tracks:
 
 - **3D Game Engine** — build a renderer by hand in **Odin + Metal**, from a single
   triangle to procedural, Tiny-Glade-style terrain. Live demos run in the browser
@@ -26,7 +26,7 @@ Live 3D demos need a WebGPU-capable browser (Chrome/Edge, or Safari 18+ on macOS
 
 ## AI coaching (optional)
 
-Forge has an optional AI layer — open-ended answer grading, "explain my mistake"
+Eyln has an optional AI layer — open-ended answer grading, "explain my mistake"
 on quizzes, a proactive study coach on the dashboard, and a per-lesson Q&A tutor.
 It uses the Gemini API. Copy `.env.example` to `.env` and set:
 
@@ -47,7 +47,7 @@ the top-nav bell and, if you grant permission, as browser notifications.
 
 ## Accounts & cloud sync (optional)
 
-With Firebase configured, Forge adds **Google sign-in** and syncs your progress
+With Firebase configured, Eyln adds **Google sign-in** and syncs your progress
 (completions, quiz scores, notes, bookmarks, reminders) to **Firestore**, so it
 follows you across devices. Copy `.env.example` to `.env` and fill the
 `VITE_FIREBASE_*` values from your Firebase web app config (enable Authentication →

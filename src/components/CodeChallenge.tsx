@@ -7,7 +7,7 @@ import {
 import type { CodeChallenge as Challenge } from "../content/types";
 import { EST_MINUTES, xpForChallenge } from "../content/challenges";
 import { useProgress } from "../lib/progress";
-import { ensureForgeTheme, FORGE_MONACO_THEME } from "../lib/monacoSetup";
+import { ensureEylnTheme, EYLN_MONACO_THEME } from "../lib/monacoSetup";
 
 interface CaseResult {
   index: number;
@@ -50,8 +50,8 @@ export function CodeChallenge({
   }, []);
 
   const onMount: OnMount = (_editor, monaco) => {
-    ensureForgeTheme(monaco);
-    monaco.editor.setTheme(FORGE_MONACO_THEME);
+    ensureEylnTheme(monaco);
+    monaco.editor.setTheme(EYLN_MONACO_THEME);
   };
 
   function resetRunState() {
@@ -189,7 +189,7 @@ export function CodeChallenge({
             <Editor
               height="100%"
               defaultLanguage="javascript"
-              theme={FORGE_MONACO_THEME}
+              theme={EYLN_MONACO_THEME}
               value={code}
               onChange={(v) => setCode(v ?? "")}
               onMount={onMount}

@@ -25,9 +25,9 @@ export function TopNav() {
 
   return (
     <header className="topnav">
-      <Link to="/" className="logo-mark" title="Forge — Engineering Academy">
+      <Link to="/" className="logo-mark" title="Eyln — Engineering Academy">
         <span className="glyph">◆</span>
-        <span>Forge</span>
+        <span>Eyln</span>
       </Link>
 
       <nav className="segmented">

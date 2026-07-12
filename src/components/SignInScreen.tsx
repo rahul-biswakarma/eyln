@@ -9,7 +9,7 @@ export function SignInScreen() {
       <div className="signin-bg" aria-hidden />
       <div className="signin-card card">
         <div className="signin-mark">◆</div>
-        <div className="eyebrow">Forge · Engineering Academy</div>
+        <div className="eyebrow">Eyln · Engineering Academy</div>
         <h1>Sign in to begin</h1>
         <p className="signin-sub">
           Your progress, notes, and reminders sync to your account and follow you across

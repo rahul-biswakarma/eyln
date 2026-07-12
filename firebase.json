@@ -8,7 +8,7 @@
   "auth": {
     "providers": {
       "googleSignIn": {
-        "oAuthBrandDisplayName": "Forge",
+        "oAuthBrandDisplayName": "Eyln",
         "supportEmail": "rahul.id39@gmail.com"
       }
     }
