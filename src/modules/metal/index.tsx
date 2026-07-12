@@ -1,5 +1,6 @@
 import type { Module } from "../../content/types";
 import { Code, CodeTabs } from "../../components/CodeBlock";
+import { MBlock } from "../../components/Math";
 import { ShaderEditor } from "../../widgets/ShaderEditor";
 import { TriangleDemo } from "../../widgets/TriangleDemo";
 
@@ -7,27 +8,30 @@ function GpuModel() {
   return (
     <div className="prose">
       <p>
-        A CPU is a few very fast cores that do different things. A GPU is thousands of tiny cores
-        that all do the <strong>same</strong> thing to different data — perfect for "run this little
-        program on every one of a million vertices, then on every one of two million pixels."
+        A CPU is built of a few extremely fast, sophisticated cores designed to run arbitrary, branching sequential code. 
+        A GPU is the opposite: thousands of tiny, simple cores that all execute the <strong>same</strong> instructions in parallel on different data — perfect for running a shader program on millions of vertices or pixels.
       </p>
-      <p>Your job splits cleanly:</p>
-      <ul>
-        <li>
-          <strong>On the CPU (Odin)</strong>: arrange data into tightly packed buffers, describe the
-          pipeline, and record commands.
-        </li>
-        <li>
-          <strong>On the GPU (shaders)</strong>: two little programs — a <strong>vertex shader</strong>
-          {" "}(runs per vertex, outputs clip-space position) and a <strong>fragment shader</strong>{" "}
-          (runs per pixel, outputs color).
-        </li>
-      </ul>
+
+      <h3>SIMT (Single Instruction, Multiple Threads)</h3>
       <p>
-        The CPU and GPU run asynchronously and communicate through <strong>buffers</strong>. This is
-        exactly why the Odin module hammered on Data-Oriented Design: the GPU can only consume flat,
-        contiguous arrays of numbers.
+        GPUs group threads into hardware executing units (called <strong>warps</strong> in Metal/Nvidia, or <strong>wavefronts</strong> in AMD, typically 32 or 64 threads). 
+        All threads within a warp execute the exact same instruction at the exact same clock cycle. 
       </p>
+
+      <h3>The Cost of Branch Divergence</h3>
+      <p>
+        Conditional branching (like <code>if-else</code> structures) can be extremely expensive on a GPU. 
+        If some threads in a warp take the <code>if</code> path and others take the <code>else</code> path:
+      </p>
+      <ol>
+        <li>The GPU cannot split the warp. It must execute the <code>if</code> branch first, masking out (deactivating) the threads that chose the <code>else</code> path.</li>
+        <li>It then executes the <code>else</code> branch, deactivating the <code>if</code> threads.</li>
+        <li>The execution is serialized, effectively halving the processing speed of that warp.</li>
+      </ol>
+      <p>
+        To keep the GPU running at peak efficiency, shader authors write <strong>branch-free</strong> code (using mathematical operations like <code>step()</code>, <code>clamp()</code>, and <code>mix()</code>) to avoid conditional branching.
+      </p>
+
       <div className="notice">
         <span className="lbl">Metal vs WebGPU</span>
         The live demos here use <strong>WebGPU</strong> because Metal can't run in a browser. The
@@ -47,7 +51,7 @@ function Pipeline() {
         the whole API:
       </p>
       <ol>
-        <li><strong>Device</strong> — your GPU. Everything is created from it.</li>
+        <li><strong>Device</strong> — your GPU interface. Everything is created from it.</li>
         <li><strong>CommandQueue</strong> — where you submit work; created once.</li>
         <li><strong>Buffer</strong> — GPU memory holding your vertices/uniforms.</li>
         <li><strong>Library / Function</strong> — compiled shader code.</li>
@@ -55,6 +59,28 @@ function Pipeline() {
         <li><strong>CommandBuffer</strong> — one frame's worth of commands.</li>
         <li><strong>RenderCommandEncoder</strong> — records draw calls into the command buffer.</li>
       </ol>
+
+      <h3>CPU-GPU Synchronization & Asynchronous Execution</h3>
+      <p>
+        CPU and GPU operate entirely asynchronously. The CPU does not wait for the GPU to draw. 
+        Instead, the CPU acts as an encoder: it quickly writes commands (e.g. "bind buffer", "draw triangles") into a <code>MTLCommandBuffer</code>. 
+        Only when the CPU calls <code>{"cmd->commit()"}</code> is the buffer dispatched to the GPU's command queue to be executed in the background.
+      </p>
+
+      <h3>The High Cost of Pipeline State Creation</h3>
+      <p>
+        Creating a <code>MTLRenderPipelineState</code> is one of the most expensive operations in graphics programming. 
+        When you create it, the driver:
+      </p>
+      <ul>
+        <li>Validates that vertex layout attributes match the inputs of the vertex shader.</li>
+        <li>Verifies color target blending state configurations.</li>
+        <li>Compiles the intermediate shader library representation into hardware-specific binary machine code for the target GPU.</li>
+      </ul>
+      <p>
+        Creating a pipeline state during your frame loop will cause severe frame stutters. You must compile all pipeline states at startup or background-thread load time, and cache them for reuse.
+      </p>
+
       <Code
         lang="odin" filename="frame.odin"
         code={`// --- once, at startup ---
@@ -154,6 +180,34 @@ function Shaders() {
         triangle and handed to the <strong>fragment shader</strong>, which runs once per pixel and
         returns a color.
       </p>
+
+      <h3>The Graphics Pipeline Stages</h3>
+      <p>
+        Data progresses through a sequence of hardware and software stages known as the graphics pipeline:
+      </p>
+      <ol>
+        <li>
+          <strong>Vertex Fetch</strong>: The GPU reads raw index and vertex attribute data (positions, normals, colors) from memory buffers.
+        </li>
+        <li>
+          <strong>Vertex Shader</strong>: Your shader runs on every vertex, applying model-view-projection transforms to output the clip-space coordinate:
+          <MBlock>{`o.pos = u.mvp * float4(v.position, 1.0)`}</MBlock>
+        </li>
+        <li>
+          <strong>Primitive Assembly & Winding-Order Culling</strong>: Vertices are grouped into triangles. The GPU checks their winding order (clockwise vs. counter-clockwise) and discards back-facing triangles to save work.
+        </li>
+        <li>
+          <strong>Rasterization & Barycentric Interpolation</strong>: The GPU determines which screen pixels are covered by the triangle. 
+          For every pixel, it interpolates the vertex shader outputs using <strong>barycentric coordinates</strong>, providing smooth gradients for color, normals, and UVs.
+        </li>
+        <li>
+          <strong>Fragment Shader</strong>: Runs on every pixel covered by the triangle, using the interpolated variables to compute shading, apply textures, and return the final pixel color.
+        </li>
+        <li>
+          <strong>Blending & Depth/Stencil Testing</strong>: The GPU compares the fragment's depth against the depth buffer. If it's behind another object, it is discarded. If it passes, it is written or blended into the screen's color buffer.
+        </li>
+      </ol>
+
       <p>
         Data enters shaders through attributes and buffers. In Metal these use attribute syntax like{" "}
         <code>[[stage_in]]</code>, <code>[[buffer(0)]]</code>, <code>[[position]]</code>; WGSL uses{" "}
