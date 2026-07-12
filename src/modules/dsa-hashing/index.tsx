@@ -70,11 +70,31 @@ function Collisions() {
       <p>
         <strong>Open addressing</strong>: everything lives in the array itself, with no side lists.
         On collision, you <em>probe</em> a deterministic sequence of alternative slots until you find
-        an empty one. <em>Linear probing</em> tries <M>{`h, h+1, h+2, \\ldots`}</M> (mod{" "}
-        <M>{`m`}</M>). It's beautifully cache-friendly (you scan contiguous slots) but suffers{" "}
-        <strong>clustering</strong> — runs of full slots that grow and slow everything down.
+        an empty one.
       </p>
-      <MBlock>{`\\text{linear probe: } h_i(k) = \\big(h(k) + i\\big) \\bmod m, \\quad i = 0, 1, 2, \\ldots`}</MBlock>
+
+      <h3>Open Addressing Probing Equations</h3>
+      <p>
+        There are three common open-addressing probing algorithms:
+      </p>
+      <ul>
+        <li>
+          <strong>Linear Probing</strong>: Probe successive slots linearly.
+          <MBlock>{`h_i(k) = \\big( h(k) + i \\big) \\bmod m, \\quad i = 0, 1, 2, \\dots`}</MBlock>
+          It is highly cache-friendly but suffers from <strong>primary clustering</strong> — long contiguous runs of occupied slots that grow rapidly.
+        </li>
+        <li>
+          <strong>Quadratic Probing</strong>: Probe using a quadratic function of the step counter <M>{`i`}</M>:
+          <MBlock>{`h_i(k) = \\big( h(k) + c_1 i + c_2 i^2 \\big) \\bmod m, \\quad i = 0, 1, 2, \\dots`}</MBlock>
+          This eliminates primary clustering but still exhibits <strong>secondary clustering</strong>, as keys with the same initial hash index trace the exact same probe sequence.
+        </li>
+        <li>
+          <strong>Double Hashing</strong>: Use a second hash function <M>{`h_2(k)`}</M> to compute the step size:
+          <MBlock>{`h_i(k) = \\big( h_1(k) + i \\cdot h_2(k) \\big) \\bmod m, \\quad i = 0, 1, 2, \\dots`}</MBlock>
+          This eliminates both primary and secondary clustering since the step size depends on the key itself. To ensure the probe sequence visits all <M>{`m`}</M> slots, <M>{`h_2(k)`}</M> must be coprime to <M>{`m`}</M> (e.g., choosing a prime <M>{`m`}</M> and <M>{`h_2(k) > 0`}</M>).
+        </li>
+      </ul>
+
       <Code
         lang="ts"
         filename="probe.ts"

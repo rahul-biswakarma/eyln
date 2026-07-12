@@ -181,13 +181,35 @@ function Balanced() {
           (C++ <code>std::map</code>, Java <code>TreeMap</code>) use them.
         </li>
       </ul>
-      <MBlock>{`\\text{search, insert, delete} = O(\\log n) \\quad \\text{guaranteed, worst case}`}</MBlock>
+
+      <h3>AVL Tree Balance Factors and Rotations</h3>
       <p>
-        You rarely implement these from scratch, so the goal here is the <em>mental model</em>: a balanced
-        BST gives you a sorted, dynamic collection with logarithmic everything — insert, delete, lookup,
-        predecessor/successor, and range queries — which a hash table cannot do because it throws ordering
-        away.
+        For any node <M>{`N`}</M> in an AVL tree, the <strong>Balance Factor (BF)</strong> is the height difference between its left and right subtrees:
       </p>
+      <MBlock>{`BF(N) = \\text{height}(N.\\text{left}) - \\text{height}(N.\\text{right})`}</MBlock>
+      <p>
+        The AVL invariant requires <M>{`|BF(N)| \\le 1`}</M> for every node. 
+        If a node's balance factor becomes $+2$ or $-2$ due to insertion/deletion, we trigger one of four rotations depending on the shape of the imbalance:
+      </p>
+      <ul>
+        <li>
+          <strong>Left-Left (LL) Case</strong>: <M>{`BF(N) = +2`}</M> and <M>{`BF(N.\\text{left}) \\ge 0`}</M>. 
+          The tree is left-heavy. We resolve this imbalance using a single <strong>right rotation</strong> at <M>{`N`}</M>.
+        </li>
+        <li>
+          <strong>Right-Right (RR) Case</strong>: <M>{`BF(N) = -2`}</M> and <M>{`BF(N.\\text{right}) \\le 0`}</M>. 
+          The tree is right-heavy. We resolve this imbalance using a single <strong>left rotation</strong> at <M>{`N`}</M>.
+        </li>
+        <li>
+          <strong>Left-Right (LR) Case</strong>: <M>{`BF(N) = +2`}</M> and <M>{`BF(N.\\text{left}) < 0`}</M>. 
+          The imbalance is zig-zag. We perform a single <strong>left rotation</strong> on <M>{`N.\\text{left}`}</M>, followed by a single <strong>right rotation</strong> on <M>{`N`}</M>.
+        </li>
+        <li>
+          <strong>Right-Left (RL) Case</strong>: <M>{`BF(N) = -2`}</M> and <M>{`BF(N.\\text{right}) > 0`}</M>. 
+          The imbalance is zag-zig. We perform a single <strong>right rotation</strong> on <M>{`N.\\text{right}`}</M>, followed by a single <strong>left rotation</strong> on <M>{`N`}</M>.
+        </li>
+      </ul>
+
       <Code
         lang="ts"
         filename="rotate.ts"
@@ -221,11 +243,31 @@ function Heaps() {
         is always the root — which is what a <strong>priority queue</strong> needs.
       </p>
       <p>
-        Because the tree is complete, we do not store pointers at all. We flatten it into an array: the
-        children of index <M>{`i`}</M> live at <M>{`2i+1`}</M> and <M>{`2i+2`}</M>, and its parent at
-        <M>{` \\lfloor (i-1)/2 \\rfloor`}</M>. No per-node allocation, perfect cache locality.
+        Because the tree is complete, we do not store pointers at all. We flatten it into an array.
       </p>
-      <MBlock>{`\\text{left}(i) = 2i+1, \\quad \\text{right}(i) = 2i+2, \\quad \\text{parent}(i) = \\left\\lfloor \\tfrac{i-1}{2} \\right\\rfloor`}</MBlock>
+
+      <h3>Array-Based Heap Index Arithmetic</h3>
+      <p>
+        For a complete binary tree flattened into an array, parent-child relationships are calculated using simple arithmetic:
+      </p>
+      <ul>
+        <li>
+          <strong>0-Indexed Array</strong>: 
+          For any node at index <M>{`i`}</M>:
+          <MBlock>{`\\text{left}(i) = 2i + 1`}</MBlock>
+          <MBlock>{`\\text{right}(i) = 2i + 2`}</MBlock>
+          <MBlock>{`\\text{parent}(i) = \\left\\lfloor \\frac{i - 1}{2} \\right\\rfloor`}</MBlock>
+        </li>
+        <li>
+          <strong>1-Indexed Array</strong>: 
+          For any node at index <M>{`i`}</M>:
+          <MBlock>{`\\text{left}(i) = 2i`}</MBlock>
+          <MBlock>{`\\text{right}(i) = 2i + 1`}</MBlock>
+          <MBlock>{`\\text{parent}(i) = \\left\\lfloor \\frac{i}{2} \\right\\rfloor`}</MBlock>
+          This is mathematically elegant because multiplication and division by 2 are simple bit shifts (<M>{`i \\ll 1`}</M> and <M>{`i \\gg 1`}</M>).
+        </li>
+      </ul>
+
       <p>
         Two repair operations maintain the property. <strong>Sift-up</strong> (used after inserting at the
         end) swaps a too-small node upward with its parent until it fits. <strong>Sift-down</strong> (used

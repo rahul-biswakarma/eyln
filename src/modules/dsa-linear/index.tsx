@@ -18,6 +18,32 @@ function LinkedLists() {
         given a reference to it. The cost of that flexibility is an extra pointer per node and more
         bookkeeping.
       </p>
+
+      <h3>Doubly Linked List Pointer Updates</h3>
+      <p>
+        Splice operations in a doubly linked list require careful rewiring of pointers. Let's look at the exact assignments:
+      </p>
+      <p>
+        <strong>1. Insertion:</strong> To insert a new node <M>{`N`}</M> between existing nodes <M>{`A`}</M> and <M>{`B`}</M> (so <M>{`A \\leftrightarrow B`}</M> becomes <M>{`A \\leftrightarrow N \\leftrightarrow B`}</M>):
+      </p>
+      <ul>
+        <li>Set the new node's outgoing links:
+          <MBlock>{`N.\\text{next} = B, \\qquad N.\\text{prev} = A`}</MBlock>
+        </li>
+        <li>Update the neighboring nodes' incoming links:
+          <MBlock>{`A.\\text{next} = N, \\qquad B.\\text{prev} = N`}</MBlock>
+        </li>
+      </ul>
+      <p>
+        <strong>2. Deletion:</strong> To remove node <M>{`X`}</M> situated between <M>{`A`}</M> and <M>{`B`}</M> (so <M>{`A \\leftrightarrow X \\leftrightarrow B`}</M> becomes <M>{`A \\leftrightarrow B`}</M>):
+      </p>
+      <ul>
+        <li>Bypass <M>{`X`}</M> by connecting <M>{`A`}</M> and <M>{`B`}</M> directly:
+          <MBlock>{`A.\\text{next} = X.\\text{next} \\quad (\\text{which is } B)`}</MBlock>
+          <MBlock>{`B.\\text{prev} = X.\\text{prev} \\quad (\\text{which is } A)`}</MBlock>
+        </li>
+      </ul>
+
       <p>
         The performance profile is the mirror image of an array:
       </p>
@@ -127,7 +153,30 @@ function QueuesDeques() {
         (circular buffer): a fixed array with <code>head</code> and <code>tail</code> indices that
         wrap around using modulo. Both ends become <M>{`O(1)`}</M> with no shifting.
       </p>
-      <MBlock>{`\\text{next index} = (i + 1) \\bmod \\text{capacity}`}</MBlock>
+
+      <h3>Ring Buffer Index Arithmetic</h3>
+      <p>
+        A circular queue of capacity <M>{`C`}</M> manages two indices <M>{`head`}</M> and <M>{`tail`}</M>. 
+        The operations update the indices modulo <M>{`C`}</M>:
+      </p>
+      <ul>
+        <li>
+          <strong>Enqueue (Insert at back):</strong> Place item at <M>{`tail`}</M> and advance <M>{`tail`}</M>:
+          <MBlock>{`\\text{tail} = (\\text{tail} + 1) \\bmod C`}</MBlock>
+        </li>
+        <li>
+          <strong>Dequeue (Remove from front):</strong> Retrieve item at <M>{`head`}</M> and advance <M>{`head`}</M>:
+          <MBlock>{`\\text{head} = (\\text{head} + 1) \\bmod C`}</MBlock>
+        </li>
+        <li>
+          <strong>Empty vs. Full states:</strong> 
+          We define empty and full using the count of elements <M>{`N`}</M> in the queue:
+          <MBlock>{`\\text{Empty} \\iff N = 0, \\qquad \\text{Full} \\iff N = C`}</MBlock>
+          If tracking <M>{`N`}</M> is not desired, we can reserve one slot as a sentinel/dead space, where:
+          <MBlock>{`\\text{Empty} \\iff \\text{head} = \\text{tail}, \\qquad \\text{Full} \\iff (\\text{tail} + 1) \\bmod C = \\text{head}`}</MBlock>
+        </li>
+      </ul>
+
       <p>
         A <strong>deque</strong> (double-ended queue) generalizes both: <M>{`O(1)`}</M> push and pop
         at <em>either</em> end. It's a stack and a queue at once, and it's the workhorse behind the

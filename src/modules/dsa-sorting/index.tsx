@@ -167,30 +167,75 @@ function QuickSort() {
         smaller sits left of the pivot and everything larger sits right, then recursively sorts each side. The
         pivot lands in its final position, and no merge step is needed.
       </p>
-      <Code
-        lang="ts"
-        filename="quicksort.ts"
-        code={`function quickSort(a: number[], lo = 0, hi = a.length - 1): void {
+
+      <h3>Lomuto vs. Hoare Partitioning Schemes</h3>
+      <p>
+        Partitioning is the heart of quicksort. There are two primary partitioning schemes:
+      </p>
+      <ul>
+        <li>
+          <strong>Lomuto Partitioning</strong>: Easy to implement but less efficient. 
+          It chooses the last element as the pivot, scans sequentially using a pointer <M>{`j`}</M>, and swaps elements smaller than the pivot into a growing left partition tracked by index <M>{`i`}</M>. 
+          It performs <M>{`O(n)`}</M> swaps and degrades to <M>{`O(n^2)`}</M> comparison/swap complexity if all elements are equal.
+        </li>
+        <li>
+          <strong>Hoare Partitioning</strong>: More efficient and performs roughly 3× fewer swaps. 
+          It uses two pointers starting from the ends (<M>{`lo`}</M> and <M>{`hi`}</M>) that converge inward. 
+          They search for a pair of elements out of order (left element larger than pivot, right element smaller than pivot) and swap them. 
+          It naturally divides equal elements evenly and handles duplicates gracefully.
+        </li>
+      </ul>
+
+      <CodeTabs
+        tabs={[
+          {
+            label: "Lomuto Partition",
+            lang: "ts",
+            code: `function quickSortLomuto(a: number[], lo = 0, hi = a.length - 1): void {
   if (lo >= hi) return;
-  const p = partition(a, lo, hi);   // pivot ends up at index p
-  quickSort(a, lo, p - 1);
-  quickSort(a, p + 1, hi);
+  const p = partitionLomuto(a, lo, hi);
+  quickSortLomuto(a, lo, p - 1);
+  quickSortLomuto(a, p + 1, hi);
 }
 
-// Lomuto partition using the last element as pivot.
-function partition(a: number[], lo: number, hi: number): number {
+function partitionLomuto(a: number[], lo: number, hi: number): number {
   const pivot = a[hi];
-  let i = lo;                       // boundary of the "< pivot" region
+  let i = lo;
   for (let j = lo; j < hi; j++) {
     if (a[j] < pivot) {
       [a[i], a[j]] = [a[j], a[i]];
       i++;
     }
   }
-  [a[i], a[hi]] = [a[hi], a[i]];    // put pivot in its place
+  [a[i], a[hi]] = [a[hi], a[i]];
   return i;
-}`}
+}`,
+          },
+          {
+            label: "Hoare Partition",
+            lang: "ts",
+            code: `function quickSortHoare(a: number[], lo = 0, hi = a.length - 1): void {
+  if (lo >= hi) return;
+  const p = partitionHoare(a, lo, hi);
+  quickSortHoare(a, lo, p);      // Note: p is included here
+  quickSortHoare(a, p + 1, hi);
+}
+
+function partitionHoare(a: number[], lo: number, hi: number): number {
+  const pivot = a[lo + ((hi - lo) >> 1)];
+  let i = lo - 1;
+  let j = hi + 1;
+  while (true) {
+    do { i++; } while (a[i] < pivot);
+    do { j--; } while (a[j] > pivot);
+    if (i >= j) return j;
+    [a[i], a[j]] = [a[j], a[i]]; // swap out-of-order pair
+  }
+}`,
+          },
+        ]}
       />
+
       <p>
         On a balanced split the recurrence is <M>{`T(n) = 2T(n/2) + O(n) = O(n \\log n)`}</M>, and quicksort's
         small constant factors and in-place, cache-friendly partition make it the fastest general sort in
@@ -219,17 +264,34 @@ function LowerBound() {
         Is <M>{`O(n \\log n)`}</M> just the best we have found, or is it a wall? For any sort that learns about
         the data <em>only through comparisons</em>, it is a wall — a proven lower bound.
       </p>
+
+      <h3>Mathematical Proof of the <M>{`\\Omega(n \\log n)`}</M> Lower Bound</h3>
       <p>
-        The argument is a <strong>decision tree</strong>. A comparison sort's execution is a path down a binary
-        tree whose leaves are the possible output orderings. With <M>{`n`}</M> distinct elements there are
-        <M>{` n!`}</M> possible orderings, so the tree needs at least <M>{`n!`}</M> leaves. A binary tree with
-        <M>{` L`}</M> leaves has height at least <M>{`\\log_2 L`}</M>, and by Stirling's approximation:
+        We model any comparison sort as a <strong>binary decision tree</strong> where each internal node represents a comparison <M>{`a_i \\le a_j`}</M>, and each leaf represents a unique sorted permutation of the input:
       </p>
-      <MBlock>{`\\log_2(n!) = \\Theta(n \\log n)`}</MBlock>
+      <ul>
+        <li>
+          For an input array of size <M>{`n`}</M>, there are <M>{`n!`}</M> possible permutations. The decision tree must have at least <M>{`n!`}</M> leaves so it can correctly sort every possible input permutation:
+          <MBlock>{`L \\ge n!`}</MBlock>
+        </li>
+        <li>
+          A binary tree of height <M>{`h`}</M> has at most <M>{`2^h`}</M> leaves. Therefore:
+          <MBlock>{`2^h \\ge L \\ge n!`}</MBlock>
+        </li>
+        <li>
+          Taking the binary logarithm of both sides:
+          <MBlock>{`h \\ge \\log_2(n!)`}</MBlock>
+        </li>
+        <li>
+          Using Stirling's approximation (<M>{`\\ln(n!) \\approx n \\ln n - n`}</M>) or simply bounding the factorial:
+          <MBlock>{`n! \\ge \\left( \\frac{n}{2} \\right)^{n/2}`}</MBlock>
+          <MBlock>{`\\log_2(n!) \\ge \\log_2\\left( \\left( \\frac{n}{2} \\right)^{n/2} \\right) = \\frac{n}{2} \\log_2\\left(\\frac{n}{2}\\right) = \\frac{n}{2}(\\log_2 n - 1) = \\Omega(n \\log n)`}</MBlock>
+        </li>
+      </ul>
       <p>
-        So <em>some</em> input forces any comparison sort to make <M>{`\\Omega(n \\log n)`}</M> comparisons.
-        Merge sort and heapsort meet this bound; you cannot beat it with comparisons alone.
+        Since <M>{`h`}</M> represents the maximum number of comparisons (the tree height / worst-case path), any comparison-based sort must make <M>{`\\Omega(n \\log n)`}</M> comparisons in the worst case.
       </p>
+
       <p>
         You <em>can</em> beat it by not comparing. <strong>Non-comparison sorts</strong> exploit the structure
         of the keys:

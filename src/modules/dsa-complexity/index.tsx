@@ -47,17 +47,26 @@ function BigOFormal() {
         three of them. All three are statements about how <M>{`T(n)`}</M> behaves as{" "}
         <M>{`n \\to \\infty`}</M>, ignoring constant factors and small inputs.
       </p>
-      <p>
-        <strong>Big-O</strong> is an <em>upper</em> bound — a ceiling:
-      </p>
-      <MBlock>{`T(n) = O(g(n)) \\iff \\exists\\, c > 0,\\, n_0 > 0 \\;:\\; 0 \\le T(n) \\le c\\,g(n) \\;\\; \\forall n \\ge n_0`}</MBlock>
-      <p>
-        Read it as: past some threshold <M>{`n_0`}</M>, <M>{`T`}</M> never exceeds a constant
-        multiple of <M>{`g`}</M>. <strong>Big-Omega</strong> <M>{`\\Omega`}</M> is the mirror image —
-        a <em>lower</em> bound (a floor) — and <strong>Big-Theta</strong> <M>{`\\Theta`}</M> means
-        both bounds hold, i.e. a tight description of the growth rate.
-      </p>
-      <MBlock>{`T(n) = \\Omega(g(n)) \\iff T(n) \\ge c\\,g(n),\\qquad T(n) = \\Theta(g(n)) \\iff T(n) = O(g(n)) \\text{ and } \\Omega(g(n))`}</MBlock>
+
+      <h3>Formal Asymptotic Definitions</h3>
+      <ul>
+        <li>
+          <strong>Big-O (Upper Bound / Ceiling)</strong>:
+          <MBlock>{`T(n) = O(g(n)) \\iff \\exists\\, c > 0,\\, n_0 > 0 \\quad \\text{such that} \\quad 0 \\le T(n) \\le c\\,g(n) \\quad \\forall n \\ge n_0`}</MBlock>
+          This guarantees that <M>{`T(n)`}</M> grows no faster than <M>{`g(n)`}</M> asymptotically.
+        </li>
+        <li>
+          <strong>Big-Omega (Lower Bound / Floor)</strong>:
+          <MBlock>{`T(n) = \\Omega(g(n)) \\iff \\exists\\, c > 0,\\, n_0 > 0 \\quad \\text{such that} \\quad T(n) \\ge c\\,g(n) \\ge 0 \\quad \\forall n \\ge n_0`}</MBlock>
+          This guarantees that <M>{`T(n)`}</M> grows at least as fast as <M>{`g(n)`}</M> asymptotically.
+        </li>
+        <li>
+          <strong>Big-Theta (Tight Bound / Exact Fit)</strong>:
+          <MBlock>{`T(n) = \\Theta(g(n)) \\iff T(n) = O(g(n)) \\quad \\text{and} \\quad T(n) = \\Omega(g(n))`}</MBlock>
+          This requires <M>{`T(n)`}</M> to be bounded above and below by scaled versions of <M>{`g(n)`}</M>, meaning they share the same asymptotic growth class.
+        </li>
+      </ul>
+
       <p>
         A concrete example: <M>{`T(n) = 3n^2 + 5n + 100`}</M>. The <M>{`n^2`}</M> term dominates, so
         <M>{`T(n) = \\Theta(n^2)`}</M>. We can also (weakly, but truthfully) say{" "}
@@ -151,6 +160,31 @@ function Amortized() {
         existing element</em> — an <M>{`O(n)`}</M> event. If we grow by <strong>doubling</strong>,
         those copies are rare enough that the average still comes out to <M>{`O(1)`}</M>.
       </p>
+
+      <h3>Amortized Methods: Aggregate, Accounting, and Physicist</h3>
+      <p>
+        Amortized analysis can be conducted using three primary methods:
+      </p>
+      <ul>
+        <li>
+          <strong>Aggregate Method</strong>: Calculate the total cost <M>{`T(k)`}</M> of a sequence of <M>{`k`}</M> operations, and divide by <M>{`k`}</M> to find the amortized cost per operation: <M>{`T_a = T(k)/k`}</M>. 
+          As derived below, <M>{`k`}</M> dynamic array pushes cost <M>{`O(k)`}</M> total, giving <M>{`O(1)`}</M> amortized cost.
+        </li>
+        <li>
+          <strong>Accounting (Banker's) Method</strong>: Assign an artificial amortized charge <M>{`c_i`}</M> to each operation. 
+          If the actual cost <M>{`a_i`}</M> is less than <M>{`c_i`}</M>, store the excess "credit" in a bank. 
+          For expensive operations where <M>{`a_i > c_i`}</M>, draw from this credit pool to pay the difference. 
+          We must ensure the bank balance never drops below zero:
+          <MBlock>{`\\sum_{i=1}^k c_i \\ge \\sum_{i=1}^k a_i`}</MBlock>
+        </li>
+        <li>
+          <strong>Physicist's (Potential) Method</strong>: Define a potential function <M>{`\\Phi`}</M> mapping states of the data structure to real numbers. 
+          The amortized cost of the <M>{`i`}</M>-th operation is:
+          <MBlock>{`c_i = a_i + \\Phi(S_i) - \\Phi(S_{i-1})`}</MBlock>
+          If the potential increases, the operation stores energy; if it decreases, the potential is released to pay for expensive actions.
+        </li>
+      </ul>
+
       <p>
         Count the copies to insert <M>{`n = 2^k`}</M> items. Resizes happen at sizes{" "}
         <M>{`1, 2, 4, \\ldots, n`}</M>, copying that many elements each time. The total copy work is a

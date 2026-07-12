@@ -18,6 +18,16 @@ function IdeaOfALimit() {
         close to <M>{`L`}</M>." Crucially, <M>{`x`}</M> never equals <M>{`a`}</M>. The function need not
         even be defined at <M>{`a`}</M> for the limit to exist.
       </p>
+
+      <h3>The Formal <M>{`\\varepsilon`}</M>-<M>{`\\delta`}</M> Definition</h3>
+      <p>
+        To make this mathematically rigorous, we define limits using bounds. We say that the limit of <M>{`f(x)`}</M> as <M>{`x`}</M> approaches <M>{`a`}</M> is <M>{`L`}</M> if:
+      </p>
+      <MBlock>{`\\lim_{x \\to a} f(x) = L \\iff \\forall \\varepsilon > 0, \\; \\exists \\delta > 0 \\quad \\text{such that} \\quad 0 < |x - a| < \\delta \\implies |f(x) - L| < \\varepsilon`}</MBlock>
+      <p>
+        This statement means: no matter how tight a window <M>{`\\varepsilon`}</M> you choose around the target <M>{`L`}</M>, we can always find a corresponding window <M>{`\\delta`}</M> around the input <M>{`a`}</M> such that any input within <M>{`\\delta`}</M> (excluding <M>{`a`}</M> itself) maps to an output within <M>{`\\varepsilon`}</M>.
+      </p>
+
       <p>
         The classic example is <M>{`f(x) = \\dfrac{x^2 - 1}{x - 1}`}</M>. At <M>{`x = 1`}</M> the formula
         is <M>{`\\tfrac{0}{0}`}</M> — undefined, a hole in the graph. But <em>near</em> <M>{`x = 1`}</M>{" "}
@@ -182,6 +192,17 @@ function Continuity() {
           asymptote, so no finite limit exists.
         </li>
       </ul>
+
+      <h3>The Intermediate Value Theorem (IVT)</h3>
+      <p>
+        Continuity guarantees essential structural behaviors. The most famous is the <strong>Intermediate Value Theorem (IVT)</strong>:
+      </p>
+      <MBlock>{`\\text{If } f \\text{ is continuous on } [a, b] \\text{ and } u \\text{ lies between } f(a) \\text{ and } f(b), \\text{ there exists } c \\in [a, b] \\text{ such that } f(c) = u.`}</MBlock>
+      <p>
+        A key application of the IVT is root finding: if a continuous function shifts signs between <M>{`a`}</M> and <M>{`b`}</M> (i.e. <M>{`f(a) < 0`}</M> and <M>{`f(b) > 0`}</M>), then there must exist a root <M>{`c`}</M> where <M>{`f(c) = 0`}</M>. 
+        This is the mathematical guarantee behind the <strong>Bisection Method</strong> and ray-marching boundary intersection tests.
+      </p>
+
       <p>
         Continuity is what most calculus theorems quietly assume. It guarantees, for instance, that a
         continuous function on a closed interval attains a maximum and a minimum, and that it takes

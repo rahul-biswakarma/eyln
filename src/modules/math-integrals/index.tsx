@@ -111,8 +111,21 @@ function Techniques() {
         so <M>{`du = 2x\\, dx`}</M>, and it collapses to <M>{`\\int \\cos u\\, du = \\sin(x^2) + C`}</M>.
       </p>
       <p>
-        <strong>Integration by parts</strong> reverses the product rule. From{" "}
-        <M>{`(uv)' = u'v + uv'`}</M>, rearrange and integrate:
+        <strong>Integration by parts</strong> reverses the product rule. 
+      </p>
+
+      <h3>Integration by Parts Derivation</h3>
+      <p>
+        Let's derive the formula from the derivative product rule:
+      </p>
+      <MBlock>{`\\frac{d}{dx}(uv) = u \\frac{dv}{dx} + v \\frac{du}{dx}`}</MBlock>
+      <p>
+        Integrating both sides with respect to <M>{`x`}</M> gives:
+      </p>
+      <MBlock>{`uv = \\int u \\frac{dv}{dx}\\, dx + \\int v \\frac{du}{dx}\\, dx`}</MBlock>
+      <MBlock>{`uv = \\int u\\, dv + \\int v\\, du`}</MBlock>
+      <p>
+        Rearranging terms yields the standard integration by parts formula:
       </p>
       <MBlock>{`\\int u\\, dv = uv - \\int v\\, du`}</MBlock>
       <p>
@@ -121,6 +134,7 @@ function Techniques() {
         <M>{`dv = e^x dx`}</M> (so <M>{`v = e^x`}</M>), giving{" "}
         <M>{`x e^x - \\int e^x\\, dx = x e^x - e^x + C`}</M>.
       </p>
+
       <div className="notice">
         <span className="lbl">Choosing u</span> A handy mnemonic for by-parts is <strong>LIATE</strong>:
         prefer <M>{`u`}</M> to be the Logarithmic, then Inverse-trig, Algebraic, Trig, then
@@ -184,24 +198,36 @@ function Numerical() {
       </p>
       <p>
         <strong>The trapezoid rule</strong> replaces each rectangle with a trapezoid: connect
-        adjacent samples with a straight line instead of a flat step. Over <M>{`n`}</M> equal
-        slices of width <M>{`h`}</M>:
+        adjacent samples with a straight line instead of a flat step. 
       </p>
-      <MBlock>{`\\int_a^b f\\, dx \\approx h \\left( \\tfrac{1}{2}f_0 + f_1 + \\cdots + f_{n-1} + \\tfrac{1}{2}f_n \\right)`}</MBlock>
+
+      <h3>Trapezoidal Rule Formula</h3>
+      <p>
+        Over <M>{`n`}</M> equal slices of width <M>{`\\Delta x = h = (b - a)/n`}</M>, the sum of the areas of the trapezoids is:
+      </p>
+      <MBlock>{`\\int_a^b f(x)\\, dx \\approx \\frac{h}{2} \\left[ f(x_0) + 2f(x_1) + 2f(x_2) + \\dots + 2f(x_{n-1}) + f(x_n) \\right]`}</MBlock>
       <p>
         The endpoints get half weight because each interior sample is shared by two trapezoids. The
         error shrinks like <M>{`h^2`}</M> — halve the step, quarter the error.
       </p>
       <p>
         <strong>Simpson's rule</strong> does better by fitting parabolas through triples of points
-        instead of straight lines. It needs an even number of slices and weights samples in the
-        pattern <M>{`1, 4, 2, 4, 2, \\ldots, 4, 1`}</M>:
+        instead of straight lines. 
       </p>
-      <MBlock>{`\\int_a^b f\\, dx \\approx \\frac{h}{3}\\left( f_0 + 4f_1 + 2f_2 + \\cdots + 4f_{n-1} + f_n \\right)`}</MBlock>
+
+      <h3>Simpson's Rule Formula</h3>
       <p>
-        Its error falls like <M>{`h^4`}</M> — dramatically faster — and it integrates cubics exactly
-        for free. Here are both in TypeScript:
+        For an even number of slices <M>{`n`}</M>, fitting a quadratic polynomial over each pair of intervals yields:
       </p>
+      <MBlock>{`\\int_a^b f(x)\\, dx \\approx \\frac{h}{3} \\left[ f(x_0) + 4f(x_1) + 2f(x_2) + 4f(x_3) + \\dots + 4f(x_{n-1}) + f(x_n) \\right]`}</MBlock>
+      <p>
+        The error for Simpson's rule scales as <M>{`h^4`}</M> — meaning doubling the resolution reduces error by a factor of 16, which is highly efficient.
+      </p>
+
+      <div className="notice warn">
+        <span className="lbl">Precision and Step Size</span>
+        Because Simpson's rule assumes local regions look like quadratic parabolas, it handles smooth curves with very high precision. For discontinuous rates, stick to the simpler trapezoid rule to avoid oscillations.
+      </div>
       <Code
         lang="ts"
         code={`// Numerical integration of f over [a, b] with n slices.

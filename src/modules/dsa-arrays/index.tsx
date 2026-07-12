@@ -21,13 +21,37 @@ function ContiguousMemory() {
         is not a search, it is a formula. Contrast a linked list, where finding element{" "}
         <M>{`i`}</M> means walking <M>{`i`}</M> pointers — <M>{`O(n)`}</M>.
       </p>
+
+      <h3>Multi-Dimensional Arrays: Row-Major vs. Column-Major Layout</h3>
+      <p>
+        In physical computer memory, address space is strictly one-dimensional. To store a 2D grid/matrix of size <M>{`R \\times C`}</M> (Rows by Columns), we must flatten it. There are two primary layouts:
+      </p>
+      <ul>
+        <li>
+          <strong>Row-Major Order</strong>: Elements are stored row-by-row consecutively. 
+          This is the default in C, C++, and most graphics/engine code. 
+          The memory offset for cell <M>{`(r, c)`}</M> is:
+          <MBlock>{`\\text{offset}(r, c) = r \\times C + c`}</MBlock>
+        </li>
+        <li>
+          <strong>Column-Major Order</strong>: Elements are stored column-by-column consecutively. 
+          This is the default in Fortran, MATLAB, and WebGL/OpenGL matrices. 
+          The memory offset for cell <M>{`(r, c)`}</M> is:
+          <MBlock>{`\\text{offset}(r, c) = c \\times R + r`}</MBlock>
+        </li>
+      </ul>
+
+      <h3>Cache Line Locality and Strided Access</h3>
       <p>
         Contiguity also gives you <strong>cache locality</strong> for free. Memory is fetched in
         cache lines (~64 bytes), so touching <code>a[i]</code> drags <code>a[i+1..]</code> into fast
-        cache with it. Iterating an array in order is dramatically faster than the same number of
-        scattered accesses — often 10× — even though both are <M>{`O(n)`}</M>. Big-O hides this
-        constant, but your frame budget does not.
+        cache with it. 
       </p>
+      <p>
+        When iterating a row-major 2D array, traversing row-by-row (incrementing <M>{`c`}</M> in the inner loop) accesses adjacent memory addresses, utilizing 100% of the cache line. 
+        Traversing column-by-column (incrementing <M>{`r`}</M> in the inner loop) creates a <strong>strided access pattern</strong>. If the row size exceeds the cache size, this causes constant cache misses (cache thrashing), which can make the code run up to 10× slower despite having the same Big-O.
+      </p>
+
       <Code
         lang="ts"
         filename="indexing.ts"

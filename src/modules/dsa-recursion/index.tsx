@@ -56,28 +56,36 @@ function DivideConquer() {
         quicksort, and binary search are all instances. Their costs follow one recurrence:
       </p>
       <MBlock>{`T(n) = a\\,T(n/b) + f(n)`}</MBlock>
+
+      <h3>The Master Theorem Recurrence Cases</h3>
       <p>
-        The <strong>Master Theorem</strong> solves this class in one glance by comparing <M>{`f(n)`}</M> to the
-        "watershed" function <M>{`n^{\\log_b a}`}</M> (the cost of the leaves):
+        The <strong>Master Theorem</strong> provides a recipe to solve recurrences of the form <M>{`T(n) = a\\,T(n/b) + f(n)`}</M> (where <M>{`a \\ge 1`}</M> and <M>{`b > 1`}</M>) by comparing the work done splitting/combining <M>{`f(n)`}</M> against the recursive division tree leaf-level work <M>{`n^{\\log_b a}`}</M>:
       </p>
       <ul>
         <li>
-          <strong>Case 1</strong> — if <M>{`f(n) = O(n^{\\log_b a - \\epsilon})`}</M> (leaves dominate), then
-          <M>{` T(n) = \\Theta(n^{\\log_b a})`}</M>.
+          <strong>Case 1 (Leaf-Heavy / Bottom-Heavy)</strong>: 
+          If <M>{`f(n) = O(n^{\\log_b a - \\epsilon})`}</M> for some constant <M>{`\\epsilon > 0`}</M>, then:
+          <MBlock>{`T(n) = \\Theta\\left(n^{\\log_b a}\\right)`}</MBlock>
+          Here, recursive calls at the leaves dominate the overall cost.
         </li>
         <li>
-          <strong>Case 2</strong> — if <M>{`f(n) = \\Theta(n^{\\log_b a})`}</M> (balanced), then
-          <M>{` T(n) = \\Theta(n^{\\log_b a} \\log n)`}</M>.
+          <strong>Case 2 (Balanced)</strong>: 
+          If <M>{`f(n) = \\Theta(n^{\\log_b a} \\log^k n)`}</M> for some constant <M>{`k \\ge 0`}</M>, then:
+          <MBlock>{`T(n) = \\Theta\\left(n^{\\log_b a} \\log^{k+1} n\\right)`}</MBlock>
+          The work is evenly distributed across all levels of the recursion tree. For the standard case <M>{`k = 0`}</M> where <M>{`f(n) = \\Theta(n^{\\log_b a})`}</M>, we get <M>{`T(n) = \\Theta(n^{\\log_b a} \\log n)`}</M>.
         </li>
         <li>
-          <strong>Case 3</strong> — if <M>{`f(n) = \\Omega(n^{\\log_b a + \\epsilon})`}</M> (root dominates, with
-          a regularity condition), then <M>{`T(n) = \\Theta(f(n))`}</M>.
+          <strong>Case 3 (Root-Heavy / Top-Heavy)</strong>: 
+          If <M>{`f(n) = \\Omega(n^{\\log_b a + \\epsilon})`}</M> for some constant <M>{`\\epsilon > 0`}</M>, and if the regularity condition holds (meaning <M>{`a\\,f(n/b) \\le c\\,f(n)`}</M> for some constant <M>{`c < 1`}</M> and all sufficiently large <M>{`n`}</M>), then:
+          <MBlock>{`T(n) = \\Theta(f(n))`}</MBlock>
+          Here, the work at the root (splitting and combining) dominates.
         </li>
       </ul>
+
       <p>
         Merge sort has <M>{`a = 2, b = 2, f(n) = O(n)`}</M>, so <M>{`n^{\\log_2 2} = n`}</M> matches
-        <M>{` f(n)`}</M> — Case 2 — giving the familiar <M>{`\\Theta(n \\log n)`}</M>. Binary search has
-        <M>{` a = 1, b = 2, f(n) = O(1)`}</M>: <M>{`n^{\\log_2 1} = n^0 = 1`}</M> matches, Case 2, giving
+        <M>{` f(n)`}</M> — Case 2 (<M>{`k = 0`}</M>) — giving the familiar <M>{`\\Theta(n \\log n)`}</M>. Binary search has
+        <M>{` a = 1, b = 2, f(n) = O(1)`}</M>: <M>{`n^{\\log_2 1} = n^0 = 1`}</M> matches, Case 2 (<M>{`k = 0`}</M>), giving
         <M>{` \\Theta(\\log n)`}</M>.
       </p>
       <Code

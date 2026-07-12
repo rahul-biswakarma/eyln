@@ -21,11 +21,27 @@ function DerivativeAsLimit() {
         first, and the secant pivots into the tangent. The limit — if it exists — is the derivative:
       </p>
       <MBlock>{`f'(x) = \\lim_{h \\to 0} \\frac{f(x+h) - f(x)}{h}`}</MBlock>
+
+      <h3>Step-by-Step Derivation of <M>{`\\frac{d}{dx} x^3`}</M></h3>
       <p>
-        This is the definition every rule is ultimately proven from. Grind out one from scratch with{" "}
-        <M>{`f(x) = x^2`}</M>:
+        Let's derive the derivative of <M>{`f(x) = x^3`}</M> directly from this limit definition. 
+        Using the binomial expansion:
       </p>
-      <MBlock>{`f'(x) = \\lim_{h\\to0} \\frac{(x+h)^2 - x^2}{h} = \\lim_{h\\to0} \\frac{2xh + h^2}{h} = \\lim_{h\\to0} (2x + h) = 2x`}</MBlock>
+      <MBlock>{`(x+h)^3 = x^3 + 3x^2h + 3xh^2 + h^3`}</MBlock>
+      <p>
+        Plug this into the difference quotient:
+      </p>
+      <MBlock>{`f'(x) = \\lim_{h \\to 0} \\frac{(x^3 + 3x^2h + 3xh^2 + h^3) - x^3}{h}`}</MBlock>
+      <MBlock>{`= \\lim_{h \\to 0} \\frac{3x^2h + 3xh^2 + h^3}{h}`}</MBlock>
+      <MBlock>{`= \\lim_{h \\to 0} (3x^2 + 3xh + h^2)`}</MBlock>
+      <p>
+        Evaluating the limit by substituting <M>{`h = 0`}</M> yields:
+      </p>
+      <MBlock>{`f'(x) = 3x^2`}</MBlock>
+      <p>
+        This confirms the power rule result algebraically without shortcuts.
+      </p>
+
       <p>
         The <M>{`h`}</M> in the denominator is why limits had to come first: at <M>{`h = 0`}</M> the
         quotient is the indeterminate <M>{`\\tfrac00`}</M>, but the limit slips past that and lands on a
@@ -83,6 +99,18 @@ function Rules() {
         derivative of the inner:
       </p>
       <MBlock>{`\\frac{d}{dx} f(g(x)) = f'(g(x)) \\cdot g'(x)`}</MBlock>
+
+      <h3>Leibniz Chain Rule Formulation</h3>
+      <p>
+        In Leibniz notation, the chain rule is expressed as:
+      </p>
+      <MBlock>{`\\frac{dy}{dx} = \\frac{dy}{du} \\cdot \\frac{du}{dx}`}</MBlock>
+      <p>
+        where <M>{`u = g(x)`}</M> is the intermediate variable. 
+        This formulation makes it clear why it is called the "chain" rule: you chain the rates of change together. 
+        If <M>{`y`}</M> changes 3 times faster than <M>{`u`}</M>, and <M>{`u`}</M> changes 2 times faster than <M>{`x`}</M>, then <M>{`y`}</M> changes <M>{`3 \\times 2 = 6`}</M> times faster than <M>{`x`}</M>.
+      </p>
+
       <p>
         This is why the composition drills from the Functions module pay off: recognizing the outer and
         inner layers is exactly what the chain rule consumes. For{" "}

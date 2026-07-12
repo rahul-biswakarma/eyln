@@ -28,6 +28,28 @@ function WhatIsAFunction() {
         For <M>{`g(x) = \\frac{1}{\\sqrt{x-2}}`}</M> the natural domain is <M>{`x > 2`}</M> — strictly
         greater, because <M>{`x = 2`}</M> divides by zero.
       </p>
+
+      <h3>Injective, Surjective, and Bijective Functions</h3>
+      <p>
+        We classify functions by how they map inputs to outputs:
+      </p>
+      <ul>
+        <li>
+          <strong>Injective (One-to-One)</strong>: A function is injective if it never maps distinct inputs to the same output:
+          <MBlock>{`f(a) = f(b) \\implies a = b`}</MBlock>
+          Geometrically, this corresponds to the horizontal line test.
+        </li>
+        <li>
+          <strong>Surjective (Onto)</strong>: A function is surjective if every element in the codomain <M>{`Y`}</M> is mapped to by at least one domain element:
+          <MBlock>{`\\forall y \\in Y, \\; \\exists x \\in X \\quad \\text{such that} \\quad f(x) = y`}</MBlock>
+        </li>
+        <li>
+          <strong>Bijective (One-to-One and Onto)</strong>: A function is bijective if it is both injective and surjective. 
+          A bijective function creates a perfect one-to-one matching between <M>{`X`}</M> and <M>{`Y`}</M>. 
+          <strong>Only bijective functions possess a well-defined inverse function</strong> <M>{`f^{-1} : Y \\to X`}</M>.
+        </li>
+      </ul>
+
       <div className="notice">
         <span className="lbl">Injective / surjective</span>
         A function is <strong>injective</strong> (one-to-one) if distinct inputs give distinct outputs —
@@ -157,6 +179,22 @@ function Trigonometry() {
         Pythagorean identity is just "this point is on the circle":
       </p>
       <MBlock>{`\\sin^2\\theta + \\cos^2\\theta = 1`}</MBlock>
+
+      <h3>Trigonometric Identities & Angle Sum Formulas</h3>
+      <p>
+        By analyzing rotations on the unit circle, we derive addition rules for combining angles:
+      </p>
+      <MBlock>{`\\sin(\\alpha \\pm \\beta) = \\sin\\alpha\\cos\\beta \\pm \\cos\\alpha\\sin\\beta`}</MBlock>
+      <MBlock>{`\\cos(\\alpha \\pm \\beta) = \\cos\\alpha\\cos\\beta \\mp \\sin\\alpha\\sin\\beta`}</MBlock>
+      <p>
+        Setting <M>{`\\alpha = \\beta = \\theta`}</M> gives the <strong>double-angle formulas</strong>:
+      </p>
+      <MBlock>{`\\sin(2\\theta) = 2\\sin\\theta\\cos\\theta`}</MBlock>
+      <MBlock>{`\\cos(2\\theta) = \\cos^2\\theta - \\sin^2\\theta = 2\\cos^2\\theta - 1 = 1 - 2\\sin^2\\theta`}</MBlock>
+      <p>
+        These identities are used constantly in shader programming (e.g. to proceduralize waves or rotate coordinate frames inside a vertex shader) and physics simulations.
+      </p>
+
       <p>
         We measure angles in <strong>radians</strong>, not degrees, because a radian is the angle that
         subtends an arc equal to the radius — a pure length ratio with no arbitrary unit. A full turn is{" "}

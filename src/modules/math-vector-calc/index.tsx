@@ -58,6 +58,21 @@ function Gradient() {
         Stack all the partials into one vector and you get the <strong>gradient</strong>:
       </p>
       <MBlock>{`\\nabla f = \\left( \\frac{\\partial f}{\\partial x},\\; \\frac{\\partial f}{\\partial y},\\; \\frac{\\partial f}{\\partial z} \\right)`}</MBlock>
+
+      <h3>The Jacobian Matrix</h3>
+      <p>
+        When working with a vector-valued function <M>{`\\mathbf{f} : \\mathbb{R}^n \\to \\mathbb{R}^m`}</M>, the derivative is represented by the <strong>Jacobian Matrix</strong>. 
+        It is a matrix of all first-order partial derivatives of the output components relative to the input coordinates:
+      </p>
+      <MBlock>{`\\mathbf{J} = \\begin{bmatrix} 
+        \\frac{\\partial f_1}{\\partial x_1} & \\dots & \\frac{\\partial f_1}{\\partial x_n} \\\\
+        \\vdots & \\ddots & \\vdots \\\\
+        \\frac{\\partial f_m}{\\partial x_1} & \\dots & \\frac{\\partial f_m}{\\partial x_n}
+      \\end{bmatrix}`}</MBlock>
+      <p>
+        The Jacobian is essential for change of variables in multivariable integration (such as converting between Cartesian and polar/spherical coordinate spaces) and is the multivariable equivalent of the derivative slope.
+      </p>
+
       <p>
         The gradient is the single most useful object in applied calculus, because it has a clean
         geometric meaning: <strong><M>{`\\nabla f`}</M> points in the direction of steepest ascent</strong>,
@@ -186,6 +201,22 @@ function Integrals() {
         Flux is "how much stuff crosses this membrane per unit time" — water through a net, light
         through a lens, field lines through a loop.
       </p>
+
+      <h3>The Big Theorems: Stokes' and Divergence Theorems</h3>
+      <p>
+        Vector calculus culminates in three fundamental theorems that generalize the Fundamental Theorem of Calculus to higher dimensions:
+      </p>
+      <ul>
+        <li>
+          <strong>Stokes' Theorem</strong>: Relates the line integral of a vector field around a closed boundary curve <M>{`\\partial S`}</M> to the flux of its curl over the surface <M>{`S`}</M>:
+          <MBlock>{`\\oint_{\\partial S} \\mathbf{F} \\cdot d\\mathbf{r} = \\iint_S (\\nabla \\times \\mathbf{F}) \\cdot \\mathbf{n}\\, dS`}</MBlock>
+        </li>
+        <li>
+          <strong>Divergence Theorem (Gauss's Theorem)</strong>: Relates the volume integral of a field's divergence over a 3D solid region <M>{`V`}</M> to the net flux of the field crossing the closed boundary surface <M>{`\\partial V`}</M>:
+          <MBlock>{`\\iiint_V (\\nabla \\cdot \\mathbf{F})\\, dV = \\iint_{\\partial V} \\mathbf{F} \\cdot \\mathbf{n}\\, dS`}</MBlock>
+        </li>
+      </ul>
+
       <div className="notice">
         <span className="lbl">The grand finale</span> The big theorems — Green's, Stokes', and the
         Divergence theorem — say these integrals tie together beautifully: the flux of a field's{" "}

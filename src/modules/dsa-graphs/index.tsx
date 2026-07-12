@@ -86,6 +86,30 @@ function BFS() {
         then repeatedly dequeue a vertex and enqueue any unvisited neighbor, marking it visited{" "}
         <em>as you enqueue</em> so it never enters the queue twice.
       </p>
+
+      <h3>Theorem: BFS Shortest Path Correctness</h3>
+      <p>
+        <strong>Theorem</strong>: Let <M>{`d(s, v)`}</M> be the shortest path distance (minimum number of edges) from source <M>{`s`}</M> to vertex <M>{`v`}</M>. 
+        BFS visits vertices in non-decreasing order of distance from <M>{`s`}</M>, and when a vertex <M>{`v`}</M> is first discovered (enqueued), the computed distance satisfies <M>{`\\text{dist}[v] = d(s, v)`}</M>.
+      </p>
+      <p>
+        <strong>Proof Sketch</strong>: 
+        We proceed by induction on the distance <M>{`k = d(s, v)`}</M>:
+      </p>
+      <ul>
+        <li>
+          <strong>Base Case</strong>: For <M>{`k = 0`}</M>, the source <M>{`s`}</M> is initialized with <M>{`\\text{dist}[s] = 0`}</M>, which is correct.
+        </li>
+        <li>
+          <strong>Inductive Step</strong>: Assume all vertices at distance <M>{`\\le k`}</M> are correctly discovered with distance <M>{`\\text{dist}[u] = d(s, u)`}</M>. 
+          Let <M>{`v`}</M> be a vertex at distance <M>{`d(s, v) = k + 1`}</M>. By definition, there must be some neighbor <M>{`u`}</M> of <M>{`v`}</M> such that <M>{`d(s, u) = k`}</M> and an edge <M>{`(u, v) \\in E`}</M>. 
+          Since <M>{`d(s, u) = k`}</M>, node <M>{`u`}</M> is dequeued during the <M>{`k`}</M>-th phase. When <M>{`u`}</M> is processed, it examines the neighbor <M>{`v`}</M>. 
+          Since <M>{`d(s, v) = k + 1`}</M> is larger than <M>{`k`}</M>, <M>{`v`}</M> could not have been visited before this phase. 
+          Thus, <M>{`v`}</M> is first discovered via the edge from <M>{`u`}</M>, and we set <M>{`\\text{dist}[v] = \\text{dist}[u] + 1 = k + 1`}</M>. 
+          Since any other path to <M>{`v`}</M> has length at least <M>{`k + 1`}</M>, this first discovery gives the exact shortest path.
+        </li>
+      </ul>
+
       <Code
         lang="ts"
         filename="bfs.ts"
@@ -193,6 +217,44 @@ function Dijkstra() {
         vertex next. The trick to finding that closest vertex quickly is a <strong>min-heap</strong> (the
         priority queue from the Trees module) keyed by tentative distance.
       </p>
+
+      <h3>Theorem: Dijkstra's Correctness under Non-Negative Weights</h3>
+      <p>
+        <strong>Theorem</strong>: Let <M>{`d(s, v)`}</M> be the true shortest path distance from source <M>{`s`}</M> to <M>{`v`}</M>. 
+        If <M>{`w(e) \\ge 0`}</M> for all <M>{`e \\in E`}</M>, then when any vertex <M>{`u`}</M> is dequeued (finalized) by Dijkstra's algorithm, the tentative distance satisfies <M>{`\\text{dist}[u] = d(s, u)`}</M>.
+      </p>
+      <p>
+        <strong>Proof by Contradiction</strong>:
+      </p>
+      <p>
+        Suppose there is a vertex for which this fails. Let <M>{`u`}</M> be the <em>first</em> vertex dequeued where <M>{`\\text{dist}[u] > d(s, u)`}</M>. Let <M>{`S`}</M> be the set of vertices finalized before <M>{`u`}</M>.
+      </p>
+      <ol>
+        <li>
+          Consider a true shortest path <M>{`P`}</M> from <M>{`s`}</M> to <M>{`u`}</M>. Since <M>{`s \\in S`}</M> and <M>{`u \\notin S`}</M>, there must be a first edge <M>{`(x, y)`}</M> in <M>{`P`}</M> leaving <M>{`S`}</M> (so <M>{`x \\in S`}</M> and <M>{`y \\notin S`}</M>).
+        </li>
+        <li>
+          Since <M>{`x \\in S`}</M> was finalized before <M>{`u`}</M>, by our assumption of minimality, its distance was correct: <M>{`\\text{dist}[x] = d(s, x)`}</M>.
+        </li>
+        <li>
+          When <M>{`x`}</M> was finalized, the edge <M>{`(x, y)`}</M> was relaxed, which set:
+          <MBlock>{`\\text{dist}[y] \\le \\text{dist}[x] + w(x, y) = d(s, x) + w(x, y) = d(s, y)`}</MBlock>
+        </li>
+        <li>
+          Because edge weights are non-negative, the remaining path from <M>{`y`}</M> to <M>{`u`}</M> has non-negative cost, meaning <M>{`d(s, y) \\le d(s, u)`}</M>.
+        </li>
+        <li>
+          Combining these inequalities:
+          <MBlock>{`\\text{dist}[y] \\le d(s, y) \\le d(s, u) < \\text{dist}[u]`}</MBlock>
+        </li>
+        <li>
+          This implies <M>{`\\text{dist}[y] < \\text{dist}[u]`}</M>. Since the priority queue always selects the node with the minimum tentative distance, <M>{`y`}</M> must have been dequeued before <M>{`u`}</M>, which contradicts the fact that <M>{`u`}</M> was dequeued before <M>{`y`}</M>.
+        </li>
+      </ol>
+      <p>
+        Thus, the assumption is false, and every finalized vertex has a correct distance.
+      </p>
+
       <Code
         lang="ts"
         filename="dijkstra.ts"

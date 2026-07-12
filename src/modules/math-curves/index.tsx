@@ -48,6 +48,20 @@ function ArcLength() {
         get an integral — the connection back to the Integrals module is exact:
       </p>
       <MBlock>{`L = \\int_a^b \\|\\mathbf{r}'(t)\\|\\, dt = \\int_a^b \\sqrt{ x'(t)^2 + y'(t)^2 + z'(t)^2 }\\; dt`}</MBlock>
+
+      <h3>Parametric Arc Length Derivation</h3>
+      <p>
+        Let's derive this formula. An infinitesimal change in the parameter <M>{`dt`}</M> results in a coordinate displacement vector:
+      </p>
+      <MBlock>{`d\\mathbf{r} = \\big( dx, \\; dy, \\; dz \\big) = \\left( x'(t)\\,dt, \\; y'(t)\\,dt, \\; z'(t)\\,dt \\right)`}</MBlock>
+      <p>
+        The magnitude of this infinitesimal displacement is:
+      </p>
+      <MBlock>{`ds = \\|d\\mathbf{r}\\| = \\sqrt{ (dx)^2 + (dy)^2 + (dz)^2 } = \\sqrt{ x'(t)^2 + y'(t)^2 + z'(t)^2 }\\, dt`}</MBlock>
+      <p>
+        Integrating <M>{`ds`}</M> from <M>{`t = a`}</M> to <M>{`t = b`}</M> sums up these tiny segments to yield the total length <M>{`L`}</M>, matching the integral of speed over time.
+      </p>
+
       <p>
         In plain words: <strong>arc length is the integral of speed over time</strong> — the same
         "distance equals the integral of speed" idea, now for a point moving through space. For the
@@ -84,6 +98,26 @@ function Curvature() {
         first and second derivatives:
       </p>
       <MBlock>{`\\kappa = \\frac{|x' y'' - y' x''|}{(x'^2 + y'^2)^{3/2}}`}</MBlock>
+
+      <h3>Derivation of the 2D Curvature Formula</h3>
+      <p>
+        The unit tangent is <M>{`\\mathbf{T} = (\\cos \\phi, \\sin \\phi)`}</M>, where <M>{`\\phi`}</M> is the tangent angle. 
+        By definition, curvature is:
+      </p>
+      <MBlock>{`\\kappa = \\left| \\frac{d\\phi}{ds} \\right| = \\left| \\frac{d\\phi/dt}{ds/dt} \\right|`}</MBlock>
+      <p>
+        Since <M>{`\\tan \\phi = y'/x'`}</M>, we differentiate both sides with respect to <M>{`t`}</M> using the quotient rule:
+      </p>
+      <MBlock>{`\\sec^2 \\phi \\cdot \\frac{d\\phi}{dt} = \\frac{y''x' - y'x''}{(x')^2}`}</MBlock>
+      <p>
+        Using <M>{`\\sec^2 \\phi = 1 + \\tan^2 \\phi = 1 + (y'/x')^2 = \\frac{(x')^2 + (y')^2}{(x')^2}`}</M>, we substitute to find:
+      </p>
+      <MBlock>{`\\frac{d\\phi}{dt} = \\frac{x'y'' - y'x''}{(x')^2 + (y')^2}`}</MBlock>
+      <p>
+        Dividing this by <M>{`ds/dt = \\sqrt{(x')^2 + (y')^2}`}</M> yields the curvature formula:
+      </p>
+      <MBlock>{`\\kappa = \\frac{|x' y'' - y' x''|}{((x')^2 + (y')^2)^{3/2}} = \\frac{|x' y'' - y' x''|}{(x'^2 + y'^2)^{3/2}}`}</MBlock>
+
       <p>
         The reciprocal <M>{`R = 1/\\kappa`}</M> is the <strong>radius of curvature</strong>. Draw the
         circle with that radius that best kisses the curve at a point — matching its position,
