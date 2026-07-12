@@ -41,6 +41,45 @@ console.log(hashString("cat", 16), hashString("cat", 16)); // deterministic: sam
         buckets — position matters, unlike a plain character sum. The final double-mod guards against
         a negative result from integer overflow.
       </p>
+
+      <h3>The Division Method vs. the Multiplication Method</h3>
+      <p>
+        Once a key has been folded into a large integer <M>{`k`}</M>, we still must compress it into{" "}
+        <M>{`[0, m)`}</M>. There are two classical reductions, and the choice interacts subtly with the
+        value of <M>{`m`}</M>.
+      </p>
+      <ul>
+        <li>
+          <strong>Division method</strong>: take the remainder directly.
+          <MBlock>{`h(k) = k \\bmod m`}</MBlock>
+          It is a single instruction, but it is <em>fragile in the low bits of </em><M>{`m`}</M>. If{" "}
+          <M>{`m = 2^p`}</M>, then <M>{`k \\bmod m`}</M> keeps only the low <M>{`p`}</M> bits of{" "}
+          <M>{`k`}</M> and throws away all the high-bit mixing you worked for. For the same reason a
+          power of ten is bad for decimal keys. The safe choice is a <strong>prime</strong> not close
+          to a power of two, so every bit of <M>{`k`}</M> influences the bucket.
+        </li>
+        <li>
+          <strong>Multiplication method</strong>: multiply by an irrational-flavored constant{" "}
+          <M>{`A \\in (0,1)`}</M>, keep the fractional part, then scale to <M>{`m`}</M>.
+          <MBlock>{`h(k) = \\big\\lfloor\\, m \\cdot ( k A \\bmod 1 ) \\,\\big\\rfloor`}</MBlock>
+          Here <M>{`k A \\bmod 1`}</M> denotes the fractional part <M>{`kA - \\lfloor kA \\rfloor`}</M>.
+          Because the fractional part already scrambles the value, <M>{`m`}</M> is now
+          <em> unconstrained</em> — a power of two is fine and makes the final scale a bit shift.
+          Knuth's recommended multiplier is the fractional part of the golden ratio,
+          <MBlock>{`A = \\frac{\\sqrt{5} - 1}{2} \\approx 0.6180339887,`}</MBlock>
+          whose continued-fraction expansion is the "most irrational" number, spreading successive keys
+          as evenly as possible around the unit circle (the three-distance theorem).
+        </li>
+      </ul>
+      <p>
+        A related trap is <strong>modulo bias</strong>. If you draw a raw hash uniformly from{" "}
+        <M>{`\\{0, \\ldots, 2^{32}-1\\}`}</M> and reduce it by <M>{`\\bmod m`}</M> when{" "}
+        <M>{`m`}</M> does not divide <M>{`2^{32}`}</M>, the first <M>{`2^{32} \\bmod m`}</M> buckets
+        receive one extra value each and are therefore slightly more likely — the distribution is no
+        longer exactly uniform. It is negligible when <M>{`m \\ll 2^{32}`}</M> but matters when the
+        range is comparable to the modulus.
+      </p>
+
       <div className="notice warn">
         <span className="lbl">Hashing is not encryption</span>
         A data-structure hash is built for speed and spread, <em>not</em> security. It's fast to
@@ -95,6 +134,34 @@ function Collisions() {
         </li>
       </ul>
 
+      <h3>The Birthday Paradox: Collisions Come Early</h3>
+      <p>
+        Newcomers assume that if a table has <M>{`m`}</M> buckets you can insert nearly <M>{`m`}</M>{" "}
+        keys before colliding. The <strong>birthday paradox</strong> says otherwise: collisions appear
+        after only about <M>{`\\sqrt{m}`}</M> insertions. Under simple uniform hashing (each key
+        independently uniform over the buckets), the probability that <M>{`n`}</M> keys are{" "}
+        <em>all distinct</em> is the product of "each new key misses the ones before it":
+      </p>
+      <MBlock>{`\\Pr[\\text{no collision}] = \\prod_{i=0}^{n-1}\\left(1 - \\frac{i}{m}\\right)`}</MBlock>
+      <p>
+        Using <M>{`1 - x \\approx e^{-x}`}</M> for small <M>{`x`}</M>, the product telescopes in the
+        exponent (<M>{`\\sum_{i=0}^{n-1} i = \\tfrac{n(n-1)}{2}`}</M>):
+      </p>
+      <MBlock>{`\\Pr[\\text{no collision}] \\approx \\exp\\!\\left(-\\frac{n(n-1)}{2m}\\right)`}</MBlock>
+      <p>
+        Setting that probability to <M>{`\\tfrac{1}{2}`}</M> and solving gives the threshold at which a
+        collision becomes more likely than not:
+      </p>
+      <MBlock>{`n \\approx \\sqrt{2m \\ln 2} \\approx 1.177\\sqrt{m}`}</MBlock>
+      <p>
+        For the classic 365-day case that is <M>{`\\approx 23`}</M> people; for a table of{" "}
+        <M>{`m = 10^6`}</M> buckets, only about 1178 keys. The lesson for hashing is blunt: <strong>a
+        table with far more empty buckets than entries is still riddled with collisions</strong>, which
+        is exactly why we need a resolution strategy from the very first inserts, and why a 64-bit hash
+        is chosen so that <M>{`\\sqrt{2^{64}} = 2^{32}`}</M> random keys are needed before a clash is
+        likely.
+      </p>
+
       <Code
         lang="ts"
         filename="probe.ts"
@@ -144,6 +211,49 @@ function LoadFactor() {
         the bucket index depends on <M>{`m`}</M>. A resize is <M>{`O(n)`}</M>, but — exactly like the
         dynamic array — doubling makes it <M>{`O(1)`}</M> amortized per insert.
       </p>
+      <h3>Expected Search Cost Under Simple Uniform Hashing</h3>
+      <p>
+        Where does the chain-length claim actually come from? Model each of the <M>{`n`}</M> keys as
+        landing in a uniformly random bucket, independently — the <strong>simple uniform hashing</strong>{" "}
+        assumption. Let <M>{`X_{ij}`}</M> be the indicator that keys <M>{`i`}</M> and <M>{`j`}</M> collide;
+        by uniformity <M>{`\\Pr[X_{ij} = 1] = \\tfrac{1}{m}`}</M>, so <M>{`\\mathbb{E}[X_{ij}] = \\tfrac{1}{m}`}</M>.
+      </p>
+      <p>
+        An <strong>unsuccessful</strong> search probes the whole chain of the target bucket. By
+        linearity of expectation over the <M>{`n`}</M> stored keys, that expected chain length is
+      </p>
+      <MBlock>{`\\mathbb{E}[\\text{length}] = \\sum_{j=1}^{n} \\frac{1}{m} = \\frac{n}{m} = \\alpha,`}</MBlock>
+      <p>
+        so the miss costs <M>{`\\Theta(1 + \\alpha)`}</M> (the <M>{`1`}</M> pays for hashing and reaching
+        the bucket even when it is empty). A <strong>successful</strong> search for a key inserted{" "}
+        <M>{`i`}</M>-th scans it plus every key that arrived after it and hit the same bucket, giving
+      </p>
+      <MBlock>{`\\mathbb{E}[\\text{probes}] = \\frac{1}{n}\\sum_{i=1}^{n}\\left(1 + \\frac{n-i}{m}\\right) = 1 + \\frac{\\alpha}{2} - \\frac{\\alpha}{2n} \\approx 1 + \\frac{\\alpha}{2}.`}</MBlock>
+      <p>
+        Both are <M>{`\\Theta(1)`}</M> precisely because we hold <M>{`\\alpha`}</M> bounded by a
+        constant. Let <M>{`\\alpha`}</M> grow with <M>{`n`}</M> — say by never resizing — and the same
+        formulas turn the table into a linked list with <M>{`\\Theta(n)`}</M> lookups.
+      </p>
+
+      <h3>Amortized Cost of Rehashing</h3>
+      <p>
+        Each resize is an <M>{`O(n)`}</M> jolt, yet we still advertise <M>{`O(1)`}</M> inserts. The
+        reconciliation is <strong>amortized analysis</strong>. Suppose we double <M>{`m`}</M> whenever the
+        table fills. Inserting <M>{`n = 2^k`}</M> keys triggers rehashes at sizes{" "}
+        <M>{`1, 2, 4, \\ldots, 2^{k-1}`}</M>, and the copying work is a geometric series:
+      </p>
+      <MBlock>{`\\sum_{j=0}^{k-1} 2^{j} = 2^{k} - 1 < n.`}</MBlock>
+      <p>
+        The total rehash cost over all <M>{`n`}</M> inserts is thus <M>{`O(n)`}</M>, so the{" "}
+        <strong>amortized</strong> cost per insert is <M>{`O(n)/n = O(1)`}</M>. Equivalently, by the
+        accounting method, charge each insert <M>{`3`}</M> credits — one to place the key, two banked so
+        that when the table doubles, every key has saved enough to pay for copying itself. Growing by a
+        <em> constant</em> amount instead of a constant <em>factor</em> breaks this: adding{" "}
+        <M>{`c`}</M> slots at a time forces <M>{`\\Theta(n/c)`}</M> resizes touching{" "}
+        <M>{`\\Theta(n^2)`}</M> keys total — <M>{`\\Theta(n)`}</M> amortized per insert. Geometric
+        growth is what buys the constant.
+      </p>
+
       <Code
         lang="ts"
         filename="resize.ts"
@@ -200,6 +310,42 @@ function MapsInPractice() {
         <M>{`O(n \\log n)`}</M> worst-case guarantee and gives you <em>ordering</em> as a byproduct,
         which hashing throws away.
       </p>
+      <h3>Universal Hashing: Defeating the Adversary</h3>
+      <p>
+        The <M>{`O(n)`}</M> worst case above is not hypothetical. For any <em>fixed</em> hash function{" "}
+        <M>{`h`}</M>, an attacker who knows it can precompute a set of keys that all collide, collapsing
+        every operation to a linear scan (a real denial-of-service vector against web servers). The fix
+        is to stop committing to one function: pick <M>{`h`}</M> <strong>at random</strong> from a
+        carefully designed family <M>{`\\mathcal{H}`}</M> at table-creation time.
+      </p>
+      <p>
+        A family <M>{`\\mathcal{H}`}</M> of functions into <M>{`[0, m)`}</M> is called{" "}
+        <strong>universal</strong> if for every pair of distinct keys the chance of collision over the
+        random choice of <M>{`h`}</M> is no worse than the ideal <M>{`\\tfrac{1}{m}`}</M>:
+      </p>
+      <MBlock>{`\\forall\\, x \\neq y : \\quad \\Pr_{h \\in \\mathcal{H}}\\big[\\, h(x) = h(y) \\,\\big] \\le \\frac{1}{m}.`}</MBlock>
+      <p>
+        The crucial shift is <em>where the randomness lives</em>: the keys are fixed and possibly
+        adversarial, but <M>{`h`}</M> is random and secret, so no fixed input can be "bad" in
+        expectation. This bound is exactly what the chain-length proof needed —{" "}
+        <M>{`\\mathbb{E}[X_{xy}] = \\Pr[h(x)=h(y)] \\le \\tfrac{1}{m}`}</M> — so the expected search cost{" "}
+        <M>{`\\Theta(1 + \\alpha)`}</M> now holds <strong>for any input whatsoever</strong>, not just
+        under the optimistic uniform-hashing assumption.
+      </p>
+      <p>
+        A standard universal family is the <strong>Carter–Wegman</strong> construction. Fix a prime{" "}
+        <M>{`p`}</M> larger than any key, and draw <M>{`a \\in \\{1, \\ldots, p-1\\}`}</M> and{" "}
+        <M>{`b \\in \\{0, \\ldots, p-1\\}`}</M> uniformly:
+      </p>
+      <MBlock>{`h_{a,b}(x) = \\big( (a\\,x + b) \\bmod p \\big) \\bmod m.`}</MBlock>
+      <p>
+        Requiring <M>{`\\Pr[h(x)=h(y)] \\le \\tfrac{c}{m}`}</M> for a constant <M>{`c`}</M> gives the
+        weaker but often sufficient <M>{`c`}</M>-universal notion. This is why production hash tables
+        (and languages like Python, Rust, and Java's newer maps) seed their hash with a random,
+        per-process value: it is universal hashing turning a devastating worst case into an{" "}
+        <em>expected</em>-case guarantee an attacker cannot force.
+      </p>
+
       <Code
         lang="ts"
         filename="when-hash.ts"

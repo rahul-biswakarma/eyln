@@ -35,6 +35,27 @@ function isLeaf<T>(n: TreeNode<T>): boolean {
   return n.left === null && n.right === null;
 }`}
       />
+      <h3>Height and Node Count Bounds</h3>
+      <p>
+        The claim that operations are <M>{`O(\\log n)`}</M> <em>when balanced</em> rests on a precise
+        counting argument. A binary tree of height <M>{`h`}</M> (edges on the longest root-to-leaf path)
+        has at most one node at depth 0, two at depth 1, and in general at most <M>{`2^d`}</M> nodes at
+        depth <M>{`d`}</M>. Summing the geometric series over all levels bounds the total:
+      </p>
+      <MBlock>{`n \\le \\sum_{d=0}^{h} 2^d = 2^{h+1} - 1`}</MBlock>
+      <p>
+        Rearranging gives a lower bound on the height forced by <M>{`n`}</M> nodes. Since
+        <M>{` n \\le 2^{h+1} - 1`}</M> implies <M>{`2^{h+1} \\ge n + 1`}</M>, taking logs yields:
+      </p>
+      <MBlock>{`h \\ge \\log_2(n + 1) - 1 \\quad\\Longrightarrow\\quad h \\ge \\lfloor \\log_2 n \\rfloor`}</MBlock>
+      <p>
+        So <strong>no</strong> binary tree with <M>{`n`}</M> nodes can be shorter than
+        <M>{` \\lfloor \\log_2 n \\rfloor`}</M> — that is the floor on cost. A <strong>complete</strong>{" "}
+        binary tree (every level full except possibly the last, filled left to right) achieves it exactly:
+        its height is <M>{`\\lfloor \\log_2 n \\rfloor`}</M>. At the other extreme, a degenerate stick has one
+        node per level, so <M>{`h = n - 1 = \\Theta(n)`}</M>. Balancing is the discipline of staying near the
+        lower bound rather than drifting toward the upper one.
+      </p>
       <p>
         We <strong>traverse</strong> a tree to visit every node exactly once. There are two families.
         <strong> Depth-first (DFS)</strong> plunges down one branch before backtracking, and comes in three
@@ -143,6 +164,28 @@ function insert(root: TreeNode<number> | null, key: number): TreeNode<number> {
         determines shape. Insert <code>1, 2, 3, 4, 5</code> in order and every node becomes a right child —
         you have built a linked list with extra pointers, and search degrades to <M>{`O(n)`}</M>.
       </p>
+      <h3>Expected Height under Random Insertion</h3>
+      <p>
+        The worst case is a <M>{`\\Theta(n)`}</M> stick, but that requires an adversarial (sorted) input. If
+        the <M>{`n`}</M> keys arrive in <em>random</em> order — each of the <M>{`n!`}</M> permutations equally
+        likely — the expected height is far kinder. Let <M>{`D_n`}</M> be the expected depth of a node,
+        equivalently the average number of comparisons to find a key. The key inserted first becomes the root
+        and splits the remaining keys; conditioning on the rank <M>{`i`}</M> of the root gives the recurrence
+        that also governs the average-case analysis of quicksort:
+      </p>
+      <MBlock>{`D_n = (n - 1) + \\frac{1}{n} \\sum_{i=1}^{n} \\big( D_{i-1} + D_{n-i} \\big)`}</MBlock>
+      <p>
+        This recurrence solves to <M>{`D_n = 2\\ln n + O(1) \\approx 1.386 \\log_2 n`}</M>, so the expected
+        cost of a search on a randomly built BST is <M>{`\\Theta(\\log n)`}</M>. A deeper result (Devroye,
+        1986) shows the expected <em>height</em> — the worst path, not the average one — concentrates around
+        <M>{` 4.311 \\ln n \\approx 2.99 \\log_2 n`}</M>, still logarithmic.
+      </p>
+      <MBlock>{`\\mathbb{E}[\\text{search cost}] = \\Theta(\\log n) \\quad\\text{vs.}\\quad \\text{worst case } \\Theta(n)`}</MBlock>
+      <p>
+        The lesson is sharp: a plain BST is <em>usually</em> fine but offers no guarantee. Balanced trees
+        replace "usually" with "always," which is why they back general-purpose ordered maps where the input
+        distribution is unknown or hostile.
+      </p>
       <div className="notice">
         <span className="lbl">In-order = sorted</span>
         Because of the invariant, an in-order traversal of a BST emits its keys in ascending order. This is
@@ -209,6 +252,47 @@ function Balanced() {
           The imbalance is zag-zig. We perform a single <strong>right rotation</strong> on <M>{`N.\\text{right}`}</M>, followed by a single <strong>left rotation</strong> on <M>{`N`}</M>.
         </li>
       </ul>
+
+      <h3>Why AVL Height is Bounded by ~1.44 log n</h3>
+      <p>
+        The AVL invariant looks weak — subtree heights may differ by 1 — yet it pins the height to
+        <M>{` O(\\log n)`}</M>. The proof runs backward: instead of asking "how tall can an AVL tree get,"
+        ask "what is the <em>minimum</em> number of nodes <M>{`N(h)`}</M> in an AVL tree of height
+        <M>{` h`}</M>?" A shortest such tree has a root whose two subtrees are themselves minimal AVL trees,
+        and to be maximally imbalanced they have heights <M>{`h-1`}</M> and <M>{`h-2`}</M>:
+      </p>
+      <MBlock>{`N(h) = N(h-1) + N(h-2) + 1, \\qquad N(0) = 1,\\; N(1) = 2`}</MBlock>
+      <p>
+        This is the Fibonacci recurrence in disguise: <M>{`N(h) = F_{h+3} - 1`}</M>, where <M>{`F_k`}</M> is
+        the <M>{`k`}</M>-th Fibonacci number. Since Fibonacci numbers grow like the golden ratio
+        <M>{` \\varphi = \\frac{1+\\sqrt5}{2} \\approx 1.618`}</M>, we have <M>{`N(h) \\ge \\varphi^{\\,h}`}</M>
+        (up to lower-order terms). Inverting <M>{`n \\ge \\varphi^{\\,h}`}</M> bounds the height:
+      </p>
+      <MBlock>{`h \\le \\log_\\varphi n = \\frac{\\log_2 n}{\\log_2 \\varphi} \\approx 1.4405 \\, \\log_2 n`}</MBlock>
+      <p>
+        So an AVL tree is never more than about 44% taller than a perfectly balanced one — a tight,
+        provable ceiling that guarantees <M>{`O(\\log n)`}</M> search, insert, and delete.
+      </p>
+
+      <h3>The Red-Black Black-Height Invariant</h3>
+      <p>
+        Red-black trees reach the same <M>{`O(\\log n)`}</M> guarantee through coloring rather than explicit
+        heights. Every node is red or black, subject to four rules: the root is black; red nodes have black
+        children (no two reds in a row); and <strong>every</strong> root-to-leaf path passes through the same
+        number of black nodes. That count is the <strong>black-height</strong> <M>{`bh(x)`}</M>.
+      </p>
+      <p>
+        The invariant forces balance through two observations. First, a subtree rooted at <M>{`x`}</M>
+        contains at least <M>{`2^{bh(x)} - 1`}</M> internal nodes (provable by induction on height). Second,
+        the no-two-reds rule means at most half the nodes on any path are red, so
+        <M>{` bh(\\text{root}) \\ge h/2`}</M>. Combining:
+      </p>
+      <MBlock>{`n \\ge 2^{bh} - 1 \\ge 2^{h/2} - 1 \\quad\\Longrightarrow\\quad h \\le 2 \\log_2(n + 1)`}</MBlock>
+      <p>
+        That is the looser bound quoted above — up to twice the ideal height, versus AVL's 1.44x. The payoff
+        is that the weaker constraint is satisfiable with fewer rotations per update (at most 2 on insert, 3
+        on delete), which is why red-black trees win for write-heavy general-purpose maps.
+      </p>
 
       <Code
         lang="ts"
@@ -314,9 +398,29 @@ function Heaps() {
       <p>
         Building a heap from an unsorted array can be done naively with <M>{`n`}</M> pushes at
         <M>{` O(n \\log n)`}</M>, but <strong>heapify</strong> — sifting down every internal node from the
-        bottom up — is famously <M>{`O(n)`}</M>. The intuition: most nodes are near the leaves and sift down
-        only a short distance, and the sum <M>{`\\sum_{h} \\frac{n}{2^{h+1}} \\cdot h`}</M> converges to a
-        constant times <M>{`n`}</M>.
+        bottom up — is famously <M>{`O(n)`}</M>.
+      </p>
+
+      <h3>Bottom-Up Heapify is O(n): The Proof</h3>
+      <p>
+        The naive bound overcounts. Not every sift-down travels the full <M>{`\\log n`}</M> — the cost of
+        sifting a node down is proportional to its <em>height</em> <M>{`h`}</M> (distance to its deepest
+        leaf), and most nodes sit near the bottom where <M>{`h`}</M> is tiny. In a heap of <M>{`n`}</M> nodes
+        there are at most <M>{`\\lceil n / 2^{h+1} \\rceil`}</M> nodes at height <M>{`h`}</M>. Summing the
+        work over all heights:
+      </p>
+      <MBlock>{`T(n) = \\sum_{h=0}^{\\lfloor \\log_2 n \\rfloor} \\left\\lceil \\frac{n}{2^{h+1}} \\right\\rceil \\cdot O(h) = O\\!\\left( n \\sum_{h=0}^{\\infty} \\frac{h}{2^{h}} \\right)`}</MBlock>
+      <p>
+        The sum is a convergent arithmetic-geometric series. Using the identity
+        <M>{` \\sum_{h=0}^{\\infty} h x^{h} = \\frac{x}{(1-x)^2}`}</M> evaluated at <M>{`x = \\tfrac12`}</M>:
+      </p>
+      <MBlock>{`\\sum_{h=0}^{\\infty} \\frac{h}{2^{h}} = \\frac{1/2}{(1 - 1/2)^2} = 2`}</MBlock>
+      <p>
+        Because the infinite series converges to a <em>constant</em> (2), the total is
+        <M>{` T(n) = O(2n) = O(n)`}</M> — linear, not linearithmic. The contrast with <M>{`n`}</M> repeated
+        pushes is exactly this: pushing sifts <em>up</em> from a leaf, so early elements (near the root) pay
+        the full height, whereas bottom-up heapify sifts <em>down</em>, letting the many cheap leaf-level
+        nodes dominate the count in our favor.
       </p>
       <div className="notice">
         <span className="lbl">Heapsort falls out for free</span>

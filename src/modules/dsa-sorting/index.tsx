@@ -38,6 +38,40 @@ function binarySearch(a: number[], target: number): number {
         must <em>shrink</em> the range — writing <code>lo = mid</code> instead of <code>mid + 1</code> can
         loop forever.
       </p>
+      <h3>Loop Invariant, Correctness &amp; Termination</h3>
+      <p>
+        Correctness of binary search is a textbook exercise in <strong>loop invariants</strong>. Fix the
+        claim we maintain before every iteration of the <code>while</code> loop:
+      </p>
+      <MBlock>{`\\textbf{Invariant: } \\text{if } target \\in a, \\text{ then its index lies in } [\\text{lo}, \\text{hi}].`}</MBlock>
+      <ul>
+        <li>
+          <strong>Initialization.</strong> Before the first iteration <M>{`\\text{lo} = 0`}</M> and{" "}
+          <M>{`\\text{hi} = n-1`}</M>, so the range is the entire array and the invariant holds trivially.
+        </li>
+        <li>
+          <strong>Maintenance.</strong> Assume the invariant holds and let <M>{`m = \\text{mid}`}</M>. Because{" "}
+          <M>{`a`}</M> is sorted, <M>{`a[m] < target`}</M> implies every index <M>{`\\le m`}</M> holds a value{" "}
+          <M>{`\\le a[m] < target`}</M>, so the target (if present) must lie in <M>{`[m+1, \\text{hi}]`}</M> —
+          exactly the range we keep by setting <M>{`\\text{lo} = m+1`}</M>. The symmetric argument justifies{" "}
+          <M>{`\\text{hi} = m-1`}</M>. The invariant survives the iteration.
+        </li>
+        <li>
+          <strong>Termination.</strong> The loop ends either by returning <M>{`m`}</M> (found), or when{" "}
+          <M>{`\\text{lo} > \\text{hi}`}</M>, i.e. an empty range. By the invariant an empty range means the
+          target is absent, so returning <M>{`-1`}</M> is correct.
+        </li>
+      </ul>
+      <p>
+        Termination is guaranteed by a <strong>decreasing variant</strong>: the quantity{" "}
+        <M>{`\\text{hi} - \\text{lo} + 1`}</M> (the range size) is a non-negative integer that strictly
+        decreases each iteration, because both <M>{`\\text{lo} = m+1`}</M> and <M>{`\\text{hi} = m-1`}</M> move
+        past <M>{`m`}</M>. A strictly decreasing non-negative integer cannot fall forever, so the loop halts —
+        after at most <M>{`\\lfloor \\log_2 n \\rfloor + 1`}</M> iterations, since the variant roughly halves
+        each step. This is precisely why writing <code>lo = mid</code> (which fails to shrink the range when{" "}
+        <M>{`m = \\text{lo}`}</M>) breaks termination and can loop forever.
+      </p>
+
       <p>
         The deeper idea is that binary search is not about arrays at all — it works on any
         <strong> monotonic answer space</strong>. If a predicate is false, false, ..., false, true, true, ...,
@@ -98,6 +132,40 @@ function QuadraticSorts() {
         Insertion sort is <strong>stable</strong> — equal elements keep their original relative order — because
         it never swaps past an equal key. Selection sort, as usually written, is not.
       </div>
+
+      <h3>Stability: Formal Definition &amp; Which Sorts Have It</h3>
+      <p>
+        "Keeps equal elements in order" deserves a precise statement. Let the input be{" "}
+        <M>{`a_0, a_1, \\dots, a_{n-1}`}</M> and let <M>{`\\sigma`}</M> be the permutation the sort applies, so
+        the output is <M>{`a_{\\sigma(0)}, \\dots, a_{\\sigma(n-1)}`}</M>. Write <M>{`k(x)`}</M> for the sort
+        <em> key</em> of element <M>{`x`}</M>. A sort is <strong>stable</strong> iff it preserves the input
+        order of every pair of equal keys:
+      </p>
+      <MBlock>{`\\forall i < j,\\quad k(a_i) = k(a_j) \\implies \\sigma^{-1}(i) < \\sigma^{-1}(j)`}</MBlock>
+      <p>
+        In words: if <M>{`a_i`}</M> came before <M>{`a_j`}</M> and their keys tie, then <M>{`a_i`}</M> still
+        comes before <M>{`a_j`}</M> in the output. Stability matters whenever records carry more than their key
+        — sorting a table by <em>date</em> after it was already sorted by <em>name</em> should leave same-date
+        rows in name order. It is also the property that makes <strong>radix sort</strong> correct: each
+        digit-pass must not scramble the order established by earlier passes.
+      </p>
+      <ul>
+        <li>
+          <strong>Stable by nature</strong>: insertion sort, merge sort (with a <M>{`\\le`}</M> merge tie-break),
+          counting sort, and bubble sort. Each moves an element past another only on a <em>strict</em> key
+          inequality.
+        </li>
+        <li>
+          <strong>Not stable as usually written</strong>: selection sort, quicksort, and heapsort. Their
+          long-distance swaps can jump one element past an equal-keyed peer, inverting the pair.
+        </li>
+      </ul>
+      <p>
+        Any sort can be made stable by augmenting each key with its original index — replace <M>{`k(x)`}</M> with
+        the pair <M>{`(k(x), \\text{index}(x))`}</M> and break ties on the index. This restores stability at the
+        cost of <M>{`O(n)`}</M> extra space for the indices, which is exactly the trade-off in-place algorithms
+        are trying to avoid.
+      </p>
     </div>
   );
 }
@@ -149,6 +217,40 @@ function MergeSort() {
         buffers — which is also why it is the algorithm of choice for <strong>external sorting</strong> (data
         too large for RAM) and for sorting <strong>linked lists</strong>, where merging needs no random access.
       </p>
+      <h3>Solving the Recurrence <M>{`T(n) = 2T(n/2) + O(n)`}</M></h3>
+      <p>
+        The claim that this recurrence is <M>{`O(n \\log n)`}</M> can be derived, not just asserted. Take the
+        linear merge work to be <M>{`cn`}</M> for some constant <M>{`c`}</M> and unroll the recursion into a
+        tree:
+      </p>
+      <ul>
+        <li>
+          <strong>Work per level.</strong> The root does <M>{`cn`}</M> work. It spawns two subproblems of size{" "}
+          <M>{`n/2`}</M>, each costing <M>{`c(n/2)`}</M>, so level 1 does <M>{`2 \\cdot c(n/2) = cn`}</M>. In
+          general level <M>{`i`}</M> has <M>{`2^i`}</M> subproblems of size <M>{`n/2^i`}</M>:
+          <MBlock>{`\\text{work at level } i = 2^i \\cdot c\\,\\frac{n}{2^i} = cn`}</MBlock>
+          Every level does the same <M>{`cn`}</M> total work — the branching factor and the shrinking size
+          exactly cancel.
+        </li>
+        <li>
+          <strong>Number of levels.</strong> Sizes halve from <M>{`n`}</M> until they reach the base case of{" "}
+          <M>{`1`}</M>, which takes <M>{`\\log_2 n`}</M> halvings. Including the root there are{" "}
+          <M>{`\\log_2 n + 1`}</M> levels.
+        </li>
+      </ul>
+      <p>
+        Summing the identical per-level cost over all levels gives the total:
+      </p>
+      <MBlock>{`T(n) = \\sum_{i=0}^{\\log_2 n} cn = cn\\,(\\log_2 n + 1) = \\Theta(n \\log n)`}</MBlock>
+      <p>
+        The same answer drops out of the <strong>Master Theorem</strong>: with <M>{`a = 2`}</M>,{" "}
+        <M>{`b = 2`}</M>, and combine cost <M>{`f(n) = \\Theta(n)`}</M>, we compare <M>{`f(n)`}</M> against{" "}
+        <M>{`n^{\\log_b a} = n^{\\log_2 2} = n`}</M>. They match, so we are in <strong>Case 2</strong>, which
+        contributes the extra <M>{`\\log n`}</M> factor: <M>{`T(n) = \\Theta(n^{\\log_b a} \\log n) = \\Theta(n \\log n)`}</M>.
+        Crucially this bound holds for <em>every</em> input — the split is always into equal halves regardless of
+        the data — which is why merge sort's <M>{`O(n \\log n)`}</M> is a worst-case guarantee, not an average.
+      </p>
+
       <div className="notice">
         <span className="lbl">The two-pointer merge</span>
         The whole engine is the merge: walk both sorted inputs with a pointer each, always emitting the smaller
@@ -247,6 +349,41 @@ function partitionHoare(a: number[], lo: number, hi: number): number {
         The fixes: choose a <strong>random pivot</strong> or a <strong>median-of-three</strong>, which make the
         worst case astronomically unlikely. Production sorts (introsort) go further and switch to heapsort if
         recursion gets too deep, capping the worst case at <M>{`O(n \\log n)`}</M>.
+      </p>
+
+      <h3>Why the Average Case Is <M>{`O(n \\log n)`}</M>: the Harmonic Sum</h3>
+      <p>
+        The gap between quicksort's <M>{`O(n^2)`}</M> worst case and its excellent real-world speed is explained
+        by counting the <strong>expected number of comparisons</strong> over random pivot choices. Sort the
+        input values as <M>{`z_1 < z_2 < \\dots < z_n`}</M>, and define the indicator{" "}
+        <M>{`X_{ij} = 1`}</M> if <M>{`z_i`}</M> and <M>{`z_j`}</M> are ever compared, else <M>{`0`}</M>. Two
+        elements are compared at most once (a comparison always involves the pivot, which is then removed), so
+        the total comparison count is <M>{`X = \\sum_{i<j} X_{ij}`}</M> and by linearity of expectation:
+      </p>
+      <MBlock>{`\\mathbb{E}[X] = \\sum_{i<j} \\Pr[z_i \\text{ and } z_j \\text{ are compared}]`}</MBlock>
+      <p>
+        The key observation: <M>{`z_i`}</M> and <M>{`z_j`}</M> are compared iff the <em>first</em> pivot chosen
+        from the range <M>{`\\{z_i, z_{i+1}, \\dots, z_j\\}`}</M> is either <M>{`z_i`}</M> or <M>{`z_j`}</M>. If
+        instead some middle element is picked first, it splits <M>{`z_i`}</M> and <M>{`z_j`}</M> into different
+        partitions and they never meet. That range holds <M>{`j - i + 1`}</M> elements, each equally likely to
+        be picked first, so:
+      </p>
+      <MBlock>{`\\Pr[z_i \\text{ and } z_j \\text{ compared}] = \\frac{2}{j - i + 1}`}</MBlock>
+      <p>
+        Substituting and reindexing with <M>{`k = j - i + 1`}</M> turns the double sum into a
+        <strong> harmonic sum</strong>:
+      </p>
+      <MBlock>{`\\mathbb{E}[X] = \\sum_{i=1}^{n-1} \\sum_{j=i+1}^{n} \\frac{2}{j-i+1} = \\sum_{i=1}^{n-1} \\sum_{k=2}^{n-i+1} \\frac{2}{k} \\le 2n \\sum_{k=1}^{n} \\frac{1}{k} = 2n H_n`}</MBlock>
+      <p>
+        The harmonic number satisfies <M>{`H_n = \\ln n + O(1)`}</M> (it is squeezed by the integral{" "}
+        <M>{`\\int_1^n \\frac{dx}{x} = \\ln n`}</M>), so:
+      </p>
+      <MBlock>{`\\mathbb{E}[X] \\le 2n H_n = 2n(\\ln n + O(1)) = O(n \\log n)`}</MBlock>
+      <p>
+        So randomized quicksort makes <M>{`\\Theta(n \\log n)`}</M> comparisons <em>in expectation</em> on any
+        input — the <M>{`O(n^2)`}</M> case still exists but now requires a run of unlucky pivots whose
+        probability decays exponentially. Combined with quicksort's tiny constant factors and cache-friendly
+        sequential access, this is why it usually outruns the worst-case-optimal merge sort in practice.
       </p>
       <div className="notice warn">
         <span className="lbl">Gotcha: not stable, and beware the naive pivot</span>

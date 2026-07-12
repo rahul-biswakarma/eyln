@@ -37,6 +37,81 @@ function Recursion() {
         Some languages optimize it into a loop with no stack growth, but JavaScript engines generally do{" "}
         <em>not</em>, so deep tail recursion still overflows in practice.
       </p>
+
+      <h3>Proving Recursive Correctness by Strong Induction</h3>
+      <p>
+        A recursive function is not "obviously" correct because it calls itself — that reasoning looks
+        circular. The rigorous tool that breaks the circle is <strong>strong induction</strong>, and the
+        structure of the proof mirrors the structure of the code exactly. To prove that{" "}
+        <M>{`\\texttt{factorial}(n) = n!`}</M> for all <M>{`n \\ge 0`}</M>:
+      </p>
+      <ul>
+        <li>
+          <strong>Base case</strong>: for <M>{`n \\le 1`}</M> the function returns <M>{`1`}</M>, and
+          indeed <M>{`0! = 1! = 1`}</M>. The claim holds outright at the bottom of the recursion.
+        </li>
+        <li>
+          <strong>Inductive hypothesis</strong>: assume the function is correct for <em>every</em> input
+          strictly smaller than <M>{`n`}</M> — in particular <M>{`\\texttt{factorial}(n-1) = (n-1)!`}</M>.
+          "Strong" means we may assume <em>all</em> smaller cases, not merely the immediately preceding one.
+        </li>
+        <li>
+          <strong>Inductive step</strong>: the recursive case returns{" "}
+          <M>{`n \\cdot \\texttt{factorial}(n-1)`}</M>, which by the hypothesis equals{" "}
+          <M>{`n \\cdot (n-1)! = n!`}</M>. The claim propagates from smaller inputs to <M>{`n`}</M>.
+        </li>
+      </ul>
+      <MBlock>{`\\underbrace{P(0),\\,P(1)}_{\\text{base}} \\;\\wedge\\; \\big(\\forall k < n:\\ P(k)\\big) \\implies P(n) \\;\\;\\Longrightarrow\\;\\; \\forall n \\ge 0:\\ P(n)`}</MBlock>
+      <p>
+        The induction is <strong>well-founded</strong> only because each recursive call is on a strictly
+        smaller argument that provably reaches a base case — the same condition that guarantees termination.
+        Correctness and termination are two sides of one requirement: a <strong>decreasing measure</strong>{" "}
+        (here <M>{`n`}</M> itself) that is bounded below. This is why "does every call move toward the base
+        case?" is not just a debugging heuristic but the hinge of the correctness proof.
+      </p>
+
+      <h3>Tail vs. Non-Tail Recursion and O(d) Stack Space</h3>
+      <p>
+        Every un-returned call holds a live stack frame, so the space a recursion consumes is set by the
+        maximum depth <M>{`d`}</M> of simultaneously-open frames, not by the total number of calls. For a
+        linear recursion like factorial, <M>{`d = n`}</M>, giving:
+      </p>
+      <MBlock>{`S(n) = \\Theta(d) = \\Theta(n) \\text{ stack space}`}</MBlock>
+      <p>
+        The distinction between tail and non-tail recursion is precisely whether that frame is still needed:
+      </p>
+      <ul>
+        <li>
+          <strong>Non-tail</strong>: <M>{`n \\cdot \\texttt{factorial}(n-1)`}</M> must keep the caller's
+          frame alive to perform the multiplication <em>after</em> the callee returns. The <M>{`n`}</M>{" "}
+          pending multiplications stack up — genuine <M>{`\\Theta(n)`}</M> space.
+        </li>
+        <li>
+          <strong>Tail</strong>: the recursive call is the entire return value, so the caller's frame has
+          no remaining work. A compiler performing <strong>tail-call elimination</strong> can reuse the
+          single frame in place, collapsing the space to <M>{`\\Theta(1)`}</M> — the recursion becomes a loop.
+        </li>
+      </ul>
+      <Code
+        lang="ts"
+        filename="tail-factorial.ts"
+        code={`// Tail-recursive: an accumulator carries the running product,
+// so nothing is pending after the recursive call returns.
+function factTail(n: number, acc = 1): number {
+  if (n <= 1) return acc;          // base case returns the answer directly
+  return factTail(n - 1, acc * n); // recursive call IS the return value
+}
+// Semantically Theta(1) stack, but V8 does not eliminate tail calls,
+// so in practice this still grows the stack Theta(n). Rewrite as a loop
+// when depth may be large.`}
+      />
+      <p>
+        The general rule: recursion depth <M>{`d`}</M> is the hidden space cost. A balanced divide-and-conquer
+        recurses to depth <M>{`\\Theta(\\log n)`}</M> (cheap), but a recursion that peels one element at a
+        time reaches depth <M>{`\\Theta(n)`}</M> and can overflow the call stack where an <M>{`O(1)`}</M>-space
+        loop would not.
+      </p>
+
       <div className="notice warn">
         <span className="lbl">Gotcha: the missing base case</span>
         The most common recursion bug is a base case that is never reached — e.g. recursing on <code>n</code>{" "}
@@ -101,6 +176,43 @@ function maxOf(a: number[], lo: number, hi: number): number {
 }
 // T(n) = 2T(n/2) + O(1) -> Case 1 -> O(n)`}
       />
+      <h3>The Recursion Tree Method: Summing Per-Level Work</h3>
+      <p>
+        The Master Theorem is a shortcut; the <strong>recursion tree</strong> is the machinery underneath it,
+        and it works even when the theorem does not apply. The idea is to draw the tree of calls, compute the
+        total work done at each <em>level</em>, then sum over levels. For <M>{`T(n) = a\\,T(n/b) + f(n)`}</M>:
+      </p>
+      <ul>
+        <li>
+          <strong>Level <M>{`i`}</M> node count</strong>: the root spawns <M>{`a`}</M> children, each of
+          which spawns <M>{`a`}</M> more, so level <M>{`i`}</M> holds <M>{`a^i`}</M> nodes.
+        </li>
+        <li>
+          <strong>Subproblem size at level <M>{`i`}</M></strong>: each division by <M>{`b`}</M> shrinks the
+          input, so a level-<M>{`i`}</M> node handles size <M>{`n/b^i`}</M> and does <M>{`f(n/b^i)`}</M> work.
+        </li>
+        <li>
+          <strong>Tree height</strong>: the size hits the base case when <M>{`n/b^i = 1`}</M>, i.e. at level{" "}
+          <M>{`i = \\log_b n`}</M>. The bottom level holds <M>{`a^{\\log_b n} = n^{\\log_b a}`}</M> leaves.
+        </li>
+      </ul>
+      <p>
+        Total cost is the sum of per-level work down the tree plus the leaf work:
+      </p>
+      <MBlock>{`T(n) = \\sum_{i=0}^{\\log_b n - 1} a^i\\, f\\!\\left(\\frac{n}{b^i}\\right) + \\Theta\\!\\left(n^{\\log_b a}\\right)`}</MBlock>
+      <p>
+        The three Master Theorem cases are just which end of this sum wins. Take merge sort with{" "}
+        <M>{`a = b = 2`}</M> and <M>{`f(n) = cn`}</M>: level <M>{`i`}</M> does{" "}
+        <M>{`2^i \\cdot c\\,(n/2^i) = cn`}</M> work — the <em>same</em> at every level. With{" "}
+        <M>{`\\log_2 n`}</M> levels each costing <M>{`cn`}</M>, the sum is the balanced Case 2 result:
+      </p>
+      <MBlock>{`T(n) = \\sum_{i=0}^{\\log_2 n} cn = cn\\,(\\log_2 n + 1) = \\Theta(n \\log n)`}</MBlock>
+      <p>
+        When per-level work <em>grows</em> down the tree, the leaves dominate (Case 1); when it{" "}
+        <em>shrinks</em>, the root dominates and the sum is a geometric series bounded by its first term
+        (Case 3). Drawing the tree tells you which before you reach for any formula.
+      </p>
+
       <div className="notice">
         <span className="lbl">Reading the recurrence</span>
         The three numbers you need are <M>{`a`}</M> (how many subproblems), <M>{`b`}</M> (the shrink factor),
@@ -282,6 +394,47 @@ function Backtracking() {
         subtrees, so real instances explore far fewer nodes than the bound suggests.
       </p>
       <MBlock>{`\\text{subsets: } O(2^n),\\quad \\text{permutations: } O(n \\cdot n!)`}</MBlock>
+
+      <h3>State-Space Tree Size and Pruning Bounds</h3>
+      <p>
+        Backtracking's cost is the number of nodes in the <strong>state-space tree</strong> it actually
+        visits, times the work per node. Counting nodes exactly gives sharp bounds. For a tree with{" "}
+        <strong>branching factor</strong> <M>{`b`}</M> (choices per step) and <strong>depth</strong>{" "}
+        <M>{`d`}</M> (steps to a complete candidate), an unpruned search visits a geometric total:
+      </p>
+      <MBlock>{`N = \\sum_{i=0}^{d} b^i = \\frac{b^{d+1} - 1}{b - 1} = \\Theta(b^d)`}</MBlock>
+      <p>
+        The exponential in the depth is unavoidable in the worst case — it is the sum being dominated by its
+        last, largest level. The two enumeration shapes are special cases:
+      </p>
+      <ul>
+        <li>
+          <strong>Subsets</strong>: a binary include/exclude choice at each of <M>{`n`}</M> elements gives{" "}
+          <M>{`b = 2`}</M>, <M>{`d = n`}</M>, hence <M>{`\\Theta(2^n)`}</M> leaves — one per subset.
+        </li>
+        <li>
+          <strong>Permutations</strong>: the branching factor <em>shrinks</em> as choices are consumed
+          (<M>{`n`}</M> options, then <M>{`n-1`}</M>, …), so the leaf count is{" "}
+          <M>{`n \\cdot (n-1) \\cdots 1 = n!`}</M> rather than a fixed <M>{`b^d`}</M>.
+        </li>
+      </ul>
+      <p>
+        <strong>Pruning</strong> attacks the exponent, not the constant. If a feasibility test at each node
+        eliminates a fraction of the branches so that the <em>effective</em> branching factor drops from{" "}
+        <M>{`b`}</M> to <M>{`b'`}</M>, the visited count falls to <M>{`\\Theta(b'^{\\,d})`}</M> — an
+        exponential improvement, since it changes the base of the exponent. Bounding <M>{`b'`}</M> is how you
+        estimate a pruned search: N-Queens has a naive tree of <M>{`n^n`}</M> placements, but forbidding
+        same-column and same-diagonal attacks cuts each level's live branches drastically, so real solvers
+        explore vastly fewer than even the <M>{`n!`}</M> column-permutation nodes.
+      </p>
+      <MBlock>{`\\text{unpruned } \\Theta(b^d) \\;\\xrightarrow{\\text{prune to } b' < b}\\; \\Theta(b'^{\\,d}), \\qquad \\frac{b^d}{b'^{\\,d}} = \\left(\\frac{b}{b'}\\right)^{\\!d} \\text{ speedup}`}</MBlock>
+      <p>
+        The lesson: because the cost is <M>{`b^d`}</M>, shaving the base <M>{`b`}</M> even slightly compounds
+        into an enormous factor at depth <M>{`d`}</M>. That is why a cheap-but-effective feasibility check
+        placed as <em>early</em> (as high in the tree) as possible is worth far more than optimizing the
+        per-node constant.
+      </p>
+
       <div className="notice">
         <span className="lbl">The universal shape</span>
         Every backtracker is: <em>choose</em> → <em>recurse</em> → <em>un-choose</em>. Forgetting the un-choose

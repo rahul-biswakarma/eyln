@@ -61,6 +61,51 @@ const hasEdge = adj[2][3] === 1;`,
         time edge queries and <M>{`n`}</M> is small. Most real networks — roads, social graphs, web links —
         are sparse, so the list is the default.
       </p>
+
+      <h3>The Handshaking Lemma and the Density Threshold</h3>
+      <p>
+        The choice between the two representations rests on how <M>{`m`}</M> relates to <M>{`n`}</M>, and
+        that relationship is bounded by a counting identity. The <strong>degree</strong> of a vertex is
+        its number of incident edges. Summing degrees over all vertices counts every edge exactly twice —
+        once from each endpoint — which gives the <strong>Handshaking Lemma</strong>:
+      </p>
+      <MBlock>{`\\sum_{v \\in V} \\deg(v) = 2m`}</MBlock>
+      <p>
+        <strong>Proof.</strong> Consider the incidence pairs <M>{`(v, e)`}</M> where vertex <M>{`v`}</M> is an
+        endpoint of edge <M>{`e`}</M>. Counting by vertex, each <M>{`v`}</M> contributes <M>{`\\deg(v)`}</M>
+        pairs, for a total of <M>{`\\sum_v \\deg(v)`}</M>. Counting by edge, each edge has exactly two
+        endpoints and so contributes <M>{`2`}</M> pairs, for a total of <M>{`2m`}</M>. The two counts equal
+        the same quantity. An immediate corollary: the number of odd-degree vertices is always even, since
+        the total <M>{`2m`}</M> is even.
+      </p>
+      <p>
+        This pins down the density spectrum. A simple undirected graph has at most{" "}
+        <M>{`\\binom{n}{2} = \\tfrac{n(n-1)}{2} = O(n^2)`}</M> edges, so <M>{`m`}</M> ranges from{" "}
+        <M>{`0`}</M> up to <M>{`\\Theta(n^2)`}</M>. The two representations formalize as:
+      </p>
+      <ul>
+        <li>
+          <strong>Space.</strong> List is <M>{`\\Theta(n + m)`}</M>; matrix is <M>{`\\Theta(n^2)`}</M>{" "}
+          unconditionally. The list wins whenever <M>{`m = o(n^2)`}</M>.
+        </li>
+        <li>
+          <strong>Edge query</strong> <M>{`(u, v) \\in E?`}</M> — matrix is <M>{`O(1)`}</M>; list is{" "}
+          <M>{`O(\\deg(u))`}</M>, up to <M>{`O(n)`}</M> in the worst case.
+        </li>
+        <li>
+          <strong>Iterate all neighbors of</strong> <M>{`u`}</M> — list is <M>{`O(\\deg(u))`}</M>, optimal;
+          matrix is <M>{`O(n)`}</M> even if <M>{`u`}</M> has one neighbor.
+        </li>
+        <li>
+          <strong>Iterate all edges</strong> — list is <M>{`O(n + m)`}</M>; matrix is <M>{`O(n^2)`}</M>.
+        </li>
+      </ul>
+      <p>
+        The crossover is <M>{`m = \\Theta(n^2)`}</M>: below it the list is asymptotically smaller and every
+        traversal is cheaper, so the matrix is justified only for dense graphs or when constant-time edge
+        tests dominate the workload.
+      </p>
+
       <div className="notice warn">
         <span className="lbl">Gotcha: undirected means two entries</span>
         In an undirected graph, an edge <M>{`\\{u, v\\}`}</M> appears in <em>both</em> <code>graph[u]</code>{" "}
@@ -174,6 +219,54 @@ function DFSTopo() {
         "in-progress" state (white / gray / black) distinguishes a back edge from a harmless re-visit of a
         finished vertex.
       </p>
+
+      <h3>Edge Classification and the Back-Edge Cycle Criterion</h3>
+      <p>
+        Give every vertex a <strong>discovery time</strong> <M>{`d[v]`}</M> and a{" "}
+        <strong>finish time</strong> <M>{`f[v]`}</M> — a counter incremented when DFS first enters and when it
+        exits <M>{`v`}</M>. These nested intervals <M>{`[d[v], f[v]]`}</M> obey the{" "}
+        <strong>parenthesis theorem</strong>: for any two vertices the intervals are either disjoint or one
+        strictly nests inside the other; they never partially overlap. A DFS on a directed graph sorts every
+        edge <M>{`(u, v)`}</M> into exactly four classes:
+      </p>
+      <ul>
+        <li>
+          <strong>Tree edge</strong> — <M>{`v`}</M> is white (undiscovered) when explored from <M>{`u`}</M>;
+          these edges form the DFS forest.
+        </li>
+        <li>
+          <strong>Back edge</strong> — <M>{`v`}</M> is gray (on the stack, an ancestor of <M>{`u`}</M>).
+          Equivalently <M>{`d[v] \\le d[u] < f[u] \\le f[v]`}</M>.
+        </li>
+        <li>
+          <strong>Forward edge</strong> — <M>{`v`}</M> is black and a descendant of <M>{`u`}</M> reached by a
+          non-tree edge: <M>{`d[u] < d[v]`}</M>.
+        </li>
+        <li>
+          <strong>Cross edge</strong> — <M>{`v`}</M> is black and unrelated (already finished):{" "}
+          <M>{`f[v] < d[u]`}</M>.
+        </li>
+      </ul>
+      <p>
+        <strong>Theorem.</strong> A directed graph has a cycle if and only if a DFS from any starting
+        configuration produces a back edge.
+      </p>
+      <p>
+        <strong>Proof.</strong> (<M>{`\\Leftarrow`}</M>) A back edge <M>{`(u, v)`}</M> means <M>{`v`}</M> is a
+        gray ancestor of <M>{`u`}</M>, so the tree path <M>{`v \\rightsquigarrow u`}</M> plus the edge{" "}
+        <M>{`(u, v)`}</M> closes a cycle. (<M>{`\\Rightarrow`}</M>) Suppose a cycle <M>{`C`}</M> exists, and
+        let <M>{`v`}</M> be the first vertex of <M>{`C`}</M> discovered by DFS. Let <M>{`(u, v)`}</M> be the
+        edge of <M>{`C`}</M> entering <M>{`v`}</M>. Every vertex of <M>{`C`}</M> is reachable from{" "}
+        <M>{`v`}</M> along cycle edges, so by the <strong>white-path theorem</strong> all of them —{" "}
+        including <M>{`u`}</M> — become descendants of <M>{`v`}</M> in the DFS tree and are discovered while{" "}
+        <M>{`v`}</M> is still gray. Thus when <M>{`(u, v)`}</M> is explored, <M>{`v`}</M> is still on the
+        stack, making <M>{`(u, v)`}</M> a back edge.
+      </p>
+      <p>
+        Note that <strong>undirected</strong> graphs have only tree and back edges — the forward/cross
+        distinction vanishes because exploration is symmetric — so the same gray-ancestor test detects
+        undirected cycles too (ignoring the immediate parent edge).
+      </p>
       <p>
         <strong>Topological sort.</strong> A <strong>directed acyclic graph (DAG)</strong> — dependencies,
         build order, course prerequisites — has a linear ordering where every edge points forward. DFS
@@ -197,6 +290,42 @@ function DFSTopo() {
 }`}
       />
       <MBlock>{`\\text{a topological order exists} \\iff \\text{the graph is a DAG (no cycles)}`}</MBlock>
+
+      <h3>Why DFS Post-Order Yields a Valid Topological Order</h3>
+      <p>
+        <strong>Theorem.</strong> On a DAG, listing vertices in <em>decreasing</em> order of DFS finish time
+        <M>{` f[\\cdot]`}</M> (equivalently, pushing on finish and reversing) is a valid topological order: for
+        every edge <M>{`(u, v)`}</M>, <M>{`u`}</M> appears before <M>{`v`}</M>.
+      </p>
+      <p>
+        <strong>Proof.</strong> It suffices to show that for every edge <M>{`(u, v)`}</M> we have{" "}
+        <M>{`f[u] > f[v]`}</M>. Consider the color of <M>{`v`}</M> at the moment DFS explores the edge{" "}
+        <M>{`(u, v)`}</M> while <M>{`u`}</M> is gray:
+      </p>
+      <ul>
+        <li>
+          <strong><M>{`v`}</M> is white.</strong> Then <M>{`v`}</M> becomes a descendant of <M>{`u`}</M> in
+          the DFS tree, so its interval nests inside: <M>{`d[u] < d[v] < f[v] < f[u]`}</M>. Hence{" "}
+          <M>{`f[u] > f[v]`}</M>.
+        </li>
+        <li>
+          <strong><M>{`v`}</M> is black.</strong> Then <M>{`v`}</M> has already finished, so{" "}
+          <M>{`f[v] < f[u]`}</M> directly.
+        </li>
+        <li>
+          <strong><M>{`v`}</M> is gray</strong> is impossible: a gray <M>{`v`}</M> would make{" "}
+          <M>{`(u, v)`}</M> a back edge, and by the previous theorem back edges exist only when there is a
+          cycle — contradicting the DAG hypothesis.
+        </li>
+      </ul>
+      <p>
+        In both possible cases <M>{`f[u] > f[v]`}</M>, so <M>{`u`}</M> precedes <M>{`v`}</M> in the
+        decreasing-finish-time order. The existence half of the <M>{`\\iff`}</M> follows: every DAG admits a
+        topological order (this construction produces one). Conversely, if a cycle existed, its edges would
+        force a strict chain <M>{`f[v_1] > f[v_2] > \\cdots > f[v_1]`}</M>, an impossibility — so a
+        topological order exists exactly when the graph is acyclic.
+      </p>
+
       <div className="notice warn">
         <span className="lbl">Gotcha: cycles break topo sort</span>
         If the graph contains a directed cycle there is no valid ordering — the dependencies are circular.
@@ -352,6 +481,42 @@ function UnionFind() {
         effectively a small constant (below 5) for any <M>{`n`}</M> that fits in the universe.
       </p>
       <MBlock>{`\\text{amortized per operation} = O(\\alpha(n)) \\approx O(1)`}</MBlock>
+
+      <h3>The Cut Property and Why Kruskal's Greedy Choice Is Optimal</h3>
+      <p>
+        A <strong>minimum spanning tree (MST)</strong> of a connected, undirected, weighted graph is a
+        spanning tree of least total edge weight. Kruskal's algorithm sorts the <M>{`m`}</M> edges by weight
+        and adds each one whose endpoints lie in different components (an <M>{`O(1)`}</M> union-find check),
+        skipping any edge that would close a cycle. Its correctness rests on a single structural fact.
+      </p>
+      <p>
+        <strong>Cut Property.</strong> Let <M>{`(S, V \\setminus S)`}</M> be any partition of the vertices
+        into two non-empty sides (a <em>cut</em>), and let <M>{`e`}</M> be an edge of strictly minimum weight
+        among all edges crossing the cut. Then <M>{`e`}</M> belongs to every MST.
+      </p>
+      <p>
+        <strong>Proof (exchange argument).</strong> Let <M>{`T`}</M> be an MST and suppose{" "}
+        <M>{`e = (u, v) \\notin T`}</M>. Since <M>{`T`}</M> is a spanning tree it contains a unique path{" "}
+        <M>{`u \\rightsquigarrow v`}</M>. Because <M>{`u \\in S`}</M> and <M>{`v \\in V \\setminus S`}</M>,
+        that path must cross the cut on some edge <M>{`e'`}</M>. Form{" "}
+        <M>{`T' = T - e' + e`}</M>: removing <M>{`e'`}</M> from the cycle <M>{`e' + (u \\rightsquigarrow v)`}</M>
+        and adding <M>{`e`}</M> keeps <M>{`T'`}</M> connected and acyclic, so it is again a spanning tree.
+        Its weight is <M>{`w(T') = w(T) - w(e') + w(e)`}</M>. Since <M>{`e`}</M> is the strict minimum crossing
+        edge, <M>{`w(e) < w(e')`}</M>, giving <M>{`w(T') < w(T)`}</M> — contradicting the minimality of{" "}
+        <M>{`T`}</M>. Hence every MST contains <M>{`e`}</M>. (With ties, the same argument shows <M>{`e`}</M>{" "}
+        is contained in <em>some</em> MST.)
+      </p>
+      <p>
+        <strong>Correctness of Kruskal.</strong> When Kruskal considers an edge <M>{`e = (u, v)`}</M> whose
+        endpoints are in different components, let <M>{`S`}</M> be the component currently containing{" "}
+        <M>{`u`}</M>. Every earlier (lighter) edge crossing the cut <M>{`(S, V \\setminus S)`}</M> was
+        rejected, which happens only if both its endpoints were already inside <M>{`S`}</M> — so no such edge
+        crosses the cut. Thus <M>{`e`}</M> is the lightest edge crossing <M>{`(S, V \\setminus S)`}</M>, and by
+        the cut property it is safe to add. The dual <strong>cycle property</strong> — the heaviest edge on
+        any cycle is in no MST — justifies the skips. The dominant cost is sorting the edges:
+      </p>
+      <MBlock>{`O(m \\log m) = O(m \\log n) \\;\\text{ (sorting)} \\; + \\; O(m\\,\\alpha(n)) \\;\\text{ (union-find)}`}</MBlock>
+
       <div className="notice">
         <span className="lbl">Where it shines</span>
         Kruskal's MST sorts edges and unions endpoints, skipping any edge whose endpoints are already

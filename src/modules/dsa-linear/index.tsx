@@ -44,6 +44,34 @@ function LinkedLists() {
         </li>
       </ul>
 
+      <h3>The XOR Linked List: One Pointer, Both Directions</h3>
+      <p>
+        A doubly linked list pays two pointers per node for bidirectional traversal. The <strong>XOR
+        linked list</strong> is a memory trick that buys the same traversal with a <em>single</em>{" "}
+        pointer field, exploiting the self-inverse property of bitwise XOR (<M>{`\\oplus`}</M>). Instead
+        of storing <code>prev</code> and <code>next</code> separately, each node stores their XOR:
+      </p>
+      <MBlock>{`\\text{node.link} = \\text{addr}(\\text{prev}) \\oplus \\text{addr}(\\text{next})`}</MBlock>
+      <p>
+        The endpoints treat a missing neighbor as address <M>{`0`}</M>, so the head stores{" "}
+        <M>{`0 \\oplus \\text{addr}(\\text{next})`}</M> and the tail stores{" "}
+        <M>{`\\text{addr}(\\text{prev}) \\oplus 0`}</M>. Traversal works because XOR is its own inverse:
+        if you arrive at the current node knowing the address of the node you <em>came from</em>, you
+        recover the next address by XOR-ing that back out:
+      </p>
+      <MBlock>{`\\text{next} = \\text{link} \\oplus \\text{prev} = (\\text{prev} \\oplus \\text{next}) \\oplus \\text{prev}`}</MBlock>
+      <p>
+        This is exact because XOR is associative and commutative with{" "}
+        <M>{`\\text{prev} \\oplus \\text{prev} = 0`}</M> and <M>{`x \\oplus 0 = x`}</M>, so the{" "}
+        <M>{`\\text{prev}`}</M> terms annihilate and only <M>{`\\text{next}`}</M> survives. To walk the
+        list you carry the previous address as you go; the same identity run with{" "}
+        <M>{`\\text{next}`}</M> in hand recovers <M>{`\\text{prev}`}</M>, giving backward traversal from
+        the tail. The cost is steep in practice — you cannot dereference a node in isolation (you always
+        need a neighbor's address), it defeats garbage collectors and pointer-provenance-based
+        optimizers, and it is undefined behavior in memory-safe languages — so it lives mostly as an
+        elegant demonstration of the algebra rather than production code.
+      </p>
+
       <p>
         The performance profile is the mirror image of an array:
       </p>
@@ -108,6 +136,35 @@ function Stacks() {
         A stack needs no fancy backing store — a dynamic array is ideal, since push/pop at the{" "}
         <em>end</em> are both <M>{`O(1)`}</M> amortized (front operations would be <M>{`O(n)`}</M>, so
         never use the front).
+      </p>
+
+      <h3>Stack ADT: Axioms and the LIFO Invariant</h3>
+      <p>
+        A stack is defined abstractly — independent of any array or list implementation — by how its
+        operations compose. Writing <M>{`\\bot`}</M> for the empty stack, the <strong>algebraic
+        axioms</strong> pin down the behavior completely:
+      </p>
+      <MBlock>{`\\text{isEmpty}(\\bot) = \\text{true}, \\qquad \\text{isEmpty}(\\text{push}(S, x)) = \\text{false}`}</MBlock>
+      <MBlock>{`\\text{pop}(\\text{push}(S, x)) = (S, x), \\qquad \\text{top}(\\text{push}(S, x)) = x`}</MBlock>
+      <p>
+        Read the second line as: popping immediately after pushing <M>{`x`}</M> returns <M>{`x`}</M>{" "}
+        and restores the <em>exact</em> prior stack <M>{`S`}</M>. Because <code>push</code> and{" "}
+        <code>pop</code> only ever touch the most recently added element, these axioms force the{" "}
+        <strong>LIFO ordering invariant</strong>: if <M>{`x`}</M> is pushed before <M>{`y`}</M> and both
+        are still present, then <M>{`y`}</M> must be popped before <M>{`x`}</M>.
+      </p>
+      <p>
+        This invariant constrains which output orders are even <em>reachable</em>. Feed the inputs{" "}
+        <M>{`1, 2, \\ldots, n`}</M> and interleave <code>push</code> and <code>pop</code> freely: a
+        sequence of <M>{`n`}</M> pushes and <M>{`n`}</M> pops is <strong>legal</strong> exactly when
+        every prefix has already pushed at least as many items as it has popped — the identical
+        balanced-bracket condition. The number of legal push/pop schedules (equivalently, the number of
+        stack-permutations reachable) is therefore the <strong>Catalan number</strong>:
+      </p>
+      <MBlock>{`C_n = \\frac{1}{n+1}\\binom{2n}{n}, \\qquad C_0=1,\\; C_1=1,\\; C_2=2,\\; C_3=5,\\; C_4=14`}</MBlock>
+      <p>
+        So of the <M>{`n!`}</M> conceivable output orders, only <M>{`C_n \\ll n!`}</M> are achievable
+        with a single stack — a concrete, countable measure of how much structure LIFO imposes.
       </p>
       <Code
         lang="ts"
@@ -182,6 +239,62 @@ function QueuesDeques() {
         at <em>either</em> end. It's a stack and a queue at once, and it's the workhorse behind the
         monotonic-deque sliding-window-maximum algorithm.
       </p>
+
+      <h3>The Two-Stack Queue: Amortized O(1) Analysis</h3>
+      <p>
+        You can build a perfectly FIFO queue out of two LIFO stacks — a favorite because it turns the
+        LIFO/FIFO tension into a clean amortization argument. Keep an <M>{`\\text{in}`}</M> stack and an{" "}
+        <M>{`\\text{out}`}</M> stack. <code>enqueue</code> always pushes onto <M>{`\\text{in}`}</M>.{" "}
+        <code>dequeue</code> pops from <M>{`\\text{out}`}</M>; but if <M>{`\\text{out}`}</M> is empty,
+        first <strong>transfer</strong> everything from <M>{`\\text{in}`}</M> by popping it element by
+        element and pushing onto <M>{`\\text{out}`}</M>, which reverses the order and so restores FIFO.
+      </p>
+      <p>
+        A single <code>dequeue</code> can be <M>{`O(n)`}</M> in the worst case (it triggers a full
+        transfer). Yet the <strong>amortized</strong> cost is <M>{`O(1)`}</M>. The key observation is
+        that each element follows a fixed itinerary of at most four constant-cost steps over its entire
+        lifetime:
+      </p>
+      <MBlock>{`\\underbrace{\\text{push to in}}_{1} \\;\\to\\; \\underbrace{\\text{pop from in}}_{2} \\;\\to\\; \\underbrace{\\text{push to out}}_{3} \\;\\to\\; \\underbrace{\\text{pop from out}}_{4}`}</MBlock>
+      <p>
+        No element is ever transferred twice: once it reaches <M>{`\\text{out}`}</M> it stays there
+        until it leaves the queue. So a sequence of <M>{`n`}</M> enqueues and <M>{`n`}</M> dequeues does
+        at most <M>{`4n`}</M> stack operations total, giving <M>{`4n / (2n) = 2`}</M> amortized
+        operations per call:
+      </p>
+      <MBlock>{`\\text{total work} \\le 4n = O(n) \\;\\Rightarrow\\; O(1) \\text{ amortized per operation}`}</MBlock>
+      <p>
+        The <strong>accounting-method</strong> view makes it airtight: charge each <code>enqueue</code>{" "}
+        a payment of 3 units — 1 for the push and 2 saved as credit on that element. When a transfer
+        later pops it from <M>{`\\text{in}`}</M> and pushes it to <M>{`\\text{out}`}</M>, those two
+        stored credits pay for both moves, so every <code>dequeue</code> costs only its own final pop.
+        The bank balance never goes negative, which certifies the <M>{`O(1)`}</M> amortized bound as a
+        worst-case guarantee over any sequence — not a probabilistic average.
+      </p>
+      <Code
+        lang="ts"
+        filename="twostackqueue.ts"
+        code={`class TwoStackQueue<T> {
+  private inStack: T[] = [];   // enqueue lands here
+  private outStack: T[] = [];  // dequeue pulls from here
+
+  enqueue(x: T): void { this.inStack.push(x); }         // always O(1)
+
+  dequeue(): T | undefined {
+    if (this.outStack.length === 0) {                   // amortized transfer
+      while (this.inStack.length) this.outStack.push(this.inStack.pop()!);
+    }
+    return this.outStack.pop();                          // FIFO order restored
+  }
+}
+// Each element is moved at most once from in→out, so n ops cost O(n) total.`}
+      />
+      <div className="notice">
+        <span className="lbl">Why the reversal yields FIFO</span>
+        Pushing <code>1,2,3</code> onto <M>{`\\text{in}`}</M> leaves 3 on top. Popping them one by one
+        and pushing onto <M>{`\\text{out}`}</M> lands 1 on top — so the next <code>dequeue</code>{" "}
+        returns 1, the oldest element. One reversal of a LIFO stack is exactly a FIFO queue.
+      </div>
       <Code
         lang="ts"
         filename="ringbuffer.ts"
@@ -319,6 +432,65 @@ console.log(nextGreater([2, 1, 3, 1])); // [3, 3, -1, -1]`}
         element (e.g. "days until a warmer temperature") and index back into the array. Decide up
         front whether you want the next <em>greater</em> or <em>smaller</em> element — it only flips
         the comparison in the while-condition.
+      </div>
+
+      <h3>Monotonic Deque: Sliding-Window Maximum</h3>
+      <p>
+        Widen the technique from "next greater" to <strong>sliding-window maximum</strong>: given a
+        window of width <M>{`k`}</M> sliding across <M>{`a`}</M>, report the maximum in each of the{" "}
+        <M>{`n - k + 1`}</M> positions. A monotonic <em>deque</em> of indices does it in{" "}
+        <M>{`O(n)`}</M>, maintaining a two-part invariant on the indices <M>{`i_1 &lt; i_2 &lt; \\cdots`}</M> it holds:
+      </p>
+      <ul>
+        <li>
+          <strong>Order invariant:</strong> indices stay strictly increasing front-to-back, so the
+          front is always the oldest index still in play.
+        </li>
+        <li>
+          <strong>Value invariant:</strong> their values are strictly decreasing,{" "}
+          <M>{`a[i_1] > a[i_2] > \\cdots`}</M>, so the front index always holds the window maximum.
+        </li>
+      </ul>
+      <p>
+        Two pruning rules preserve both. When index <M>{`i`}</M> enters, pop from the <em>back</em>{" "}
+        every index <M>{`j`}</M> with <M>{`a[j] \\le a[i]`}</M> — such a <M>{`j`}</M> can never again be
+        a maximum, because <M>{`i`}</M> is newer and at least as large, so it dominates <M>{`j`}</M> for
+        the rest of <M>{`j`}</M>'s lifetime:
+      </p>
+      <MBlock>{`a[j] \\le a[i] \\;\\wedge\\; j < i \\;\\Rightarrow\\; j \\text{ is dominated by } i \\text{ in every future window}`}</MBlock>
+      <p>
+        Then pop from the <em>front</em> any index that has fallen outside the window, i.e.{" "}
+        <M>{`i_{\\text{front}} \\le i - k`}</M>. After both prunings, <M>{`a[\\text{front}]`}</M> is the
+        answer for the current window. The complexity argument is the same amortized one as the
+        monotonic stack, applied to both ends: every index is pushed once and popped at most once, so
+        despite the inner <code>while</code> loops total work is <M>{`\\le 2n = O(n)`}</M> — beating the{" "}
+        <M>{`O(nk)`}</M> naive rescan and the <M>{`O(n \\log k)`}</M> balanced-heap approach.
+      </p>
+      <Code
+        lang="ts"
+        filename="windowmax.ts"
+        code={`// Maximum of every window of width k. Monotonic deque of indices. O(n).
+function maxSlidingWindow(a: number[], k: number): number[] {
+  const dq: number[] = [];        // indices; values strictly decreasing front→back
+  const out: number[] = [];
+  for (let i = 0; i < a.length; i++) {
+    // value invariant: drop smaller/equal tail values — they can't win anymore
+    while (dq.length && a[dq[dq.length - 1]] <= a[i]) dq.pop();
+    dq.push(i);
+    // order invariant: drop the front once it slides out of the window
+    if (dq[0] <= i - k) dq.shift();
+    if (i >= k - 1) out.push(a[dq[0]]); // front is the window maximum
+  }
+  return out;
+}
+console.log(maxSlidingWindow([1, 3, -1, -3, 5, 3, 6, 7], 3)); // [3,3,5,5,6,7]`}
+      />
+      <div className="notice">
+        <span className="lbl">Why a deque, not a stack</span>
+        You prune stale-by-<em>value</em> indices from the back but stale-by-<em>position</em> indices
+        from the front, so you need both ends — exactly what a deque gives in <M>{`O(1)`}</M>. A plain
+        stack can't evict the oldest element cheaply, which is why "next greater" needs only a stack but
+        "window maximum" needs a deque.
       </div>
     </div>
   );

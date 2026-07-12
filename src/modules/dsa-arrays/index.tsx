@@ -94,6 +94,33 @@ function DynamicArrays() {
         exponentially rarer, and the total copy cost for <M>{`n`}</M> pushes is a geometric series:
       </p>
       <MBlock>{`\\sum_{i=0}^{\\log_2 n} 2^i = 2n - 1 = O(n) \\;\\Rightarrow\\; O(1) \\text{ amortized per push}`}</MBlock>
+
+      <h3>Generalizing the Growth Factor: Why 2× (or 1.5×)</h3>
+      <p>
+        Doubling is a choice, not a law. Suppose instead you grow the buffer by an arbitrary factor{" "}
+        <M>{`b > 1`}</M>. Starting from capacity 1, resizes happen at capacities{" "}
+        <M>{`1, b, b^2, \\ldots`}</M> up to <M>{`n`}</M>, and each resize copies the elements present.
+        The total copy work to reach <M>{`n`}</M> is again geometric, and it settles to a clean
+        closed form:
+      </p>
+      <MBlock>{`\\sum_{i=0}^{\\log_b n} b^i = \\frac{b^{\\log_b n + 1} - 1}{b - 1} \\approx \\frac{b}{b - 1}\\, n \\;\\Rightarrow\\; \\frac{b}{b-1} \\text{ copies amortized per push}`}</MBlock>
+      <p>
+        Read that coefficient <M>{`\\frac{b}{b-1}`}</M> carefully: it is the entire tradeoff. At{" "}
+        <M>{`b = 2`}</M> you pay <M>{`2`}</M> copies per element but can waste up to{" "}
+        <M>{`(b-1)n = n`}</M> slots of memory (a buffer half-empty right after a resize). At{" "}
+        <M>{`b = 1.5`}</M> you pay <M>{`3`}</M> copies per element yet waste at most <M>{`0.5n`}</M>{" "}
+        — trading a bigger constant on time for a smaller constant on space. Both remain{" "}
+        <M>{`O(1)`}</M> amortized and <M>{`O(n)`}</M> space; only the constants move.
+      </p>
+      <p>
+        There is a subtler reason implementations like some C++ standard libraries prefer{" "}
+        <M>{`b < 2`}</M>. If the factor stays below the golden ratio{" "}
+        <M>{`\\varphi = \\frac{1 + \\sqrt{5}}{2} \\approx 1.618`}</M>, the sum of all previously freed
+        buffers can eventually exceed the size of the next request, letting the allocator{" "}
+        <em>reuse</em> that freed space instead of always marching forward into fresh memory. Above{" "}
+        <M>{`\\varphi`}</M> each new buffer is larger than everything freed so far, so reuse never
+        catches up.
+      </p>
       <Code
         lang="ts"
         filename="dynarray.ts"
@@ -142,6 +169,34 @@ function TwoPointer() {
         <M>{`n`}</M> steps.
       </p>
       <MBlock>{`\\text{sorted pair-sum: } O(n) \\text{ time},\\; O(1) \\text{ space} \\;\\; \\text{vs. brute force } O(n^2)`}</MBlock>
+
+      <h3>The Loop Invariant and Why It Is Correct</h3>
+      <p>
+        "It works" is not the same as "it is correct." The pair-sum method earns a proof, and the
+        proof rests on a single <strong>loop invariant</strong> — a statement that is true before the
+        loop, preserved by every iteration, and strong enough at the end to give the answer. Here it
+        is:
+      </p>
+      <MBlock>{`\\text{Invariant: if a valid pair exists, at least one such pair } (p, q) \\text{ has } lo \\le p < q \\le hi.`}</MBlock>
+      <p>
+        <strong>Initialization.</strong> Before the loop <M>{`lo = 0`}</M> and <M>{`hi = n-1`}</M>, so
+        the window <M>{`[lo, hi]`}</M> is the whole array and the claim is trivially true.
+      </p>
+      <p>
+        <strong>Maintenance.</strong> Suppose the invariant holds and{" "}
+        <M>{`a[lo] + a[hi] > t`}</M>. Because the array is sorted, for <em>every</em> index{" "}
+        <M>{`k`}</M> with <M>{`lo \\le k`}</M> we have <M>{`a[k] + a[hi] \\ge a[lo] + a[hi] > t`}</M>,
+        so <M>{`a[hi]`}</M> cannot be part of any pair with the current or a larger partner — it is
+        safe to discard by setting <M>{`hi \\gets hi - 1`}</M>. The symmetric argument justifies{" "}
+        <M>{`lo \\gets lo + 1`}</M> when the sum is too small. Each move eliminates only elements that
+        provably belong to no solution, so the invariant survives.
+      </p>
+      <p>
+        <strong>Termination.</strong> The quantity <M>{`hi - lo`}</M> strictly decreases every
+        iteration and the loop stops at <M>{`lo \\ge hi`}</M>, so it runs at most <M>{`n`}</M> times —
+        giving the <M>{`O(n)`}</M> bound directly, and guaranteeing that if a pair existed we found it
+        before the window collapsed.
+      </p>
       <Code
         lang="ts"
         filename="two-pointer.ts"
@@ -254,6 +309,32 @@ function PrefixSums() {
         {" "}tricks: "count subarrays summing to <M>{`t`}</M>" becomes "for each <M>{`P[j]`}</M>, how
         many earlier <M>{`P[i] = P[j] - t`}</M>?" — answered with a hash map in <M>{`O(n)`}</M>. The
         idea generalizes to 2D (integral images) and to other invertible operators.
+      </p>
+
+      <h3>2D Prefix Sums and Inclusion-Exclusion</h3>
+      <p>
+        In one dimension a range is bounded by two endpoints, so one subtraction suffices. In two
+        dimensions a rectangle is bounded by four corners, and the arithmetic that isolates it is the{" "}
+        <strong>inclusion-exclusion principle</strong>. Define the 2D prefix sum <M>{`P`}</M> so that{" "}
+        <M>{`P[r][c]`}</M> is the sum of the whole sub-rectangle from the origin to (but not
+        including) row <M>{`r`}</M> and column <M>{`c`}</M>. It is built in one <M>{`O(RC)`}</M> pass
+        with the recurrence
+      </p>
+      <MBlock>{`P[r][c] = a[r-1][c-1] + P[r-1][c] + P[r][c-1] - P[r-1][c-1],`}</MBlock>
+      <p>
+        where the final subtraction cancels the top-left region that both <M>{`P[r-1][c]`}</M> and{" "}
+        <M>{`P[r][c-1]`}</M> counted. The sum over any axis-aligned rectangle{" "}
+        <M>{`[r_1, r_2) \\times [c_1, c_2)`}</M> is then answered in <M>{`O(1)`}</M> by combining four
+        corner reads:
+      </p>
+      <MBlock>{`\\sum_{r_1 \\le r < r_2} \\sum_{c_1 \\le c < c_2} a[r][c] = P[r_2][c_2] - P[r_1][c_2] - P[r_2][c_1] + P[r_1][c_1].`}</MBlock>
+      <p>
+        The pattern is exactly inclusion-exclusion: start from the big block anchored at the far
+        corner, subtract the two overhanging strips above and to the left, then <em>add back</em> the
+        top-left block that both subtractions removed. The same skeleton extends to <M>{`d`}</M>{" "}
+        dimensions, where a box query costs <M>{`2^d`}</M> corner reads — still <M>{`O(1)`}</M> for
+        fixed <M>{`d`}</M>. This precomputed table is the <strong>summed-area table</strong> that
+        makes constant-time box blurs and Haar-feature detectors practical in graphics and vision.
       </p>
       <Code
         lang="ts"
