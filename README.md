@@ -28,15 +28,14 @@ Live 3D demos need a WebGPU-capable browser (Chrome/Edge, or Safari 18+ on macOS
 
 Eyln has an optional AI layer — open-ended answer grading, "explain my mistake"
 on quizzes, a proactive study coach on the dashboard, and a per-lesson Q&A tutor.
-It uses the Gemini API. Copy `.env.example` to `.env` and set:
+It runs Gemini through **Firebase AI Logic** (Google AI backend), so requests are
+proxied by Firebase and guarded by App Check — there is **no API key in the
+browser**. The AI layer is enabled automatically whenever Firebase is configured
+(see below); enable the "Firebase AI Logic" API in your Firebase project.
 
-```bash
-VITE_GEMINI_API_KEY=your_key   # from https://aistudio.google.com/apikey
-```
-
-Without a key the whole course still works — those features fall back to
-rule-based grading/guidance. Note: a browser-embedded key is visible in devtools,
-so this is intended for local/personal use (all state is in localStorage).
+Optionally override the model with `VITE_GEMINI_MODEL` (default `gemini-2.0-flash`).
+Without Firebase configured, the whole course still works — those features fall
+back to rule-based grading/guidance.
 
 ## Notes, bookmarks & reminders
 

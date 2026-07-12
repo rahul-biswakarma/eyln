@@ -27,7 +27,7 @@ export function Exercise({ ex }: { ex: ExerciseType }) {
           pass: false,
           message: "AI grading is off.",
           feedback:
-            "Set VITE_GEMINI_API_KEY to have your answer graded with feedback. For now, compare your answer against the hint and the lesson above.",
+            "Configure Firebase to have your answer graded with feedback. For now, compare your answer against the hint and the lesson above.",
         });
         return;
       }

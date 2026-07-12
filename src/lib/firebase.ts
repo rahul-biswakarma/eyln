@@ -40,6 +40,11 @@ function ensureApp(): FirebaseApp {
   return app;
 }
 
+/** The initialized Firebase app. Only call when isFirebaseEnabled() is true. */
+export function getFirebaseApp(): FirebaseApp {
+  return ensureApp();
+}
+
 export function getAuthClient(): Auth | null {
   if (!isFirebaseEnabled()) return null;
   if (!authInstance) authInstance = getAuth(ensureApp());
