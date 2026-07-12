@@ -1,5 +1,6 @@
 import type { Module } from "../../content/types";
 import { Code, CodeTabs } from "../../components/CodeBlock";
+import { M } from "../../components/Math";
 
 function WhyOdin() {
   return (
@@ -121,14 +122,76 @@ function Memory() {
   return (
     <div className="prose">
       <p>
-        The GPU reads raw bytes at fixed offsets. So you must know exactly how big your types are
-        and where each field sits. Odin makes this explicit.
+        The GPU reads raw bytes at fixed offsets in hardware buffers. To interface with it correctly, 
+        you must know exactly how big your data structures are in memory, where each field sits (its offset), 
+        and how the compiler aligns them. Odin makes this fully explicit.
       </p>
       <ul>
-        <li><code>f32</code> = 4 bytes. <code>[3]f32</code> = 12 bytes, laid out x, y, z.</li>
-        <li><code>[dynamic]f32</code> is a growable buffer (pointer + length + capacity + allocator).</li>
-        <li>A <strong>slice</strong> <code>[]f32</code> is a view: pointer + length. No copy.</li>
+        <li><code>f32</code> = 4 bytes.</li>
+        <li><code>[3]f32</code> = 12 bytes, laid out as three consecutive 4-byte floats (<M>{`x, y, z`}</M>).</li>
+        <li>
+          <code>[dynamic]f32</code> is a growable buffer on the CPU heap (containing a 64-bit pointer, a 64-bit length, a 64-bit capacity, and an allocator interface struct). 
+          <strong>Never</strong> send a dynamic array header itself to the GPU; only send the memory it points to!
+        </li>
+        <li>
+          A <strong>slice</strong> <code>[]f32</code> is a view of contiguous memory (containing a 64-bit pointer and a 64-bit length). 
+          Like dynamic arrays, send the elements, not the slice header.
+        </li>
       </ul>
+
+      <h3>Struct Alignment & Compiler Padding</h3>
+      <p>
+        CPUs and GPUs do not access arbitrary memory byte-by-byte. Instead, they read memory in 4, 8, or 16-byte chunks. 
+        For efficiency, hardware requires variables to be placed at memory addresses that are multiples of their size. 
+        This is called <strong>memory alignment</strong>. For example, a 4-byte <code>f32</code> must begin at an address divisible by 4.
+      </p>
+      <p>
+        To satisfy alignment rules, the compiler inserts unused <strong>padding bytes</strong> inside your structs. Consider this inefficient layout:
+      </p>
+      <Code
+        lang="odin" filename="alignment_trap.odin"
+        code={`// Inefficient layout:
+BadStruct :: struct {
+    a: u8,   // size 1, alignment 1. Offset 0.
+             // 3 padding bytes inserted here to align 'b' to 4-byte boundary!
+    b: f32,  // size 4, alignment 4. Offset 4.
+    c: u8,   // size 1, alignment 1. Offset 8.
+             // 3 padding bytes inserted at the end so the entire struct size
+             // is a multiple of the largest alignment (4).
+}            // Total size: 12 bytes (instead of 6 bytes of actual data!)`}
+      />
+      <p>
+        You can optimize memory by ordering fields from largest alignment to smallest:
+      </p>
+      <Code
+        lang="odin" filename="alignment_good.odin"
+        code={`// Optimized layout:
+GoodStruct :: struct {
+    b: f32,  // size 4, alignment 4. Offset 0.
+    a: u8,   // size 1, alignment 1. Offset 4.
+    c: u8,   // size 1, alignment 1. Offset 5.
+             // 2 padding bytes at the end to round struct size to multiple of 4.
+}            // Total size: 8 bytes!`}
+      />
+
+      <h3>GPU Uniform Buffer Alignment (UBO) Rules</h3>
+      <p>
+        GPU uniform buffer blocks are subject to much stricter alignment requirements than standard CPU structs. 
+        In both WebGPU (WGSL) and Metal (MSL), vectors inside uniform blocks are often padded to match their alignment:
+      </p>
+      <ul>
+        <li>
+          A <code>vec3&lt;f32&gt;</code> / <code>float3</code> occupies 12 bytes but has an alignment of <strong>16 bytes</strong>.
+        </li>
+        <li>
+          If you define a structure in uniform memory containing a <code>vec3</code> followed by a <code>float</code>, the GPU expects the <code>vec3</code> at offset 0, and the <code>float</code> at offset 12 (occupying the 4 padding bytes). 
+          However, if you have a <code>float</code> followed by a <code>vec3</code>, the GPU inserts 12 bytes of padding so the <code>vec3</code> starts at offset 16!
+        </li>
+      </ul>
+      <p>
+        Furthermore, many graphics APIs require that the offsets at which you bind uniform buffers be aligned to <strong>256 bytes</strong>. If your uniforms look garbled or your render pipeline crashes, check your padding and offset alignments first.
+      </p>
+
       <Code
         lang="odin" filename="layout.odin"
         code={`Vertex :: struct {
@@ -147,12 +210,6 @@ verts := [3]Vertex{
 // is a float3 at offset 12, stride 24. That's the whole handshake.
 buf := device->newBuffer(&verts, size_of(verts), .StorageModeShared)`}
       />
-      <div className="notice warn">
-        <span className="lbl">Alignment gotcha</span>
-        GPUs pad things. A <code>float3</code> in a uniform buffer is often aligned to 16 bytes, not
-        12. When your uniforms come out garbled, alignment is the usual culprit — match the layout
-        rules of the shading language exactly.
-      </div>
     </div>
   );
 }
@@ -245,16 +302,35 @@ function Allocators() {
     <div className="prose">
       <p>
         In a language with no garbage collector, <em>who frees this and when?</em> is a question you
-        answer deliberately. Odin's answer is <strong>allocators as first-class context</strong>: every
-        allocating call takes an implicit <code>context.allocator</code>, so you can swap the memory
-        strategy for a whole region of code without rewriting it.
+        must answer deliberately. Odin's answer is <strong>allocators as first-class context</strong>. Every
+        allocating call (like <code>make</code> or dynamic array appends) implicitly uses the allocator stored in
+        <code>context.allocator</code>. This design lets you swap the memory strategy of a third-party library or an entire section of code dynamically.
+      </p>
+
+      <h3>How an Arena Allocator Works Under the Hood</h3>
+      <p>
+        The single most useful memory strategy for game engines is the <strong>arena allocator</strong> (also known as a <strong>bump allocator</strong>). Instead of making expensive OS requests for every object, an arena allocates a single large contiguous block of memory upfront. 
       </p>
       <p>
-        The single most useful strategy for a game is the <strong>arena</strong> (bump allocator):
-        reserve one big block, hand out slices by bumping a pointer, and free the <em>entire</em> arena
-        in one instruction at the end of the frame. No per-object <code>free</code>, no fragmentation,
-        no leaks — allocation becomes almost free.
+        Internally, it tracks the start of this block and a single <code>bump_ptr</code> (or offset):
       </p>
+      <ol>
+        <li>
+          <strong>Initialization</strong>: We reserve a large buffer (e.g., 4MB) and set the <code>bump_ptr</code> to the beginning of the buffer.
+        </li>
+        <li>
+          <strong>Allocation</strong>: When you request <M>{`N`}</M> bytes of memory with alignment <M>{`A`}</M>, the arena calculates:
+          <ul>
+            <li>The next aligned memory address: <code>aligned_ptr = (bump_ptr + A - 1) & ~(A - 1)</code>.</li>
+            <li>If <code>aligned_ptr + N</code> fits within the buffer, we set <code>bump_ptr = aligned_ptr + N</code> and return <code>aligned_ptr</code>.</li>
+            <li>If it does not fit, it triggers an out-of-memory error (or falls back to a growable backing allocator).</li>
+          </ul>
+        </li>
+        <li>
+          <strong>Resetting</strong>: To free memory, we do <strong>zero per-object cleanup</strong>. We simply reset the <code>bump_ptr</code> back to the start of the buffer. This makes "freeing" millions of objects a single, near-instantaneous instruction: `bump_ptr = 0`.
+        </li>
+      </ol>
+
       <Code
         lang="odin" filename="arena.odin"
         code={`import "core:mem"
@@ -271,7 +347,7 @@ for running {
     // culling lists, string formatting — with zero individual frees.
     build_and_render_frame()
 
-    mem.arena_free_all(&arena)   // reclaim the whole frame at once
+    mem.arena_free_all(&arena)   // reclaim the whole frame at once (resets bump pointer)
 }`}
       />
       <div className="notice">

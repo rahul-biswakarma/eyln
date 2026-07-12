@@ -9,8 +9,7 @@ function Noise() {
     <div className="prose">
       <p>
         A grid of pure math is flat and sterile. Nature has bumps, ridges, and cliffs. You get them
-        from <strong>noise</strong>: functions that look random but are smooth and repeatable —
-        given the same input, always the same output.
+        from <strong>noise</strong>: functions that look random but are smooth and repeatable—given the same coordinate input, they always return the same output.
       </p>
       <p>Three flavors, in increasing quality:</p>
       <ul>
@@ -27,6 +26,33 @@ function Noise() {
           directional artifacts, scales better to higher dimensions.
         </li>
       </ul>
+
+      <h3>Mathematics of Gradient (Perlin) Noise</h3>
+      <p>
+        Unlike Value noise, which simply interpolates random values at grid corners, <strong>Perlin noise</strong> assigns a pseudo-random unit gradient vector <M>{`g_i`}</M> to each grid lattice point. 
+        For any input coordinate <M>{`p`}</M>:
+      </p>
+      <ol>
+        <li>Identify the cell coordinates containing <M>{`p`}</M>, finding the <M>{`2^d`}</M> surrounding integer lattice corners (4 corners in 2D, 8 in 3D).</li>
+        <li>For each corner <M>{`c_i`}</M>, compute the offset vector <M>{`d_i = p - c_i`}</M>.</li>
+        <li>Calculate the dot product of each corner's gradient vector and its corresponding offset vector: <M>{`v_i = g_i \\cdot d_i`}</M>. This product is zero at the corner itself, and rises or falls along the gradient's direction.</li>
+        <li>Interpolate these dot products across the cell using a smoothing function.</li>
+      </ol>
+
+      <h3>Quintic Smoothing and <M>{`C^2`}</M> Continuity</h3>
+      <p>
+        Simple linear interpolation (<M>{`s(t) = t`}</M>) leaves sharp corners at cell boundaries. Originally, Perlin noise used the cubic Hermite curve:
+        <MBlock>{`s(t) = 3t^2 - 2t^3`}</MBlock>
+        While this makes the noise continuous (<M>{`C^0`}</M>) and smooths the first derivative (<M>{`C^1`}</M> continuity), its second derivative (<M>{`s''(t) = 6 - 12t`}</M>) is discontinuous at boundaries. 
+        When this noise is used to generate terrain or normal maps, this discontinuity shows up as faint, ugly creases under diffuse or specular lighting.
+      </p>
+      <p>
+        In 2002, Ken Perlin updated the noise to use a quintic smoothing polynomial:
+        <MBlock>{`s(t) = 6t^5 - 15t^4 + 10t^3`}</MBlock>
+        Because the first and second derivatives of this polynomial are zero at the boundaries (<M>{`t=0`}</M> and <M>{`t=1`}</M>), it guarantees <strong><M>{`C^2`}</M> continuity</strong> (continuous second derivatives). 
+        This prevents visible crease lines and lighting artifacts on procedurally generated surfaces.
+      </p>
+
       <NoiseExplorer />
       <p>
         Switch the type in the widget and watch the heightmap change character. Value noise looks
@@ -145,19 +171,33 @@ function Splines() {
       <p>
         When a player draws a path or a wall, they click a few points and expect a{" "}
         <strong>smooth curve</strong> through them. A <strong>spline</strong> is a piecewise
-        polynomial that does exactly that.
+        polynomial curve.
+      </p>
+
+      <h3>Approximating vs. Interpolating Curves</h3>
+      <p>
+        Splines are grouped into two primary classes:
       </p>
       <ul>
         <li>
-          <strong>Catmull-Rom</strong> passes <em>through</em> every control point, using neighbors
-          to pick a natural tangent. Perfect for "draw a line through my clicks."
+          <strong>Interpolating Splines</strong> (e.g., <strong>Catmull-Rom</strong>): The curve passes <strong>directly through</strong> every control point. This makes them ideal for user-drawn paths where the wall or road must lie exactly where the player clicked.
         </li>
         <li>
-          <strong>Bézier</strong> is pulled <em>toward</em> its inner control points but doesn't
-          pass through them — the model behind pen tools and font outlines.
+          <strong>Approximating Splines</strong> (e.g., <strong>Bézier</strong>): The curve is pulled <strong>toward</strong> the interior control points, acting as attractors, but generally does not touch them (except at the endpoints). This is the model behind vector pen tools and font outlines.
         </li>
       </ul>
-      <p>Catmull-Rom, for the segment between <M>{`p_1`}</M> and <M>{`p_2`}</M>, at <M>{`t \\in [0,1]`}</M>:</p>
+
+      <h3>Catmull-Rom Tangents and Formulas</h3>
+      <p>
+        A Catmull-Rom spline segment between points <M>{`p_1`}</M> and <M>{`p_2`}</M> uses four control points (<M>{`p_0, p_1, p_2, p_3`}</M>). 
+        To make the transition between adjacent segments smooth, we calculate a tangent vector at each control point. 
+        The tangent vector <M>{`m_i`}</M> at control point <M>{`p_i`}</M> is half the vector between its two neighbors:
+      </p>
+      <MBlock>{`m_i = \\frac{p_{i+1} - p_{i-1}}{2}`}</MBlock>
+      <p>
+        This tangent choice ensures that where two segments meet, their slopes match, providing first-derivative (<M>{`C^1`}</M>) continuity. 
+        The resulting polynomial position <M>{`p(t)`}</M> for <M>{`t \\in [0, 1]`}</M> is:
+      </p>
       <MBlock>{`p(t) = \\tfrac12 \\big[ 2p_1 + (p_2 - p_0)t + (2p_0 - 5p_1 + 4p_2 - p_3)t^2 + (-p_0 + 3p_1 - 3p_2 + p_3)t^3 \\big]`}</MBlock>
       <SplineEditor />
       <p>Drag the control points and watch the smooth curve track them.</p>
@@ -195,11 +235,30 @@ function Extrusion() {
   return (
     <div className="prose">
       <p>
-        A spline is just a line — one-dimensional. A wall has <em>width</em> and{" "}
-        <em>height</em>. To turn the spline into a mesh you <strong>extrude</strong> it: at each
-        point along the curve, step left and right along the <strong>normal</strong> (the tangent
-        rotated 90°) to get two edge vertices. Connect consecutive pairs into quads, split each quad
-        into two triangles, and you have a ribbon — a wall footprint.
+        A spline is just a 1D line. A wall or track requires <em>width</em> and <em>height</em>. 
+        To turn a 1D spline into a 3D polygonal mesh, we must <strong>extrude</strong> a 2D profile along the curve.
+      </p>
+
+      <h3>3D Coordinate Frames and Twisting</h3>
+      <p>
+        To extrude a profile in 3D, we need a local coordinate frame (a set of three perpendicular vectors: Tangent <M>{`\\hat{t}`}</M>, Normal <M>{`\\hat{n}`}</M>, and Binormal <M>{`\\hat{b}`}</M>) at every point along the spline. 
+        There are two primary ways to compute this frame:
+      </p>
+      <ul>
+        <li>
+          <strong>Frenet-Serret Frame</strong>: Uses the curve's derivatives. The normal is calculated from the direction of acceleration. 
+          <br />
+          <em>The Trap:</em> If the curve has an inflection point (where it goes from curving left to curving right, i.e., zero acceleration), the normal vector suddenly flips by 180°, causing the extruded wall to twist or pinch violently.
+        </li>
+        <li>
+          <strong>Rotation Minimizing Frame (RMF) / Parallel Transport</strong>: 
+          Instead of computing each frame independently, we start with an initial frame and slide (transport) it along the curve step-by-step, rotating it by the absolute minimum amount needed to align with the changing tangent. 
+          This yields a smooth, twist-free extrusion.
+        </li>
+      </ul>
+      <p>
+        For a flat 2D ground curve, the normal is simply the tangent vector rotated 90°: <M>{`\\hat{n} = (-\\hat{t}_y, \\hat{t}_x)`}</M>. 
+        We then step left and right along this normal to generate vertex pairs for our mesh:
       </p>
       <SplineEditor />
       <p>
