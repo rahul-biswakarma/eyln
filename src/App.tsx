@@ -4,7 +4,6 @@ import { Sidebar } from "./components/Sidebar";
 import { SignInScreen } from "./components/SignInScreen";
 import { useReminderScheduler } from "./lib/reminders";
 import { useAuth } from "./lib/auth";
-import { isFirebaseEnabled } from "./lib/firebase";
 
 export function App() {
   const loc = useLocation();
@@ -13,17 +12,16 @@ export function App() {
   
   useReminderScheduler();
 
-  if (isFirebaseEnabled()) {
-    if (!ready) {
-      return (
-        <div className="signin-screen">
-          <div className="signin-bg" aria-hidden />
-          <div className="auth-loading">Loading…</div>
-        </div>
-      );
-    }
-    if (!user) return <SignInScreen />;
+  // Auth is mandatory: the app never renders content without a signed-in user.
+  if (!ready) {
+    return (
+      <div className="signin-screen">
+        <div className="signin-bg" aria-hidden />
+        <div className="auth-loading">Loading…</div>
+      </div>
+    );
   }
+  if (!user) return <SignInScreen />;
 
   const inLesson = loc.pathname.startsWith("/m/");
   return (
