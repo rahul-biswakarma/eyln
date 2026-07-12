@@ -1,5 +1,6 @@
 import type { Module } from "../../content/types";
 import { Code } from "../../components/CodeBlock";
+import { M, MBlock } from "../../components/Math";
 import { TriangleDemo } from "../../widgets/TriangleDemo";
 import { TransformPipeline3D } from "../../widgets/TransformPipeline3D";
 import { TerrainField } from "../../widgets/TerrainField";
@@ -14,6 +15,23 @@ function Step1() {
         compile shaders, make a vertex buffer, and record a draw call. Everything after this is
         variations on this theme.
       </p>
+
+      <h3>Swap Chains & Double/Triple Buffering</h3>
+      <p>
+        If you render directly to the screen's active buffer, the user will see your objects being drawn shape-by-shape, causing intense flickering. 
+        To solve this, graphics APIs use a <strong>swap chain</strong> containing multiple framebuffers:
+      </p>
+      <ul>
+        <li>
+          <strong>Double Buffering</strong>: Uses two buffers — a <em>Front Buffer</em> (currently displayed on the monitor) and a <em>Back Buffer</em> (where the GPU is drawing the next frame). 
+          Once the GPU finishes, the buffers swap roles during the monitor's Vertical Blanking Interval (VSync). 
+          If the GPU finishes early, it must block and wait for VSync, wasting CPU/GPU time.
+        </li>
+        <li>
+          <strong>Triple Buffering</strong>: Adds a second <em>Back Buffer</em>. The GPU can immediately start drawing the next frame in the third buffer while the first back buffer waits for VSync, eliminating GPU stalls and keeping throughput high.
+        </li>
+      </ul>
+
       <TriangleDemo />
       <p>Locally, in Odin, the skeleton is:</p>
       <Code
@@ -73,6 +91,31 @@ function Step2() {
         <strong>depth buffer</strong> so near faces cover far ones. Then wire up a camera you can
         fly with the mouse and <kbd>WASD</kbd>.
       </p>
+
+      <h3>Look-At View Matrix Derivation</h3>
+      <p>
+        To render a 3D scene, we need a <strong>View Matrix</strong> that transforms world coordinates into camera-local space. 
+        Given camera position <M>{`e`}</M>, camera look target <M>{`g`}</M>, and world up vector <M>{`v_{\\text{up}}`}</M>:
+      </p>
+      <ol>
+        <li>
+          Compute the camera's forward look axis vector <M>{`w`}</M> (pointing in the opposite direction of gaze, since camera Z is negative in right-handed systems):
+          <MBlock>{`w = \\frac{e - g}{\\|e - g\\|}`}</MBlock>
+        </li>
+        <li>
+          Compute the camera's right axis vector <M>{`u`}</M> via the cross product:
+          <MBlock>{`u = \\frac{v_{\\text{up}} \\times w}{\\|v_{\\text{up}} \\times w\\|}`}</MBlock>
+        </li>
+        <li>
+          Compute the camera's up axis vector <M>{`v`}</M> to complete the orthonormal basis:
+          <MBlock>{`v = w \\times u`}</MBlock>
+        </li>
+        <li>
+          The view transform combines rotation <M>{`R`}</M> (mapping the axes to standard coordinates) and translation <M>{`T`}</M> (shifting origin to the camera):
+          <MBlock>{`V = R \\cdot T = \\begin{bmatrix} u_x & u_y & u_z & 0 \\\\ v_x & v_y & v_z & 0 \\\\ w_x & w_y & w_z & 0 \\\\ 0 & 0 & 0 & 1 \\end{bmatrix} \\begin{bmatrix} 1 & 0 & 0 & -e_x \\\\ 0 & 1 & 0 & -e_y \\\\ 0 & 0 & 1 & -e_z \\\\ 0 & 0 & 0 & 1 \\end{bmatrix} = \\begin{bmatrix} u_x & u_y & u_z & -(u \\cdot e) \\\\ v_x & v_y & v_z & -(v \\cdot e) \\\\ w_x & w_y & w_z & -(w \\cdot e) \\\\ 0 & 0 & 0 & 1 \\end{bmatrix}`}</MBlock>
+        </li>
+      </ol>
+
       <TransformPipeline3D />
       <p>
         The camera is just an <code>eye</code> position and a <code>target</code>; a fly-cam updates
@@ -120,6 +163,21 @@ function Step3() {
         from the <code>fbm</code> Perlin noise you built in Procedural Math. Compute a normal per
         vertex (finite differences) so it can be lit, and suddenly you have rolling hills.
       </p>
+
+      <h3>Finite Differences for Heightfield Normals</h3>
+      <p>
+        To shade the terrain, we need normal vectors. Since we sample height from a noise function <M>{`H(x, z)`}</M> instead of a smooth mathematical surface with analytic derivatives, we use the method of <strong>finite differences</strong> to estimate the slopes.
+      </p>
+      <p>
+        At any grid coordinate <M>{`(x, z)`}</M>, we calculate the central difference slopes along the X and Z directions:
+      </p>
+      <MBlock>{`\\frac{\\partial H}{\\partial x} \\approx \\frac{H(x + \\Delta x, z) - H(x - \\Delta x, z)}{2 \\Delta x}`}</MBlock>
+      <MBlock>{`\\frac{\\partial H}{\\partial z} \\approx \\frac{H(x, z + \\Delta z) - H(x, z - \\Delta z)}{2 \\Delta z}`}</MBlock>
+      <p>
+        These partial derivatives represent tangent directions. Taking their cross product gives the perpendicular surface normal vector:
+      </p>
+      <MBlock>{`n = \\text{normalize}\\left( \\begin{bmatrix} -\\frac{\\partial H}{\\partial x} \\\\ 1 \\\\ -\\frac{\\partial H}{\\partial z} \\end{bmatrix} \\right)`}</MBlock>
+
       <TerrainField />
       <p>Drag the sliders — you're re-generating ~15,000 triangles of terrain in real time.</p>
       <Code
@@ -158,6 +216,28 @@ function Step4() {
         it into a wall mesh — the exact pipeline you practiced in Procedural Math, now in 3D and
         placed on your generated landscape.
       </p>
+
+      <h3>CSG Polygon Clipping Math for Wall Junctions</h3>
+      <p>
+        When two extruded walls meet, simple intersecting results in flickering overlapping polygons. 
+        To clean this up, we apply 2D Constructive Solid Geometry (CSG) clipping on the ground plane:
+      </p>
+      <ol>
+        <li>
+          Treat each wall segment as a polygon ribbon bounded by a left line and a right line.
+        </li>
+        <li>
+          For intersecting segments, solve the 2D segment-segment intersection equation. Given two segments from <M>{`A`}</M> to <M>{`B`}</M> and <M>{`C`}</M> to <M>{`D`}</M>, find parameter values <M>{`s`}</M> and <M>{`t`}</M> such that:
+          <MBlock>{`A + s(B - A) = C + t(D - C)`}</MBlock>
+        </li>
+        <li>
+          The intersection point <M>{`P`}</M> is the junction center. We adjust the inner edge vertices of both wall meshes to snap exactly to <M>{`P`}</M>, forming a clean, mitered junction.
+        </li>
+        <li>
+          Any vertex coordinates falling inside the overlapping intersection polygon are pruned from the vertex buffers, preventing double-drawing and rasterizer artifacts.
+        </li>
+      </ol>
+
       <SplineEditor />
       <p>
         Every click adds a control point; the curve re-fits and the wall mesh regenerates instantly.
