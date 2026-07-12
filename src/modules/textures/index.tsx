@@ -1,5 +1,5 @@
 import type { Module } from "../../content/types";
-import { M } from "../../components/Math";
+import { M, MBlock } from "../../components/Math";
 import { Code, CodeTabs } from "../../components/CodeBlock";
 
 function UVs() {
@@ -12,6 +12,30 @@ function UVs() {
         By convention <M>{`(0, 0)`}</M> is one corner and <M>{`(1, 1)`}</M> the opposite. Like normals,
         UVs are interpolated across the triangle by the rasterizer.
       </p>
+
+      <h3>Perspective-Correct Interpolation Math</h3>
+      <p>
+        If you interpolate texture coordinates <M>{`u`}</M> and <M>{`v`}</M> linearly in screen-space, the texture will warp and skew as the triangle tilts relative to the camera. This happens because linear interpolation in screen-space does not account for the perspective projection's depth division.
+      </p>
+      <p>
+        To solve this, the GPU hardware performs <strong>perspective-correct interpolation</strong>:
+      </p>
+      <ol>
+        <li>At each vertex, the attributes are divided by depth <M>{`z`}</M> (or clip-space homogeneous <M>{`w`}</M>), computing:
+          <MBlock>{`\\frac{u}{z}, \\quad \\frac{v}{z}, \\quad \\text{and} \\quad \\frac{1}{z}`}</MBlock>
+        </li>
+        <li>
+          These values are interpolated linearly in screen-space across the triangle's fragments.
+        </li>
+        <li>
+          At each fragment, the GPU reconstructs the true, perspective-correct UV coordinates by dividing the interpolated coordinate values by the interpolated reciprocal depth value:
+          <MBlock>{`u_{\\text{correct}} = \\frac{u/z}{1/z}, \\qquad v_{\\text{correct}} = \\frac{v/z}{1/z}`}</MBlock>
+        </li>
+      </ol>
+      <p>
+        All modern GPUs do this calculation automatically in hardware for all vertex outputs unless explicitly requested otherwise (e.g. using WGSL's <code>@interpolate(linear, center)</code> or MSL's <code>[[flat]]</code> modifier).
+      </p>
+
       <p>
         <strong>Unwrapping</strong> is the art of assigning UVs so a 2D image wraps a 3D mesh without
         ugly stretching or visible seams — think of peeling an orange flat. For procedural meshes (like
@@ -65,6 +89,26 @@ function Samplers() {
           <code>repeat</code> with UVs that exceed 1.
         </li>
       </ul>
+
+      <h3>Bilinear Filtering Mathematics</h3>
+      <p>
+        When you sample a texture of size <M>{`W \\times H`}</M> at coordinate <M>{`(u, v)`}</M>, the GPU computes continuous texel coordinates:
+        <MBlock>{`x = u \\cdot W - 0.5, \\qquad y = v \\cdot H - 0.5`}</MBlock>
+        To perform <strong>bilinear filtering</strong>, the GPU snaps to the four surrounding integer texels:
+        <MBlock>{`T_{00} = (\\lfloor x \\rfloor, \\lfloor y \\rfloor), \\quad T_{10} = (\\lceil x \\rceil, \\lfloor y \\rfloor), \\quad T_{01} = (\\lfloor x \\rfloor, \\lceil y \\rceil), \\quad T_{11} = (\\lceil x \\rceil, \\lceil y \\rceil)`}</MBlock>
+        Using the fractional parts <M>{`s = x - \\lfloor x \\rfloor`}</M> and <M>{`t = y - \\lfloor y \\rfloor`}</M>, the final texel color is calculated as:
+        <MBlock>{`T(s, t) = (1-s)(1-t)T_{00} + s(1-t)T_{10} + (1-s)tT_{01} + stT_{11}`}</MBlock>
+      </p>
+
+      <h3>Anisotropic Filtering</h3>
+      <p>
+        When a textured surface is viewed at an oblique angle (like looking down a long highway), the screen-pixel footprint mapped onto the texture is a stretched trapezoid rather than a square. 
+        Bilinear and trilinear filtering sample a square footprint, which blurs the distant texture along the direction of stretch.
+      </p>
+      <p>
+        <strong>Anisotropic filtering</strong> solves this by taking multiple samples (up to 16×) along the stretched axis of the trapezoidal footprint, retaining sharp details at grazing angles.
+      </p>
+
       <Code
         lang="odin" filename="sampler.odin"
         code={`import MTL "core:sys/darwin/Metal"
@@ -93,10 +137,31 @@ function Mipmaps() {
         When a textured surface recedes into the distance, one screen pixel covers many texels. Sampling
         just one of them makes textures <strong>shimmer and crawl</strong> as the camera moves —
         aliasing. <strong>Mipmaps</strong> fix this: a precomputed chain of half-size copies (level 0
-        full-res, level 1 half, level 2 quarter…). The GPU picks the level whose texel size best matches
-        the on-screen footprint, and <strong>trilinear</strong> filtering blends between two levels for a
-        seamless transition.
+        full-res, level 1 half, level 2 quarter…).
       </p>
+
+      <h3>GPU Mipmap Level Selection Math</h3>
+      <p>
+        To decide which mip level to sample, the GPU estimates the rate of texture coordinate change per screen pixel using <strong>screen-space derivatives</strong>:
+      </p>
+      <ol>
+        <li>
+          GPUs execute fragment shaders in 2×2 pixel grids. The hardware calculates differences in UVs between adjacent pixels in the grid:
+          <MBlock>{`\\frac{\\partial u}{\\partial x}, \\quad \\frac{\\partial v}{\\partial x}, \\quad \\frac{\\partial u}{\\partial y}, \\quad \\frac{\\partial v}{\\partial y}`}</MBlock>
+        </li>
+        <li>
+          The texture footprint scale factor <M>{`\\rho`}</M> is calculated as the maximum rate of UV coordinate change multiplied by the texture dimensions <M>{`W`}</M> and <M>{`H`}</M>:
+          <MBlock>{`\\rho = \\max \\left( \\sqrt{\\left(\\frac{\\partial u}{\\partial x}W\\right)^2 + \\left(\\frac{\\partial v}{\\partial x}H\\right)^2}, \\; \\sqrt{\\left(\\frac{\\partial u}{\\partial y}W\\right)^2 + \\left(\\frac{\\partial v}{\\partial y}H\\right)^2} \\right)`}</MBlock>
+        </li>
+        <li>
+          The mipmap level <M>{`L`}</M> is selected logarithmically:
+          <MBlock>{`L = \\log_2(\\rho)`}</MBlock>
+        </li>
+      </ol>
+      <p>
+        <strong>Trilinear filtering</strong> performs bilinear filtering on both mipmap level <M>{`\\lfloor L \\rfloor`}</M> and level <M>{`\\lfloor L \\rfloor + 1`}</M>, and then linearly blends between those two results based on the fractional part of <M>{`L`}</M>.
+      </p>
+
       <p>
         The whole chain costs only about <M>{`\\tfrac{1}{3}`}</M> extra memory (a geometric series:{" "}
         <M>{`1 + \\tfrac14 + \\tfrac{1}{16} + \\cdots = \\tfrac43`}</M>) and it makes distant texturing
