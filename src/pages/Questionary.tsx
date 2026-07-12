@@ -14,6 +14,7 @@ import type { CodeChallenge } from "../content/types";
 import { Quiz } from "../components/Quiz";
 import { Exercise } from "../components/Exercise";
 import { ModuleIcon } from "../components/ModuleIcon";
+import { TutorPanel } from "../components/TutorPanel";
 import { useProgress } from "../lib/progress";
 
 /* Namespaced key so an exercise's completion is unique across the whole course. */
@@ -209,6 +210,16 @@ export function Questionary() {
           )}
         </>
       )}
+
+      <TutorPanel
+        context={{
+          scope: "chapter review",
+          title: module.title,
+          summary: module.blurb,
+          body: `Chapter review covering: ${lessonsWithWork.map((l) => l.title).join(", ")}.`,
+          sourceId: `${module.id}/questionary`,
+        }}
+      />
     </div>
   );
 }

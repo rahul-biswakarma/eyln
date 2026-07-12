@@ -3,6 +3,7 @@ import { getDb } from "./firebase";
 import { useAuth } from "./auth";
 import { useProgress, type Attempt } from "./progress";
 import { useNotes, type Note, type Reminder, type OpenScore } from "./notes";
+import { useTutor, type TutorTask } from "./tutor";
 
 interface CloudDoc {
   done?: Record<string, boolean>;
@@ -15,6 +16,7 @@ interface CloudDoc {
   bookmarks?: Record<string, number>;
   reminders?: Reminder[];
   openScores?: Record<string, OpenScore>;
+  tutorTasks?: TutorTask[];
   updatedAt?: number;
 }
 
@@ -30,6 +32,7 @@ function ref(uid: string) {
 function snapshot(): CloudDoc {
   const p = useProgress.getState();
   const n = useNotes.getState();
+  const t = useTutor.getState();
   return {
     done: p.done,
     quizScores: p.quizScores,
@@ -41,6 +44,7 @@ function snapshot(): CloudDoc {
     bookmarks: n.bookmarks,
     reminders: n.reminders,
     openScores: n.openScores,
+    tutorTasks: t.tasks,
     updatedAt: Date.now(),
   };
 }
@@ -83,6 +87,7 @@ async function fetchAndHydrate(uid: string) {
         reminders: c.reminders ?? [],
         openScores: c.openScores ?? {},
       });
+      useTutor.setState({ tasks: c.tutorTasks ?? [] });
     }
   } catch {
     /* offline — keep whatever the local cache had */

@@ -8,7 +8,7 @@ import { allLessons, lessonPath, lessonKey, questionaryPath, moduleDifficulty } 
 import { useProgress } from "../lib/progress";
 import { useNotes } from "../lib/notes";
 import { NotePanel } from "./NotePanel";
-import { TutorChat } from "./TutorChat";
+import { TutorPanel } from "./TutorPanel";
 import { ModuleIcon } from "./ModuleIcon";
 
 export function LessonLayout({ data }: { data: LessonRef }) {
@@ -24,6 +24,7 @@ export function LessonLayout({ data }: { data: LessonRef }) {
   const [readPct, setReadPct] = useState(0);
   const [noteOpen, setNoteOpen] = useState(false);
   const [selection, setSelection] = useState<string | undefined>();
+  const [bodyText, setBodyText] = useState("");
 
   const prev = allLessons[index - 1];
   const next = allLessons[index + 1];
@@ -37,6 +38,12 @@ export function LessonLayout({ data }: { data: LessonRef }) {
     (lesson.quiz?.questions.length ?? 0) > 0 || (lesson.exercises?.length ?? 0) > 0;
 
   useEffect(() => { visit(key); }, [key, visit]);
+
+  // Snapshot the rendered lesson prose so the tutor can ground answers in it.
+  useEffect(() => {
+    const text = bodyRef.current?.innerText?.replace(/\s+\n/g, "\n").trim() ?? "";
+    setBodyText(text);
+  }, [key]);
 
   useEffect(() => {
     const root = bodyRef.current;
@@ -136,10 +143,6 @@ export function LessonLayout({ data }: { data: LessonRef }) {
         </div>
       )}
 
-      <div className="prose lesson-section">
-        <TutorChat lessonTitle={lesson.title} lessonSummary={lesson.summary} />
-      </div>
-
       <div className="prose lesson-summary">
         <div className={"ls-card" + (isDone ? " done" : "")}>
           <div className="ls-icon"><CheckCircle size={28} weight={isDone ? "fill" : "duotone"} /></div>
@@ -177,6 +180,16 @@ export function LessonLayout({ data }: { data: LessonRef }) {
           onClose={() => setNoteOpen(false)}
         />
       )}
+
+      <TutorPanel
+        context={{
+          scope: "lesson",
+          title: lesson.title,
+          summary: lesson.summary,
+          body: bodyText,
+          sourceId: key,
+        }}
+      />
     </div>
   );
 }
