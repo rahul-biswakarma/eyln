@@ -17,7 +17,7 @@ export function TutorChat({ lessonTitle, lessonSummary }: { lessonTitle: string;
     return (
       <div className="notice" style={{ marginTop: "2.4rem" }}>
         <span className="lbl">Lesson tutor</span>
-        Set <code>VITE_GEMINI_API_KEY</code> to ask questions about this lesson and get grounded answers.
+        Configure Firebase to ask questions about this lesson and get grounded answers.
       </div>
     );
   }

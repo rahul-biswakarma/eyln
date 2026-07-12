@@ -64,7 +64,7 @@ export function CoachCard() {
 
       {!isLLMEnabled() && (
         <div className="empty-note" style={{ paddingBottom: 0 }}>
-          Set <code>VITE_GEMINI_API_KEY</code> for personalized AI coaching.
+          Configure Firebase to unlock personalized AI coaching.
         </div>
       )}
     </div>
