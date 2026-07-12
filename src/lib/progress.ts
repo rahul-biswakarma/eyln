@@ -6,16 +6,34 @@ function save() {
   void import("./persistence").then((m) => m.saveState());
 }
 
+/** One recorded attempt at an exercise or a single quiz question. */
+export interface Attempt {
+  /** What the learner submitted (typed answer) or picked (choice text). */
+  answer: string;
+  /** Was it correct? */
+  correct: boolean;
+  /** Why — the validation message / explanation shown at the time. */
+  feedback?: string;
+  /** When it happened (epoch ms). */
+  at: number;
+}
+
+/** Keep the most recent N attempts per item so the log can't grow unbounded. */
+const MAX_ATTEMPTS_PER_ITEM = 25;
+
 interface ProgressState {
   done: Record<string, boolean>;
   quizScores: Record<string, number>;
   exercisesDone: Record<string, boolean>;
+  /** Full attempt history keyed by exercise id or `${quizId}#q${index}`. */
+  attempts: Record<string, Attempt[]>;
   lastVisited: Record<string, number>;
   solvedChallenges: Record<string, number>;
   toggleDone: (lessonId: string) => void;
   setDone: (lessonId: string, value: boolean) => void;
   recordQuiz: (quizId: string, score: number) => void;
   recordExercise: (exerciseId: string, passed: boolean) => void;
+  logAttempt: (itemId: string, attempt: Attempt) => void;
   recordChallenge: (challengeId: string) => void;
   visit: (lessonKey: string) => void;
   reset: () => void;
@@ -27,6 +45,7 @@ export const useProgress = create<ProgressState>()(
       done: {},
       quizScores: {},
       exercisesDone: {},
+      attempts: {},
       lastVisited: {},
       solvedChallenges: {},
       toggleDone: (id) => {
@@ -51,6 +70,14 @@ export const useProgress = create<ProgressState>()(
         });
         save();
       },
+      logAttempt: (itemId, attempt) => {
+        set((s) => {
+          const prev = s.attempts[itemId] ?? [];
+          const next = [...prev, attempt].slice(-MAX_ATTEMPTS_PER_ITEM);
+          return { attempts: { ...s.attempts, [itemId]: next } };
+        });
+        save();
+      },
       recordChallenge: (id) => {
         set((s) => ({ solvedChallenges: { ...s.solvedChallenges, [id]: Date.now() } }));
         save();
@@ -60,7 +87,7 @@ export const useProgress = create<ProgressState>()(
         save();
       },
       reset: () => {
-        set({ done: {}, quizScores: {}, exercisesDone: {}, lastVisited: {}, solvedChallenges: {} });
+        set({ done: {}, quizScores: {}, exercisesDone: {}, attempts: {}, lastVisited: {}, solvedChallenges: {} });
         save();
       },
     }),

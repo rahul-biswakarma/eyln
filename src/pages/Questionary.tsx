@@ -327,6 +327,7 @@ function ExerciseFlow({ module, lesson }: { module: Module; lesson: Lesson }) {
         <div className="cr-ex-active" key={active.id}>
           <Exercise
             ex={active}
+            logId={keyOf(active.id)}
             step={cursor}
             total={exercises.length}
             onResult={(passed) => {

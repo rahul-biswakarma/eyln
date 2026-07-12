@@ -18,6 +18,7 @@ export function Quiz({
 }) {
   const total = quiz.questions.length;
   const recordQuiz = useProgress((s) => s.recordQuiz);
+  const logAttempt = useProgress((s) => s.logAttempt);
 
   const [step, setStep] = useState(0);
   const [picked, setPicked] = useState<Record<number, number>>({});
@@ -33,7 +34,15 @@ export function Quiz({
   function choose(oi: number) {
     if (answered) return;
     setPicked((p) => ({ ...p, [step]: oi }));
-    if (oi === q.answer) {
+    const correct = oi === q.answer;
+    // Log the full attempt: what was picked, whether it was right, and why.
+    logAttempt(`${id}#q${step}`, {
+      answer: q.choices?.[oi] ?? String(oi),
+      correct,
+      feedback: q.explain,
+      at: Date.now(),
+    });
+    if (correct) {
       setCorrectCount((c) => c + 1);
     } else {
       setShake(true);

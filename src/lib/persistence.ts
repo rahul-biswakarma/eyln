@@ -1,13 +1,14 @@
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { getDb } from "./firebase";
 import { useAuth } from "./auth";
-import { useProgress } from "./progress";
+import { useProgress, type Attempt } from "./progress";
 import { useNotes, type Note, type Reminder, type OpenScore } from "./notes";
 
 interface CloudDoc {
   done?: Record<string, boolean>;
   quizScores?: Record<string, number>;
   exercisesDone?: Record<string, boolean>;
+  attempts?: Record<string, Attempt[]>;
   lastVisited?: Record<string, number>;
   solvedChallenges?: Record<string, number>;
   notes?: Note[];
@@ -33,6 +34,7 @@ function snapshot(): CloudDoc {
     done: p.done,
     quizScores: p.quizScores,
     exercisesDone: p.exercisesDone,
+    attempts: p.attempts,
     lastVisited: p.lastVisited,
     solvedChallenges: p.solvedChallenges,
     notes: n.notes,
@@ -71,6 +73,7 @@ async function fetchAndHydrate(uid: string) {
         done: c.done ?? {},
         quizScores: c.quizScores ?? {},
         exercisesDone: c.exercisesDone ?? {},
+        attempts: c.attempts ?? {},
         lastVisited: c.lastVisited ?? {},
         solvedChallenges: c.solvedChallenges ?? {},
       });

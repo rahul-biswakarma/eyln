@@ -3,6 +3,7 @@ import { CheckCircle, XCircle, Lightbulb, ArrowRight, CircleNotch } from "@phosp
 import type { Exercise as ExerciseType, ExerciseResult } from "../content/types";
 import { isLLMEnabled, generate, parseJSON } from "../lib/llm";
 import { useNotes } from "../lib/notes";
+import { useProgress } from "../lib/progress";
 import { KnowledgeCard, KnowledgeFooter } from "./KnowledgeCard";
 
 interface GradeJSON {
@@ -17,6 +18,7 @@ export function Exercise({
   onSkip,
   step,
   total,
+  logId,
 }: {
   ex: ExerciseType;
   /** Fired whenever the exercise is graded, with the pass/fail outcome. */
@@ -26,6 +28,8 @@ export function Exercise({
   /** 0-based position within the lesson's exercise set (for progress + eyebrow). */
   step?: number;
   total?: number;
+  /** Stable id under which to log the full attempt history. */
+  logId?: string;
 }) {
   const [value, setValue] = useState(ex.starter ?? "");
   const [result, setResult] = useState<ExerciseResult | null>(null);
@@ -33,10 +37,17 @@ export function Exercise({
   const [grading, setGrading] = useState(false);
   const [focused, setFocused] = useState(false);
   const recordOpenScore = useNotes((s) => s.recordOpenScore);
+  const logAttempt = useProgress((s) => s.logAttempt);
   const inputRef = useRef<HTMLInputElement>(null);
 
   function finish(r: ExerciseResult) {
     setResult(r);
+    logAttempt(logId ?? ex.id, {
+      answer: value,
+      correct: r.pass,
+      feedback: r.feedback ?? r.message,
+      at: Date.now(),
+    });
     onResult?.(r.pass);
   }
 
