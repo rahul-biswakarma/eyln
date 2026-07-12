@@ -1,7 +1,7 @@
 import { getAI, getGenerativeModel, GoogleAIBackend, type AI } from "firebase/ai";
 import { getFirebaseApp, isFirebaseEnabled } from "./firebase";
 
-const MODEL = import.meta.env.VITE_GEMINI_MODEL || "gemini-3-flash";
+const MODEL = import.meta.env.VITE_GEMINI_MODEL || "gemini-2.5-flash";
 
 // Gemini now runs through Firebase AI Logic (Google AI backend): requests are
 // proxied by Firebase and protected by App Check, so there is no API key in the
