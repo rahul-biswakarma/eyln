@@ -1,5 +1,5 @@
 import type { Module } from "../../content/types";
-import { M } from "../../components/Math";
+import { M, MBlock } from "../../components/Math";
 import { Code, CodeTabs } from "../../components/CodeBlock";
 
 function Profiling() {
@@ -22,6 +22,24 @@ function Profiling() {
           heavy fragment shaders, or bandwidth. Fix in shaders / resolution / fill.
         </li>
       </ul>
+
+      <h3>CPU-GPU Synchronization & Stalls</h3>
+      <p>
+        Because the CPU and GPU execute asynchronously, they communicate via a queue. 
+        If your code demands immediate read-back of GPU resources to the CPU (such as calling a blocking function to read pixels from a texture or values from a vertex buffer), the CPU is forced to stop and wait.
+      </p>
+      <p>
+        This creates a <strong>CPU-GPU Stall</strong>:
+      </p>
+      <ol>
+        <li>The CPU halts execution, waiting for the GPU to catch up and complete all previous commands in the queue.</li>
+        <li>While the CPU is stalled, it cannot submit new commands, which causes the GPU to run out of work and go idle.</li>
+        <li>This gap of idle time on the GPU is called a <strong>pipeline bubble</strong>, and it drastically drops frame rates.</li>
+      </ol>
+      <p>
+        To avoid stalls, keep data flowing in one direction (CPU <M>{`\\rightarrow`}</M> GPU). If you must read data back, do it asynchronously with a delay of several frames using a ring buffer.
+      </p>
+
       <Code
         lang="odin" filename="timer.odin"
         code={`import "core:time"
@@ -62,6 +80,26 @@ function Batching() {
           Tiny-Glade-style scene.
         </li>
       </ul>
+
+      <h3>Instanced Memory Layouts: Vertex Buffers vs. SSBO Pulling</h3>
+      <p>
+        There are two main methods to feed per-instance data (like transform matrices) to the vertex shader:
+      </p>
+      <ul>
+        <li>
+          <strong>Vertex Buffer Instancing (Input Assembly)</strong>:
+          You bind a separate buffer containing the model matrices. You configure the vertex input layout to read from this buffer, but set the **step rate** (or step function) to <em>instance</em> instead of <em>vertex</em>. 
+          The GPU's input assembler automatically reads a new matrix for each instance.
+        </li>
+        <li>
+          <strong>Structured Buffer (SSBO) Pulling</strong>:
+          You bind the instance matrices as a contiguous array in a structured storage buffer. 
+          Inside the vertex shader, you read the built-in instance index variable (<code>@builtin(instance_index)</code> in WGSL or <code>[[instance_id]]</code> in MSL) and index into the array manually:
+          <MBlock>{`instances[i].model`}</MBlock>
+          This method is often preferred in modern rendering pipelines because it bypasses rigid vertex input layout limits and works seamlessly with GPU-driven culling pipelines.
+        </li>
+      </ul>
+
       <CodeTabs
         tabs={[
           {
@@ -120,6 +158,31 @@ function Culling() {
           costlier to determine; save it for dense scenes.
         </li>
       </ul>
+
+      <h3>Frustum Plane Culling Mathematics</h3>
+      <p>
+        A view frustum is a truncated pyramid representing the camera's field of view. It is bounded by 6 planes (Left, Right, Bottom, Top, Near, Far).
+      </p>
+      <p>
+        A plane in 3D space can be defined by a unit normal vector <M>{`n`}</M> (pointing inward toward the active frustum volume) and a scalar distance offset <M>{`d`}</M>. 
+        The signed distance from any point <M>{`p`}</M> in space to this plane is:
+      </p>
+      <MBlock>{`\\text{dist} = n \\cdot p + d`}</MBlock>
+      <p>
+        For a bounding sphere centered at <M>{`c`}</M> with radius <M>{`r`}</M>, we check it against each plane <M>{`i`}</M>:
+      </p>
+      <ul>
+        <li>
+          If <M>{`n_i \\cdot c + d_i < -r`}</M> for <strong>any</strong> plane <M>{`i`}</M>, the sphere is completely behind that plane, meaning it is outside the frustum. We cull the object immediately.
+        </li>
+        <li>
+          If <M>{`n_i \\cdot c + d_i > r`}</M> for <strong>all</strong> 6 planes, the sphere is completely inside the frustum (no clipping needed).
+        </li>
+        <li>
+          Otherwise, the sphere intersects the boundary of the frustum.
+        </li>
+      </ul>
+
       <Code
         lang="odin" filename="cull.odin"
         code={`// Sphere-vs-frustum: keep only objects the camera can see.
