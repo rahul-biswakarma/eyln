@@ -11,12 +11,40 @@ function Normals() {
         gives a face normal. For smooth surfaces you store a normal per <em>vertex</em> and let the
         rasterizer interpolate them across the triangle, so a coarse mesh still shades smoothly.
       </p>
-      <div className="notice warn">
-        <span className="lbl">Normals don't transform like positions</span>
-        If you scale a model non-uniformly, transforming normals by the model matrix skews them off the
-        surface. Normals must be transformed by the <strong>inverse-transpose</strong> of the upper-left
-        3×3. For rotation-only transforms the two are equal, which is why the bug hides until you scale.
-      </div>
+
+      <h3>Why Normals Require Inverse-Transpose Transformation</h3>
+      <p>
+        Positions on a surface are transformed by the model matrix <M>{`M`}</M>. However, if you transform normals using <M>{`M`}</M> directly, non-uniform scaling skews the normals, causing them to no longer be perpendicular to the surface.
+      </p>
+      <p>
+        Here is the mathematical proof for why normals must be transformed by the <strong>inverse-transpose</strong> of the upper-left 3×3 matrix of <M>{`M`}</M>:
+      </p>
+      <ol>
+        <li>
+          Let <M>{`t`}</M> be a tangent vector lying on the surface. By definition, the normal vector <M>{`n`}</M> is perpendicular to <M>{`t`}</M>:
+          <MBlock>{`n^T t = 0`}</MBlock>
+        </li>
+        <li>
+          Under a transform matrix <M>{`M`}</M>, the tangent vector transforms directly: <M>{`t' = M \\cdot t`}</M>.
+        </li>
+        <li>
+          We want the transformed normal <M>{`n' = A \\cdot n`}</M> to remain perpendicular to the transformed tangent <M>{`t'`}</M>:
+          <MBlock>{`(n')^T t' = 0`}</MBlock>
+        </li>
+        <li>
+          Substitute the definitions of <M>{`n'`}</M> and <M>{`t'`}</M>:
+          <MBlock>{`(A \\cdot n)^T (M \\cdot t) = 0 \\implies n^T (A^T M) t = 0`}</MBlock>
+        </li>
+        <li>
+          For this equation to hold true for any surface normal and tangent vector, we require:
+          <MBlock>{`A^T M = I \\implies A^T = M^{-1} \\implies A = (M^{-1})^T`}</MBlock>
+        </li>
+      </ol>
+      <p>
+        Thus, the normal matrix <M>{`A`}</M> is the transpose of the inverse of the model matrix. 
+        For rotation-only transforms, the inverse equals the transpose (<M>{`M^{-1} = M^T`}</M>), so <M>{`(M^{-1})^T = M`}</M>, which is why lighting bugs under scaling are often missed until you scale non-uniformly.
+      </p>
+
       <CodeTabs
         tabs={[
           {
@@ -58,12 +86,29 @@ function DiffuseSpecular() {
         highlight). Diffuse is pure Lambert — the clamped dot of the normal and the light direction:
       </p>
       <MBlock>{`I_\\text{diff} = \\max(0,\\; \\hat{n} \\cdot \\hat{l})`}</MBlock>
+
+      <h3>Specular Highlights: Phong vs. Blinn-Phong</h3>
       <p>
-        Specular (Blinn-Phong) uses the <strong>half vector</strong> <M>{`\\hat{h}`}</M> — halfway
-        between the light and the view direction. The tighter you want the highlight, the higher the
-        shininess exponent <M>{`s`}</M>:
+        Specular reflections represent shiny highlights. The two standard formulations are:
       </p>
-      <MBlock>{`I_\\text{spec} = \\max(0,\\; \\hat{n} \\cdot \\hat{h})^{\\,s}, \\quad \\hat{h} = \\frac{\\hat{l} + \\hat{v}}{|\\hat{l} + \\hat{v}|}`}</MBlock>
+      <ul>
+        <li>
+          <strong>Phong Specular</strong>: Reflects the light direction around the normal vector to get a reflection vector <M>{`r = 2(\\hat{n} \\cdot \\hat{l})\\hat{n} - \\hat{l}`}</M>, then measures the alignment of the view vector <M>{`\\hat{v}`}</M> with <M>{`\\hat{r}`}</M>:
+          <MBlock>{`I_{\\text{spec}} = \\max(0,\\; \\hat{v} \\cdot \\hat{r})^s`}</MBlock>
+        </li>
+        <li>
+          <strong>Blinn-Phong Specular</strong>: Uses the <strong>half vector</strong> <M>{`\\hat{h}`}</M>—halfway between the light and the view direction:
+          <MBlock>{`I_{\\text{spec}} = \\max(0,\\; \\hat{n} \\cdot \\hat{h})^s, \\quad \\hat{h} = \\frac{\\hat{l} + \\hat{v}}{\\|\\hat{l} + \\hat{v}\\|}`}</MBlock>
+        </li>
+      </ul>
+      
+      <h3>Physical Interpretation of the Half-Vector</h3>
+      <p>
+        Blinn-Phong models the surface as containing microscopic mirrors (microfacets). 
+        A microfacet reflects light directly into the camera if and only if its microscopic normal vector is oriented parallel to the half-vector <M>{`\\hat{h}`}</M>. 
+        The specular term <M>{`(\\hat{n} \\cdot \\hat{h})^s`}</M> thus represents the statistical density of microfacets that are oriented perfectly to reflect light to the viewer, where shininess exponent <M>{`s`}</M> controls surface smoothness.
+      </p>
+
       <Code
         lang="wgsl" filename="blinn_phong.wgsl"
         code={`@fragment
@@ -99,19 +144,34 @@ function PBRIntro() {
         can reason about: <strong>albedo</strong> (base color), <strong>metalness</strong> (0 =
         dielectric, 1 = metal), and <strong>roughness</strong> (0 = mirror, 1 = fully matte).
       </p>
+
+      <h3>Cook-Torrance Specular BRDF Math</h3>
       <p>
-        The workhorse is the <strong>Cook-Torrance</strong> specular BRDF, a product of three terms — a
-        normal <strong>D</strong>istribution (how microfacets align, driven by roughness), a{" "}
-        <strong>G</strong>eometry term (self-shadowing between microfacets), and <strong>F</strong>resnel
-        (reflectivity rising at grazing angles):
+        The Cook-Torrance BRDF models specular highlights using microfacet theory. It divides the highlight into three physical components:
       </p>
-      <MBlock>{`f_\\text{spec} = \\frac{D \\, F \\, G}{4\\,(\\hat{n}\\cdot\\hat{v})(\\hat{n}\\cdot\\hat{l})}`}</MBlock>
+      <MBlock>{`f_{\\text{spec}} = \\frac{D(h) \\cdot F(v, h) \\cdot G(l, v, h)}{4 \\, (\\hat{n} \\cdot \\hat{v})(\\hat{n} \\cdot \\hat{l})}`}</MBlock>
+      <p>Where the components are defined by these industry-standard equations:</p>
+      <ul>
+        <li>
+          <strong>D (Normal Distribution Function)</strong>: Models the concentration of microfacets pointing in the half-vector direction. Standard PBR uses <strong>Trowbridge-Reitz GGX</strong>:
+          <MBlock>{`D(h) = \\frac{\\alpha^2}{\\pi ((n \\cdot h)^2 (\\alpha^2 - 1) + 1)^2} \\qquad \\text{where } \\alpha = \\text{roughness}^2`}</MBlock>
+        </li>
+        <li>
+          <strong>F (Fresnel Reflectance)</strong>: Calculates the reflection scaling as light hits grazing angles. Standard PBR uses <strong>Schlick's Approximation</strong>:
+          <MBlock>{`F(v, h) = F_0 + (1 - F_0)(1 - (h \\cdot v))^5`}</MBlock>
+          Here, <M>{`F_0`}</M> is the base reflectivity at normal incidence. For dielectrics it is fixed around <M>{`0.04`}</M>; for conductors (metals) it is equal to the albedo color.
+        </li>
+        <li>
+          <strong>G (Geometry Function)</strong>: Models microfacet self-shadowing and masking, where microscopic bumps block incoming light or outgoing reflection. Standard PBR uses Smith's method split into light and view factors.
+        </li>
+      </ul>
+
+      <h3>Energy Conservation and Metalness</h3>
       <p>
-        You don't need to memorize the closed forms yet — the point is the <em>structure</em>: the same
-        dot products you already compute, fed through functions that respect energy conservation, so a
-        surface never reflects more light than it receives. That single constraint is why PBR looks right
-        under any lighting.
+        To prevent surfaces reflecting more light than they receive (violating energy conservation), the sum of diffuse reflection and specular reflection must not exceed 1: <M>{`k_d + k_s \\le 1`}</M>. 
+        Since metals only reflect light specularly, a metalness parameter of 1 sets the diffuse component <M>{`k_d`}</M> to zero and uses the albedo color directly as the specular base reflectivity <M>{`F_0`}</M>.
       </p>
+
       <div className="notice warn">
         <span className="lbl">Work in linear space</span>
         Textures are usually stored gamma-encoded (sRGB). Do all lighting math in <strong>linear</strong>
