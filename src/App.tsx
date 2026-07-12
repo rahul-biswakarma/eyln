@@ -1,6 +1,7 @@
 import { Outlet, useLocation } from "react-router-dom";
 import { TopNav } from "./components/TopNav";
 import { Sidebar } from "./components/Sidebar";
+import { TutorPanel } from "./components/TutorPanel";
 import { SignInScreen } from "./components/SignInScreen";
 import { useReminderScheduler } from "./lib/reminders";
 import { useAuth } from "./lib/auth";
@@ -32,6 +33,7 @@ export function App() {
         <main style={{ flex: 1, minWidth: 0 }}>
           <Outlet />
         </main>
+        {inLesson && <TutorPanel />}
       </div>
     </div>
   );

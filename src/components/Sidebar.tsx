@@ -1,14 +1,17 @@
 import { Link, useLocation, useParams } from "react-router-dom";
-import { CheckCircle, Circle, ListChecks } from "@phosphor-icons/react";
+import { CheckCircle, Circle, ListChecks, CaretDoubleLeft, CaretDoubleRight } from "@phosphor-icons/react";
 import { modulesForTrack, getModule, lessonPath, lessonKey, questionaryPath, moduleHasQuestionary, moduleProgress, trackIdOf } from "../content/registry";
 import { getTrack } from "../content/tracks";
 import { useProgress } from "../lib/progress";
+import { useUI } from "../lib/ui";
 import { ModuleIcon } from "./ModuleIcon";
 
 export function Sidebar() {
   const { moduleId, lessonId } = useParams();
   const loc = useLocation();
   const done = useProgress((s) => s.done);
+  const collapsed = useUI((s) => s.sidebarCollapsed);
+  const toggleSidebar = useUI((s) => s.toggleSidebar);
   const current = moduleId ? getModule(moduleId) : undefined;
   if (!current) return <aside className="sidebar" />;
 
@@ -19,14 +22,29 @@ export function Sidebar() {
   const accent = track?.accent ?? "var(--accent)";
   const firstUndone = current.lessons.find((l) => !done[lessonKey(current.id, l.id)]);
 
+  // Collapsed → slim rail: module icon + expand button.
+  if (collapsed) {
+    return (
+      <aside className="sidebar skill-tree collapsed" style={{ "--track-accent": accent } as React.CSSProperties}>
+        <button className="st-collapse" onClick={toggleSidebar} aria-label="Expand sidebar" title="Expand">
+          <CaretDoubleRight size={16} weight="bold" />
+        </button>
+        <span className="st-ic rail" title={current.title}><ModuleIcon id={current.id} size={18} /></span>
+      </aside>
+    );
+  }
+
   return (
     <aside className="sidebar skill-tree" style={{ "--track-accent": accent } as React.CSSProperties}>
       <div className="st-head">
         <span className="st-ic"><ModuleIcon id={current.id} size={18} /></span>
-        <div>
+        <div className="st-head-txt">
           <div className="st-track">{track?.title}</div>
           <div className="st-module">{current.title}</div>
         </div>
+        <button className="st-collapse" onClick={toggleSidebar} aria-label="Collapse sidebar" title="Collapse">
+          <CaretDoubleLeft size={16} weight="bold" />
+        </button>
       </div>
 
       <div className="st-timeline">

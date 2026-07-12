@@ -553,6 +553,20 @@ a.level-chip:hover { border-color: var(--border-glow); box-shadow: 0 0 0 3px var
 /* ============ Sidebar — vertical skill tree ============ */
 .skill-tree { --track-accent: var(--accent); }
 .st-head { display: flex; align-items: center; gap: 0.7rem; padding: 0.2rem 0.4rem 1.2rem; }
+.st-head-txt { flex: 1; min-width: 0; }
+/* Collapse toggle (both expanded header + collapsed rail) */
+.st-collapse {
+  flex: none; display: grid; place-items: center; width: 28px; height: 28px; cursor: pointer;
+  border-radius: 8px; border: 1px solid var(--border); background: none; color: var(--text-faint);
+  transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+.st-collapse:hover { color: var(--text); border-color: var(--border-bright); }
+/* Collapsed rail */
+.sidebar.collapsed {
+  width: 56px; padding: 1.1rem 0; align-items: center;
+  display: flex; flex-direction: column; gap: 1rem;
+}
+.sidebar.collapsed .st-ic.rail { margin: 0; }
 .st-ic {
   width: 36px; height: 36px; flex: none; display: grid; place-items: center; border-radius: 11px;
   color: var(--track-accent);
@@ -1472,27 +1486,35 @@ table.rosetta td code { background: none; border: none; padding: 0; }
 .fld-lbl { display: block; font-family: var(--mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-faint); margin-bottom: 0.4rem; }
 
 /* ============================================================================
-   AI Tutor — toggleable slide-in side panel + floating trigger
+   AI Tutor — docked right-hand column (not floating). Collapses to a slim rail.
    ========================================================================== */
-.tutor-fab {
-  position: fixed; right: 22px; bottom: 22px; z-index: 60; cursor: pointer;
-  display: inline-flex; align-items: center; gap: 0.5rem;
-  padding: 0.7rem 1.1rem; border: 0; border-radius: var(--radius-pill);
-  font-family: var(--sans); font-weight: 600; font-size: 0.9rem; color: var(--on-accent);
-  background: var(--accent-grad); box-shadow: 0 10px 30px color-mix(in srgb, var(--accent-2) 34%, transparent);
-  transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+/* Collapsed rail — a slim clickable strip docked on the right. */
+.tutor-rail {
+  position: sticky; top: 70px; flex: none; cursor: pointer;
+  width: 46px; height: calc(100vh - 70px);
+  display: flex; flex-direction: column; align-items: center; gap: 0.9rem;
+  padding: 1.1rem 0; border: 0; border-left: 1px solid var(--border);
+  background: var(--surface); color: var(--accent);
+  transition: background var(--dur) var(--ease);
 }
-.tutor-fab:hover { transform: translateY(-2px); }
-.tutor-fab.open { padding: 0.7rem; }
+.tutor-rail:hover { background: var(--surface-2); }
+.tutor-rail-label {
+  writing-mode: vertical-rl; font-family: var(--mono); font-size: 0.68rem;
+  letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-faint);
+}
 
 .tutor-panel {
-  position: fixed; top: 0; right: 0; z-index: 61; height: 100dvh; width: min(420px, 100vw);
+  position: sticky; top: 70px; flex: none;
+  width: 380px; height: calc(100vh - 70px);
   display: flex; flex-direction: column;
   background: var(--surface); border-left: 1px solid var(--border);
-  box-shadow: -30px 0 80px rgba(0, 0, 0, 0.5);
-  transform: translateX(100%); transition: transform 0.34s var(--ease);
+  animation: tp-slide 0.28s var(--ease) both;
 }
-.tutor-panel.open { transform: none; }
+@keyframes tp-slide { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: none; } }
+@media (max-width: 1100px) {
+  .tutor-panel { position: fixed; top: 0; right: 0; height: 100dvh; z-index: 61; box-shadow: -30px 0 80px rgba(0,0,0,0.5); }
+  .tutor-rail { position: fixed; top: 70px; right: 0; z-index: 61; }
+}
 
 .tp-head { display: flex; align-items: center; justify-content: space-between; padding: 1.1rem 1.2rem; border-bottom: 1px solid var(--border); }
 .tp-head-t { display: inline-flex; align-items: center; gap: 0.5rem; font-family: var(--display); font-weight: 600; }

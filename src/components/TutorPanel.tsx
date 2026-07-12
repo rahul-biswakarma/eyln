@@ -5,19 +5,7 @@ import {
 import { isLLMEnabled, chat, generate, parseJSON, type ChatTurn } from "../lib/llm";
 import { buildLearnerContext } from "../lib/learnerContext";
 import { useTutor, type TutorTaskKind } from "../lib/tutor";
-
-export interface TutorContext {
-  /** e.g. "lesson" | "chapter review". */
-  scope: string;
-  /** Human title of the page, e.g. the lesson or module title. */
-  title: string;
-  /** One-line summary of the page. */
-  summary?: string;
-  /** Optional longer body text (lesson prose) for deeper grounding. */
-  body?: string;
-  /** module/lesson id used to tag captured tutor tasks. */
-  sourceId?: string;
-}
+import { useUI } from "../lib/ui";
 
 interface ExtractJSON {
   tasks: { kind: TutorTaskKind; text: string; topic?: string }[];
@@ -32,14 +20,23 @@ const QUICK = [
     prompt: "Given where I am, what should I focus on or learn next, and why? Recommend concrete next steps." },
 ] as const;
 
-export function TutorPanel({ context }: { context: TutorContext }) {
-  const [open, setOpen] = useState(false);
+/** Docked AI tutor. Reads its page context + open state from the UI store, so
+ *  the App shell can render it as a layout column beside the main content. */
+export function TutorPanel() {
+  const context = useUI((s) => s.tutorContext);
+  const open = useUI((s) => s.tutorOpen);
+  const openTutor = useUI((s) => s.openTutor);
+  const closeTutor = useUI((s) => s.closeTutor);
+
   const [history, setHistory] = useState<ChatTurn[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [captured, setCaptured] = useState(0);
   const logRef = useRef<HTMLDivElement>(null);
   const addTasks = useTutor((s) => s.addTasks);
+
+  const sourceId = context?.sourceId;
+  const title = context?.title ?? "";
 
   useEffect(() => {
     if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight;
@@ -49,15 +46,19 @@ export function TutorPanel({ context }: { context: TutorContext }) {
   useEffect(() => {
     setHistory([]);
     setCaptured(0);
-  }, [context.sourceId, context.title]);
+  }, [sourceId, title]);
+
+  // No context (not on a tutor-enabled page) → render nothing.
+  if (!context) return null;
+  const ctx = context; // narrowed, stable within this render for closures below
 
   const enabled = isLLMEnabled();
 
   const system = [
     "You are an expert, encouraging AI tutor embedded in an engineering academy that teaches 3D graphics/engine programming, DSA, and the mathematics beneath them.",
-    `The learner is on the ${context.scope}: "${context.title}".`,
-    context.summary ? `Summary: ${context.summary}` : "",
-    context.body ? `Page content (for grounding):\n${context.body.slice(0, 4000)}` : "",
+    `The learner is on the ${ctx.scope}: "${ctx.title}".`,
+    ctx.summary ? `Summary: ${ctx.summary}` : "",
+    ctx.body ? `Page content (for grounding):\n${ctx.body.slice(0, 4000)}` : "",
     "Here is what we know about the learner's progress:",
     buildLearnerContext(),
     "Answer concretely and briefly, grounded in this page. Use a short code/math snippet only when it truly helps.",
@@ -75,13 +76,13 @@ export function TutorPanel({ context }: { context: TutorContext }) {
         "- next: a recommended next topic/step.",
         "- content-gap: a topic the course should explain better or add.",
         "Only include clear, specific, useful items (0-4 total). Empty array if none. No prose, JSON only.",
-        `Context page: ${context.title}`,
+        `Context page: ${ctx.title}`,
         `Exchange:\n${transcript}`,
       ].join("\n");
       const raw = await generate(prompt, { temperature: 0.2 });
       const parsed = parseJSON<ExtractJSON>(raw);
       if (parsed?.tasks?.length) {
-        addTasks(parsed.tasks.map((t) => ({ ...t, source: context.title })));
+        addTasks(parsed.tasks.map((t) => ({ ...t, source: ctx.title })));
         setCaptured((c) => c + parsed.tasks.length);
       }
     } catch {
@@ -108,26 +109,26 @@ export function TutorPanel({ context }: { context: TutorContext }) {
     }
   }
 
-  return (
-    <>
-      <button
-        className={"tutor-fab" + (open ? " open" : "")}
-        onClick={() => setOpen((o) => !o)}
-        aria-label={open ? "Close tutor" : "Open AI tutor"}
-      >
-        {open ? <X size={20} weight="bold" /> : <Sparkle size={20} weight="fill" />}
-        {!open && <span>Ask the tutor</span>}
+  // Collapsed: a slim vertical rail docked to the right that reopens the panel.
+  if (!open) {
+    return (
+      <button className="tutor-rail" onClick={openTutor} aria-label="Open AI tutor">
+        <Sparkle size={18} weight="fill" />
+        <span className="tutor-rail-label">AI Tutor</span>
       </button>
+    );
+  }
 
-      <aside className={"tutor-panel" + (open ? " open" : "")} aria-hidden={!open}>
-        <header className="tp-head">
-          <div className="tp-head-t">
-            <Sparkle size={16} weight="fill" /> AI Tutor
-          </div>
-          <button className="icon-btn" onClick={() => setOpen(false)} aria-label="Close">
-            <X size={16} weight="bold" />
-          </button>
-        </header>
+  return (
+    <aside className="tutor-panel" aria-label="AI tutor">
+      <header className="tp-head">
+        <div className="tp-head-t">
+          <Sparkle size={16} weight="fill" /> AI Tutor
+        </div>
+        <button className="icon-btn" onClick={closeTutor} aria-label="Collapse tutor">
+          <X size={16} weight="bold" />
+        </button>
+      </header>
 
         <div className="tp-context">
           <span className="tp-context-scope">{context.scope}</span>
@@ -172,7 +173,7 @@ export function TutorPanel({ context }: { context: TutorContext }) {
               <input
                 type="text"
                 value={input}
-                placeholder={`Ask about ${context.title}…`}
+                placeholder={`Ask about ${ctx.title}…`}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter") ask(input); }}
               />
@@ -182,7 +183,6 @@ export function TutorPanel({ context }: { context: TutorContext }) {
             </div>
           </>
         )}
-      </aside>
-    </>
+    </aside>
   );
 }

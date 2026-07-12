@@ -8,8 +8,8 @@ import { allLessons, lessonPath, lessonKey, questionaryPath, moduleDifficulty } 
 import { useProgress } from "../lib/progress";
 import { useNotes } from "../lib/notes";
 import { NotePanel } from "./NotePanel";
-import { TutorPanel } from "./TutorPanel";
 import { ModuleIcon } from "./ModuleIcon";
+import { useUI } from "../lib/ui";
 
 export function LessonLayout({ data }: { data: LessonRef }) {
   const { module, lesson, index } = data;
@@ -44,6 +44,19 @@ export function LessonLayout({ data }: { data: LessonRef }) {
     const text = bodyRef.current?.innerText?.replace(/\s+\n/g, "\n").trim() ?? "";
     setBodyText(text);
   }, [key]);
+
+  // Feed the docked tutor this lesson's context.
+  const setTutorContext = useUI((s) => s.setTutorContext);
+  useEffect(() => {
+    setTutorContext({
+      scope: "lesson",
+      title: lesson.title,
+      summary: lesson.summary,
+      body: bodyText,
+      sourceId: key,
+    });
+  }, [key, lesson.title, lesson.summary, bodyText, setTutorContext]);
+  useEffect(() => () => setTutorContext(null), [setTutorContext]);
 
   useEffect(() => {
     const root = bodyRef.current;
@@ -180,16 +193,6 @@ export function LessonLayout({ data }: { data: LessonRef }) {
           onClose={() => setNoteOpen(false)}
         />
       )}
-
-      <TutorPanel
-        context={{
-          scope: "lesson",
-          title: lesson.title,
-          summary: lesson.summary,
-          body: bodyText,
-          sourceId: key,
-        }}
-      />
     </div>
   );
 }

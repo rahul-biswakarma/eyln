@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
   ArrowLeft, ArrowRight, CheckCircle, Circle, CaretDown, ListChecks,
@@ -14,8 +14,8 @@ import type { CodeChallenge } from "../content/types";
 import { Quiz } from "../components/Quiz";
 import { Exercise } from "../components/Exercise";
 import { ModuleIcon } from "../components/ModuleIcon";
-import { TutorPanel } from "../components/TutorPanel";
 import { useProgress } from "../lib/progress";
+import { useUI } from "../lib/ui";
 
 /* Namespaced key so an exercise's completion is unique across the whole course. */
 const exKey = (moduleId: string, lessonId: string, exId: string) =>
@@ -52,6 +52,20 @@ export function Questionary() {
       ),
     [module]
   );
+
+  // Feed the docked tutor this chapter review's context.
+  const setTutorContext = useUI((s) => s.setTutorContext);
+  useEffect(() => {
+    if (!module) return;
+    setTutorContext({
+      scope: "chapter review",
+      title: module.title,
+      summary: module.blurb,
+      body: `Chapter review covering: ${lessonsWithWork.map((l) => l.title).join(", ")}.`,
+      sourceId: `${module.id}/questionary`,
+    });
+  }, [module, lessonsWithWork, setTutorContext]);
+  useEffect(() => () => setTutorContext(null), [setTutorContext]);
 
   if (!module) {
     return (
@@ -210,16 +224,6 @@ export function Questionary() {
           )}
         </>
       )}
-
-      <TutorPanel
-        context={{
-          scope: "chapter review",
-          title: module.title,
-          summary: module.blurb,
-          body: `Chapter review covering: ${lessonsWithWork.map((l) => l.title).join(", ")}.`,
-          sourceId: `${module.id}/questionary`,
-        }}
-      />
     </div>
   );
 }
