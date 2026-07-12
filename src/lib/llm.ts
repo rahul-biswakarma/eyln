@@ -1,14 +1,27 @@
-const API_KEY: string | undefined = import.meta.env.VITE_GEMINI_API_KEY;
-const MODEL = import.meta.env.VITE_GEMINI_MODEL || "gemini-2.0-flash";
-const BASE = "https://generativelanguage.googleapis.com/v1beta/models";
+import { getAI, getGenerativeModel, GoogleAIBackend, type AI } from "firebase/ai";
+import { getFirebaseApp, isFirebaseEnabled } from "./firebase";
 
+const MODEL = import.meta.env.VITE_GEMINI_MODEL || "gemini-3-flash";
+
+// Gemini now runs through Firebase AI Logic (Google AI backend): requests are
+// proxied by Firebase and protected by App Check, so there is no API key in the
+// browser. AI features are available whenever Firebase itself is configured.
 export function isLLMEnabled(): boolean {
-  return typeof API_KEY === "string" && API_KEY.length > 0;
+  return isFirebaseEnabled();
+}
+
+let aiInstance: AI | null = null;
+
+function getAIClient(): AI {
+  if (!aiInstance) {
+    aiInstance = getAI(getFirebaseApp(), { backend: new GoogleAIBackend() });
+  }
+  return aiInstance;
 }
 
 export interface GenerateOpts {
   system?: string;
-  
+
   temperature?: number;
   signal?: AbortSignal;
 }
@@ -18,35 +31,26 @@ interface GeminiContent {
   parts: { text: string }[];
 }
 
-function buildBody(contents: GeminiContent[], opts: GenerateOpts) {
-  const body: Record<string, unknown> = {
-    contents,
+function getModel(opts: GenerateOpts) {
+  return getGenerativeModel(getAIClient(), {
+    model: MODEL,
     generationConfig: { temperature: opts.temperature ?? 0.4 },
-  };
-  if (opts.system) {
-    body.systemInstruction = { parts: [{ text: opts.system }] };
-  }
-  return body;
+    ...(opts.system ? { systemInstruction: opts.system } : {}),
+  });
+}
+
+async function run(contents: GeminiContent[], opts: GenerateOpts): Promise<string> {
+  if (!isLLMEnabled()) throw new Error("LLM disabled: Firebase is not configured");
+  const model = getModel(opts);
+  const result = await model.generateContent(
+    { contents },
+    opts.signal ? { signal: opts.signal } : undefined,
+  );
+  return result.response.text();
 }
 
 export async function generate(prompt: string, opts: GenerateOpts = {}): Promise<string> {
-  if (!isLLMEnabled()) throw new Error("LLM disabled: set VITE_GEMINI_API_KEY");
-  const contents: GeminiContent[] = [{ role: "user", parts: [{ text: prompt }] }];
-  const res = await fetch(`${BASE}/${MODEL}:generateContent?key=${API_KEY}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(buildBody(contents, opts)),
-    signal: opts.signal,
-  });
-  if (!res.ok) {
-    const detail = await res.text().catch(() => "");
-    throw new Error(`Gemini ${res.status}: ${detail.slice(0, 200)}`);
-  }
-  const json = await res.json();
-  const text: string | undefined = json?.candidates?.[0]?.content?.parts
-    ?.map((p: { text?: string }) => p.text ?? "")
-    .join("");
-  return text ?? "";
+  return run([{ role: "user", parts: [{ text: prompt }] }], opts);
 }
 
 export interface ChatTurn {
@@ -59,26 +63,11 @@ export interface ChatTurn {
  * simplicity — Gemini's flash model is fast enough for short tutoring replies.
  */
 export async function chat(history: ChatTurn[], opts: GenerateOpts = {}): Promise<string> {
-  if (!isLLMEnabled()) throw new Error("LLM disabled: set VITE_GEMINI_API_KEY");
   const contents: GeminiContent[] = history.map((t) => ({
     role: t.role,
     parts: [{ text: t.text }],
   }));
-  const res = await fetch(`${BASE}/${MODEL}:generateContent?key=${API_KEY}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(buildBody(contents, opts)),
-    signal: opts.signal,
-  });
-  if (!res.ok) {
-    const detail = await res.text().catch(() => "");
-    throw new Error(`Gemini ${res.status}: ${detail.slice(0, 200)}`);
-  }
-  const json = await res.json();
-  const text: string | undefined = json?.candidates?.[0]?.content?.parts
-    ?.map((p: { text?: string }) => p.text ?? "")
-    .join("");
-  return text ?? "";
+  return run(contents, opts);
 }
 
 /** Best-effort JSON extraction from a model reply that may be fenced in ```json. */
@@ -88,7 +77,7 @@ export function parseJSON<T>(raw: string): T | null {
   try {
     return JSON.parse(candidate) as T;
   } catch {
-    
+
     const obj = candidate.match(/[[{][\s\S]*[\]}]/);
     if (obj) {
       try {
