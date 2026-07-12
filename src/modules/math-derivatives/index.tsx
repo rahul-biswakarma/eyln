@@ -272,6 +272,63 @@ export const mathDerivatives: Module = {
               ? { pass: true, message: "Correct — f'(4) = 2·4 = 8." }
               : { pass: false, message: "Not quite. Plug x = 4 into f'(x) = 2x." },
         },
+        {
+          id: "derivative-as-limit-p1",
+          kind: "numeric",
+          prompt: "For f(x) = x² with f'(x) = 2x, find the slope of the tangent at x = 3.",
+          starter: "",
+          hint: "Evaluate 2x at x = 3.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 6) < 0.01
+              ? { pass: true, message: "Correct — f'(3) = 2·3 = 6." }
+              : { pass: false, message: "Not quite. Plug x = 3 into f'(x) = 2x." },
+        },
+        {
+          id: "derivative-as-limit-p2",
+          kind: "numeric",
+          prompt: "For the line f(x) = 5x − 2, what is f'(x) (its constant slope)?",
+          starter: "",
+          hint: "The derivative of a line is its slope everywhere.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 5) < 0.01
+              ? { pass: true, message: "Correct — the slope of 5x − 2 is 5." }
+              : { pass: false, message: "Not quite. A line's derivative is its slope m = 5." },
+        },
+        {
+          id: "derivative-as-limit-p3",
+          kind: "numeric",
+          prompt:
+            "For f(x) = x² the difference quotient at x = 2 is (f(2+h) − f(2))/h = 4 + h. What value does it approach as h → 0?",
+          starter: "",
+          hint: "Let h → 0 in 4 + h.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 4) < 0.01
+              ? { pass: true, message: "Correct — 4 + h → 4, matching f'(2) = 2·2 = 4." }
+              : { pass: false, message: "Not quite. As h → 0, 4 + h → 4." },
+        },
+        {
+          id: "derivative-as-limit-p4",
+          kind: "numeric",
+          prompt: "For f(x) = x² with f'(x) = 2x, find the tangent slope at x = −2.",
+          starter: "",
+          hint: "Evaluate 2x at x = −2.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - -4) < 0.01
+              ? { pass: true, message: "Correct — f'(−2) = 2·(−2) = −4." }
+              : { pass: false, message: "Not quite. Plug x = −2 into f'(x) = 2x." },
+        },
+        {
+          id: "derivative-as-limit-p5",
+          kind: "numeric",
+          prompt:
+            "For f(x) = x³ the derivative is f'(x) = 3x². Find the tangent slope at x = 2.",
+          starter: "",
+          hint: "Evaluate 3x² at x = 2.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 12) < 0.01
+              ? { pass: true, message: "Correct — f'(2) = 3·4 = 12." }
+              : { pass: false, message: "Not quite. Plug x = 2 into f'(x) = 3x²." },
+        },
       ],
       quiz: {
         questions: [
@@ -320,6 +377,61 @@ export const mathDerivatives: Module = {
               ? { pass: true, message: "Correct — f'(x) = 6(2x+1)²; at x = 1, 6·9 = 54." }
               : { pass: false, message: "Not quite. f'(x) = 3(2x+1)²·2 = 6(2x+1)²; evaluate at x = 1." },
         },
+        {
+          id: "rules-p1",
+          kind: "numeric",
+          prompt: "For f(x) = x⁴, use the power rule to find f'(2).",
+          starter: "",
+          hint: "f'(x) = 4x³; evaluate at x = 2.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 32) < 0.01
+              ? { pass: true, message: "Correct — f'(x) = 4x³, so f'(2) = 4·8 = 32." }
+              : { pass: false, message: "Not quite. f'(x) = 4x³; plug in x = 2." },
+        },
+        {
+          id: "rules-p2",
+          kind: "numeric",
+          prompt: "For f(x) = 3x² − 2x + 1, compute f'(2).",
+          starter: "",
+          hint: "f'(x) = 6x − 2.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 10) < 0.01
+              ? { pass: true, message: "Correct — f'(x) = 6x − 2, so f'(2) = 12 − 2 = 10." }
+              : { pass: false, message: "Not quite. f'(x) = 6x − 2; evaluate at x = 2." },
+        },
+        {
+          id: "rules-p3",
+          kind: "numeric",
+          prompt: "Using the product rule, let f(x) = x²·(x + 1). Compute f'(1).",
+          starter: "",
+          hint: "f'(x) = 2x(x+1) + x²·1 = 3x² + 2x.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 5) < 0.01
+              ? { pass: true, message: "Correct — f'(x) = 3x² + 2x, so f'(1) = 3 + 2 = 5." }
+              : { pass: false, message: "Not quite. f'(x) = 2x(x+1) + x² = 3x² + 2x; at x = 1 that's 5." },
+        },
+        {
+          id: "rules-p4",
+          kind: "numeric",
+          prompt: "Using the quotient rule, let f(x) = x/(x + 1). Compute f'(1). Round to 2 decimals.",
+          starter: "",
+          hint: "f'(x) = [(1)(x+1) − x(1)]/(x+1)² = 1/(x+1)².",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 0.25) < 0.01
+              ? { pass: true, message: "Correct — f'(x) = 1/(x+1)², so f'(1) = 1/4 = 0.25." }
+              : { pass: false, message: "Not quite. f'(x) = 1/(x+1)²; at x = 1 that's 1/4." },
+        },
+        {
+          id: "rules-p5",
+          kind: "numeric",
+          prompt: "For f(x) = (3x² + 1)⁵, compute f'(0).",
+          starter: "",
+          hint: "Chain rule: f'(x) = 5(3x²+1)⁴·6x; note the factor 6x.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 0) < 0.01
+              ? { pass: true, message: "Correct — f'(x) = 30x(3x²+1)⁴; at x = 0 the 30x factor gives 0." }
+              : { pass: false, message: "Not quite. f'(x) = 5(3x²+1)⁴·6x = 30x(3x²+1)⁴; at x = 0 it's 0." },
+        },
       ],
       quiz: {
         questions: [
@@ -362,6 +474,61 @@ export const mathDerivatives: Module = {
             "Full credit: states eˣ is its own derivative (rate of change equals current value), and gives d/dx e^(3x) = 3e^(3x) via the chain rule (factor of 3 from the inner function). Partial: one of the two.",
           hint: "The inner function is 3x; its derivative is the extra factor.",
         },
+        {
+          id: "trig-exp-log-p1",
+          kind: "numeric",
+          prompt: "For f(x) = sin(x), f'(x) = cos(x). Compute f'(0).",
+          starter: "",
+          hint: "cos(0).",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 1) < 0.01
+              ? { pass: true, message: "Correct — f'(0) = cos(0) = 1." }
+              : { pass: false, message: "Not quite. f'(x) = cos(x), and cos(0) = 1." },
+        },
+        {
+          id: "trig-exp-log-p2",
+          kind: "numeric",
+          prompt: "For f(x) = cos(x), f'(x) = −sin(x). Compute f'(π/2).",
+          starter: "",
+          hint: "−sin(π/2).",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - -1) < 0.01
+              ? { pass: true, message: "Correct — f'(π/2) = −sin(π/2) = −1." }
+              : { pass: false, message: "Not quite. f'(x) = −sin(x), and sin(π/2) = 1, so −1." },
+        },
+        {
+          id: "trig-exp-log-p3",
+          kind: "numeric",
+          prompt: "For f(x) = eˣ, compute f'(0).",
+          starter: "",
+          hint: "eˣ is its own derivative; evaluate e⁰.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 1) < 0.01
+              ? { pass: true, message: "Correct — f'(x) = eˣ, so f'(0) = e⁰ = 1." }
+              : { pass: false, message: "Not quite. f'(x) = eˣ and e⁰ = 1." },
+        },
+        {
+          id: "trig-exp-log-p4",
+          kind: "numeric",
+          prompt: "For f(x) = ln(x), f'(x) = 1/x. Compute f'(4). Round to 2 decimals.",
+          starter: "",
+          hint: "1/4.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 0.25) < 0.01
+              ? { pass: true, message: "Correct — f'(4) = 1/4 = 0.25." }
+              : { pass: false, message: "Not quite. f'(x) = 1/x, so f'(4) = 1/4." },
+        },
+        {
+          id: "trig-exp-log-p5",
+          kind: "numeric",
+          prompt: "For f(x) = e^(2x), use the chain rule to compute f'(0).",
+          starter: "",
+          hint: "f'(x) = 2e^(2x); evaluate at x = 0.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 2) < 0.01
+              ? { pass: true, message: "Correct — f'(x) = 2e^(2x), so f'(0) = 2·1 = 2." }
+              : { pass: false, message: "Not quite. f'(x) = 2e^(2x); at x = 0 that's 2." },
+        },
       ],
       quiz: {
         questions: [
@@ -397,6 +564,61 @@ export const mathDerivatives: Module = {
             Math.abs(parseFloat(s) - 0) < 0.01
               ? { pass: true, message: "Correct — f''(x) = 6x − 12; at x = 2 that's 0 (an inflection point)." }
               : { pass: false, message: "Not quite. Differentiate twice: f''(x) = 6x − 12, then evaluate at x = 2." },
+        },
+        {
+          id: "higher-concavity-p1",
+          kind: "numeric",
+          prompt: "For f(x) = x³, compute f''(1).",
+          starter: "",
+          hint: "f'(x) = 3x², f''(x) = 6x.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 6) < 0.01
+              ? { pass: true, message: "Correct — f''(x) = 6x, so f''(1) = 6." }
+              : { pass: false, message: "Not quite. f''(x) = 6x; evaluate at x = 1." },
+        },
+        {
+          id: "higher-concavity-p2",
+          kind: "numeric",
+          prompt: "For f(x) = x⁴, compute f''(1).",
+          starter: "",
+          hint: "f'(x) = 4x³, f''(x) = 12x².",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 12) < 0.01
+              ? { pass: true, message: "Correct — f''(x) = 12x², so f''(1) = 12." }
+              : { pass: false, message: "Not quite. f''(x) = 12x²; at x = 1 that's 12." },
+        },
+        {
+          id: "higher-concavity-p3",
+          kind: "numeric",
+          prompt: "For f(x) = x³ − 6x², the inflection point is where f''(x) = 0. Find that x.",
+          starter: "",
+          hint: "f''(x) = 6x − 12; set it to zero.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 2) < 0.01
+              ? { pass: true, message: "Correct — 6x − 12 = 0 gives x = 2." }
+              : { pass: false, message: "Not quite. Solve f''(x) = 6x − 12 = 0." },
+        },
+        {
+          id: "higher-concavity-p4",
+          kind: "numeric",
+          prompt: "For f(x) = 2x³ − 3x², compute f''(0).",
+          starter: "",
+          hint: "f'(x) = 6x² − 6x, f''(x) = 12x − 6.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - -6) < 0.01
+              ? { pass: true, message: "Correct — f''(x) = 12x − 6, so f''(0) = −6." }
+              : { pass: false, message: "Not quite. f''(x) = 12x − 6; at x = 0 that's −6." },
+        },
+        {
+          id: "higher-concavity-p5",
+          kind: "numeric",
+          prompt: "For f(x) = x⁵, compute f''(2).",
+          starter: "",
+          hint: "f'(x) = 5x⁴, f''(x) = 20x³.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 160) < 0.01
+              ? { pass: true, message: "Correct — f''(x) = 20x³, so f''(2) = 20·8 = 160." }
+              : { pass: false, message: "Not quite. f''(x) = 20x³; at x = 2 that's 20·8 = 160." },
         },
       ],
       quiz: {
@@ -440,6 +662,64 @@ export const mathDerivatives: Module = {
             Math.abs(parseFloat(s) - 10) < 0.01
               ? { pass: true, message: "Correct — A'(x) = 20 − 2x = 0 gives x = 10 (a 10×10 square)." }
               : { pass: false, message: "Not quite. Differentiate A, set A'(x) = 0: 20 − 2x = 0." },
+        },
+        {
+          id: "optimization-related-rates-p1",
+          kind: "numeric",
+          prompt: "For f(x) = x² − 6x + 5, find the critical point (where f'(x) = 0).",
+          starter: "",
+          hint: "f'(x) = 2x − 6; set to zero.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 3) < 0.01
+              ? { pass: true, message: "Correct — 2x − 6 = 0 gives x = 3." }
+              : { pass: false, message: "Not quite. Solve f'(x) = 2x − 6 = 0." },
+        },
+        {
+          id: "optimization-related-rates-p2",
+          kind: "numeric",
+          prompt:
+            "For f(x) = x² − 6x + 5, find the minimum value of f (the y-value at the critical point).",
+          starter: "",
+          hint: "The critical point is x = 3; evaluate f(3).",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - -4) < 0.01
+              ? { pass: true, message: "Correct — f(3) = 9 − 18 + 5 = −4." }
+              : { pass: false, message: "Not quite. Evaluate f at x = 3: 9 − 18 + 5 = −4." },
+        },
+        {
+          id: "optimization-related-rates-p3",
+          kind: "numeric",
+          prompt:
+            "The rectangle with perimeter 40 and area A(x) = x(20 − x) is maximized at x = 10. Enter its maximum area.",
+          starter: "",
+          hint: "A(10) = 10·(20 − 10).",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 100) < 0.01
+              ? { pass: true, message: "Correct — A(10) = 10·10 = 100." }
+              : { pass: false, message: "Not quite. A(10) = 10·(20 − 10) = 100." },
+        },
+        {
+          id: "optimization-related-rates-p4",
+          kind: "numeric",
+          prompt: "For f(x) = x³ − 3x, find the positive critical point (where f'(x) = 0).",
+          starter: "",
+          hint: "f'(x) = 3x² − 3 = 0 gives x² = 1.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 1) < 0.01
+              ? { pass: true, message: "Correct — 3x² − 3 = 0 gives x = ±1; the positive one is 1." }
+              : { pass: false, message: "Not quite. Solve 3x² − 3 = 0, so x² = 1, positive root x = 1." },
+        },
+        {
+          id: "optimization-related-rates-p5",
+          kind: "numeric",
+          prompt:
+            "A balloon has V = (4/3)πr³, so dV/dt = 4πr²·dr/dt. If r = 2 and dr/dt = 3, find dV/dt. Round to the nearest whole number.",
+          starter: "",
+          hint: "4π·(2²)·3 = 48π.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 150.8) < 0.5
+              ? { pass: true, message: "Correct — 4π·4·3 = 48π ≈ 150.80." }
+              : { pass: false, message: "Not quite. dV/dt = 4π·r²·(dr/dt) = 4π·4·3 = 48π ≈ 150.8." },
         },
       ],
       quiz: {

@@ -189,6 +189,33 @@ export const physics: Module = {
           { q: "A fixed timestep for physics gives you…", choices: ["Higher fps", "Stability and determinism", "Prettier graphics", "Less code"], answer: 1, explain: "Constant-size steps keep the simulation stable and reproducible." },
         ],
       },
+      exercises: [
+        {
+          id: "loop-dt60", kind: "numeric", prompt: "A game runs at 60 fps. Enter dt (seconds per frame), rounded to 4 decimals.",
+          starter: "", hint: "dt = 1 / fps = 1 / 60.",
+          validate: (s) => Math.abs(parseFloat(s) - 0.0167) < 0.001 ? { pass: true, message: "Correct — 1 / 60 ≈ 0.0167 s." } : { pass: false, message: "dt = 1 / fps." },
+        },
+        {
+          id: "loop-dt144", kind: "numeric", prompt: "A monitor refreshes at 144 fps. Enter dt (seconds per frame), rounded to 4 decimals.",
+          starter: "", hint: "dt = 1 / 144.",
+          validate: (s) => Math.abs(parseFloat(s) - 0.0069) < 0.001 ? { pass: true, message: "Correct — 1 / 144 ≈ 0.0069 s." } : { pass: false, message: "dt = 1 / fps." },
+        },
+        {
+          id: "loop-steps", kind: "numeric", prompt: "With FIXED_DT = 1/60 s and an accumulator of 0.055 s, how many fixed physics steps run this frame?",
+          starter: "", hint: "floor(accumulator / FIXED_DT) = floor(0.055 · 60).",
+          validate: (s) => Math.abs(parseFloat(s) - 3) < 0.01 ? { pass: true, message: "Correct — 0.055 · 60 = 3.3, so 3 full steps run." } : { pass: false, message: "Count how many whole FIXED_DT slices fit in the accumulator." },
+        },
+        {
+          id: "loop-steps2", kind: "numeric", prompt: "With FIXED_DT = 0.02 s and an accumulator of 0.1 s, how many fixed physics steps run this frame?",
+          starter: "", hint: "0.1 / 0.02.",
+          validate: (s) => Math.abs(parseFloat(s) - 5) < 0.01 ? { pass: true, message: "Correct — 0.1 / 0.02 = 5 steps." } : { pass: false, message: "Divide the accumulator by FIXED_DT and take the floor." },
+        },
+        {
+          id: "loop-alpha", kind: "numeric", prompt: "After stepping, the accumulator holds 0.008 s and FIXED_DT = 0.016 s. Enter the interpolation alpha = accumulator / FIXED_DT, rounded to 2 decimals.",
+          starter: "", hint: "0.008 / 0.016.",
+          validate: (s) => Math.abs(parseFloat(s) - 0.5) < 0.05 ? { pass: true, message: "Correct — 0.008 / 0.016 = 0.5." } : { pass: false, message: "alpha = leftover accumulator / FIXED_DT." },
+        },
+      ],
     },
     {
       id: "integration", title: "Numerical Integration", minutes: 14,
@@ -200,6 +227,28 @@ export const physics: Module = {
           { q: "Explicit Euler at large dt tends to…", choices: ["Lose energy and stop", "Gain energy and become unstable", "Stay perfect", "Crash the compiler"], answer: 1, explain: "It uses stale velocity, injecting energy — orbits spiral out, bounces grow." },
         ],
       },
+      exercises: [
+        {
+          id: "int-vel", kind: "numeric", prompt: "A body has velocity v = 2 m/s and acceleration a = 10 m/s². After one Euler step with dt = 0.5 s, enter the new velocity v = v + a·dt.",
+          starter: "", hint: "2 + 10·0.5.",
+          validate: (s) => Math.abs(parseFloat(s) - 7) < 0.01 ? { pass: true, message: "Correct — 2 + 5 = 7 m/s." } : { pass: false, message: "v_new = v + a·dt." },
+        },
+        {
+          id: "int-pos-explicit", kind: "numeric", prompt: "Explicit Euler: position x = 0, velocity v = 3 m/s, dt = 0.5 s. Enter the new position x = x + v·dt (using the OLD velocity).",
+          starter: "", hint: "0 + 3·0.5.",
+          validate: (s) => Math.abs(parseFloat(s) - 1.5) < 0.01 ? { pass: true, message: "Correct — 0 + 1.5 = 1.5 m." } : { pass: false, message: "Explicit Euler uses the old velocity: x + v·dt." },
+        },
+        {
+          id: "int-pos-semi", kind: "numeric", prompt: "Semi-implicit Euler: x = 0, v = 2 m/s, a = 10 m/s², dt = 0.5 s. Update velocity first, then position. Enter the new position.",
+          starter: "", hint: "v_new = 2 + 10·0.5 = 7; then x = 0 + v_new·0.5.",
+          validate: (s) => Math.abs(parseFloat(s) - 3.5) < 0.01 ? { pass: true, message: "Correct — v_new = 7, x = 7·0.5 = 3.5 m." } : { pass: false, message: "Update velocity first (v + a·dt), then x = x + v_new·dt." },
+        },
+        {
+          id: "int-freefall", kind: "numeric", prompt: "A ball starts at rest (v = 0) and falls under a = -9.81 m/s². After one step with dt = 1 s, enter the new velocity, rounded to 2 decimals.",
+          starter: "", hint: "0 + (-9.81)·1.",
+          validate: (s) => Math.abs(parseFloat(s) - (-9.81)) < 0.05 ? { pass: true, message: "Correct — v = -9.81 m/s (falling)." } : { pass: false, message: "v_new = v + a·dt = 0 + (-9.81)·1." },
+        },
+      ],
     },
     {
       id: "forces", title: "Forces, Gravity, Damping", minutes: 10,
@@ -210,6 +259,33 @@ export const physics: Module = {
           { q: "For gravity, why don't we usually divide by mass?", choices: ["Mass is always 1", "a = mg/m = g — the mass cancels", "It's a bug", "Gravity has no force"], answer: 1, explain: "Gravitational force is m·g, so acceleration is g regardless of mass." },
         ],
       },
+      exercises: [
+        {
+          id: "force-accel", kind: "numeric", prompt: "A net force of 20 N acts on a body of mass 4 kg. Enter the acceleration a = F/m in m/s².",
+          starter: "", hint: "20 / 4.",
+          validate: (s) => Math.abs(parseFloat(s) - 5) < 0.01 ? { pass: true, message: "Correct — 20 / 4 = 5 m/s²." } : { pass: false, message: "a = F / m." },
+        },
+        {
+          id: "force-net", kind: "numeric", prompt: "A body feels a thrust of 50 N up and gravity of 30 N down. Enter the net force (up positive) in newtons.",
+          starter: "", hint: "50 − 30.",
+          validate: (s) => Math.abs(parseFloat(s) - 20) < 0.01 ? { pass: true, message: "Correct — 50 − 30 = 20 N upward." } : { pass: false, message: "Sum the forces: 50 up minus 30 down." },
+        },
+        {
+          id: "force-weight", kind: "numeric", prompt: "Using g = 9.81 m/s², enter the gravitational force (weight) on a 2 kg mass, in newtons. Round to 2 decimals.",
+          starter: "", hint: "F = m·g = 2·9.81.",
+          validate: (s) => Math.abs(parseFloat(s) - 19.62) < 0.05 ? { pass: true, message: "Correct — 2 · 9.81 = 19.62 N." } : { pass: false, message: "F = m·g." },
+        },
+        {
+          id: "force-damp", kind: "numeric", prompt: "A velocity of 10 m/s is damped by multiplying by 0.98 each step. Enter the velocity after one step.",
+          starter: "", hint: "10 · 0.98.",
+          validate: (s) => Math.abs(parseFloat(s) - 9.8) < 0.01 ? { pass: true, message: "Correct — 10 · 0.98 = 9.8 m/s." } : { pass: false, message: "Multiply the velocity by the damping factor 0.98." },
+        },
+        {
+          id: "force-accel-g", kind: "numeric", prompt: "A 5 kg body feels a gravitational force of 49.05 N. Enter the resulting acceleration a = F/m, rounded to 2 decimals.",
+          starter: "", hint: "49.05 / 5.",
+          validate: (s) => Math.abs(parseFloat(s) - 9.81) < 0.05 ? { pass: true, message: "Correct — 49.05 / 5 = 9.81 m/s², i.e. g regardless of mass." } : { pass: false, message: "a = F / m." },
+        },
+      ],
     },
     {
       id: "collision", title: "Collision Basics", minutes: 13,
@@ -221,6 +297,33 @@ export const physics: Module = {
           { q: "Placing a wall point on terrain by clicking uses a…", choices: ["Sphere test", "Ray–plane / ray–heightfield test", "Dot product only", "Sorting algorithm"], answer: 1, explain: "You cast a ray from the camera through the cursor and find the ground hit." },
         ],
       },
+      exercises: [
+        {
+          id: "col-centerdist", kind: "numeric", prompt: "Two sphere centers are at (0, 0, 0) and (3, 4, 0). Enter the distance between the centers.",
+          starter: "", hint: "√(3² + 4²).",
+          validate: (s) => Math.abs(parseFloat(s) - 5) < 0.01 ? { pass: true, message: "Correct — √25 = 5." } : { pass: false, message: "Distance = √(3² + 4² + 0²)." },
+        },
+        {
+          id: "col-spheres", kind: "numeric", prompt: "Sphere A (center distance 5 apart from B) has radius 2, sphere B has radius 4. Do they overlap? Enter 1 for yes, 0 for no.",
+          starter: "", hint: "They overlap if center distance < sum of radii (2 + 4 = 6).",
+          validate: (s) => Math.abs(parseFloat(s) - 1) < 0.01 ? { pass: true, message: "Correct — 5 < 6, so the spheres overlap." } : { pass: false, message: "Compare distance 5 with the sum of radii 6." },
+        },
+        {
+          id: "col-penetration", kind: "numeric", prompt: "Two spheres with radii 3 and 4 have centers 5 apart. Enter the penetration depth = (r1 + r2) − distance.",
+          starter: "", hint: "(3 + 4) − 5.",
+          validate: (s) => Math.abs(parseFloat(s) - 2) < 0.01 ? { pass: true, message: "Correct — 7 − 5 = 2 units of overlap." } : { pass: false, message: "Penetration = sum of radii minus center distance." },
+        },
+        {
+          id: "col-aabb", kind: "numeric", prompt: "AABB A spans x ∈ [0, 4], AABB B spans x ∈ [3, 7]. On the x-axis, do the intervals overlap? Enter 1 for yes, 0 for no.",
+          starter: "", hint: "Overlap if A.min ≤ B.max and A.max ≥ B.min.",
+          validate: (s) => Math.abs(parseFloat(s) - 1) < 0.01 ? { pass: true, message: "Correct — [0,4] and [3,7] overlap on [3,4]." } : { pass: false, message: "Check 0 ≤ 7 and 4 ≥ 3 — both hold." },
+        },
+        {
+          id: "col-aabb2", kind: "numeric", prompt: "AABB A spans x ∈ [0, 2], AABB B spans x ∈ [5, 9]. Do the x-intervals overlap? Enter 1 for yes, 0 for no.",
+          starter: "", hint: "Is A.max = 2 ≥ B.min = 5?",
+          validate: (s) => Math.abs(parseFloat(s) - 0) < 0.01 ? { pass: true, message: "Correct — 2 < 5, so there is a separating gap: no overlap." } : { pass: false, message: "A.max = 2 is below B.min = 5, so they do not overlap." },
+        },
+      ],
     },
   ],
 };

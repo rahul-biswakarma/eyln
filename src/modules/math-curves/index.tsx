@@ -249,6 +249,50 @@ export const mathCurves: Module = {
               ? { pass: true, message: "Correct — √(sin²t + cos²t) = 1, constant unit speed around the circle." }
               : { pass: false, message: "Use sin²t + cos²t = 1, so the speed is 1." },
         },
+        {
+          id: "param-point",
+          kind: "numeric",
+          prompt: "For r(t) = (3cos t, 3sin t), what is the x-coordinate x(t) at t = π/3? (cos(π/3) = 0.5.)",
+          starter: "",
+          hint: "3·cos(π/3) = 3·0.5.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 1.5) < 0.01
+              ? { pass: true, message: "Correct — 3·0.5 = 1.5." }
+              : { pass: false, message: "x(π/3) = 3·cos(π/3) = 3·0.5 = 1.5." },
+        },
+        {
+          id: "param-tangent",
+          kind: "numeric",
+          prompt: "For r(t) = (t², t³), the tangent is r'(t) = (2t, 3t²). What is the y-component of r'(t) at t = 2?",
+          starter: "",
+          hint: "3·t² with t = 2.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 12) < 0.01
+              ? { pass: true, message: "Correct — 3·2² = 12." }
+              : { pass: false, message: "y'(2) = 3·(2²) = 12." },
+        },
+        {
+          id: "param-speed",
+          kind: "numeric",
+          prompt: "For r(t) = (3t, 4t), the tangent is r'(t) = (3, 4). What is the speed ‖r'(t)‖?",
+          starter: "",
+          hint: "√(3² + 4²).",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 5) < 0.01
+              ? { pass: true, message: "Correct — √(9 + 16) = 5, a constant speed." }
+              : { pass: false, message: "‖(3, 4)‖ = √(9 + 16) = 5." },
+        },
+        {
+          id: "param-line-point",
+          kind: "numeric",
+          prompt: "A line r(t) = (1 + 2t, 3 − t) is sampled at t = 2. What is its x-coordinate?",
+          starter: "",
+          hint: "1 + 2·2.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 5) < 0.01
+              ? { pass: true, message: "Correct — 1 + 4 = 5." }
+              : { pass: false, message: "x(2) = 1 + 2·2 = 5." },
+        },
       ],
     },
     {
@@ -285,6 +329,50 @@ export const mathCurves: Module = {
               ? { pass: true, message: "Correct — ∫₀^{2π} 1 dt = 2π ≈ 6.283, the circumference." }
               : { pass: false, message: "Integrating speed 1 over [0, 2π] gives 2π ≈ 6.283." },
         },
+        {
+          id: "arc-line",
+          kind: "numeric",
+          prompt: "The line r(t) = (3t, 4t) has speed 5. What is its arc length over t ∈ [0, 2]?",
+          starter: "",
+          hint: "Integrate the constant speed 5 from 0 to 2.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 10) < 0.01
+              ? { pass: true, message: "Correct — 5·2 = 10." }
+              : { pass: false, message: "∫₀² 5 dt = 5·2 = 10." },
+        },
+        {
+          id: "arc-radius3",
+          kind: "numeric",
+          prompt: "A circle r(t) = (3cos t, 3sin t) has constant speed 3. What is its arc length over t ∈ [0, 2π]? Round to 2 decimals.",
+          starter: "",
+          hint: "Speed 3 times the interval 2π — the circumference 2πR.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 6 * Math.PI) < 0.05
+              ? { pass: true, message: "Correct — 3·2π = 6π ≈ 18.85, the circumference of radius 3." }
+              : { pass: false, message: "∫₀^{2π} 3 dt = 6π ≈ 18.85." },
+        },
+        {
+          id: "arc-helix",
+          kind: "numeric",
+          prompt: "A helix r(t) = (cos t, sin t, t) has speed √2. What is its arc length over t ∈ [0, 2π]? Round to 2 decimals.",
+          starter: "",
+          hint: "Speed √2 times the interval length 2π.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 2 * Math.PI * Math.SQRT2) < 0.05
+              ? { pass: true, message: "Correct — √2·2π ≈ 8.89." }
+              : { pass: false, message: "∫₀^{2π} √2 dt = 2π√2 ≈ 8.89." },
+        },
+        {
+          id: "arc-segment",
+          kind: "numeric",
+          prompt: "A curve travels at constant speed 4. What is its arc length over the parameter interval t ∈ [1, 3.5]?",
+          starter: "",
+          hint: "Speed 4 times the interval width 3.5 − 1.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 10) < 0.01
+              ? { pass: true, message: "Correct — 4·2.5 = 10." }
+              : { pass: false, message: "4·(3.5 − 1) = 4·2.5 = 10." },
+        },
       ],
     },
     {
@@ -320,6 +408,50 @@ export const mathCurves: Module = {
             Math.abs(parseFloat(s) - 0.25) < 0.01
               ? { pass: true, message: "Correct — κ = 1/4 = 0.25. A bigger circle curves more gently." }
               : { pass: false, message: "For a circle, κ = 1/R = 1/4 = 0.25." },
+        },
+        {
+          id: "curv-circle2",
+          kind: "numeric",
+          prompt: "What is the curvature κ of a circle of radius 2?",
+          starter: "",
+          hint: "κ = 1/R with R = 2.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 0.5) < 0.01
+              ? { pass: true, message: "Correct — κ = 1/2 = 0.5." }
+              : { pass: false, message: "κ = 1/R = 1/2 = 0.5." },
+        },
+        {
+          id: "curv-circle5",
+          kind: "numeric",
+          prompt: "What is the curvature κ of a circle of radius 5?",
+          starter: "",
+          hint: "κ = 1/R with R = 5.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 0.2) < 0.01
+              ? { pass: true, message: "Correct — κ = 1/5 = 0.2." }
+              : { pass: false, message: "κ = 1/R = 1/5 = 0.2." },
+        },
+        {
+          id: "curv-radius",
+          kind: "numeric",
+          prompt: "A curve has curvature κ = 0.25 at a point. What is the radius of the osculating circle, R = 1/κ?",
+          starter: "",
+          hint: "R = 1/0.25.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 4) < 0.01
+              ? { pass: true, message: "Correct — R = 1/0.25 = 4." }
+              : { pass: false, message: "R = 1/κ = 1/0.25 = 4." },
+        },
+        {
+          id: "curv-parabola",
+          kind: "numeric",
+          prompt: "For the parabola (t, t²), the curvature is κ = |x'y'' − y'x''| / (x'² + y'²)^{3/2} = 2 / (1 + 4t²)^{3/2}. Evaluate κ at the vertex t = 0.",
+          starter: "",
+          hint: "At t = 0 the denominator is 1, so κ = 2.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 2) < 0.01
+              ? { pass: true, message: "Correct — 2 / 1^{3/2} = 2, the tightest bend at the vertex." }
+              : { pass: false, message: "At t = 0: 2 / (1 + 0)^{3/2} = 2." },
         },
       ],
     },
@@ -363,6 +495,50 @@ export const mathCurves: Module = {
               ? { pass: true, message: "Correct — 0.375·2 + 0.375·2 = 1.5. The curve peaks below the interior points." }
               : { pass: false, message: "Only P₁ and P₂ are nonzero: 0.375·2 + 0.375·2 = 1.5." },
         },
+        {
+          id: "bezier-quad",
+          kind: "numeric",
+          prompt: "A quadratic Bézier (1-D) has P₀=1, P₁=4, P₂=3. Evaluate B(t) = (1−t)²P₀ + 2(1−t)t·P₁ + t²P₂ at t = 0.5.",
+          starter: "",
+          hint: "0.25·1 + 0.5·4 + 0.25·3.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 3) < 0.01
+              ? { pass: true, message: "Correct — 0.25 + 2 + 0.75 = 3." }
+              : { pass: false, message: "0.25·1 + 0.5·4 + 0.25·3 = 3." },
+        },
+        {
+          id: "bezier-endpoint",
+          kind: "numeric",
+          prompt: "A cubic Bézier has control points P₀=2, P₁=5, P₂=9, P₃=7 (1-D). What value does the curve take at t = 0?",
+          starter: "",
+          hint: "A Bézier starts exactly at P₀.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 2) < 0.01
+              ? { pass: true, message: "Correct — B(0) = P₀ = 2; the curve interpolates its endpoints." }
+              : { pass: false, message: "At t = 0 the curve equals P₀ = 2." },
+        },
+        {
+          id: "bezier-decasteljau",
+          kind: "numeric",
+          prompt: "Use de Casteljau on the quadratic (1-D) P₀=0, P₁=4, P₂=0 at t = 0.5: lerp to get 2 and 2, then lerp those. What is the resulting point?",
+          starter: "",
+          hint: "First level: (0+4)/2 = 2 and (4+0)/2 = 2. Then (2+2)/2.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 2) < 0.01
+              ? { pass: true, message: "Correct — the final lerp of 2 and 2 gives 2." }
+              : { pass: false, message: "Both first-level lerps are 2, so the midpoint is 2." },
+        },
+        {
+          id: "bezier-cubic-mid",
+          kind: "numeric",
+          prompt: "A cubic Bézier (1-D) has P₀=0, P₁=6, P₂=6, P₃=0. Evaluate at t=0.5 with B(0.5)=0.125·P₀+0.375·P₁+0.375·P₂+0.125·P₃.",
+          starter: "",
+          hint: "0.375·6 + 0.375·6.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 4.5) < 0.01
+              ? { pass: true, message: "Correct — 2.25 + 2.25 = 4.5, below the interior points." }
+              : { pass: false, message: "0.375·6 + 0.375·6 = 4.5." },
+        },
       ],
     },
     {
@@ -396,6 +572,50 @@ export const mathCurves: Module = {
           rubric:
             "Full credit for choosing Catmull–Rom (or an equivalent interpolating spline), justifying it because it passes through the control points, and noting it gives C¹ continuity (tangents match, no kinks). Bonus for mentioning overshoot risk on sharp turns or the centripetal variant. Partial credit for a reasonable choice without the continuity reasoning.",
           hint: "Do you need the curve to pass through the points, or just be influenced by them?",
+        },
+        {
+          id: "cr-tangent",
+          kind: "numeric",
+          prompt: "For a Catmull–Rom spline, the tangent at Pᵢ is Tᵢ = (Pᵢ₊₁ − Pᵢ₋₁)/2. With Pᵢ₋₁ = 1 and Pᵢ₊₁ = 7 (1-D), what is Tᵢ?",
+          starter: "",
+          hint: "(7 − 1)/2.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 3) < 0.01
+              ? { pass: true, message: "Correct — (7 − 1)/2 = 3." }
+              : { pass: false, message: "Tᵢ = (Pᵢ₊₁ − Pᵢ₋₁)/2 = (7 − 1)/2 = 3." },
+        },
+        {
+          id: "cr-tangent2",
+          kind: "numeric",
+          prompt: "Compute the Catmull–Rom tangent Tᵢ = (Pᵢ₊₁ − Pᵢ₋₁)/2 with Pᵢ₋₁ = 2 and Pᵢ₊₁ = 10 (1-D).",
+          starter: "",
+          hint: "(10 − 2)/2.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 4) < 0.01
+              ? { pass: true, message: "Correct — (10 − 2)/2 = 4." }
+              : { pass: false, message: "Tᵢ = (10 − 2)/2 = 4." },
+        },
+        {
+          id: "cr-startpoint",
+          kind: "numeric",
+          prompt: "A Catmull–Rom segment interpolates from P₁ to P₂. With control points P₀=0, P₁=2, P₂=6, P₃=8 (1-D), what value does the segment take at its start, t = 0?",
+          starter: "",
+          hint: "An interpolating spline passes through P₁ at t = 0.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 2) < 0.01
+              ? { pass: true, message: "Correct — the segment starts exactly at P₁ = 2." }
+              : { pass: false, message: "At t = 0 the segment equals P₁ = 2." },
+        },
+        {
+          id: "cr-midpoint",
+          kind: "numeric",
+          prompt: "For a Catmull–Rom segment with P₀=0, P₁=2, P₂=6, P₃=8 (1-D), the value at t=0.5 is q = 0.5·(2P₁ + (P₂−P₀)t + (2P₀−5P₁+4P₂−P₃)t² + (−P₀+3P₁−3P₂+P₃)t³). Evaluate at t = 0.5.",
+          starter: "",
+          hint: "By symmetry the midpoint of this evenly-spaced set lands at 4.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 4) < 0.01
+              ? { pass: true, message: "Correct — the segment midpoint is 4, halfway between P₁ and P₂ here." }
+              : { pass: false, message: "Plugging t = 0.5 into the Catmull–Rom formula gives 4." },
         },
       ],
     },

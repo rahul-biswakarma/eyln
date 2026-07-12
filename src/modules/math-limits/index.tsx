@@ -270,6 +270,61 @@ export const mathLimits: Module = {
               ? { pass: true, message: "Correct — (x−2)(x+2)/(x−2) = x+2 → 4." }
               : { pass: false, message: "Not quite. Factor x²−4 = (x−2)(x+2) and cancel." },
         },
+        {
+          id: "idea-of-a-limit-p1",
+          kind: "numeric",
+          prompt: "Evaluate lim(x→3) (2x + 1) by substitution.",
+          starter: "",
+          hint: "This is a polynomial — just plug in x = 3.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 7) < 0.01
+              ? { pass: true, message: "Correct — 2·3 + 1 = 7." }
+              : { pass: false, message: "Not quite. A polynomial is continuous, so substitute x = 3." },
+        },
+        {
+          id: "idea-of-a-limit-p2",
+          kind: "numeric",
+          prompt: "Evaluate lim(x→0) (x² + 5).",
+          starter: "",
+          hint: "Substitute x = 0.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 5) < 0.01
+              ? { pass: true, message: "Correct — 0 + 5 = 5." }
+              : { pass: false, message: "Not quite. Plug x = 0 into x² + 5." },
+        },
+        {
+          id: "idea-of-a-limit-p3",
+          kind: "numeric",
+          prompt: "Evaluate lim(x→1) (x² − 1)/(x − 1).",
+          starter: "",
+          hint: "Factor the numerator (x−1)(x+1) and cancel.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 2) < 0.01
+              ? { pass: true, message: "Correct — cancels to x + 1 → 2." }
+              : { pass: false, message: "Not quite. (x−1)(x+1)/(x−1) = x + 1, then let x → 1." },
+        },
+        {
+          id: "idea-of-a-limit-p4",
+          kind: "numeric",
+          prompt: "Evaluate lim(x→3) (x² − 9)/(x − 3).",
+          starter: "",
+          hint: "Factor x² − 9 = (x − 3)(x + 3).",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 6) < 0.01
+              ? { pass: true, message: "Correct — cancels to x + 3 → 6." }
+              : { pass: false, message: "Not quite. (x−3)(x+3)/(x−3) = x + 3, then let x → 3." },
+        },
+        {
+          id: "idea-of-a-limit-p5",
+          kind: "numeric",
+          prompt: "Evaluate lim(x→2) (x³ − 8)/(x − 2). (Hint: x³ − 8 = (x − 2)(x² + 2x + 4).)",
+          starter: "",
+          hint: "Cancel (x − 2), then substitute x = 2 into x² + 2x + 4.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 12) < 0.01
+              ? { pass: true, message: "Correct — x² + 2x + 4 at x = 2 is 4 + 4 + 4 = 12." }
+              : { pass: false, message: "Not quite. After cancelling, evaluate x² + 2x + 4 at x = 2." },
+        },
       ],
       quiz: {
         questions: [
@@ -313,6 +368,61 @@ export const mathLimits: Module = {
               ? { pass: true, message: "Correct — rationalizing leaves 1/(√(x+1)+1) → 1/2." }
               : { pass: false, message: "Not quite. Multiply by the conjugate to clear the root." },
         },
+        {
+          id: "computing-limits-p1",
+          kind: "numeric",
+          prompt: "Evaluate lim(x→4) (x² − 16)/(x − 4).",
+          starter: "",
+          hint: "Factor x² − 16 = (x − 4)(x + 4).",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 8) < 0.01
+              ? { pass: true, message: "Correct — cancels to x + 4 → 8." }
+              : { pass: false, message: "Not quite. (x−4)(x+4)/(x−4) = x + 4, then let x → 4." },
+        },
+        {
+          id: "computing-limits-p2",
+          kind: "numeric",
+          prompt: "Evaluate lim(x→2) (x² − 4)/(x² − x − 2).",
+          starter: "",
+          hint: "Factor both: (x−2)(x+2) over (x−2)(x+1).",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 1.3333) < 0.01
+              ? { pass: true, message: "Correct — cancels to (x+2)/(x+1) → 4/3 ≈ 1.33." }
+              : { pass: false, message: "Not quite. Cancel (x−2): left with (x+2)/(x+1) = 4/3." },
+        },
+        {
+          id: "computing-limits-p3",
+          kind: "numeric",
+          prompt: "Evaluate lim(x→5) (x − 5)/(x² − 25).",
+          starter: "",
+          hint: "Factor x² − 25 = (x − 5)(x + 5).",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 0.1) < 0.01
+              ? { pass: true, message: "Correct — cancels to 1/(x+5) → 1/10 = 0.1." }
+              : { pass: false, message: "Not quite. (x−5)/((x−5)(x+5)) = 1/(x+5) → 1/10." },
+        },
+        {
+          id: "computing-limits-p4",
+          kind: "numeric",
+          prompt: "Evaluate lim(x→0) (√(x+4) − 2)/x.",
+          starter: "",
+          hint: "Multiply by the conjugate √(x+4) + 2.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 0.25) < 0.01
+              ? { pass: true, message: "Correct — rationalizing leaves 1/(√(x+4)+2) → 1/4 = 0.25." }
+              : { pass: false, message: "Not quite. Conjugate gives 1/(√(x+4)+2) → 1/4." },
+        },
+        {
+          id: "computing-limits-p5",
+          kind: "numeric",
+          prompt: "Evaluate lim(x→3) (x² − 2x − 3)/(x − 3).",
+          starter: "",
+          hint: "Factor the numerator: (x − 3)(x + 1).",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 4) < 0.01
+              ? { pass: true, message: "Correct — cancels to x + 1 → 4." }
+              : { pass: false, message: "Not quite. (x−3)(x+1)/(x−3) = x + 1, then let x → 3." },
+        },
       ],
       quiz: {
         questions: [
@@ -355,6 +465,63 @@ export const mathLimits: Module = {
             Math.abs(parseFloat(s) - 0.4) < 0.01
               ? { pass: true, message: "Correct — leading coefficients 2/5 = 0.4." }
               : { pass: false, message: "Not quite. Divide through by x²; only leading terms survive: 2/5." },
+        },
+        {
+          id: "one-sided-infinity-p1",
+          kind: "numeric",
+          prompt: "Evaluate lim(x→∞) (3x + 2)/(x + 5). Enter a decimal.",
+          starter: "",
+          hint: "Equal degrees: ratio of leading coefficients 3/1.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 3) < 0.01
+              ? { pass: true, message: "Correct — leading coefficients 3/1 = 3." }
+              : { pass: false, message: "Not quite. Divide by x; only leading terms survive: 3/1 = 3." },
+        },
+        {
+          id: "one-sided-infinity-p2",
+          kind: "numeric",
+          prompt: "Evaluate lim(x→∞) (4x + 1)/(x² + 3).",
+          starter: "",
+          hint: "Denominator has higher degree.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 0) < 0.01
+              ? { pass: true, message: "Correct — the denominator wins, so the limit is 0." }
+              : { pass: false, message: "Not quite. Higher-degree denominator drives the ratio to 0." },
+        },
+        {
+          id: "one-sided-infinity-p3",
+          kind: "numeric",
+          prompt: "Evaluate lim(x→∞) (6x³ − x)/(2x³ + 5). Enter a decimal.",
+          starter: "",
+          hint: "Equal degrees: ratio of leading coefficients 6/2.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 3) < 0.01
+              ? { pass: true, message: "Correct — 6/2 = 3." }
+              : { pass: false, message: "Not quite. Equal degrees give 6/2 = 3." },
+        },
+        {
+          id: "one-sided-infinity-p4",
+          kind: "numeric",
+          prompt:
+            "For f(x) = |x|/x, evaluate the right-hand limit lim(x→0⁺) f(x).",
+          starter: "",
+          hint: "For x > 0, |x| = x, so |x|/x = 1.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 1) < 0.01
+              ? { pass: true, message: "Correct — for x > 0, |x|/x = 1." }
+              : { pass: false, message: "Not quite. Approaching from the right, x > 0 so |x|/x = 1." },
+        },
+        {
+          id: "one-sided-infinity-p5",
+          kind: "numeric",
+          prompt:
+            "For f(x) = |x|/x, evaluate the left-hand limit lim(x→0⁻) f(x).",
+          starter: "",
+          hint: "For x < 0, |x| = −x, so |x|/x = −1.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - -1) < 0.01
+              ? { pass: true, message: "Correct — for x < 0, |x|/x = −1." }
+              : { pass: false, message: "Not quite. Approaching from the left, x < 0 so |x|/x = −1." },
         },
       ],
       quiz: {
@@ -403,6 +570,66 @@ export const mathLimits: Module = {
             "Full credit: identifies it as a removable discontinuity (a hole) because the limit exists (= 2) but f(1) is undefined; repaired by defining f(1) = 2. Partial: names 'removable' OR gives the repair value 2 but not both, or omits that the limit exists.",
           hint: "Does the limit exist even though the point is missing?",
         },
+        {
+          id: "continuity-p1",
+          kind: "numeric",
+          prompt:
+            "f(x) = (x² − 1)/(x − 1) has a removable hole at x = 1. Enter the value that would fill the hole to make f continuous.",
+          starter: "",
+          hint: "It's the limit as x → 1; the expression simplifies to x + 1.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 2) < 0.01
+              ? { pass: true, message: "Correct — the limit is x + 1 → 2, so define f(1) = 2." }
+              : { pass: false, message: "Not quite. Simplify to x + 1 and evaluate at x = 1." },
+        },
+        {
+          id: "continuity-p2",
+          kind: "numeric",
+          prompt:
+            "The piecewise f(x) = 3x + 1 for x ≤ 2 and f(x) = x² + c for x > 2 is continuous at x = 2. Find c.",
+          starter: "",
+          hint: "Match the two pieces at x = 2: 3(2) + 1 = 2² + c.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 3) < 0.01
+              ? { pass: true, message: "Correct — 7 = 4 + c gives c = 3." }
+              : { pass: false, message: "Not quite. Set 3·2 + 1 = 2² + c, so 7 = 4 + c." },
+        },
+        {
+          id: "continuity-p3",
+          kind: "numeric",
+          prompt:
+            "For f(x) = (x² − 9)/(x − 3), enter the value f(3) should be assigned to remove the discontinuity.",
+          starter: "",
+          hint: "Simplify to x + 3 and evaluate at x = 3.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 6) < 0.01
+              ? { pass: true, message: "Correct — the limit is x + 3 → 6, so f(3) = 6." }
+              : { pass: false, message: "Not quite. Simplify to x + 3 and let x → 3." },
+        },
+        {
+          id: "continuity-p4",
+          kind: "numeric",
+          prompt:
+            "The piecewise f(x) = x² for x < 1 and f(x) = ax for x ≥ 1 is continuous at x = 1. Find a.",
+          starter: "",
+          hint: "Match the pieces at x = 1: 1² = a·1.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 1) < 0.01
+              ? { pass: true, message: "Correct — 1 = a, so a = 1." }
+              : { pass: false, message: "Not quite. Set 1² = a·1, giving a = 1." },
+        },
+        {
+          id: "continuity-p5",
+          kind: "numeric",
+          prompt:
+            "g(x) = (x² + x − 6)/(x − 2) has a removable hole at x = 2. Enter the value that fills it.",
+          starter: "",
+          hint: "Factor the numerator (x − 2)(x + 3) and cancel.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 5) < 0.01
+              ? { pass: true, message: "Correct — simplifies to x + 3 → 5." }
+              : { pass: false, message: "Not quite. (x−2)(x+3)/(x−2) = x + 3, then let x → 2." },
+        },
       ],
       quiz: {
         questions: [
@@ -450,6 +677,61 @@ export const mathLimits: Module = {
             Math.abs(parseFloat(s) - 3) < 0.01
               ? { pass: true, message: "Correct — sin(3x)/x = 3·sin(3x)/(3x) → 3·1 = 3." }
               : { pass: false, message: "Not quite. Factor to 3·sin(3x)/(3x); the ratio tends to 1." },
+        },
+        {
+          id: "squeeze-theorem-p1",
+          kind: "numeric",
+          prompt: "Evaluate lim(x→0) sin(x)/x.",
+          starter: "",
+          hint: "The fundamental squeeze result.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 1) < 0.01
+              ? { pass: true, message: "Correct — lim(x→0) sin(x)/x = 1." }
+              : { pass: false, message: "Not quite. This is the anchor squeeze limit; it equals 1." },
+        },
+        {
+          id: "squeeze-theorem-p2",
+          kind: "numeric",
+          prompt: "Evaluate lim(x→0) sin(5x)/x.",
+          starter: "",
+          hint: "Write as 5·sin(5x)/(5x); the inner ratio → 1.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 5) < 0.01
+              ? { pass: true, message: "Correct — 5·sin(5x)/(5x) → 5·1 = 5." }
+              : { pass: false, message: "Not quite. Factor to 5·sin(5x)/(5x), ratio → 1, so 5." },
+        },
+        {
+          id: "squeeze-theorem-p3",
+          kind: "numeric",
+          prompt: "Evaluate lim(x→0) sin(2x)/sin(x). (Hint: sin(2x)/x → 2 and sin(x)/x → 1.)",
+          starter: "",
+          hint: "Divide top and bottom by x: (sin(2x)/x)/(sin(x)/x) → 2/1.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 2) < 0.01
+              ? { pass: true, message: "Correct — (sin(2x)/x)/(sin(x)/x) → 2/1 = 2." }
+              : { pass: false, message: "Not quite. Divide by x: 2/1 = 2." },
+        },
+        {
+          id: "squeeze-theorem-p4",
+          kind: "numeric",
+          prompt: "Evaluate lim(x→0) x² sin(1/x).",
+          starter: "",
+          hint: "sin(1/x) is bounded in [−1, 1] and x² → 0; squeeze it.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 0) < 0.01
+              ? { pass: true, message: "Correct — −x² ≤ x²sin(1/x) ≤ x², both bounds → 0." }
+              : { pass: false, message: "Not quite. Squeeze between −x² and x²; both go to 0." },
+        },
+        {
+          id: "squeeze-theorem-p5",
+          kind: "numeric",
+          prompt: "Evaluate lim(x→0) tan(x)/x. (Hint: tan(x)/x = (sin(x)/x)·(1/cos(x)).)",
+          starter: "",
+          hint: "sin(x)/x → 1 and 1/cos(x) → 1.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 1) < 0.01
+              ? { pass: true, message: "Correct — (sin(x)/x)(1/cos x) → 1·1 = 1." }
+              : { pass: false, message: "Not quite. Split into (sin(x)/x)·(1/cos x); both → 1." },
         },
       ],
       quiz: {

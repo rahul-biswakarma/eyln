@@ -265,6 +265,62 @@ export const mathFunctions: Module = {
             "Full credit: domain is all real x except x = 2 and x = −2 (equivalently x ≠ ±2), because those make the denominator zero, and division by zero is undefined. Partial: identifies the excluded points OR the reason but not both.",
           hint: "Where does the denominator equal zero?",
         },
+        {
+          id: "func-p1",
+          kind: "numeric",
+          prompt: "For f(x) = x² − 3x + 2, evaluate f(0).",
+          starter: "",
+          hint: "Substitute x = 0 into every term.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 2) < 0.01
+              ? { pass: true, message: "Correct — 0 − 0 + 2 = 2." }
+              : { pass: false, message: "Not quite. Plug x = 0 in: only the constant term survives." },
+        },
+        {
+          id: "func-p2",
+          kind: "numeric",
+          prompt: "For f(x) = x² − 3x + 2, evaluate f(5).",
+          starter: "",
+          hint: "Compute 25 − 15 + 2.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 12) < 0.01
+              ? { pass: true, message: "Correct — 25 − 15 + 2 = 12." }
+              : { pass: false, message: "Not quite. 5² = 25, then subtract 3·5 = 15 and add 2." },
+        },
+        {
+          id: "func-p3",
+          kind: "numeric",
+          prompt:
+            "The natural domain of g(x) = 1 / √(x − 2) is x > c. Enter the boundary value c.",
+          starter: "",
+          hint: "The inside of the root must be positive, and the root sits in a denominator.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 2) < 0.01
+              ? { pass: true, message: "Correct — x − 2 > 0 forces x > 2, so c = 2." }
+              : { pass: false, message: "Not quite. Set x − 2 > 0 (strictly, since it is under a root in a denominator)." },
+        },
+        {
+          id: "func-p4",
+          kind: "numeric",
+          prompt: "For h(x) = 1 / (x² − 4), enter the largest x-value excluded from the domain.",
+          starter: "",
+          hint: "The denominator is zero at x = ±2.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 2) < 0.01
+              ? { pass: true, message: "Correct — x² − 4 = 0 at x = ±2; the larger is 2." }
+              : { pass: false, message: "Not quite. Solve x² − 4 = 0 and take the larger root." },
+        },
+        {
+          id: "func-p5",
+          kind: "numeric",
+          prompt: "Find the root of the linear function f(x) = 2x − 7 (the x where f(x) = 0).",
+          starter: "",
+          hint: "Solve 2x − 7 = 0.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 3.5) < 0.01
+              ? { pass: true, message: "Correct — 2x = 7, so x = 3.5." }
+              : { pass: false, message: "Not quite. Set 2x − 7 = 0 and solve for x." },
+        },
       ],
       quiz: {
         questions: [
@@ -302,6 +358,61 @@ export const mathFunctions: Module = {
             Math.abs(parseFloat(s) - 3) < 0.01
               ? { pass: true, message: "Correct — (11 − 2)/(4 − 1) = 9/3 = 3." }
               : { pass: false, message: "Not quite. Compute rise over run: (11 − 2)/(4 − 1)." },
+        },
+        {
+          id: "linear-polynomial-p1",
+          kind: "numeric",
+          prompt: "The line y = mx + b passes through (0, −5). Enter its y-intercept b.",
+          starter: "",
+          hint: "The y-intercept is the output at x = 0.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - -5) < 0.01
+              ? { pass: true, message: "Correct — at x = 0 the point (0, −5) gives b = −5." }
+              : { pass: false, message: "Not quite. The y-intercept is the y-value when x = 0." },
+        },
+        {
+          id: "linear-polynomial-p2",
+          kind: "numeric",
+          prompt: "For the line through (2, 3) and (6, 3), enter its slope.",
+          starter: "",
+          hint: "Rise over run when the y-values are equal.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 0) < 0.01
+              ? { pass: true, message: "Correct — (3 − 3)/(6 − 2) = 0; a horizontal line." }
+              : { pass: false, message: "Not quite. The y-values are equal, so the rise is 0." },
+        },
+        {
+          id: "linear-polynomial-p3",
+          kind: "numeric",
+          prompt: "The roots of x² − 3x + 2 are 1 and 2. Enter the larger root.",
+          starter: "",
+          hint: "It factors as (x − 1)(x − 2).",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 2) < 0.01
+              ? { pass: true, message: "Correct — (x − 1)(x − 2) = 0 gives roots 1 and 2; the larger is 2." }
+              : { pass: false, message: "Not quite. Factor to (x − 1)(x − 2) and take the larger zero." },
+        },
+        {
+          id: "linear-polynomial-p4",
+          kind: "numeric",
+          prompt: "Find the positive root of x² − 5x + 6 = 0 that is larger than the other.",
+          starter: "",
+          hint: "Factor: (x − 2)(x − 3).",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 3) < 0.01
+              ? { pass: true, message: "Correct — (x − 2)(x − 3) = 0 gives 2 and 3; the larger is 3." }
+              : { pass: false, message: "Not quite. Factor to (x − 2)(x − 3) and pick the larger root." },
+        },
+        {
+          id: "linear-polynomial-p5",
+          kind: "numeric",
+          prompt: "Evaluate the polynomial p(x) = 2x³ − x + 4 at x = 2.",
+          starter: "",
+          hint: "2·8 − 2 + 4.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 18) < 0.01
+              ? { pass: true, message: "Correct — 2·8 − 2 + 4 = 16 − 2 + 4 = 18." }
+              : { pass: false, message: "Not quite. 2³ = 8, so 2·8 = 16; then subtract 2 and add 4." },
         },
       ],
       quiz: {
@@ -347,6 +458,61 @@ export const mathFunctions: Module = {
               ? { pass: true, message: "Correct — 2⁵ = 32, so log₂(32) = 5." }
               : { pass: false, message: "Not quite. Ask: 2 raised to what power equals 32?" },
         },
+        {
+          id: "exp-log-p1",
+          kind: "numeric",
+          prompt: "Evaluate 2^5.",
+          starter: "",
+          hint: "Multiply 2 by itself five times.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 32) < 0.01
+              ? { pass: true, message: "Correct — 2^5 = 32." }
+              : { pass: false, message: "Not quite. 2·2·2·2·2 = 32." },
+        },
+        {
+          id: "exp-log-p2",
+          kind: "numeric",
+          prompt: "Evaluate log₁₀(1000).",
+          starter: "",
+          hint: "10 to what power gives 1000?",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 3) < 0.01
+              ? { pass: true, message: "Correct — 10³ = 1000, so log₁₀(1000) = 3." }
+              : { pass: false, message: "Not quite. 10 raised to what power equals 1000?" },
+        },
+        {
+          id: "exp-log-p3",
+          kind: "numeric",
+          prompt: "Evaluate ln(e²).",
+          starter: "",
+          hint: "ln and eˣ are inverses: ln(eˣ) = x.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 2) < 0.01
+              ? { pass: true, message: "Correct — ln(e²) = 2 since ln and eˣ undo each other." }
+              : { pass: false, message: "Not quite. ln(eˣ) = x, so ln(e²) = 2." },
+        },
+        {
+          id: "exp-log-p4",
+          kind: "numeric",
+          prompt: "Using log rules, evaluate log₂(8) + log₂(4).",
+          starter: "",
+          hint: "log₂(8) = 3 and log₂(4) = 2; or combine as log₂(32).",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 5) < 0.01
+              ? { pass: true, message: "Correct — 3 + 2 = 5 (equivalently log₂(32) = 5)." }
+              : { pass: false, message: "Not quite. log₂(8) = 3, log₂(4) = 2; add them." },
+        },
+        {
+          id: "exp-log-p5",
+          kind: "numeric",
+          prompt: "Evaluate ln(e^5) − ln(e^2).",
+          starter: "",
+          hint: "Each ln(eᵏ) = k; subtract.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 3) < 0.01
+              ? { pass: true, message: "Correct — 5 − 2 = 3." }
+              : { pass: false, message: "Not quite. ln(e^5) = 5 and ln(e^2) = 2, so the difference is 3." },
+        },
       ],
       quiz: {
         questions: [
@@ -390,6 +556,61 @@ export const mathFunctions: Module = {
               ? { pass: true, message: "Correct — sin(π/6) = 1/2 = 0.5." }
               : { pass: false, message: "Not quite. π/6 is 30°, an anchor value; recall sin(π/6)." },
         },
+        {
+          id: "trigonometry-p1",
+          kind: "numeric",
+          prompt: "Evaluate cos(0).",
+          starter: "",
+          hint: "At angle 0 the unit-circle point is (1, 0).",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 1) < 0.01
+              ? { pass: true, message: "Correct — cos(0) = 1." }
+              : { pass: false, message: "Not quite. At θ = 0 the x-coordinate on the unit circle is 1." },
+        },
+        {
+          id: "trigonometry-p2",
+          kind: "numeric",
+          prompt: "Evaluate sin(π/2).",
+          starter: "",
+          hint: "π/2 is a quarter turn, the top of the unit circle.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 1) < 0.01
+              ? { pass: true, message: "Correct — sin(π/2) = 1." }
+              : { pass: false, message: "Not quite. At π/2 the point is (0, 1), so sine is 1." },
+        },
+        {
+          id: "trigonometry-p3",
+          kind: "numeric",
+          prompt: "Evaluate tan(π/4).",
+          starter: "",
+          hint: "tan = sin/cos, and sin(π/4) = cos(π/4).",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 1) < 0.01
+              ? { pass: true, message: "Correct — sin(π/4) = cos(π/4), so tan(π/4) = 1." }
+              : { pass: false, message: "Not quite. tan(π/4) = sin(π/4)/cos(π/4) = 1." },
+        },
+        {
+          id: "trigonometry-p4",
+          kind: "numeric",
+          prompt: "Evaluate cos(π).",
+          starter: "",
+          hint: "π is a half turn to the point (−1, 0).",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - -1) < 0.01
+              ? { pass: true, message: "Correct — cos(π) = −1." }
+              : { pass: false, message: "Not quite. At π the unit-circle point is (−1, 0)." },
+        },
+        {
+          id: "trigonometry-p5",
+          kind: "numeric",
+          prompt: "Evaluate sin(π/3) as a decimal. Round to 2 decimals.",
+          starter: "",
+          hint: "sin(π/3) = √3/2.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 0.87) < 0.05
+              ? { pass: true, message: "Correct — sin(π/3) = √3/2 ≈ 0.87." }
+              : { pass: false, message: "Not quite. sin(π/3) = √3/2 ≈ 0.866." },
+        },
       ],
       quiz: {
         questions: [
@@ -427,6 +648,63 @@ export const mathFunctions: Module = {
             Math.abs(parseFloat(s) - 19) < 0.01
               ? { pass: true, message: "Correct — g(3) = 9, then f(9) = 2·9 + 1 = 19." }
               : { pass: false, message: "Not quite. First g(3) = 9, then feed that into f." },
+        },
+        {
+          id: "transformations-p1",
+          kind: "numeric",
+          prompt: "With f(x) = x² and g(x) = x + 2, compute (f ∘ g)(1).",
+          starter: "",
+          hint: "Apply g first: g(1) = 3, then square.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 9) < 0.01
+              ? { pass: true, message: "Correct — g(1) = 3, then f(3) = 9." }
+              : { pass: false, message: "Not quite. g(1) = 3, then f(3) = 3² = 9." },
+        },
+        {
+          id: "transformations-p2",
+          kind: "numeric",
+          prompt: "With f(x) = x² and g(x) = x + 2, compute (g ∘ f)(1).",
+          starter: "",
+          hint: "Apply f first: f(1) = 1, then add 2.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 3) < 0.01
+              ? { pass: true, message: "Correct — f(1) = 1, then g(1) = 1 + 2 = 3." }
+              : { pass: false, message: "Not quite. f(1) = 1, then g(1) = 3. Order matters!" },
+        },
+        {
+          id: "transformations-p3",
+          kind: "numeric",
+          prompt:
+            "The graph of f(x) = x² is shifted to give g(x) = (x − 4)². Enter how many units it moved to the right.",
+          starter: "",
+          hint: "f(x − h) shifts right by h.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 4) < 0.01
+              ? { pass: true, message: "Correct — subtracting 4 inside shifts the graph right by 4." }
+              : { pass: false, message: "Not quite. f(x − h) moves the graph right by h; here h = 4." },
+        },
+        {
+          id: "transformations-p4",
+          kind: "numeric",
+          prompt:
+            "With f(x) = √x and g(x) = x² + 1, compute (f ∘ g)(2). Round to 2 decimals.",
+          starter: "",
+          hint: "g(2) = 5, then take √5.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 2.24) < 0.05
+              ? { pass: true, message: "Correct — g(2) = 5, then √5 ≈ 2.24." }
+              : { pass: false, message: "Not quite. g(2) = 2² + 1 = 5, then √5 ≈ 2.236." },
+        },
+        {
+          id: "transformations-p5",
+          kind: "numeric",
+          prompt: "With f(x) = 3x − 1 and g(x) = 2x, compute (f ∘ g)(4).",
+          starter: "",
+          hint: "g(4) = 8, then apply f.",
+          validate: (s) =>
+            Math.abs(parseFloat(s) - 23) < 0.01
+              ? { pass: true, message: "Correct — g(4) = 8, then f(8) = 3·8 − 1 = 23." }
+              : { pass: false, message: "Not quite. g(4) = 8, then f(8) = 24 − 1 = 23." },
         },
       ],
       quiz: {

@@ -364,6 +364,26 @@ export const linearAlgebra: Module = {
             return Math.abs(v - 10) < 0.01 ? { pass: true, message: "Correct — √100 = 10." } : { pass: false, message: "Not quite. Compute √(36 + 64)." };
           },
         },
+        {
+          id: "vec-len2", kind: "numeric", prompt: "Enter the length of the vector (2, 3, 6).",
+          starter: "", hint: "√(2² + 3² + 6²) = √49.",
+          validate: (s) => Math.abs(parseFloat(s) - 7) < 0.01 ? { pass: true, message: "Correct — √(4 + 9 + 36) = √49 = 7." } : { pass: false, message: "Compute √(4 + 9 + 36)." },
+        },
+        {
+          id: "vec-dist", kind: "numeric", prompt: "Enter the distance between the points (1, 2, 2) and (4, 6, 2).",
+          starter: "", hint: "Length of the difference vector (3, 4, 0).",
+          validate: (s) => Math.abs(parseFloat(s) - 5) < 0.01 ? { pass: true, message: "Correct — the difference is (3, 4, 0), length √25 = 5." } : { pass: false, message: "Subtract to get (3, 4, 0), then take its length." },
+        },
+        {
+          id: "vec-norm", kind: "numeric", prompt: "Normalize the vector (0, 3, 4). Enter its y-component, rounded to 2 decimals.",
+          starter: "", hint: "Divide each component by the length 5.",
+          validate: (s) => Math.abs(parseFloat(s) - 0.6) < 0.05 ? { pass: true, message: "Correct — 3 / 5 = 0.6." } : { pass: false, message: "Length is 5, so y-component is 3 / 5." },
+        },
+        {
+          id: "vec-scale", kind: "numeric", prompt: "For a = (4, -1, 2), enter the y-component of 3a.",
+          starter: "", hint: "Scale each component by 3.",
+          validate: (s) => Math.abs(parseFloat(s) - (-3)) < 0.01 ? { pass: true, message: "Correct — 3 · (-1) = -3." } : { pass: false, message: "Multiply the y-component -1 by 3." },
+        },
       ],
     },
     {
@@ -382,6 +402,26 @@ export const linearAlgebra: Module = {
           starter: "", hint: "2·1 + 3·0 + 1·4.",
           validate: (s) => Math.abs(parseFloat(s) - 6) < 0.01 ? { pass: true, message: "Correct — 2 + 0 + 4 = 6." } : { pass: false, message: "Recompute: 2·1 + 3·0 + 1·4." },
         },
+        {
+          id: "dot-2", kind: "numeric", prompt: "Compute a·b for a = (3, -2, 1), b = (4, 1, -2).",
+          starter: "", hint: "3·4 + (-2)·1 + 1·(-2).",
+          validate: (s) => Math.abs(parseFloat(s) - 8) < 0.01 ? { pass: true, message: "Correct — 12 - 2 - 2 = 8." } : { pass: false, message: "Recompute: 3·4 + (-2)·1 + 1·(-2)." },
+        },
+        {
+          id: "dot-perp", kind: "numeric", prompt: "Enter the dot product of the perpendicular vectors (2, 0, 0) and (0, 5, 0).",
+          starter: "", hint: "Perpendicular vectors have a dot product of zero.",
+          validate: (s) => Math.abs(parseFloat(s) - 0) < 0.01 ? { pass: true, message: "Correct — 2·0 + 0·5 + 0·0 = 0, a right angle." } : { pass: false, message: "Multiply component-wise and sum; these are perpendicular." },
+        },
+        {
+          id: "dot-angle", kind: "numeric", prompt: "Find the angle in degrees between a = (1, 1, 0) and b = (1, 0, 0). Round to the nearest degree.",
+          starter: "", hint: "cos θ = (a·b)/(|a||b|) = 1/√2.",
+          validate: (s) => Math.abs(parseFloat(s) - 45) < 0.5 ? { pass: true, message: "Correct — cos θ = 1/√2, so θ = 45°." } : { pass: false, message: "Compute cos θ = (a·b)/(|a||b|), then arccos." },
+        },
+        {
+          id: "dot-proj", kind: "numeric", prompt: "Enter the scalar projection length of a = (3, 4, 0) onto the unit vector b = (1, 0, 0).",
+          starter: "", hint: "For a unit b, the projection length is simply a·b.",
+          validate: (s) => Math.abs(parseFloat(s) - 3) < 0.01 ? { pass: true, message: "Correct — a·b = 3, and |b| = 1." } : { pass: false, message: "Projection length is (a·b)/|b|; here |b| = 1." },
+        },
       ],
     },
     {
@@ -394,6 +434,28 @@ export const linearAlgebra: Module = {
           { q: "Swapping to b×a…", choices: ["Gives the same result", "Flips the normal's direction", "Doubles the length", "Is undefined"], answer: 1, explain: "The cross product is anti-commutative: b×a = -(a×b)." },
         ],
       },
+      exercises: [
+        {
+          id: "cross-z", kind: "numeric", prompt: "For a = (1, 0, 0) and b = (0, 1, 0), enter the z-component of a×b.",
+          starter: "", hint: "z = a_x b_y − a_y b_x = 1·1 − 0·0.",
+          validate: (s) => Math.abs(parseFloat(s) - 1) < 0.01 ? { pass: true, message: "Correct — î × ĵ = k̂, so z = 1." } : { pass: false, message: "z = a_x·b_y − a_y·b_x." },
+        },
+        {
+          id: "cross-x", kind: "numeric", prompt: "For a = (1, 2, 3) and b = (4, 5, 6), enter the x-component of a×b.",
+          starter: "", hint: "x = a_y b_z − a_z b_y = 2·6 − 3·5.",
+          validate: (s) => Math.abs(parseFloat(s) - (-3)) < 0.01 ? { pass: true, message: "Correct — 12 − 15 = -3." } : { pass: false, message: "x = a_y·b_z − a_z·b_y." },
+        },
+        {
+          id: "cross-y", kind: "numeric", prompt: "For a = (1, 2, 3) and b = (4, 5, 6), enter the y-component of a×b.",
+          starter: "", hint: "y = a_z b_x − a_x b_z = 3·4 − 1·6.",
+          validate: (s) => Math.abs(parseFloat(s) - 6) < 0.01 ? { pass: true, message: "Correct — 12 − 6 = 6." } : { pass: false, message: "y = a_z·b_x − a_x·b_z." },
+        },
+        {
+          id: "cross-area", kind: "numeric", prompt: "Enter the area of the parallelogram spanned by a = (3, 0, 0) and b = (0, 4, 0). This equals |a×b|.",
+          starter: "", hint: "a×b = (0, 0, 12); take its length.",
+          validate: (s) => Math.abs(parseFloat(s) - 12) < 0.01 ? { pass: true, message: "Correct — |a×b| = 12." } : { pass: false, message: "Compute a×b, then its magnitude." },
+        },
+      ],
     },
     {
       id: "matrices", title: "Matrices as Transforms", minutes: 14,
@@ -405,6 +467,33 @@ export const linearAlgebra: Module = {
           { q: "A negative determinant means…", choices: ["The matrix is invalid", "Space is scaled up", "Space is flipped (mirrored)", "No rotation"], answer: 2, explain: "Negative determinant flips orientation — a reflection." },
         ],
       },
+      exercises: [
+        {
+          id: "mat-det", kind: "numeric", prompt: "Enter the determinant of the 2×2 matrix with rows [2, 3] and [1, 4].",
+          starter: "", hint: "det = a·d − b·c = 2·4 − 3·1.",
+          validate: (s) => Math.abs(parseFloat(s) - 5) < 0.01 ? { pass: true, message: "Correct — 8 − 3 = 5." } : { pass: false, message: "det = (top-left · bottom-right) − (top-right · bottom-left)." },
+        },
+        {
+          id: "mat-trace", kind: "numeric", prompt: "Enter the trace (sum of the diagonal) of the 2×2 matrix with rows [7, 2] and [5, 3].",
+          starter: "", hint: "Add the two diagonal entries 7 and 3.",
+          validate: (s) => Math.abs(parseFloat(s) - 10) < 0.01 ? { pass: true, message: "Correct — 7 + 3 = 10." } : { pass: false, message: "Sum the top-left and bottom-right entries." },
+        },
+        {
+          id: "mat-mv", kind: "numeric", prompt: "The matrix with rows [2, 0] and [1, 3] multiplies the vector (4, 5). Enter the y-component (second entry) of the result.",
+          starter: "", hint: "Second row dotted with the vector: 1·4 + 3·5.",
+          validate: (s) => Math.abs(parseFloat(s) - 19) < 0.01 ? { pass: true, message: "Correct — 1·4 + 3·5 = 19." } : { pass: false, message: "Dot the second row [1, 3] with (4, 5)." },
+        },
+        {
+          id: "mat-prod", kind: "numeric", prompt: "Multiply A (rows [1, 2], [3, 4]) by B (rows [5, 6], [7, 8]). Enter the top-left entry of the product AB.",
+          starter: "", hint: "Row 1 of A dotted with column 1 of B: 1·5 + 2·7.",
+          validate: (s) => Math.abs(parseFloat(s) - 19) < 0.01 ? { pass: true, message: "Correct — 1·5 + 2·7 = 19." } : { pass: false, message: "Dot A's first row [1, 2] with B's first column [5, 7]." },
+        },
+        {
+          id: "mat-detflip", kind: "numeric", prompt: "Enter the determinant of the matrix with rows [0, 1] and [1, 0] (a reflection).",
+          starter: "", hint: "det = 0·0 − 1·1.",
+          validate: (s) => Math.abs(parseFloat(s) - (-1)) < 0.01 ? { pass: true, message: "Correct — −1: a negative determinant means space is mirrored." } : { pass: false, message: "det = 0·0 − 1·1 = −1." },
+        },
+      ],
     },
     {
       id: "mvp", title: "The MVP Pipeline", minutes: 15,
@@ -416,6 +505,28 @@ export const linearAlgebra: Module = {
           { q: "The view matrix is essentially…", choices: ["The camera's world transform", "The inverse of the camera's transform", "The projection", "The identity"], answer: 1, explain: "To put the camera at the origin, you transform the world by the camera's inverse." },
         ],
       },
+      exercises: [
+        {
+          id: "mvp-divide-x", kind: "numeric", prompt: "A clip-space coordinate is (x, y, z, w) = (3, -6, 2, 6). After the perspective divide, enter the NDC x-component. Round to 2 decimals.",
+          starter: "", hint: "NDC x = x / w = 3 / 6.",
+          validate: (s) => Math.abs(parseFloat(s) - 0.5) < 0.05 ? { pass: true, message: "Correct — 3 / 6 = 0.5." } : { pass: false, message: "Divide the clip x by w." },
+        },
+        {
+          id: "mvp-divide-y", kind: "numeric", prompt: "For the clip-space coordinate (3, -6, 2, 6), enter the NDC y-component after the perspective divide. Round to 2 decimals.",
+          starter: "", hint: "NDC y = y / w = -6 / 6.",
+          validate: (s) => Math.abs(parseFloat(s) - (-1)) < 0.05 ? { pass: true, message: "Correct — -6 / 6 = -1 (bottom edge of the clip cube)." } : { pass: false, message: "Divide the clip y by w." },
+        },
+        {
+          id: "mvp-aspect", kind: "numeric", prompt: "A render target is 1920 by 1080 pixels. Enter its aspect ratio (width / height), rounded to 2 decimals.",
+          starter: "", hint: "1920 / 1080.",
+          validate: (s) => Math.abs(parseFloat(s) - 1.78) < 0.05 ? { pass: true, message: "Correct — 1920 / 1080 ≈ 1.78." } : { pass: false, message: "Divide width by height." },
+        },
+        {
+          id: "mvp-proj-entry", kind: "numeric", prompt: "For a perspective matrix, entry m[0][0] = 1 / (aspect · tan(fovy/2)). With a 90° vertical FOV and aspect = 2, enter m[0][0]. Round to 2 decimals.",
+          starter: "", hint: "tan(45°) = 1, so m[0][0] = 1 / (2 · 1).",
+          validate: (s) => Math.abs(parseFloat(s) - 0.5) < 0.05 ? { pass: true, message: "Correct — 1 / (2 · tan45°) = 1 / 2 = 0.5." } : { pass: false, message: "tan(45°) = 1, so compute 1 / (aspect · 1)." },
+        },
+      ],
     },
     {
       id: "quaternions", title: "Quaternions & Rotation", minutes: 14,
@@ -436,6 +547,26 @@ export const linearAlgebra: Module = {
           rubric: "Full credit: mentions floating-point error accumulating from repeated multiplication pushing |q| away from 1, and that a non-unit quaternion introduces scaling/shear (model stretching/skewing). Partial: mentions drift OR the artifact but not both.",
           hint: "Think about what repeated multiplication does to |q|, and what a non-unit quaternion does when converted to a matrix.",
         },
+        {
+          id: "quat-w90", kind: "numeric", prompt: "A quaternion represents a rotation of θ = 90° about a unit axis. Enter its scalar part w = cos(θ/2), rounded to 3 decimals.",
+          starter: "", hint: "cos(45°).",
+          validate: (s) => Math.abs(parseFloat(s) - 0.707) < 0.01 ? { pass: true, message: "Correct — cos(45°) ≈ 0.707." } : { pass: false, message: "Compute cos(90°/2) = cos(45°)." },
+        },
+        {
+          id: "quat-w180", kind: "numeric", prompt: "For a rotation of θ = 180°, enter the scalar part w = cos(θ/2).",
+          starter: "", hint: "cos(90°).",
+          validate: (s) => Math.abs(parseFloat(s) - 0) < 0.01 ? { pass: true, message: "Correct — cos(90°) = 0." } : { pass: false, message: "Compute cos(180°/2) = cos(90°)." },
+        },
+        {
+          id: "quat-comp", kind: "numeric", prompt: "A rotation of θ = 90° about the axis (0, 1, 0) gives q = (w, x, y, z). Enter the y-component, y = sin(θ/2)·1, rounded to 3 decimals.",
+          starter: "", hint: "sin(45°) times the axis y = 1.",
+          validate: (s) => Math.abs(parseFloat(s) - 0.707) < 0.01 ? { pass: true, message: "Correct — sin(45°) ≈ 0.707." } : { pass: false, message: "Compute sin(90°/2) times the axis y-component (1)." },
+        },
+        {
+          id: "quat-w60", kind: "numeric", prompt: "For a rotation of θ = 60°, enter the scalar part w = cos(θ/2), rounded to 3 decimals.",
+          starter: "", hint: "cos(30°).",
+          validate: (s) => Math.abs(parseFloat(s) - 0.866) < 0.01 ? { pass: true, message: "Correct — cos(30°) ≈ 0.866." } : { pass: false, message: "Compute cos(60°/2) = cos(30°)." },
+        },
       ],
     },
     {
@@ -448,6 +579,28 @@ export const linearAlgebra: Module = {
           { q: "In Metal/WebGPU, the NDC depth (z) range is…", choices: ["−1 to 1", "0 to 1", "0 to 255", "−∞ to ∞"], answer: 1, explain: "Metal, WebGPU, and D3D use 0..1 depth; OpenGL uses −1..1." },
         ],
       },
+      exercises: [
+        {
+          id: "clip-ndc-x", kind: "numeric", prompt: "A clip-space point is (x, y, z, w) = (10, 5, 4, 8). Enter its NDC x-component after the perspective divide. Round to 3 decimals.",
+          starter: "", hint: "NDC x = x / w = 10 / 8.",
+          validate: (s) => Math.abs(parseFloat(s) - 1.25) < 0.05 ? { pass: true, message: "Correct — 10 / 8 = 1.25 (outside [-1, 1], so this point is clipped in x)." } : { pass: false, message: "Divide clip x by w." },
+        },
+        {
+          id: "clip-ndc-z", kind: "numeric", prompt: "For the clip-space point (10, 5, 4, 8), enter the NDC z-component after the perspective divide. Round to 2 decimals.",
+          starter: "", hint: "NDC z = z / w = 4 / 8.",
+          validate: (s) => Math.abs(parseFloat(s) - 0.5) < 0.05 ? { pass: true, message: "Correct — 4 / 8 = 0.5, inside the 0..1 depth range." } : { pass: false, message: "Divide clip z by w." },
+        },
+        {
+          id: "clip-inside", kind: "numeric", prompt: "Is the clip-space point (2, -1, 3, 4) inside the x/y clip bounds (−w ≤ x, y ≤ w)? Enter 1 for yes, 0 for no.",
+          starter: "", hint: "Check whether both 2 and -1 lie within [-4, 4].",
+          validate: (s) => Math.abs(parseFloat(s) - 1) < 0.01 ? { pass: true, message: "Correct — both 2 and -1 lie within [-4, 4], so it passes the x/y test." } : { pass: false, message: "With w = 4, the bounds are [-4, 4]; both x and y fit." },
+        },
+        {
+          id: "clip-outside", kind: "numeric", prompt: "Is the clip-space point (5, 0, 1, 4) inside the x/y clip bounds (−w ≤ x, y ≤ w)? Enter 1 for yes, 0 for no.",
+          starter: "", hint: "Is x = 5 within [-4, 4]?",
+          validate: (s) => Math.abs(parseFloat(s) - 0) < 0.01 ? { pass: true, message: "Correct — x = 5 exceeds w = 4, so the point is clipped." } : { pass: false, message: "x = 5 is outside [-4, 4], so the answer is 0." },
+        },
+      ],
     },
   ],
 };
