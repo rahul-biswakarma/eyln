@@ -77,6 +77,17 @@ export function lessonPath(moduleId: string, lessonId: string): string {
   return `/m/${moduleId}/${lessonId}`;
 }
 
+export function questionaryPath(moduleId: string): string {
+  return `/m/${moduleId}/questionary`;
+}
+
+/** Does a module have any quizzes or exercises to collect into a questionary? */
+export function moduleHasQuestionary(module: Module): boolean {
+  return module.lessons.some(
+    (l) => (l.quiz?.questions.length ?? 0) > 0 || (l.exercises?.length ?? 0) > 0
+  );
+}
+
 export function moduleProgress(module: Module, done: Record<string, boolean>): number {
   if (module.lessons.length === 0) return 0;
   const n = module.lessons.filter((l) => done[`${module.id}/${l.id}`]).length;

@@ -1,15 +1,18 @@
-import { Link, useParams } from "react-router-dom";
-import { CheckCircle, Circle } from "@phosphor-icons/react";
-import { modulesForTrack, getModule, lessonPath, lessonKey, moduleProgress, trackIdOf } from "../content/registry";
+import { Link, useLocation, useParams } from "react-router-dom";
+import { CheckCircle, Circle, ListChecks } from "@phosphor-icons/react";
+import { modulesForTrack, getModule, lessonPath, lessonKey, questionaryPath, moduleHasQuestionary, moduleProgress, trackIdOf } from "../content/registry";
 import { getTrack } from "../content/tracks";
 import { useProgress } from "../lib/progress";
 import { ModuleIcon } from "./ModuleIcon";
 
 export function Sidebar() {
   const { moduleId, lessonId } = useParams();
+  const loc = useLocation();
   const done = useProgress((s) => s.done);
   const current = moduleId ? getModule(moduleId) : undefined;
   if (!current) return <aside className="sidebar" />;
+
+  const onQuestionary = loc.pathname.endsWith("/questionary");
 
   const track = getTrack(trackIdOf(current));
   const siblings = modulesForTrack(trackIdOf(current));
@@ -45,6 +48,16 @@ export function Sidebar() {
             </Link>
           );
         })}
+
+        {moduleHasQuestionary(current) && (
+          <Link
+            to={questionaryPath(current.id)}
+            className={"st-node questionary " + (onQuestionary ? "active" : "upcoming")}
+          >
+            <span className="st-marker"><ListChecks size={17} weight="duotone" /></span>
+            <span className="st-label">Questionary</span>
+          </Link>
+        )}
       </div>
 
       <div className="st-modules">

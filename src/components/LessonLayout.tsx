@@ -1,14 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  Clock, Gauge, Sparkle, BookmarkSimple, PencilSimpleLine, CheckCircle, ArrowRight,
+  Clock, Gauge, Sparkle, BookmarkSimple, PencilSimpleLine, CheckCircle, ArrowRight, ListChecks,
 } from "@phosphor-icons/react";
 import type { LessonRef } from "../content/registry";
-import { allLessons, lessonPath, lessonKey, moduleDifficulty } from "../content/registry";
+import { allLessons, lessonPath, lessonKey, questionaryPath, moduleDifficulty } from "../content/registry";
 import { useProgress } from "../lib/progress";
 import { useNotes } from "../lib/notes";
-import { Quiz } from "./Quiz";
-import { Exercise } from "./Exercise";
 import { NotePanel } from "./NotePanel";
 import { TutorChat } from "./TutorChat";
 import { ModuleIcon } from "./ModuleIcon";
@@ -35,6 +33,8 @@ export function LessonLayout({ data }: { data: LessonRef }) {
   const lessonNumInModule = module.lessons.findIndex((l) => l.id === lesson.id) + 1;
   const diff = moduleDifficulty(module);
   const isInteractive = /widget|playground|canvas|demo|editor/i.test(String(Body));
+  const hasQuestions =
+    (lesson.quiz?.questions.length ?? 0) > 0 || (lesson.exercises?.length ?? 0) > 0;
 
   useEffect(() => { visit(key); }, [key, visit]);
 
@@ -120,18 +120,19 @@ export function LessonLayout({ data }: { data: LessonRef }) {
         <Body />
       </div>
 
-      {lesson.exercises && lesson.exercises.length > 0 && (
+      {hasQuestions && (
         <div className="prose lesson-section">
-          <div className="section-eyebrow emerald">Checkpoint</div>
-          {lesson.exercises.map((ex) => (
-            <Exercise key={ex.id} ex={ex} />
-          ))}
-        </div>
-      )}
-
-      {lesson.quiz && (
-        <div className="prose lesson-section">
-          <Quiz id={key} quiz={lesson.quiz} lessonTitle={lesson.title} lessonSummary={lesson.summary} />
+          <Link className="qn-cta" to={questionaryPath(module.id)}>
+            <span className="qn-cta-ic"><ListChecks size={22} weight="duotone" /></span>
+            <span className="qn-cta-body">
+              <span className="qn-cta-title">Practice in the Questionary</span>
+              <span className="qn-cta-sub">
+                Knowledge checks and exercises for {module.title} are collected on one page —
+                like an end-of-chapter problem set.
+              </span>
+            </span>
+            <ArrowRight size={16} weight="bold" />
+          </Link>
         </div>
       )}
 
