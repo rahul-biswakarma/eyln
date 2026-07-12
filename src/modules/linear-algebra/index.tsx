@@ -9,18 +9,85 @@ function Vectors() {
   return (
     <div className="prose">
       <p>
-        In most everyday code a "position" is a couple of numbers you never think about together. In
-        3D, position and direction are first-class values called <strong>vectors</strong> — an ordered
-        tuple of numbers. A point in space is <M>{`(x, y, z)`}</M>. A direction is <em>also</em>{" "}
-        <M>{`(x, y, z)`}</M> — the difference is only in how you use it.
+        In standard programming, coordinates like <code>x</code> and <code>y</code> are often just treated as
+        separate variables or fields in an object (e.g., <code>mouse.x</code>, <code>mouse.y</code>). In 3D graphics,
+        however, space and motion are first-class citizens. To represent them, we bundle these numbers into a single
+        mathematical entity called a <strong>vector</strong>—an ordered sequence (tuple) of numbers representing components
+        along coordinate axes.
       </p>
-      <p>The four operations you'll use constantly:</p>
+      <p>
+        Geometrically, we visualize a vector as a <strong>directed arrow</strong>. This arrow represents two core properties:
+      </p>
       <ul>
-        <li><strong>Add</strong> <M>{`a + b`}</M> — walk along a, then along b.</li>
-        <li><strong>Scale</strong> <M>{`s \\cdot a`}</M> — stretch or shrink a direction.</li>
-        <li><strong>Length</strong> <M>{`|a| = \\sqrt{x^2 + y^2 + z^2}`}</M> — how long the arrow is.</li>
-        <li><strong>Normalize</strong> <M>{`\\hat{a} = a / |a|`}</M> — same direction, length 1. Directions in graphics are almost always normalized.</li>
+        <li><strong>Direction</strong>: Where the arrow points in space.</li>
+        <li><strong>Magnitude (or Length)</strong>: How long the arrow is. This corresponds to the size of the displacement or speed of a movement.</li>
       </ul>
+      <p>
+        Because a vector represents a relative movement or displacement rather than a fixed location, 
+        <em> it does not have a fixed starting position</em>. You can slide the arrow anywhere in your coordinate system, and as long as its length and direction do not change, it remains the exact same vector.
+      </p>
+
+      <h3>Points vs. Vectors</h3>
+      <p>
+        In 3D code, both positions (locations) and displacements (directions) are represented as 3-tuples <M>{`(x, y, z)`}</M>. However, they represent fundamentally different geometric concepts:
+      </p>
+      <ul>
+        <li>
+          A <strong>Point</strong> is an absolute location in space. It is anchored to a specific coordinate system's <strong>origin</strong> <M>{`(0, 0, 0)`}</M>.
+        </li>
+        <li>
+          A <strong>Vector</strong> is a relative displacement (movement) from one location to another. It does not care about the origin.
+        </li>
+      </ul>
+      <p>
+        This distinction leads to natural operations that link them:
+      </p>
+      <ul>
+        <li>
+          <M>{`\\text{Point} - \\text{Point} = \\text{Vector}`}</M>: Subtracting the starting point <M>{`p_0`}</M> from the ending point <M>{`p_1`}</M> yields a displacement vector <M>{`v = p_1 - p_0`}</M> that represents the movement from <M>{`p_0`}</M> to <M>{`p_1`}</M>.
+        </li>
+        <li>
+          <M>{`\\text{Point} + \\text{Vector} = \\text{Point}`}</M>: Adding a displacement vector <M>{`v`}</M> to a point <M>{`p_0`}</M> shifts it to a new location <M>{`p_1 = p_0 + v`}</M>.
+        </li>
+        <li>
+          <M>{`\\text{Vector} + \\text{Vector} = \\text{Vector}`}</M>: Combining two movements yields a net displacement.
+        </li>
+        <li>
+          Adding two points (<M>{`p_0 + p_1`}</M>) is mathematically meaningless in geometric space because you cannot "add" two absolute locations.
+        </li>
+      </ul>
+
+      <h3>Fundamental Operations</h3>
+      <p>These four basic operations form the building blocks of all vector mathematics:</p>
+      <ol>
+        <li>
+          <strong>Vector Addition</strong> (<M>{`a + b`}</M>):
+          <br />
+          Algebraically, add the corresponding components: <M>{`a + b = (a_x + b_x, a_y + b_y, a_z + b_z)`}</M>.
+          <br />
+          Geometrically, place the tail of vector <M>{`b`}</M> at the tip of vector <M>{`a`}</M>. The sum vector points from the start of <M>{`a`}</M> to the end of <M>{`b`}</M> (tip-to-tail method).
+        </li>
+        <li>
+          <strong>Scalar Multiplication/Scaling</strong> (<M>{`s \\cdot a`}</M>):
+          <br />
+          Algebraically, multiply every component by a scalar number <M>{`s`}</M>: <M>{`s \\cdot a = (s \\cdot a_x, s \\cdot a_y, s \\cdot a_z)`}</M>.
+          <br />
+          Geometrically, this stretches or shrinks the vector's length by factor <M>{`|s|`}</M>. If <M>{`s < 0`}</M>, it also flips the direction of the arrow to point in the opposite direction.
+        </li>
+        <li>
+          <strong>Length / Magnitude</strong> (<M>{`|a|`}</M>):
+          <br />
+          This is the distance from the tail to the tip of the arrow (or the Euclidean distance of a point from the origin). In 3D space, we calculate it using the Pythagorean theorem:
+          <MBlock>{`|a| = \\sqrt{a_x^2 + a_y^2 + a_z^2}`}</MBlock>
+        </li>
+        <li>
+          <strong>Normalize</strong> (<M>{`\\hat{a}`}</M>):
+          <br />
+          Dividing a vector by its own length scales it so its magnitude is exactly 1: <M>{`\\hat{a} = a / |a|`}</M>.
+          <br />
+          This is called a <strong>unit vector</strong>. Unit vectors are used extensively in graphics when we only care about direction (like the direction of a light source, a surface normal, or a camera view ray) and want to ignore scale.
+        </li>
+      </ol>
       <VectorPlayground />
       <p>
         Drag the arrows above. Notice the readout: those numbers are exactly what your shader
@@ -81,22 +148,56 @@ function DotProduct() {
   return (
     <div className="prose">
       <p>
-        The dot product collapses two vectors into a single number that encodes the angle between
-        them:
+        The dot product (also known as the scalar product) takes two vectors and multiplies them component-by-component,
+        summing the results. Instead of returning a new vector, it collapses them into a single scalar value:
       </p>
-      <MBlock>{`a \\cdot b = a_x b_x + a_y b_y + a_z b_z = |a|\\,|b|\\cos\\theta`}</MBlock>
-      <p>Read it geometrically:</p>
-      <ul>
-        <li><M>{`a \\cdot b > 0`}</M> → the vectors point <em>roughly the same way</em> (&lt; 90°).</li>
-        <li><M>{`a \\cdot b = 0`}</M> → they are <strong>perpendicular</strong>.</li>
-        <li><M>{`a \\cdot b < 0`}</M> → they point <em>away</em> from each other (&gt; 90°).</li>
-      </ul>
+      <MBlock>{`a \\cdot b = a_x b_x + a_y b_y + a_z b_z`}</MBlock>
+
+      <h3>Geometric Interpretation and Projection</h3>
       <p>
-        This one formula powers lighting. If <M>{`\\hat{n}`}</M> is a surface normal and{" "}
-        <M>{`\\hat{l}`}</M> points toward the light, then <M>{`\\max(0, \\hat{n} \\cdot \\hat{l})`}</M>{" "}
-        is how brightly that surface is lit — the classic <em>Lambert</em> term. A slope facing the
-        sun gets a big dot product; one facing away gets zero.
+        The dot product has a beautiful geometric definition that links it to the angle <M>{`\\theta`}</M> between the two vectors:
       </p>
+      <MBlock>{`a \\cdot b = |a|\\,|b|\\cos\\theta`}</MBlock>
+      <p>
+        If one of the vectors is normalized (say, a unit vector <M>{`\\hat{b}`}</M> with length 1), the formula simplifies to:
+        <MBlock>{`a \\cdot \\hat{b} = |a|\\cos\\theta`}</MBlock>
+        This value represents the <strong>scalar projection</strong> of <M>{`a`}</M> onto the direction of <M>{`\\hat{b}`}</M>. Visually, it is the length of the "shadow" that vector <M>{`a`}</M> casts onto a line running along the direction of <M>{`\\hat{b}`}</M>.
+      </p>
+
+      <h3>Sign Analysis and Angle Check</h3>
+      <p>
+        Because the lengths <M>{`|a|`}</M> and <M>{`|b|`}</M> are always non-negative, the sign of the dot product is determined entirely by the cosine of the angle between them:
+      </p>
+      <ul>
+        <li>
+          <strong><M>{`a \\cdot b > 0`}</M> (Positive)</strong>: The angle between them is acute (&lt; 90°). The vectors point roughly in the same direction.
+        </li>
+        <li>
+          <strong><M>{`a \\cdot b = 0`}</M> (Zero)</strong>: The angle is exactly 90°. The vectors are <strong>perpendicular</strong> (orthogonal).
+        </li>
+        <li>
+          <strong><M>{`a \\cdot b < 0`}</M> (Negative)</strong>: The angle is obtuse (&gt; 90°). The vectors point roughly in opposite directions.
+        </li>
+      </ul>
+
+      <h3>Applications in Shaders: Lambert Shading</h3>
+      <p>
+        This simple multiplication is the engine behind 3D lighting. In diffuse shading (Lambertian reflectance), the brightness of a surface depends on the angle at which light hits it.
+      </p>
+      <p>
+        If <M>{`\\hat{n}`}</M> is the unit surface normal (pointing straight out of the polygon) and <M>{`\\hat{l}`}</M> is the unit vector pointing toward the light source:
+      </p>
+      <ul>
+        <li>
+          When the light is directly overhead, the angle is 0°, <M>{`\\cos(0) = 1`}</M>, and the dot product is <M>{`1`}</M> (maximum brightness).
+        </li>
+        <li>
+          As the light slopes away, the dot product decreases.
+        </li>
+        <li>
+          If the light goes below the horizon, the angle exceeds 90°, yielding a negative dot product. Since a surface cannot have "negative brightness," we clamp it to zero using <M>{`\\max(0, \\hat{n} \\cdot \\hat{l})`}</M>.
+        </li>
+      </ul>
       <VectorPlayground />
       <div className="notice">
         <span className="lbl">Try it</span>
@@ -111,20 +212,44 @@ function CrossProduct() {
   return (
     <div className="prose">
       <p>
-        The cross product takes two vectors and returns a third one that is{" "}
-        <strong>perpendicular to both</strong>:
+        Unlike the dot product which outputs a scalar, the cross product takes two 3D vectors and returns a 
+        <strong> new 3D vector</strong>. This resulting vector has a unique property: it is 
+        <strong> perpendicular to both input vectors</strong>.
       </p>
       <MBlock>{`a \\times b = (a_y b_z - a_z b_y,\\; a_z b_x - a_x b_z,\\; a_x b_y - a_y b_x)`}</MBlock>
+
+      <h3>Direction: The Right-Hand Rule</h3>
       <p>
-        This is how you compute a <strong>normal</strong> — the direction a triangle faces. Given a
-        triangle with corners <M>{`p_0, p_1, p_2`}</M>, its normal is:
+        Since two vectors define a flat plane, there are two possible directions that are perpendicular to that plane (one pointing "up", one pointing "down"). The cross product's direction is determined by the <strong>Right-Hand Rule</strong>:
       </p>
+      <p>
+        If you curl the fingers of your right hand from <M>{`a`}</M> to <M>{`b`}</M>, your thumb points in the direction of <M>{`a \\times b`}</M>.
+      </p>
+      <p>
+        This means the order of operations is critical: the cross product is anti-commutative. Swapping the inputs flips the direction:
+        <MBlock>{`a \\times b = -(b \\times a)`}</MBlock>
+      </p>
+
+      <h3>Magnitude: Parallelogram Area</h3>
+      <p>
+        The length of the resulting cross product vector encodes the sine of the angle between them:
+        <MBlock>{`|a \\times b| = |a|\\,|b|\\sin\\theta`}</MBlock>
+        Geometrically, this length is exactly equal to the <strong>area of the parallelogram</strong> spanned by the two vectors. 
+        If the two vectors are parallel (angle is 0° or 180°), <M>{`\\sin\\theta = 0`}</M> and the cross product is the zero vector <M>{`(0, 0, 0)`}</M>.
+      </p>
+
+      <h3>Calculating Surface Normals</h3>
+      <p>
+        Normals (perpendicular vectors) are how a 3D engine knows which way a flat triangle faces. Given a triangle with three vertices in counter-clockwise order: <M>{`p_0, p_1, p_2`}</M>, we find the face normal by:
+      </p>
+      <ol>
+        <li>Creating two edge vectors sharing a corner: <M>{`e_1 = p_1 - p_0`}</M> and <M>{`e_2 = p_2 - p_0`}</M>.</li>
+        <li>Taking their cross product: <M>{`e_1 \\times e_2`}</M>.</li>
+        <li>Normalizing the result to unit length.</li>
+      </ol>
       <MBlock>{`\\hat{n} = \\text{normalize}\\big((p_1 - p_0) \\times (p_2 - p_0)\\big)`}</MBlock>
       <p>
-        Every lit surface in your engine needs a normal, and every normal comes from a cross
-        product. The <em>length</em> of <M>{`a \\times b`}</M> also equals the area of the
-        parallelogram they span (the shaded region in the widget) — useful for triangle areas and
-        detecting degenerate geometry.
+        If the vertices were wound in clockwise order, the edges would be crossed in reverse, causing the normal to point inside the object (making the surface render black or be culled entirely). Winding order matters!
       </p>
       <CodeTabs
         tabs={[
@@ -156,21 +281,54 @@ function Matrices() {
   return (
     <div className="prose">
       <p>
-        A matrix is a machine that transforms space. The cleanest way to understand a{" "}
-        <M>{`2\\times2`}</M> matrix: its <strong>columns are where the basis vectors land</strong>.
-        Column 1 is where <M>{`\\hat{\\imath} = (1,0)`}</M> goes; column 2 is where{" "}
-        <M>{`\\hat{\\jmath} = (0,1)`}</M> goes. Everything else follows by linearity.
+        A matrix is a grid of numbers, but in graphics, it is best understood as a 
+        <strong> machine that transforms space</strong>—warping, rotating, scaling, or shearing vectors from one coordinate system to another.
       </p>
-      <MBlock>{`\\begin{bmatrix} a & c \\\\ b & d \\end{bmatrix} \\begin{bmatrix} x \\\\ y \\end{bmatrix} = x\\begin{bmatrix} a \\\\ b \\end{bmatrix} + y\\begin{bmatrix} c \\\\ d \\end{bmatrix}`}</MBlock>
+
+      <h3>Columns are Basis Vector Destinations</h3>
+      <p>
+        Let's look at standard 2D space. Any vector can be described as a combination of the two standard basis vectors: 
+        <M>{`\\hat{\\imath} = (1, 0)`}</M> (pointing along X) and <M>{`\\hat{\\jmath} = (0, 1)`}</M> (pointing along Y).
+      </p>
+      <p>
+        Under any linear transformation, <em>every point in space moves proportionally</em>. This means to know how a matrix transforms 
+        <strong> any</strong> vector, we only need to know where it sends the basis vectors <M>{`\\hat{\\imath}`}</M> and <M>{`\\hat{\\jmath}`}</M>.
+      </p>
+      <p>
+        If we put the destination of <M>{`\\hat{\\imath}`}</M> in the first column, and the destination of <M>{`\\hat{\\jmath}`}</M> in the second column, we get a transform matrix:
+      </p>
+      <MBlock>{`M = \\begin{bmatrix} a & c \\\\ b & d \\end{bmatrix}`}</MBlock>
+      <p>
+        Multiplying this matrix by a vector <M>{`v = (x, y)`}</M> is algebraically equivalent to scale-and-add:
+      </p>
+      <MBlock>{`M \\cdot v = \\begin{bmatrix} a & c \\\\ b & d \\end{bmatrix} \\begin{bmatrix} x \\\\ y \\end{bmatrix} = x \\begin{bmatrix} a \\\\ b \\end{bmatrix} + y \\begin{bmatrix} c \\\\ d \\end{bmatrix}`}</MBlock>
+      <p>
+        We are scaling the new X basis vector by <M>{`x`}</M>, scaling the new Y basis vector by <M>{`y`}</M>, and adding them together. This is why a matrix is just a container for the new basis vectors of the transformed space.
+      </p>
       <MatrixTransform2D />
       <p>
         Drag the sliders and watch the grid warp. The orange <M>{`\\hat{\\imath}`}</M> and blue{" "}
-        <M>{`\\hat{\\jmath}`}</M> arrows are literally the columns. The <strong>determinant</strong>{" "}
-        is the area of the transformed unit square — and if it goes negative, space has been flipped
-        inside-out (a mirror).
+        <M>{`\\hat{\\jmath}`}</M> arrows are literally the columns of the matrix.
       </p>
+
+      <h3>The Determinant: Scaling Space</h3>
+      <p>
+        The <strong>determinant</strong> of a matrix is a single scalar value. In 2D, it represents how much the area of a unit square scales when transformed:
+      </p>
+      <ul>
+        <li>
+          <strong><M>{`\\det(M) = 1`}</M></strong>: Area is preserved (e.g., pure rotations or shears).
+        </li>
+        <li>
+          <strong><M>{`\\det(M) = 0`}</M></strong>: Space has collapsed into a lower dimension (e.g., squashed to a 1D line or 0D point), meaning the transform cannot be inverted.
+        </li>
+        <li>
+          <strong><M>{`\\det(M) < 0`}</M></strong>: The grid has been flipped inside out (like a mirror reflection). The winding order of triangles is reversed.
+        </li>
+      </ul>
+
       <div className="notice">
-        <span className="lbl">Column-major</span>
+        <span className="lbl">Column-major Storage</span>
         Odin's <code>linalg</code>, Metal, and WGSL all store matrices <strong>column-major</strong>
         {" "}— the first four numbers in memory are the first column. This course's math library uses
         the same convention so the browser demos and the Odin code agree byte-for-byte.
@@ -183,16 +341,32 @@ function MVP() {
   return (
     <div className="prose">
       <p>
-        To draw a villager standing in a world, seen through a moving camera, on a 2D screen, you
-        chain three matrices. This single line is the heart of every 3D renderer ever written:
+        To render a 3D asset (like a character) standing in a virtual world onto a flat 2D screen, 
+        its vertices must travel through a series of coordinate systems. This sequence is controlled by 
+        multiplying the vertex position by three distinct matrices. This chain is the heart of 3D pipelines:
       </p>
       <MBlock>{`P_{clip} = M_{proj} \\cdot M_{view} \\cdot M_{model} \\cdot v_{local}`}</MBlock>
-      <ul>
-        <li><strong>Model</strong>: places the object into the world (position/rotation/scale).</li>
-        <li><strong>View</strong>: moves the world so the camera sits at the origin looking down −Z. It's the <em>inverse</em> of the camera's transform.</li>
-        <li><strong>Projection</strong>: applies perspective — distant things get smaller — and maps everything into the GPU's clip cube.</li>
-      </ul>
-      <p>Read right-to-left: the vertex is transformed by model first, then view, then projection.</p>
+
+      <h3>Evaluating Right-to-Left</h3>
+      <p>
+        Matrix-vector multiplication evaluates from right to left. The vector <M>{`v_{local}`}</M> is first modified by the model matrix, then the view matrix, and finally the projection matrix:
+      </p>
+      <ol>
+        <li>
+          <strong>Model Matrix (<M>{`M_{model}`}</M>)</strong>: 
+          Transforms vertices from <strong>Local Space</strong> (relative to the model's pivot point, e.g. the character's feet) to <strong>World Space</strong> (placing the model at a specific position, rotation, and size in the entire virtual map).
+        </li>
+        <li>
+          <strong>View Matrix (<M>{`M_{view}`}</M>)</strong>: 
+          Transforms coordinates from World Space to <strong>View Space</strong> (also called camera space). In View Space, the camera is positioned at the origin <M>{`(0,0,0)`}</M>, looking down the negative Z-axis.
+          <br />
+          <em>Intuition:</em> To position the camera, we do the opposite of moving the camera. The view matrix is the <strong>inverse</strong> of the camera's world transform. If the camera moves up and right, the view matrix shifts the entire world down and left.
+        </li>
+        <li>
+          <strong>Projection Matrix (<M>{`M_{proj}`}</M>)</strong>: 
+          Transforms coordinates from View Space to <strong>Clip Space</strong>. It sets up the perspective projection: it divides the coordinate values by distance so that objects further away appear smaller, and maps the visible frustum cone into a standardized box for the GPU.
+        </li>
+      </ol>
       <TransformPipeline3D />
       <p>
         Toggle each matrix off above to feel what it does. This exact chain runs in the vertex
@@ -238,19 +412,37 @@ function Quaternions() {
   return (
     <div className="prose">
       <p>
-        Euler angles (yaw/pitch/roll) seem intuitive but bite you: apply three sequential rotations and
-        near the poles two axes collapse into one — <strong>gimbal lock</strong> — and you lose a degree
-        of freedom. Interpolating them also wobbles. Rotations in a real engine use{" "}
-        <strong>quaternions</strong>: a 4-tuple <M>{`q = (w, x, y, z)`}</M> that encodes a rotation of
-        angle <M>{`\\theta`}</M> about a unit axis <M>{`\\hat{n}`}</M>.
+        Rotating 3D objects with simple angles—<strong>Euler angles</strong> (Yaw, Pitch, Roll)—seems intuitive, but has severe limitations:
       </p>
-      <MBlock>{`q = \\left(\\cos\\tfrac{\\theta}{2},\\; \\hat{n}\\,\\sin\\tfrac{\\theta}{2}\\right)`}</MBlock>
+      <ul>
+        <li>
+          <strong>Gimbal Lock</strong>: When rotating sequentially about three axes, rotating one axis by 90° can align the other two axes. You lose one rotational degree of freedom, and the camera/object becomes stuck or spins unexpectedly.
+        </li>
+        <li>
+          <strong>Interpolation Artifacts</strong>: Blending between two Euler orientations does not follow the shortest path, leading to unnatural speed changes and wobbly rotations.
+        </li>
+      </ul>
+
+      <h3>What is a Quaternion?</h3>
       <p>
-        A <strong>unit</strong> quaternion (length 1) represents a pure rotation. Composing rotations is
-        quaternion multiplication (order matters, like matrices); rotating a vector is{" "}
-        <M>{`v' = q\\,v\\,q^{-1}`}</M>. The payoff: no gimbal lock, cheap to renormalize against drift,
-        and smooth shortest-arc interpolation via <strong>slerp</strong> — essential for cameras and
-        animation.
+        To solve this, we use <strong>quaternions</strong>. A quaternion is a 4D number representing a rotation in 3D space. 
+        For a rotation of angle <M>{`\\theta`}</M> around a normalized 3D axis vector <M>{`\\hat{n} = (n_x, n_y, n_z)`}</M>, the unit quaternion <M>{`q`}</M> is defined as:
+      </p>
+      <MBlock>{`q = (w,\\; x,\\; y,\\; z) = \\left(\\cos\\tfrac{\\theta}{2},\\; \\hat{n}_x\\sin\\tfrac{\\theta}{2},\\; \\hat{n}_y\\sin\\tfrac{\\theta}{2},\\; \\hat{n}_z\\sin\\tfrac{\\theta}{2}\\right)`}</MBlock>
+
+      <h3>Applying and Composing Rotations</h3>
+      <p>
+        To rotate a vector <M>{`v`}</M>, we convert it into a quaternion with <M>{`w=0`}</M> and compute the product:
+        <MBlock>{`v' = q \\cdot v \\cdot q^{-1}`}</MBlock>
+        To avoid expensive quaternion math in shaders, we can use Rodrigues' rotation formula.
+      </p>
+      <p>
+        Combining rotations is simple: multiplying two quaternions <M>{`q_a \\cdot q_b`}</M> yields a single quaternion representing rotation <M>{`b`}</M> followed by rotation <M>{`a`}</M>. Order matters!
+      </p>
+
+      <h3>Slerp: Smooth Interpolation</h3>
+      <p>
+        Quaternions allow for <strong>Slerp</strong> (Spherical Linear Interpolation). Unlike linear interpolation, Slerp traverses the shortest path along the surface of a unit sphere at a constant angular speed. This is crucial for smooth camera transitions and character bone animations.
       </p>
       <CodeTabs
         tabs={[
@@ -292,25 +484,43 @@ function ClipSpace() {
   return (
     <div className="prose">
       <p>
-        The projection matrix doesn't just squash 3D to 2D — it outputs <strong>clip space</strong>, a
-        4D homogeneous coordinate <M>{`(x, y, z, w)`}</M> where <M>{`w`}</M> carries depth. The GPU then
-        does the <strong>perspective divide</strong>, dividing by <M>{`w`}</M> to reach{" "}
-        <strong>normalized device coordinates (NDC)</strong>. That divide is what makes distant things
-        small — perspective itself lives in the <M>{`w`}</M> component.
+        The output of your vertex shader is a 4D coordinate <M>{`(x, y, z, w)`}</M> in <strong>Clip Space</strong>. 
+        It is a homogeneous coordinate where the fourth component, <M>{`w`}</M>, plays a critical role in 3D perspective projection.
+      </p>
+
+      <h3>The Perspective Divide</h3>
+      <p>
+        After the vertex shader runs, the GPU hardware automatically performs the <strong>perspective divide</strong>, dividing the spatial components <M>{`x, y, z`}</M> by <M>{`w`}</M> to transition to <strong>Normalized Device Coordinates (NDC)</strong>:
       </p>
       <MBlock>{`\\text{NDC} = \\left(\\tfrac{x}{w},\\, \\tfrac{y}{w},\\, \\tfrac{z}{w}\\right)`}</MBlock>
       <p>
-        In NDC, everything visible fits a canonical box. This is where <strong>clipping</strong> and{" "}
-        <strong>frustum culling</strong> happen: a point is on-screen only if{" "}
-        <M>{`-w \\le x, y \\le w`}</M> and it's within the near/far depth range — a test you can run
-        <em>before</em> the divide, cheaply, on whole objects using their bounding volumes.
+        This division is what creates the perspective effect: since <M>{`w`}</M> is proportional to depth (how far the vertex is from the camera), dividing by <M>{`w`}</M> makes distant vertices shift closer to the center of the screen, shrinking them.
       </p>
-      <div className="notice">
-        <span className="lbl">The clip-space box differs by API</span>
-        NDC x/y are <M>{`[-1, 1]`}</M> everywhere, but the depth (z) range is{" "}
-        <strong>0…1 in Metal, WebGPU, and D3D</strong>, and <strong>−1…1 in OpenGL</strong>. Use the
-        matrix builder that matches your target, or your depth buffer will be wrong.
-      </div>
+
+      <h3>Frustum Clipping</h3>
+      <p>
+        In Clip Space (before the divide), the GPU checks if a coordinate is within the visible volume. A vertex is inside the screen boundaries if:
+      </p>
+      <MBlock>{`-w \\le x \\le w \\quad \\text{and} \\quad -w \\le y \\le w`}</MBlock>
+      <p>
+        This check is performed in clip space because it is computationally cheap and avoids division-by-zero or numerical issues for points behind the camera (<M>{`w \\le 0`}</M>).
+      </p>
+
+      <h3>Depth Range Convention Warnings</h3>
+      <p>
+        While NDC horizontal/vertical coordinates <M>{`x`}</M> and <M>{`y`}</M> are mapped to <M>{`[-1, 1]`}</M> across all graphics engines, the depth component <M>{`z`}</M> boundaries vary by API:
+      </p>
+      <ul>
+        <li>
+          <strong>Metal, WebGPU, and Direct3D</strong> use a range of <strong>0 to 1</strong> (so a vertex is visible if <M>{`0 \\le z \\le w`}</M> in clip space).
+        </li>
+        <li>
+          <strong>OpenGL</strong> uses a range of <strong>−1 to 1</strong> (so a vertex is visible if <M>{`-w \\le z \\le w`}</M>).
+        </li>
+      </ul>
+      <p>
+        Using the wrong projection matrix will result in geometry being clipped incorrectly at the near plane or failing depth testing.
+      </p>
       <CodeTabs
         tabs={[
           {
