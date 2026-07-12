@@ -3,6 +3,7 @@ import { CheckCircle, XCircle, Circle, ArrowRight, Sparkle } from "@phosphor-ico
 import type { Quiz as QuizType } from "../content/types";
 import { useProgress } from "../lib/progress";
 import { isLLMEnabled, generate } from "../lib/llm";
+import { KnowledgeCard, KnowledgeFooter } from "./KnowledgeCard";
 
 export function Quiz({
   id,
@@ -53,103 +54,85 @@ export function Quiz({
 
   if (finished) {
     return (
-      <div className="qz">
-        <QuizHeader step={total} total={total} />
-        <div className="qz-complete">
-          <div className="qzc-icon"><Sparkle size={34} weight="fill" /></div>
-          <div className="qzc-title">Knowledge Check Complete</div>
-          <div className="qzc-score">{correctCount} / {total} Correct</div>
-          <div className="qzc-pct">{pct}%</div>
-          <div className="qzc-label">estimated mastery</div>
-          <div className="qzc-meter"><i style={{ width: `${pct}%` }} /></div>
-        </div>
+      <div className="kc-complete" role="status">
+        <div className="kc-complete-glow" aria-hidden />
+        <div className="kc-complete-icon"><Sparkle size={32} weight="fill" /></div>
+        <div className="kc-complete-title">Knowledge Check Complete</div>
+        <div className="kc-complete-score">{correctCount} / {total} correct</div>
+        <div className="kc-complete-pct">{pct}%</div>
+        <div className="kc-complete-label">estimated mastery</div>
+        <div className="kc-complete-meter"><i style={{ width: `${pct}%` }} /></div>
       </div>
     );
   }
 
   return (
-    <div className="qz">
-      <QuizHeader step={step} total={total} />
-
-      <div className="qz-stack">
-        {step + 1 < total && <div className="qz-ghost g1" aria-hidden />}
-        {step + 2 < total && <div className="qz-ghost g2" aria-hidden />}
-
-        <div className={"qz-card" + (shake ? " shake" : "")} key={step}>
-          <div className="qz-qnum">Question {step + 1}</div>
-          <div className="qz-question">{q.q}</div>
-
-          <div className="qz-options">
-            {(q.choices ?? []).map((c, oi) => {
-              let state = "";
-              if (answered) {
-                if (oi === q.answer) state = " correct";
-                else if (oi === chosen) state = " incorrect";
-                else state = " muted";
-              }
-              return (
-                <button
-                  key={oi}
-                  className={"qz-opt" + state + (chosen === oi ? " picked" : "")}
-                  onClick={() => choose(oi)}
-                  disabled={answered}
-                >
-                  <span className="qz-radio">
-                    {answered && oi === q.answer ? <CheckCircle size={20} weight="fill" />
-                      : answered && oi === chosen ? <XCircle size={20} weight="fill" />
-                      : <Circle size={20} weight={chosen === oi ? "fill" : "regular"} />}
-                  </span>
-                  <span className="qz-opt-text">{c}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          {answered && (
-            <div className={"qz-feedback" + (isWrong ? " wrong" : " right")}>
-              <div className="qz-fb-head">
-                {isWrong ? <XCircle size={18} weight="fill" /> : <CheckCircle size={18} weight="fill" />}
-                {isWrong ? "Not quite" : "Correct"}
-              </div>
-              <p>{q.explain}</p>
-              {isWrong && (
-                <ExplainMistake
-                  question={q.q}
-                  chosen={q.choices?.[chosen] ?? ""}
-                  correctAnswer={q.choices?.[q.answer] ?? ""}
-                  staticExplain={q.explain}
-                  lessonTitle={lessonTitle}
-                  lessonSummary={lessonSummary}
-                />
-              )}
+    <KnowledgeCard
+      key={step}
+      eyebrow={`Question ${step + 1} of ${total}`}
+      step={step}
+      total={total}
+      question={q.q}
+      tone={answered ? (isWrong ? "wrong" : "right") : "neutral"}
+      shake={shake}
+      ghosts={Math.min(2, total - step - 1)}
+      feedback={
+        answered ? (
+          <div className={"kc-feedback" + (isWrong ? " wrong" : " right")}>
+            <div className="kc-fb-head">
+              {isWrong ? <XCircle size={17} weight="fill" /> : <CheckCircle size={17} weight="fill" />}
+              {isWrong ? "Not quite" : "Correct"}
             </div>
-          )}
-
-          <div className="qz-nav">
-            <button className="btn primary" onClick={next} disabled={!answered}>
+            <p>{q.explain}</p>
+            {isWrong && (
+              <ExplainMistake
+                question={q.q}
+                chosen={q.choices?.[chosen] ?? ""}
+                correctAnswer={q.choices?.[q.answer] ?? ""}
+                staticExplain={q.explain}
+                lessonTitle={lessonTitle}
+                lessonSummary={lessonSummary}
+              />
+            )}
+          </div>
+        ) : undefined
+      }
+      footer={
+        <KnowledgeFooter
+          primary={
+            <button className="kc-btn primary" onClick={next} disabled={!answered}>
               {step + 1 >= total ? "Finish" : "Continue"} <ArrowRight size={15} weight="bold" />
             </button>
-          </div>
-        </div>
+          }
+        />
+      }
+    >
+      <div className="kc-options">
+        {(q.choices ?? []).map((c, oi) => {
+          let state = "";
+          if (answered) {
+            if (oi === q.answer) state = " correct";
+            else if (oi === chosen) state = " incorrect";
+            else state = " muted";
+          }
+          return (
+            <button
+              key={oi}
+              className={"kc-opt" + state + (chosen === oi ? " picked" : "")}
+              onClick={() => choose(oi)}
+              disabled={answered}
+            >
+              <span className="kc-radio">
+                {answered && oi === q.answer ? <CheckCircle size={20} weight="fill" />
+                  : answered && oi === chosen ? <XCircle size={20} weight="fill" />
+                  : <Circle size={20} weight={chosen === oi ? "fill" : "regular"} />}
+              </span>
+              <span className="kc-opt-text">{c}</span>
+            </button>
+          );
+        })}
       </div>
-    </div>
-  );
-}
-
-function QuizHeader({ step, total }: { step: number; total: number }) {
-  const doneCount = Math.min(step, total);
-  return (
-    <div className="qz-head">
-      <div className="qz-head-top">
-        <span className="qz-title">Knowledge Check</span>
-        <span className="qz-count">{doneCount} / {total} Complete</span>
-      </div>
-      <div className="qz-segs">
-        {Array.from({ length: total }).map((_, i) => (
-          <span key={i} className={"qz-seg" + (i < step ? " done" : i === step ? " current" : "")} />
-        ))}
-      </div>
-    </div>
+    </KnowledgeCard>
   );
 }
 
@@ -193,16 +176,16 @@ function ExplainMistake({
   }
 
   return (
-    <div className="qz-coach">
+    <div className="kc-coach">
       {!text && (
-        <button className="btn sm" onClick={explain} disabled={loading}>
+        <button className="kc-btn ghost sm" onClick={explain} disabled={loading}>
           {loading ? "Thinking…" : "✦ Explain my mistake"}
         </button>
       )}
       {text && (
-        <div className="notice">
-          <span className="lbl">Coach</span>
-          <span style={{ whiteSpace: "pre-wrap" }}>{text}</span>
+        <div className="kc-coach-note">
+          <span className="kc-coach-lbl">Coach</span>
+          <span>{text}</span>
         </div>
       )}
     </div>

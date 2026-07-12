@@ -325,9 +325,10 @@ function ExerciseFlow({ module, lesson }: { module: Module; lesson: Lesson }) {
 
       {active ? (
         <div className="cr-ex-active" key={active.id}>
-          <div className="cr-ex-step">Exercise {cursor + 1} of {exercises.length}</div>
           <Exercise
             ex={active}
+            step={cursor}
+            total={exercises.length}
             onResult={(passed) => {
               recordExercise(keyOf(active.id), passed);
               if (passed) {
@@ -335,12 +336,8 @@ function ExerciseFlow({ module, lesson }: { module: Module; lesson: Lesson }) {
                 if (nxt >= 0) setCursor(nxt);
               }
             }}
+            onSkip={undoneRemaining > 0 ? () => setCursor(nextUndone(cursor)) : undefined}
           />
-          {undoneRemaining > 0 && (
-            <button className="cr-skip" onClick={() => setCursor(nextUndone(cursor))}>
-              Skip for now <ArrowRight size={13} weight="bold" />
-            </button>
-          )}
         </div>
       ) : (
         <div className="cr-ex-allclear">
