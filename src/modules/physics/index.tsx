@@ -12,11 +12,29 @@ function GameLoop() {
         between frames is <M>{`\\Delta t`}</M> (dt) — everything that moves is scaled by it, so the
         simulation runs at the same speed whether you're at 30 or 144 fps.
       </p>
+
+      <h3>Fixed Timesteps & The Spiral of Death</h3>
       <p>
-        The subtlety: if you feed the raw frame time straight into physics, a stutter (a big dt)
-        can make objects tunnel through walls or explode. The fix is a <strong>fixed timestep</strong>
-        — accumulate real time and step the simulation in constant slices:
+        If you feed the raw variable frame time straight into physics, a temporary stutter (a large dt)
+        causes objects to move huge distances in a single frame. This leads to objects <strong>tunneling</strong> straight through walls or physics constraints exploding. 
       </p>
+      <p>
+        To prevent this, games use a <strong>fixed timestep</strong> for the physics simulation. 
+        We accumulate real elapsed time in an accumulator, and then step the physics system forward in small, constant slices (e.g. 1/60th of a second).
+      </p>
+      <p>
+        However, if the physics update itself becomes slow, or the GPU slows down, a dangerous feedback loop known as the <strong>Spiral of Death</strong> can occur:
+      </p>
+      <ol>
+        <li>A frame lags, making the next frame's <code>frame_time</code> large (e.g. 100ms).</li>
+        <li>The accumulator now requires several physics updates (e.g. 6 steps of 16.6ms) to catch up in a single frame.</li>
+        <li>These 6 steps take even longer to compute, causing the <em>next</em> frame's lag to be even worse.</li>
+        <li>This loops until the game freezes or crashes.</li>
+      </ol>
+      <p>
+        To break this spiral, we clamp the maximum frame time we accumulate in a single frame (e.g. to 250ms), allowing the simulation to slow down rather than locking up the CPU.
+      </p>
+
       <Code
         lang="odin" filename="loop.odin"
         code={`FIXED_DT :: 1.0 / 60.0
@@ -48,23 +66,37 @@ function Integration() {
   return (
     <div className="prose">
       <p>
-        Physics is calculus you don't have a formula for, so you approximate: given acceleration,
-        step velocity and position forward by small amounts. The <em>how</em> matters enormously for
-        stability.
+        Physics in game engines is calculus you don't have a closed-form equation for. Instead, we approximate: 
+        given forces and acceleration, we step velocity and position forward by small amounts over time. 
+        The numerical method you choose has a massive impact on the stability of your simulation.
       </p>
-      <p><strong>Explicit (forward) Euler</strong> — update position with the old velocity:</p>
-      <MBlock>{`x_{t+1} = x_t + v_t \\, \\Delta t \\qquad v_{t+1} = v_t + a \\, \\Delta t`}</MBlock>
-      <p>Simple, but it <em>adds energy</em> over time — orbits spiral out, bouncing balls climb.</p>
-      <p><strong>Semi-implicit (symplectic) Euler</strong> — update velocity first, then use the new velocity for position:</p>
-      <MBlock>{`v_{t+1} = v_t + a \\, \\Delta t \\qquad x_{t+1} = x_t + v_{t+1} \\, \\Delta t`}</MBlock>
+
+      <h3>Explicit (Forward) Euler: Energy Gain</h3>
       <p>
-        One line reordered, and it becomes energy-stable. This is the workhorse of game physics.
+        Explicit Euler updates the position using the velocity from the <strong>start</strong> of the timestep:
       </p>
+      <MBlock>{`x_{t+1} = x_t + v_t \\, \\Delta t \\qquad v_{t+1} = v_t + a_t \\, \\Delta t`}</MBlock>
       <p>
-        <strong>Verlet</strong> stores the previous position instead of velocity — great for cloth,
-        ropes, and constraint-based systems (and, not coincidentally, the family Tiny Glade-style
-        soft systems lean on).
+        While simple, this method is fundamentally unstable for oscillating systems. 
+        Because it projects position forward along the <em>current</em> tangent line of the curve, it continually overshoots. 
+        In orbits, the object spirals outward; for a bouncing ball, it bounces higher and higher, <strong>creating energy from nothing</strong>.
       </p>
+
+      <h3>Semi-implicit (Symplectic) Euler: Stability</h3>
+      <p>
+        By making a single modification—calculating the new velocity first, and using the <strong>new</strong> velocity to update position—we get:
+      </p>
+      <MBlock>{`v_{t+1} = v_t + a_t \\, \\Delta t \\qquad x_{t+1} = x_t + v_{t+1} \\, \\Delta t`}</MBlock>
+      <p>
+        This is a <strong>symplectic integrator</strong>. Unlike Explicit Euler, it preserves phase space volume (satisfying Liouville's theorem) and conserves a close approximation of the system's total energy (a modified Hamiltonian). 
+        Instead of drifting exponentially, energy errors oscillate within a tight, bounded range. This makes it the standard workhorse for game physics.
+      </p>
+
+      <p>
+        <strong>Verlet integration</strong> is another popular method that stores the previous position instead of velocity (<M>{`x_{t+1} = 2x_t - x_{t-1} + a_t \\Delta t^2`}</M>). 
+        Because velocity is implicit, Verlet is extremely stable for constraints, making it the choice for cloth, ropes, and soft-body physics (e.g. Tiny Glade's procedurally deformed objects).
+      </p>
+
       <IntegratorDemo />
       <div className="notice warn">
         <span className="lbl">See it break</span>
@@ -127,7 +159,7 @@ function Collision() {
     <div className="prose">
       <p>
         Collision detection asks: are two shapes overlapping, and if so, how do I push them apart?
-        You start with cheap <strong>bounding volumes</strong> and only do exact tests when those
+        To keep performance high, you start with cheap <strong>bounding volumes</strong> and only do exact tests when those
         overlap.
       </p>
       <ul>
@@ -145,6 +177,32 @@ function Collision() {
         </li>
       </ul>
       <MBlock>{`\\text{spheres hit} \\iff \\|c_1 - c_2\\|^2 < (r_1 + r_2)^2`}</MBlock>
+
+      <h3>Ray-Plane Intersection Math</h3>
+      <p>
+        A ray is defined by its origin <M>{`o`}</M> and direction <M>{`d`}</M>: <M>{`r(t) = o + t \\cdot d`}</M>. 
+        A plane is defined by a normal vector <M>{`n`}</M> and a point on the plane <M>{`p_n`}</M> (or scalar distance <M>{`d_p`}</M>): <M>{`(p - p_n) \\cdot n = 0`}</M>.
+      </p>
+      <p>
+        To find the intersection point, we substitute the ray equation into the plane equation:
+      </p>
+      <MBlock>{`(o + t \\cdot d - p_n) \\cdot n = 0 \\implies t \\cdot (d \\cdot n) = (p_n - o) \\cdot n \\implies t = \\frac{(p_n - o) \\cdot n}{d \\cdot n}`}</MBlock>
+      <p>
+        If <M>{`d \\cdot n = 0`}</M>, the ray is parallel to the plane and never intersects. A valid intersection requires <M>{`t \\ge 0`}</M>.
+      </p>
+
+      <h3>Ray-AABB Slabs Intersection</h3>
+      <p>
+        An AABB can be represented as the intersection of three perpendicular 1D slabs (X, Y, and Z intervals). 
+        To check if a ray intersects an AABB, we compute the ray's entry and exit times for each axis slab:
+      </p>
+      <MBlock>{`t_{x1} = \\frac{x_{min} - o_x}{d_x}, \\quad t_{x2} = \\frac{x_{max} - o_x}{d_x}`}</MBlock>
+      <p>
+        We do this for all three axes. The ray enters the AABB when it has entered <strong>all</strong> slabs: <M>{`t_{min} = \\max(t_{x1}, t_{y1}, t_{z1})`}</M>. 
+        The ray leaves the AABB when it leaves <strong>any</strong> slab: <M>{`t_{max} = \\min(t_{x2}, t_{y2}, t_{z2})`}</M>. 
+        If <M>{`t_{min} \\le t_{max}`}</M> and <M>{`t_{max} \\ge 0`}</M>, the ray intersects the box!
+      </p>
+
       <Code
         lang="odin" filename="collide.odin"
         code={`aabb_overlap :: proc(a_min, a_max, b_min, b_max: [3]f32) -> bool {
