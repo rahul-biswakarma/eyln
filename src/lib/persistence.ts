@@ -7,6 +7,7 @@ import { useNotes, type Note, type Reminder, type OpenScore } from "./notes";
 interface CloudDoc {
   done?: Record<string, boolean>;
   quizScores?: Record<string, number>;
+  exercisesDone?: Record<string, boolean>;
   lastVisited?: Record<string, number>;
   solvedChallenges?: Record<string, number>;
   notes?: Note[];
@@ -31,6 +32,7 @@ function snapshot(): CloudDoc {
   return {
     done: p.done,
     quizScores: p.quizScores,
+    exercisesDone: p.exercisesDone,
     lastVisited: p.lastVisited,
     solvedChallenges: p.solvedChallenges,
     notes: n.notes,
@@ -68,6 +70,7 @@ async function fetchAndHydrate(uid: string) {
       useProgress.setState({
         done: c.done ?? {},
         quizScores: c.quizScores ?? {},
+        exercisesDone: c.exercisesDone ?? {},
         lastVisited: c.lastVisited ?? {},
         solvedChallenges: c.solvedChallenges ?? {},
       });

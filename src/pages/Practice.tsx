@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { CheckCircle, ArrowRight } from "@phosphor-icons/react";
 import {
-  challengesForTrack, challengesByTopic, PRACTICE_TRACKS,
+  challengesForTrack, challengesByTopic, PRACTICE_TRACKS, challenges, trackOf,
   type PracticeTrack,
 } from "../content/challenges";
 import type { PracticeTrackId } from "../content/types";
@@ -10,9 +11,15 @@ import { useProgress } from "../lib/progress";
 
 export function Practice() {
   const solved = useProgress((s) => s.solvedChallenges);
-  const [trackId, setTrackId] = useState<PracticeTrackId>("dsa");
+  const [params] = useSearchParams();
+  // Deep-link: /practice?c=<challengeId> preselects that challenge + its track.
+  const linked = params.get("c");
+  const linkedChallenge = linked ? challenges.find((c) => c.id === linked) : undefined;
+  const [trackId, setTrackId] = useState<PracticeTrackId>(
+    linkedChallenge ? trackOf(linkedChallenge) : "dsa"
+  );
   const trackList = useMemo(() => challengesForTrack(trackId), [trackId]);
-  const [activeId, setActiveId] = useState(trackList[0]?.id);
+  const [activeId, setActiveId] = useState(linkedChallenge?.id ?? trackList[0]?.id);
 
   const active = trackList.find((c) => c.id === activeId) ?? trackList[0];
   const activeIdx = trackList.findIndex((c) => c.id === active.id);

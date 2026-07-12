@@ -9,11 +9,13 @@ function save() {
 interface ProgressState {
   done: Record<string, boolean>;
   quizScores: Record<string, number>;
+  exercisesDone: Record<string, boolean>;
   lastVisited: Record<string, number>;
   solvedChallenges: Record<string, number>;
   toggleDone: (lessonId: string) => void;
   setDone: (lessonId: string, value: boolean) => void;
   recordQuiz: (quizId: string, score: number) => void;
+  recordExercise: (exerciseId: string, passed: boolean) => void;
   recordChallenge: (challengeId: string) => void;
   visit: (lessonKey: string) => void;
   reset: () => void;
@@ -24,6 +26,7 @@ export const useProgress = create<ProgressState>()(
     (set) => ({
       done: {},
       quizScores: {},
+      exercisesDone: {},
       lastVisited: {},
       solvedChallenges: {},
       toggleDone: (id) => {
@@ -40,6 +43,14 @@ export const useProgress = create<ProgressState>()(
         }));
         save();
       },
+      recordExercise: (id, passed) => {
+        set((s) => {
+          // Once passed, stay passed — never regress on a later failed attempt.
+          if (s.exercisesDone[id] && !passed) return s;
+          return { exercisesDone: { ...s.exercisesDone, [id]: passed } };
+        });
+        save();
+      },
       recordChallenge: (id) => {
         set((s) => ({ solvedChallenges: { ...s.solvedChallenges, [id]: Date.now() } }));
         save();
@@ -49,7 +60,7 @@ export const useProgress = create<ProgressState>()(
         save();
       },
       reset: () => {
-        set({ done: {}, quizScores: {}, lastVisited: {}, solvedChallenges: {} });
+        set({ done: {}, quizScores: {}, exercisesDone: {}, lastVisited: {}, solvedChallenges: {} });
         save();
       },
     }),

@@ -1134,6 +1134,31 @@ export function trackOf(c: CodeChallenge): PracticeTrackId {
   return c.practiceTrack ?? "dsa";
 }
 
+/** Significant (>2 char, non-stopword) lowercased tokens of a label. */
+function keyTokens(label: string): string[] {
+  const stop = new Set(["and", "the", "for", "with", "big", "amp"]);
+  return label
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter((w) => w.length > 2 && !stop.has(w));
+}
+
+/**
+ * Capstone challenges for a chapter: same track, topic sharing a keyword with the
+ * module title (e.g. "Trees & Heaps" → topic "Trees"). Hardest first so the top
+ * one reads as the chapter "boss level". Empty if the chapter has no match.
+ */
+export function challengesForModule(
+  track: PracticeTrackId,
+  moduleTitle: string
+): CodeChallenge[] {
+  const want = new Set(keyTokens(moduleTitle));
+  if (want.size === 0) return [];
+  return challengesForTrack(track)
+    .filter((c) => keyTokens(c.topic).some((t) => want.has(t)))
+    .sort((a, b) => XP_BY_DIFFICULTY[b.difficulty] - XP_BY_DIFFICULTY[a.difficulty]);
+}
+
 export function challengesForTrack(track: PracticeTrackId): CodeChallenge[] {
   return challenges.filter((c) => trackOf(c) === track);
 }

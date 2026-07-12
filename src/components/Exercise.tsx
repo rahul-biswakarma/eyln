@@ -9,12 +9,24 @@ interface GradeJSON {
   feedback: string;
 }
 
-export function Exercise({ ex }: { ex: ExerciseType }) {
+export function Exercise({
+  ex,
+  onResult,
+}: {
+  ex: ExerciseType;
+  /** Fired whenever the exercise is graded, with the pass/fail outcome. */
+  onResult?: (passed: boolean) => void;
+}) {
   const [value, setValue] = useState(ex.starter);
   const [result, setResult] = useState<ExerciseResult | null>(null);
   const [showHint, setShowHint] = useState(false);
   const [grading, setGrading] = useState(false);
   const recordOpenScore = useNotes((s) => s.recordOpenScore);
+
+  function finish(r: ExerciseResult) {
+    setResult(r);
+    onResult?.(r.pass);
+  }
 
   const isOpen = ex.kind === "open" || ex.kind === "code-open";
   const multiline = ex.kind === "wgsl" || ex.kind === "ts" || ex.kind === "code-open";
@@ -23,7 +35,7 @@ export function Exercise({ ex }: { ex: ExerciseType }) {
     
     if (isOpen) {
       if (!isLLMEnabled()) {
-        setResult({
+        finish({
           pass: false,
           message: "AI grading is off.",
           feedback:
@@ -47,7 +59,7 @@ export function Exercise({ ex }: { ex: ExerciseType }) {
         const parsed = parseJSON<GradeJSON>(raw);
         if (parsed) {
           recordOpenScore(ex.id, Math.max(0, Math.min(1, parsed.score)));
-          setResult({ pass: parsed.pass, message: parsed.pass ? "Passed" : "Not yet", feedback: parsed.feedback });
+          finish({ pass: parsed.pass, message: parsed.pass ? "Passed" : "Not yet", feedback: parsed.feedback });
         } else {
           setResult({ pass: false, message: "Couldn't parse the grade — here's the raw feedback:", feedback: raw });
         }
@@ -59,7 +71,7 @@ export function Exercise({ ex }: { ex: ExerciseType }) {
       return;
     }
     // Deterministic kinds.
-    if (ex.validate) setResult(ex.validate(value));
+    if (ex.validate) finish(ex.validate(value));
   }
 
   return (
