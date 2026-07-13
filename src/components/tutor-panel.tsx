@@ -302,7 +302,7 @@ export function TutorPanel() {
                             <div key={blockIdx} className={`tp-notebook-block ${block.type}`}>
                               {block.type !== "heading" && (
                                 <div className="tp-block-actions">
-                                  <Tooltip content={isPinned ? "Already Pinned" : "Pin to Notes"}>
+                                  <Tooltip content={isPinned ? "Already Pinned" : "Pin to Knowledge"}>
                                     <button
                                       className={"action-btn" + (isPinned ? " pinned" : "")}
                                       onClick={() => handlePin(block)}

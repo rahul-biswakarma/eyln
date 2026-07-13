@@ -10,7 +10,7 @@ const NAV = [
   { to: "/", label: "Dashboard", end: true },
   { to: "/curriculum", label: "Curriculum", end: false },
   { to: "/practice", label: "Practice", end: false },
-  { to: "/notes", label: "Notes", end: false },
+  { to: "/knowledge", label: "Knowledge", end: false },
 ];
 
 export function TopNav() {
@@ -40,7 +40,7 @@ export function TopNav() {
         <button
           className="icon-btn"
           title={due ? `${due} reminder(s) due` : "Reminders"}
-          onClick={() => navigate("/notes")}
+          onClick={() => navigate("/knowledge")}
           style={{ position: "relative" }}
         >
           <Bell size={19} weight="duotone" />

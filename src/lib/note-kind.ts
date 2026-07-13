@@ -1,10 +1,13 @@
 import type { Note } from "./notes";
 
-export type NoteKind = "ai" | "formula" | "code" | "mistake" | "voice" | "note";
+export type NoteKind = "ai" | "formula" | "code" | "mistake" | "voice" | "quote" | "vocab" | "idea" | "note";
 
 export function noteKind(note: Note): NoteKind {
   if (note.tags.includes("mistake")) return "mistake";
   if (note.tags.includes("audio")) return "voice";
+  if (note.tags.includes("quote")) return "quote";
+  if (note.tags.includes("vocab")) return "vocab";
+  if (note.tags.includes("idea")) return "idea";
   if (note.tags.includes("pinned")) return "ai";
   if (note.tags.includes("formula") || /\$\$?[^$]+\$\$?/.test(note.body)) return "formula";
   if (note.tags.includes("code") || /```/.test(note.body)) return "code";
@@ -17,6 +20,9 @@ export const NOTE_KIND_META: Record<NoteKind, { label: string; accent: string }>
   code: { label: "Code", accent: "blue" },
   mistake: { label: "Mistake", accent: "red" },
   voice: { label: "Voice Memo", accent: "green" },
+  quote: { label: "Quote", accent: "teal" },
+  vocab: { label: "Vocabulary", accent: "pink" },
+  idea: { label: "Idea", accent: "lime" },
   note: { label: "Note", accent: "neutral" },
 };
 

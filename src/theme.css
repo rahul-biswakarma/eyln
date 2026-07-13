@@ -2472,74 +2472,58 @@ table.rosetta td code { background: none; border: none; padding: 0; }
   outline: none;
 }
 
-/* ============ Engineering Notebook ============ */
 .notebook-shell {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 70px);
+  height: 100%;
+  width: 100%;
   overflow: hidden;
   background: var(--background);
 }
 
-/* Editorial Hero Banner */
-.nb-hero {
-  padding: 1.4rem 2.2rem 1.1rem;
+/* Redesigned Workspace Header */
+.nb-workspace-header {
+  padding-bottom: 1.4rem;
   border-bottom: 1px solid var(--border);
+  margin-bottom: 1.5rem;
+  position: relative;
+  /* Warm amber radial gradient behind the header to add depth */
+  background: radial-gradient(circle at 0% 0%, rgba(255, 176, 0, 0.05) 0%, transparent 60%);
+}
+.nb-title-row {
   display: flex;
+  align-items: baseline;
   justify-content: space-between;
-  align-items: center;
-  gap: 2rem;
-  flex-shrink: 0;
+  gap: 1.5rem;
+  margin-bottom: 1.2rem;
+  flex-wrap: wrap;
 }
-.nb-hero-header {
-  max-width: 600px;
-}
-.nb-kicker {
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.15em;
-  color: var(--accent);
-  text-transform: uppercase;
-  display: block;
-  margin-bottom: 0.3rem;
-}
-.nb-hero h1 {
+.nb-title-row h1 {
   font-family: var(--display);
-  font-size: 1.7rem;
+  font-size: 2.5rem;
   font-weight: 700;
+  letter-spacing: -0.02em;
   color: var(--text);
-  margin: 0 0 0.3rem;
-}
-.nb-sub {
-  color: var(--text-dim);
-  font-size: 0.84rem;
-  line-height: 1.45;
   margin: 0;
-  max-width: 540px;
 }
-
-/* Statistics display — compact inline pills, not dashboard widgets */
-.nb-stats {
+.nb-stats-quiet {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  flex-shrink: 0;
+  gap: 0.6rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-faint);
 }
-.nb-stat-pill {
+.nb-stats-quiet span {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  background: var(--surface-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-pill);
-  padding: 0.35rem 0.7rem;
-  font-family: var(--mono);
-  font-size: 0.74rem;
-  color: var(--text-dim);
-  white-space: nowrap;
 }
-.nb-stat-pill svg {
-  color: var(--accent);
+.nb-stats-quiet .dot {
+  color: rgba(255, 255, 255, 0.15);
+}
+.nb-stats-quiet svg {
+  margin-right: 0.25rem;
+  color: var(--text-faint);
 }
 
 /* Workspace Split */
@@ -2660,7 +2644,7 @@ table.rosetta td code { background: none; border: none; padding: 0; }
 .nb-search {
   position: relative;
   flex: 1;
-  max-width: 320px;
+  max-width: 520px;
 }
 .nb-search .search-icon {
   position: absolute;
@@ -2964,6 +2948,9 @@ table.rosetta td code { background: none; border: none; padding: 0; }
 .nb-note-card.accent-violet { --type-accent: var(--cr-violet, #A98CFF); }
 .nb-note-card.accent-blue { --type-accent: #5B9DFF; }
 .nb-note-card.accent-green { --type-accent: var(--good); }
+.nb-note-card.accent-teal { --type-accent: #4FD1C5; }
+.nb-note-card.accent-pink { --type-accent: #FF7EB6; }
+.nb-note-card.accent-lime { --type-accent: #B4E44D; }
 .nb-note-card.accent-neutral { --type-accent: var(--border-bright); }
 .nb-note-card:hover {
   border-color: var(--border-bright);
@@ -3035,6 +3022,46 @@ table.rosetta td code { background: none; border: none; padding: 0; }
   font-size: 0.78rem;
   max-height: 140px;
   overflow: auto;
+}
+.card-quote-preview {
+  position: relative;
+  padding-left: 1.6rem;
+}
+.card-quote-preview .quote-mark {
+  position: absolute;
+  left: 0;
+  top: 0.1rem;
+  color: var(--type-accent, var(--text-faint));
+  opacity: 0.6;
+}
+.card-quote-preview .quote-text {
+  margin: 0 0 0.3rem;
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 0.94rem;
+  color: var(--text);
+  line-height: 1.5;
+}
+.card-quote-preview .quote-source {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-faint);
+}
+.card-vocab-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.card-vocab-preview .vocab-word {
+  font-family: var(--display);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--type-accent, var(--text));
+}
+.card-vocab-preview .vocab-def {
+  font-size: 0.84rem;
+  color: var(--text-dim);
+  line-height: 1.5;
 }
 .card-tags {
   display: flex;
@@ -3222,132 +3249,238 @@ table.rosetta td code { background: none; border: none; padding: 0; }
   border-color: var(--border-bright);
 }
 
-/* Custom Dialog Modal overlays */
-.custom-dialog-overlay {
+/* ============ Capture Workspace ============
+   A floating command-palette-style surface for capturing knowledge,
+   replacing the old dropdown + modal-form pattern. Capture first,
+   classify automatically, organize later. */
+.capture-overlay {
   position: fixed;
   inset: 0;
   z-index: 1000;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(4px);
-  display: grid;
-  place-items: center;
+  background: rgba(6, 6, 9, 0.6);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: min(14vh, 140px);
 }
-.custom-dialog-content {
+.capture-workspace {
+  width: min(600px, 92vw);
+  max-height: calc(100vh - min(14vh, 140px) - 2rem);
+  overflow-y: auto;
   background: var(--surface-card);
   border: 1px solid var(--border-bright);
-  border-radius: 18px;
-  width: 460px;
-  padding: 1.4rem;
-  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.6);
-  animation: rise 0.25s var(--ease) both;
+  border-radius: 20px;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.02);
+  padding: 1.6rem 1.7rem 1.4rem;
+  animation: capture-rise 0.22s var(--ease) both;
 }
-.dialog-header {
+@keyframes capture-rise {
+  from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+.capture-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1.2rem;
+  margin-bottom: 0.3rem;
 }
-.dialog-header h3 {
-  font-family: var(--display);
-  font-size: 1.15rem;
-  margin: 0;
+.capture-kicker {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent);
 }
-.dialog-header .close-btn {
+.capture-close {
   background: transparent;
   border: none;
   color: var(--text-faint);
   cursor: pointer;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  transition: all var(--dur) var(--ease);
 }
-.dialog-form {
+.capture-close:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.06);
+}
+.capture-prompt {
+  font-family: var(--display);
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0.1rem 0 1.1rem;
+}
+.capture-input-wrap {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
-.dialog-form label {
-  font-family: var(--sans);
-  font-size: 0.76rem;
-  color: var(--text-faint);
-  text-transform: uppercase;
-  margin-top: 0.5rem;
-}
-.dialog-form textarea {
+.capture-input {
+  width: 100%;
   background: var(--surface-inset);
   border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 0.6rem;
+  border-radius: var(--radius);
+  padding: 0.85rem 1rem;
   font-family: var(--sans);
-  font-size: 0.88rem;
+  font-size: 0.96rem;
+  line-height: 1.55;
   color: var(--text);
   outline: none;
   resize: none;
+  transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
 }
-.dialog-form input, .dialog-form select {
+.capture-input:focus {
+  border-color: var(--border-glow);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.capture-source {
+  width: 100%;
   background: var(--surface-inset);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  padding: 0.45rem 0.6rem;
+  padding: 0.55rem 0.8rem;
   font-family: var(--sans);
   font-size: 0.84rem;
   color: var(--text);
   outline: none;
 }
-.dialog-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
-  margin-top: 1.4rem;
+.capture-source:focus {
+  border-color: var(--border-glow);
 }
-
-/* Audio Recording Mock Visualizer */
-.recording-header {
-  margin-bottom: 1.2rem;
-}
-.recording-header h3 {
-  font-family: var(--display);
-  font-size: 1.1rem;
-  margin: 0.6rem 0 0.2rem;
-}
-.recording-header p {
-  font-size: 0.8rem;
-  color: var(--text-faint);
-}
-.recording-icon {
-  color: #ff5c5c;
-  animation: pulse 1s ease-in-out infinite;
-}
-.recording-wave {
+.capture-footer-row {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 3px;
-  height: 40px;
-  margin: 1.4rem 0;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin-top: 0.8rem;
 }
-.wave-bar {
-  display: inline-block;
-  width: 4px;
-  background: #ff5c5c;
-  border-radius: 2px;
-  transition: height 0.1s ease;
+.capture-detect {
+  min-height: 22px;
 }
-.btn-stop-record {
-  background: #ff5c5c;
-  color: white;
-  border: none;
-  border-radius: 20px;
-  padding: 0.5rem 1.4rem;
-  font-size: 0.84rem;
-  font-weight: 500;
+.capture-detect-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--highlight);
+  background: var(--accent-soft);
+  border: 1px solid var(--border-glow);
+  border-radius: var(--radius-pill);
+  padding: 0.25rem 0.65rem;
+  animation: fade 0.15s var(--ease) both;
+}
+.capture-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.capture-voice-btn {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  color: var(--text-dim);
   cursor: pointer;
-  transition: opacity 0.2s;
+  transition: all var(--dur) var(--ease);
 }
-.btn-stop-record:hover {
-  opacity: 0.9;
+.capture-voice-btn:hover {
+  color: var(--text);
+  border-color: var(--border-bright);
+}
+.capture-save-btn {
+  background: var(--accent);
+  color: var(--on-accent);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 1.1rem;
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--dur) var(--ease);
+}
+.capture-save-btn:hover:not(:disabled) {
+  background: var(--highlight);
+}
+.capture-save-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
-.dialog-form textarea.mono {
+.capture-shortcuts {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1.3rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--border);
+}
+.capture-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.capture-group-title {
   font-family: var(--mono);
-  font-size: 0.82rem;
+  font-size: 0.64rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-faint);
+}
+.capture-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.6rem;
+}
+.capture-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.7rem 0.8rem;
+  text-align: left;
+  cursor: pointer;
+  transition: transform var(--dur) var(--ease), border-color var(--dur) var(--ease), background var(--dur) var(--ease);
+}
+.capture-card:hover {
+  transform: translateY(-1px);
+  border-color: var(--border-bright);
+  background: var(--surface);
+}
+.capture-card.active {
+  border-color: var(--border-glow);
+  background: var(--accent-soft);
+}
+.capture-card-ic {
+  color: var(--accent);
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+.capture-card-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+.capture-card-label {
+  font-size: 0.84rem;
+  font-weight: 500;
+  color: var(--text);
+}
+.capture-card-desc {
+  font-size: 0.72rem;
+  color: var(--text-faint);
+  line-height: 1.35;
 }
 
 /* Formula Builder — MathLive math-field with symbol palette + live preview */
