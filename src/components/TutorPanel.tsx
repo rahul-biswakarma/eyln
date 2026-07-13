@@ -1,70 +1,256 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import {
-  Sparkle, X, PaperPlaneRight, Lightbulb, Compass, Path, ClipboardText, CircleNotch,
+  Sparkle, X, PaperPlaneRight, Lightbulb, ClipboardText, CircleNotch,
+  PushPin, MagnifyingGlass, Trash, Plus,
+  Eye, Quotes, ListChecks, Code as CodeIcon, Bug, BookOpen, Infinity as InfinityIcon
 } from "@phosphor-icons/react";
 import { isLLMEnabled, chat, generate, parseJSON, type ChatTurn } from "../lib/llm";
 import { buildLearnerContext } from "../lib/learnerContext";
 import { useTutor, type TutorTaskKind } from "../lib/tutor";
 import { useUI } from "../lib/ui";
+import { useNotes, type Note } from "../lib/notes";
+import { useProgress } from "../lib/progress";
+import { getModule, moduleProgress } from "../content/registry";
+import { M, MBlock } from "./Math";
+import { Code as ShikiCode } from "./CodeBlock";
 
 interface ExtractJSON {
   tasks: { kind: TutorTaskKind; text: string; topic?: string }[];
 }
 
-const QUICK = [
-  { key: "explain", label: "Explain this", icon: Lightbulb,
-    prompt: "Explain the core idea of this page simply, then a touch more precisely. Keep it short." },
-  { key: "struggle", label: "Where am I struggling", icon: Compass,
-    prompt: "Based on my progress and recent wrong answers, where am I struggling most? Be specific and encouraging." },
-  { key: "next", label: "What should I learn next", icon: Path,
-    prompt: "Given where I am, what should I focus on or learn next, and why? Recommend concrete next steps." },
+const SUGGESTED_ACTIONS = [
+  { key: "explain_p", label: "Explain this paragraph", icon: Lightbulb },
+  { key: "visualize", label: "Visualize concept", icon: Eye },
+  { key: "analogy", label: "Real-world analogy", icon: Quotes },
+  { key: "quiz", label: "Generate a quiz", icon: ListChecks },
+  { key: "shader", label: "Show shader example", icon: CodeIcon },
+  { key: "relate", label: "Relate to previous", icon: BookOpen },
+  { key: "debug", label: "Debug my thinking", icon: Bug },
+  { key: "math", label: "Explain mathematically", icon: InfinityIcon }
 ] as const;
 
-/** Docked AI tutor. Reads its page context + open state from the UI store, so
- *  the App shell can render it as a layout column beside the main content. */
+function getActionPrompt(key: string, ctx: { title: string; currentParagraph: string | null; selectedText: string | null }) {
+  const contextSubject = ctx.selectedText
+    ? `the highlighted text: "${ctx.selectedText}"`
+    : (ctx.currentParagraph ? `the section around "${ctx.currentParagraph}"` : `the lesson "${ctx.title}"`);
+
+  switch (key) {
+    case "explain_p":
+      return `Explain ${contextSubject} simply but precisely. Focus on building intuition first. Keep the response compact and readable.`;
+    case "visualize":
+      return `Generate a clean, text-based visual diagram (using ASCII art, unicode symbols, or a clear step-by-step layout) to visualize the core concept of ${contextSubject}.`;
+    case "analogy":
+      return `Explain the core concept of ${contextSubject} using a memorable, clear real-world analogy. Keep it short, practical and engaging.`;
+    case "quiz":
+      return `Generate a quick, challenging single-question multiple choice quiz with choices A, B, C, D to test my understanding of the concept in ${contextSubject}. Do not reveal the answer immediately, let me reply first.`;
+    case "shader":
+      return `Provide a practical, short WGSL or Metal shader code example demonstrating the graphics/mathematical concept in ${contextSubject}. Keep it clean, and add brief comments explaining the math.`;
+    case "relate":
+      return `Explain how the concepts in ${contextSubject} build upon or connect to what was learned in the previous lesson of this module. What's the thread?`;
+    case "debug":
+      return `Walk me through common gotchas, edge cases, or misunderstandings that developers face when working with the concepts in ${contextSubject}. Help me debug my mental model.`;
+    case "math":
+      return `Explain the concepts in ${contextSubject} using formal mathematical notation. Provide rigorous definitions, equations, and LaTeX formulas.`;
+    default:
+      return "";
+  }
+}
+
+// Custom Markdown parsing for notebook design
+interface Block {
+  type: "text" | "code" | "math" | "heading";
+  content: string;
+  lang?: string;
+  level?: number;
+}
+
+function parseMarkdown(text: string): Block[] {
+  const blocks: Block[] = [];
+  const codeRegex = /```(\w+)?\n([\s\S]*?)\n```/g;
+  let lastIndex = 0;
+  let match;
+
+  while ((match = codeRegex.exec(text)) !== null) {
+    const prevText = text.slice(lastIndex, match.index);
+    if (prevText.trim()) {
+      blocks.push(...parseMathAndText(prevText));
+    }
+    blocks.push({
+      type: "code",
+      lang: match[1] || "ts",
+      content: match[2],
+    });
+    lastIndex = codeRegex.lastIndex;
+  }
+  const remainingText = text.slice(lastIndex);
+  if (remainingText.trim()) {
+    blocks.push(...parseMathAndText(remainingText));
+  }
+  return blocks;
+}
+
+function parseMathAndText(text: string): Block[] {
+  const blocks: Block[] = [];
+  const mathRegex = /\$\$([\s\S]*?)\$\$/g;
+  let lastIndex = 0;
+  let match;
+
+  while ((match = mathRegex.exec(text)) !== null) {
+    const prevText = text.slice(lastIndex, match.index);
+    if (prevText) {
+      blocks.push(...parseHeadingsAndParagraphs(prevText));
+    }
+    blocks.push({
+      type: "math",
+      content: match[1],
+    });
+    lastIndex = mathRegex.lastIndex;
+  }
+  const remainingText = text.slice(lastIndex);
+  if (remainingText) {
+    blocks.push(...parseHeadingsAndParagraphs(remainingText));
+  }
+  return blocks;
+}
+
+function parseHeadingsAndParagraphs(text: string): Block[] {
+  const lines = text.split("\n");
+  const blocks: Block[] = [];
+  let currentParagraphLines: string[] = [];
+
+  const flushParagraph = () => {
+    if (currentParagraphLines.length > 0) {
+      blocks.push({
+        type: "text",
+        content: currentParagraphLines.join("\n"),
+      });
+      currentParagraphLines = [];
+    }
+  };
+
+  for (const line of lines) {
+    const headingMatch = line.match(/^(#{1,6})\s+(.*)$/);
+    if (headingMatch) {
+      flushParagraph();
+      blocks.push({
+        type: "heading",
+        level: headingMatch[1].length,
+        content: headingMatch[2],
+      });
+    } else {
+      if (line.trim() === "") {
+        flushParagraph();
+      } else {
+        currentParagraphLines.push(line);
+      }
+    }
+  }
+  flushParagraph();
+  return blocks;
+}
+
+function FormattedText({ text }: { text: string }) {
+  const parts = text.split(/(\$[^\$]+\$)/g);
+  return (
+    <>
+      {parts.map((part, i) => {
+        if (part.startsWith("$") && part.endsWith("$")) {
+          const math = part.slice(1, -1);
+          return <M key={i}>{math}</M>;
+        }
+        const subparts = part.split(/(`[^`]+`)/g);
+        return subparts.map((sub, j) => {
+          if (sub.startsWith("`") && sub.endsWith("`")) {
+            return <code key={`${i}-${j}`}>{sub.slice(1, -1)}</code>;
+          }
+          return sub;
+        });
+      })}
+    </>
+  );
+}
+
+// Main Companion panel components
 export function TutorPanel() {
   const context = useUI((s) => s.tutorContext);
   const open = useUI((s) => s.tutorOpen);
   const openTutor = useUI((s) => s.openTutor);
   const closeTutor = useUI((s) => s.closeTutor);
 
+  const currentParagraph = useUI((s) => s.currentParagraph);
+  const currentExercise = useUI((s) => s.currentExercise);
+  const selectedText = useUI((s) => s.selectedText);
+
+  const done = useProgress((s) => s.done);
+  const allNotes = useNotes((s) => s.notes);
+  const deleteNote = useNotes((s) => s.deleteNote);
+  const addNote = useNotes((s) => s.addNote);
+  const updateNote = useNotes((s) => s.updateNote);
+
+  const [activeTab, setActiveTab] = useState<"mentor" | "notes">("mentor");
   const [history, setHistory] = useState<ChatTurn[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [captured, setCaptured] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
+  
+  // Note creation state
+  const [newNoteBody, setNewNoteBody] = useState("");
+  const [newNoteTags, setNewNoteTags] = useState("");
+  const [showAddNote, setShowAddNote] = useState(false);
+
   const logRef = useRef<HTMLDivElement>(null);
   const addTasks = useTutor((s) => s.addTasks);
 
   const sourceId = context?.sourceId;
   const title = context?.title ?? "";
+  const moduleId = sourceId?.split("/")[0];
+
+  const lessonNotes = useMemo(() => {
+    return allNotes.filter((n) => n.lessonKey === sourceId);
+  }, [allNotes, sourceId]);
+
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    const q = searchQuery.toLowerCase();
+    return allNotes.filter(
+      (n) =>
+        n.body.toLowerCase().includes(q) ||
+        n.selectionText?.toLowerCase().includes(q) ||
+        n.tags.some((t) => t.toLowerCase().includes(q))
+    );
+  }, [allNotes, searchQuery]);
+
+  const masteryPct = useMemo(() => {
+    const activeModule = moduleId ? getModule(moduleId) : null;
+    return activeModule ? Math.round(moduleProgress(activeModule, done) * 100) : 0;
+  }, [moduleId, done]);
 
   useEffect(() => {
     if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight;
-  }, [history, loading]);
+  }, [history, loading, activeTab]);
 
-  // New conversation when the page changes.
   useEffect(() => {
     setHistory([]);
     setCaptured(0);
+    setSearchQuery("");
   }, [sourceId, title]);
 
-  // No context (not on a tutor-enabled page) → render nothing.
   if (!context) return null;
-  const ctx = context; // narrowed, stable within this render for closures below
-
+  const ctx = context;
   const enabled = isLLMEnabled();
 
   const system = [
-    "You are an expert, encouraging AI tutor embedded in an engineering academy that teaches 3D graphics/engine programming, DSA, and the mathematics beneath them.",
-    `The learner is on the ${ctx.scope}: "${ctx.title}".`,
+    "You are an expert, encouraging AI mentor embedded in a premium engineering academy that teaches 3D graphics, engine programming, DSA, and mathematical foundations.",
+    `The learner is currently on the ${ctx.scope}: "${ctx.title}".`,
     ctx.summary ? `Summary: ${ctx.summary}` : "",
     ctx.body ? `Page content (for grounding):\n${ctx.body.slice(0, 4000)}` : "",
     "Here is what we know about the learner's progress:",
     buildLearnerContext(),
-    "Answer concretely and briefly, grounded in this page. Use a short code/math snippet only when it truly helps.",
+    "When explaining concepts, write editorial, structured notebook sections with headings (###), formulas ($ or $$), code blocks, or ASCII/diagram layouts.",
+    "Do not use chat bubbles or greeting boilerplate. Respond directly as an expert companion.",
   ].filter(Boolean).join("\n");
 
-  /** After a reply, mine the exchange for durable tutor insights (best-effort). */
   async function captureInsights(turns: ChatTurn[]) {
     try {
       const transcript = turns.slice(-6).map((t) => `${t.role === "user" ? "Learner" : "Tutor"}: ${t.text}`).join("\n");
@@ -86,19 +272,22 @@ export function TutorPanel() {
         setCaptured((c) => c + parsed.tasks.length);
       }
     } catch {
-      /* insight capture is best-effort; never block the chat */
+      /* insight capture is best-effort */
     }
   }
 
-  async function ask(text: string) {
-    const q = text.trim();
+  async function ask(displayText: string, promptText?: string) {
+    const q = displayText.trim();
     if (!q || loading) return;
+    const actualPrompt = promptText ? promptText.trim() : q;
+
     const next: ChatTurn[] = [...history, { role: "user", text: q }];
     setHistory(next);
     setInput("");
     setLoading(true);
     try {
-      const reply = await chat(next, { system, temperature: 0.4 });
+      const apiHistory: ChatTurn[] = [...history, { role: "user", text: actualPrompt }];
+      const reply = await chat(apiHistory, { system, temperature: 0.4 });
       const withReply: ChatTurn[] = [...next, { role: "model", text: reply }];
       setHistory(withReply);
       void captureInsights(withReply);
@@ -109,80 +298,426 @@ export function TutorPanel() {
     }
   }
 
-  // Collapsed: a slim vertical rail docked to the right that reopens the panel.
+  const handlePin = (block: Block) => {
+    let body = block.content;
+    if (block.type === "code") {
+      body = `\`\`\`${block.lang || "ts"}\n${block.content}\n\`\`\``;
+    } else if (block.type === "math") {
+      body = `$$\n${block.content}\n$$`;
+    }
+    const alreadyPinned = lessonNotes.some((n) => n.body.trim() === body.trim());
+    if (alreadyPinned) return;
+
+    addNote({
+      lessonKey: sourceId,
+      moduleId: moduleId,
+      body: body,
+      tags: ["pinned", block.type],
+    });
+  };
+
+  const handleAddCustomNote = () => {
+    if (!newNoteBody.trim()) return;
+    const tags = newNoteTags.split(",").map((t) => t.trim()).filter(Boolean);
+    addNote({
+      lessonKey: sourceId,
+      moduleId: moduleId,
+      body: newNoteBody.trim(),
+      tags: tags,
+    });
+    setNewNoteBody("");
+    setNewNoteTags("");
+    setShowAddNote(false);
+  };
+
+  // Collapsed State: floating glassmorphic pill
   if (!open) {
     return (
-      <button className="tutor-rail" onClick={openTutor} aria-label="Open AI tutor">
-        <Sparkle size={18} weight="fill" />
-        <span className="tutor-rail-label">AI Tutor</span>
+      <button className="tutor-rail-floating" onClick={openTutor} aria-label="Open Companion Workspace">
+        <Sparkle size={15} weight="fill" className="glow-icon" />
+        <span className="tr-label">Companion</span>
       </button>
     );
   }
 
   return (
-    <aside className="tutor-panel" aria-label="AI tutor">
-      <header className="tp-head">
-        <div className="tp-head-t">
-          <Sparkle size={16} weight="fill" /> AI Tutor
+    <aside className="tutor-panel-workspace" aria-label="AI Companion Workspace">
+      {/* Mentor Header */}
+      <header className="tp-header-v2">
+        <div className="tp-header-left">
+          <span className="tp-header-subtitle">Companion</span>
+          <span className="tp-header-title">{ctx.title}</span>
         </div>
-        <button className="icon-btn" onClick={closeTutor} aria-label="Collapse tutor">
-          <X size={16} weight="bold" />
-        </button>
+        <div className="tp-header-right">
+          <div className="tp-header-stats">
+            <span className="tp-stat-pill">{masteryPct}% Mastery</span>
+            <span className="tp-stat-pill">{currentParagraph || "Pg. 1"}</span>
+          </div>
+          <button className="icon-btn close-v2" onClick={closeTutor} aria-label="Collapse workspace">
+            <X size={15} weight="bold" />
+          </button>
+        </div>
       </header>
 
-        <div className="tp-context">
-          <span className="tp-context-scope">{context.scope}</span>
-          <span className="tp-context-title">{context.title}</span>
+      {/* Tabs */}
+      <div className="tp-tabs">
+        <button
+          className={"tp-tab-btn" + (activeTab === "mentor" ? " active" : "")}
+          onClick={() => setActiveTab("mentor")}
+        >
+          Workspace
+        </button>
+        <button
+          className={"tp-tab-btn" + (activeTab === "notes" ? " active" : "")}
+          onClick={() => setActiveTab("notes")}
+        >
+          Notes & Pins <span className="tab-count">{lessonNotes.length}</span>
+        </button>
+      </div>
+
+      <div className="tp-search-container">
+        <div className="tp-search-bar">
+          <MagnifyingGlass size={13} className="search-icon" />
+          <input
+            type="text"
+            placeholder={activeTab === "notes" ? "Search all notes..." : "Search current lesson notes..."}
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              if (e.target.value.trim() && activeTab !== "notes") {
+                setActiveTab("notes");
+              }
+            }}
+          />
         </div>
+      </div>
 
-        {!enabled ? (
-          <div className="tp-disabled">
-            Configure Firebase to chat with the tutor and get answers grounded in this page and your progress.
+      {activeTab === "mentor" ? (
+        <>
+          {/* Main conversation log */}
+          <div className="tp-workspace-log" ref={logRef}>
+            {/* Dynamic Context Pill Indicator */}
+            {(currentExercise || selectedText) && (
+              <div className="tp-context-indicator">
+                <span className="heading">Context Active</span>
+                {currentExercise && (
+                  <div className="indicator-row">
+                    <span className="lbl">Exercise</span>
+                    <span className="val">{currentExercise}</span>
+                  </div>
+                )}
+                {selectedText && (
+                  <div className="indicator-row">
+                    <span className="lbl">Highlight</span>
+                    <span className="val selection">“{selectedText.slice(0, 50)}{selectedText.length > 50 ? "..." : ""}”</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {history.length === 0 ? (
+              <div className="tp-intro-v2">
+                <div className="mentor-avatar">
+                  <Sparkle size={18} weight="fill" />
+                </div>
+                <h3>Engineering Mentor</h3>
+                <p>
+                  I'm quietly tracking your progress on <strong>{ctx.title}</strong>. Ask questions using the input below, or choose one of the contextual workspace actions to begin.
+                </p>
+              </div>
+            ) : (
+              <div className="tp-notebook-stream">
+                {history.map((turn, turnIdx) => (
+                  <div key={turnIdx} className={`tp-notebook-turn ${turn.role}`}>
+                    {turn.role === "user" ? (
+                      <div className="tp-user-query">
+                        <span className="query-decor" />
+                        <span className="query-text">{turn.text}</span>
+                      </div>
+                    ) : (
+                      <div className="tp-model-response">
+                        {parseMarkdown(turn.text).map((block, blockIdx) => {
+                          const rawBody = block.type === "code"
+                            ? `\`\`\`${block.lang || "ts"}\n${block.content}\n\`\`\``
+                            : (block.type === "math" ? `$$\n${block.content}\n$$` : block.content);
+                          const isPinned = lessonNotes.some((n) => n.body.trim() === rawBody.trim());
+
+                          return (
+                            <div key={blockIdx} className={`tp-notebook-block ${block.type}`}>
+                              {block.type !== "heading" && (
+                                <div className="tp-block-actions">
+                                  <button
+                                    className={"action-btn" + (isPinned ? " pinned" : "")}
+                                    onClick={() => handlePin(block)}
+                                    title={isPinned ? "Already Pinned" : "Pin to Notes"}
+                                  >
+                                    <PushPin size={11} weight={isPinned ? "fill" : "regular"} />
+                                  </button>
+                                  <button
+                                    className="action-btn"
+                                    onClick={() => navigator.clipboard.writeText(block.content)}
+                                    title="Copy content"
+                                  >
+                                    <ClipboardText size={11} />
+                                  </button>
+                                </div>
+                              )}
+                              <div className="block-inner">
+                                {block.type === "heading" && (
+                                  <h4 className="nb-heading">{block.content}</h4>
+                                )}
+                                {block.type === "code" && (
+                                  <ShikiCode code={block.content} lang={block.lang as any} />
+                                )}
+                                {block.type === "math" && (
+                                  <MBlock>{block.content}</MBlock>
+                                )}
+                                {block.type === "text" && (
+                                  <FormattedText text={block.content} />
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+            
+            {loading && (
+              <div className="tp-notebook-loading">
+                <CircleNotch size={14} className="spin" />
+                <span>Mentor is drafting section…</span>
+              </div>
+            )}
+
+            {captured > 0 && (
+              <div className="tp-captured-v2">
+                <ClipboardText size={13} weight="duotone" />
+                <span>Captured {captured} task{captured === 1 ? "" : "s"} to profile.</span>
+              </div>
+            )}
           </div>
-        ) : (
-          <>
-            <div className="tp-log" ref={logRef}>
-              {history.length === 0 && (
-                <div className="tp-intro">
-                  <p>I can explain this page, spot where you’re struggling, and suggest what to learn next. What I notice gets saved to your tutor tasks.</p>
-                </div>
-              )}
-              {history.map((t, i) => (
-                <div key={i} className={"tp-msg " + t.role}>
-                  <span className="tp-who">{t.role === "user" ? "You" : "Tutor"}</span>
-                  <div className="tp-body">{t.text}</div>
-                </div>
-              ))}
-              {loading && <div className="tp-typing"><CircleNotch size={15} weight="bold" className="spin" /> Thinking…</div>}
-              {captured > 0 && (
-                <div className="tp-captured">
-                  <ClipboardText size={14} weight="duotone" /> Saved {captured} insight{captured === 1 ? "" : "s"} to your tutor tasks.
-                </div>
-              )}
-            </div>
 
-            <div className="tp-quick">
-              {QUICK.map((a) => (
-                <button key={a.key} className="tp-quick-btn" onClick={() => ask(a.prompt)} disabled={loading}>
-                  <a.icon size={15} weight="duotone" /> {a.label}
+          {/* Contextual Actions Panel */}
+          <div className="tp-workspace-actions">
+            <span className="section-label">Suggested Actions</span>
+            <div className="actions-grid">
+              {SUGGESTED_ACTIONS.map((action) => {
+                const prompt = getActionPrompt(action.key, {
+                  title: ctx.title,
+                  currentParagraph,
+                  selectedText
+                });
+                return (
+                  <button
+                    key={action.key}
+                    className="action-chip"
+                    onClick={() => ask(action.label, prompt)}
+                    disabled={loading}
+                  >
+                    <action.icon size={13} />
+                    <span>{action.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Input Bar */}
+          <div className="tp-input-bar">
+            {!enabled ? (
+              <div className="tp-disabled-inline">
+                Configure Firebase app settings to enable mentor.
+              </div>
+            ) : (
+              <div className="tp-input-wrapper">
+                <input
+                  type="text"
+                  value={input}
+                  placeholder="Ask a question..."
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") ask(input);
+                  }}
+                  disabled={loading}
+                />
+                <button
+                  className="send-btn"
+                  onClick={() => ask(input)}
+                  disabled={loading || !input.trim()}
+                  aria-label="Send"
+                >
+                  <PaperPlaneRight size={14} weight="fill" />
                 </button>
-              ))}
-            </div>
+              </div>
+            )}
+          </div>
+        </>
+      ) : (
+        /* Notes & Pins Tab */
+        <div className="tp-notes-workspace">
+          <div className="notes-actions-header">
+            <span className="section-label">
+              {searchQuery ? `Search Results (${searchResults.length})` : `Lesson Notes & Highlights`}
+            </span>
+            {!searchQuery && (
+              <button
+                className="add-note-toggle"
+                onClick={() => setShowAddNote(!showAddNote)}
+              >
+                <Plus size={12} /> Note
+              </button>
+            )}
+          </div>
 
-            <div className="tp-compose">
+          {showAddNote && (
+            <div className="quick-note-form">
+              <textarea
+                placeholder="Write custom notes for this lesson..."
+                value={newNoteBody}
+                onChange={(e) => setNewNoteBody(e.target.value)}
+                rows={3}
+                autoFocus
+              />
               <input
                 type="text"
-                value={input}
-                placeholder={`Ask about ${ctx.title}…`}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter") ask(input); }}
+                placeholder="Tags (comma-separated)..."
+                value={newNoteTags}
+                onChange={(e) => setNewNoteTags(e.target.value)}
               />
-              <button className="icon-btn send" onClick={() => ask(input)} disabled={loading || !input.trim()} aria-label="Send">
-                <PaperPlaneRight size={17} weight="fill" />
-              </button>
+              <div className="form-buttons">
+                <button className="form-btn cancel" onClick={() => setShowAddNote(false)}>Cancel</button>
+                <button className="form-btn save" onClick={handleAddCustomNote}>Save Note</button>
+              </div>
             </div>
-          </>
-        )}
+          )}
+
+          <div className="notes-list-scroll">
+            {searchQuery ? (
+              searchResults.length === 0 ? (
+                <div className="empty-state">No matching notes found.</div>
+              ) : (
+                searchResults.map((note) => (
+                  <NoteItem
+                    key={note.id}
+                    note={note}
+                    onDelete={() => deleteNote(note.id)}
+                    onUpdate={(text) => updateNote(note.id, { body: text })}
+                  />
+                ))
+              )
+            ) : (
+              lessonNotes.length === 0 ? (
+                <div className="empty-state">
+                  No notes saved for this lesson yet. Pin any explanation block or highlight text to save notes here.
+                </div>
+              ) : (
+                lessonNotes.map((note) => (
+                  <NoteItem
+                    key={note.id}
+                    note={note}
+                    onDelete={() => deleteNote(note.id)}
+                    onUpdate={(text) => updateNote(note.id, { body: text })}
+                  />
+                ))
+              )
+            )}
+          </div>
+        </div>
+      )}
     </aside>
+  );
+}
+
+// Single Note / Pinned Item Renderer
+function NoteItem({
+  note,
+  onDelete,
+  onUpdate
+}: {
+  note: Note;
+  onDelete: () => void;
+  onUpdate: (text: string) => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [val, setVal] = useState(note.body);
+
+  const isPinned = note.tags.includes("pinned");
+
+  const handleSave = () => {
+    setEditing(false);
+    if (val.trim() !== note.body.trim()) {
+      onUpdate(val.trim());
+    }
+  };
+
+  if (isPinned) {
+    // If it's a pinned AI section, render with notebook layout
+    const blocks = parseMarkdown(note.body);
+    return (
+      <div className="pinned-note-item">
+        <div className="pni-header">
+          <div className="pni-tag">
+            <PushPin size={10} weight="fill" />
+            <span>Pinned Concept</span>
+          </div>
+          <button className="pni-delete" onClick={onDelete} title="Delete Pin">
+            <Trash size={11} />
+          </button>
+        </div>
+        <div className="pni-body">
+          {blocks.map((block, idx) => (
+            <div key={idx} className={`tp-notebook-block ${block.type}`}>
+              <div className="block-inner">
+                {block.type === "heading" && <h4 className="nb-heading">{block.content}</h4>}
+                {block.type === "code" && <ShikiCode code={block.content} lang={block.lang as any} />}
+                {block.type === "math" && <MBlock>{block.content}</MBlock>}
+                {block.type === "text" && <FormattedText text={block.content} />}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Regular user note
+  return (
+    <div className="user-note-item">
+      <div className="uni-header">
+        <span className="uni-tag">Note</span>
+        <button className="uni-delete" onClick={onDelete} title="Delete Note">
+          <Trash size={11} />
+        </button>
+      </div>
+      {note.selectionText && (
+        <blockquote className="uni-quote">
+          “{note.selectionText}”
+        </blockquote>
+      )}
+      <div className="uni-body">
+        {editing ? (
+          <div className="uni-edit-area">
+            <textarea
+              value={val}
+              onChange={(e) => setVal(e.target.value)}
+              rows={3}
+              autoFocus
+            />
+            <div className="edit-buttons">
+              <button className="edit-btn cancel" onClick={() => { setVal(note.body); setEditing(false); }}>Cancel</button>
+              <button className="edit-btn save" onClick={handleSave}>Save</button>
+            </div>
+          </div>
+        ) : (
+          <p onClick={() => setEditing(true)} className="uni-text">
+            {note.body || <span className="placeholder">Empty note. Click to edit...</span>}
+          </p>
+        )}
+      </div>
+    </div>
   );
 }

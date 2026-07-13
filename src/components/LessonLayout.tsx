@@ -47,6 +47,10 @@ export function LessonLayout({ data }: { data: LessonRef }) {
 
   // Feed the docked tutor this lesson's context.
   const setTutorContext = useUI((s) => s.setTutorContext);
+  const setCurrentParagraph = useUI((s) => s.setCurrentParagraph);
+  const setCurrentExercise = useUI((s) => s.setCurrentExercise);
+  const setSelectedText = useUI((s) => s.setSelectedText);
+
   useEffect(() => {
     setTutorContext({
       scope: "lesson",
@@ -56,7 +60,37 @@ export function LessonLayout({ data }: { data: LessonRef }) {
       sourceId: key,
     });
   }, [key, lesson.title, lesson.summary, bodyText, setTutorContext]);
-  useEffect(() => () => setTutorContext(null), [setTutorContext]);
+
+  useEffect(() => {
+    return () => {
+      setTutorContext(null);
+      setCurrentParagraph(null);
+      setCurrentExercise(null);
+      setSelectedText(null);
+    };
+  }, [key, setTutorContext, setCurrentParagraph, setCurrentExercise, setSelectedText]);
+
+  // Selection change observer
+  useEffect(() => {
+    const handleSelection = () => {
+      const sel = window.getSelection();
+      if (!sel) {
+        setSelectedText(null);
+        return;
+      }
+      const text = sel.toString().trim();
+      const range = sel.rangeCount > 0 ? sel.getRangeAt(0) : null;
+      if (text && range && bodyRef.current?.contains(range.commonAncestorContainer)) {
+        setSelectedText(text);
+      } else {
+        setSelectedText(null);
+      }
+    };
+    document.addEventListener("selectionchange", handleSelection);
+    return () => {
+      document.removeEventListener("selectionchange", handleSelection);
+    };
+  }, [setSelectedText]);
 
   useEffect(() => {
     const root = bodyRef.current;
@@ -83,7 +117,39 @@ export function LessonLayout({ data }: { data: LessonRef }) {
       const h = document.documentElement;
       const max = h.scrollHeight - h.clientHeight;
       setReadPct(max > 0 ? Math.min(1, h.scrollTop / max) : 0);
+
+      // Track paragraph position
+      if (!bodyRef.current) return;
+      const paragraphs = Array.from(bodyRef.current.querySelectorAll("p"));
+      let activeIdx = 0;
+      for (let i = 0; i < paragraphs.length; i++) {
+        const rect = paragraphs[i].getBoundingClientRect();
+        if (rect.top <= 250) {
+          activeIdx = i + 1;
+        } else {
+          break;
+        }
+      }
+      if (activeIdx > 0) {
+        setCurrentParagraph(`Paragraph ${activeIdx}`);
+      } else {
+        setCurrentParagraph("Paragraph 1");
+      }
+
+      // Track exercise/quiz in view
+      const questions = Array.from(bodyRef.current.querySelectorAll(".kc-card, .quiz-card, .exercise, .code-challenge"));
+      let activeExName: string | null = null;
+      for (let i = 0; i < questions.length; i++) {
+        const rect = questions[i].getBoundingClientRect();
+        if (rect.top < window.innerHeight - 100 && rect.bottom > 100) {
+          const header = questions[i].querySelector(".kc-eyebrow, .quiz-eyebrow, h3, h4");
+          activeExName = header?.textContent?.trim() || `Exercise ${i + 1}`;
+          break;
+        }
+      }
+      setCurrentExercise(activeExName);
     };
+
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
@@ -91,7 +157,7 @@ export function LessonLayout({ data }: { data: LessonRef }) {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
     };
-  }, [key]);
+  }, [key, setCurrentParagraph, setCurrentExercise]);
 
   function openNote() {
     const sel = window.getSelection?.()?.toString().trim();
