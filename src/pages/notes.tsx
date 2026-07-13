@@ -1,15 +1,21 @@
 import { useMemo, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
-  Notebook, PushPin, PencilSimpleLine, Code as CodeIcon, Infinity as InfinityIcon,
+  Notebook, PushPin, PencilSimpleLine, Sigma, Code as CodeIcon,
   Microphone, Plus, Trash, MagnifyingGlass, Sparkle, Clock,
-  BookmarkSimple, Check, Note as NoteIcon, X, CheckSquare, WarningOctagon
+  BookmarkSimple, Check, X, CheckSquare, WarningOctagon, CaretDown,
+  DotsThree
 } from "@phosphor-icons/react";
 import { useNotes, type Note } from "../lib/notes";
 import { useProgress } from "../lib/progress";
 import { allLessons, lessonPath } from "../content/registry";
 import { relativeTime } from "../lib/stats";
+import { groupByTimeline } from "../lib/timeline";
+import { noteKind, notePreviewLine, noteCodeBlock, noteFormula, NOTE_KIND_META, type NoteKind } from "../lib/note-kind";
 import { ModuleIcon } from "../components/module-icon";
+import { M, MBlock } from "../components/math";
+import { Code as ShikiCode } from "../components/code-block";
+import { FormulaBuilder } from "../components/formula-builder";
 import { Popover, PopoverTrigger, PopoverContent } from "../components/ui";
 
 function lessonForKey(key?: string) {
@@ -42,6 +48,16 @@ function computeStreak(lastVisited: Record<string, number>) {
   return streak;
 }
 
+type CreateKind = "note" | "formula" | "code" | "mistake" | "voice";
+
+const CREATE_MENU: { kind: CreateKind; icon: React.ReactNode; label: string; desc: string }[] = [
+  { kind: "note", icon: <PencilSimpleLine size={15} />, label: "Quick Note", desc: "Capture an idea or explanation" },
+  { kind: "formula", icon: <Sigma size={15} />, label: "Formula", desc: "Compose and save an equation" },
+  { kind: "code", icon: <CodeIcon size={15} />, label: "Code Snippet", desc: "Store a useful reference" },
+  { kind: "mistake", icon: <WarningOctagon size={15} />, label: "Mistake Log", desc: "Record a misconception" },
+  { kind: "voice", icon: <Microphone size={15} />, label: "Voice Memo", desc: "Convert speech into notes" },
+];
+
 export function Notes() {
   const notes = useNotes((s) => s.notes);
   const bookmarks = useNotes((s) => s.bookmarks);
@@ -69,9 +85,10 @@ export function Notes() {
 
   // Quick Create Dialog State
   const [isCreating, setIsCreating] = useState(false);
+  const [createKind, setCreateKind] = useState<CreateKind>("note");
   const [newBody, setNewBody] = useState("");
+  const [newFormula, setNewFormula] = useState("");
   const [newTags, setNewTags] = useState("");
-  const [newType, setNewType] = useState<"custom" | "formula" | "code" | "mistake">("custom");
   const [newLessonKey, setNewLessonKey] = useState<string>("");
 
   // Voice Note Recording mock state
@@ -115,19 +132,14 @@ export function Notes() {
   const tabFilteredNotes = useMemo(() => {
     switch (activeTab) {
       case "pinned":
-        // Pinned notes
         return notes.filter((n) => n.tags.includes("pinned"));
       case "custom":
-        // Custom learner notes
         return notes.filter((n) => !n.tags.includes("pinned") && !n.tags.includes("mistake"));
       case "ai":
-        // AI pinned explanations
         return notes.filter((n) => n.tags.includes("pinned"));
       case "formulas":
-        // Pinned formulas or tagged formula
-        return notes.filter((n) => n.tags.includes("formula") || n.body.includes("$$") || n.body.includes("$"));
+        return notes.filter((n) => noteKind(n) === "formula");
       case "mistakes":
-        // Mistakes tagged items
         return notes.filter((n) => n.tags.includes("mistake"));
       case "all":
       default:
@@ -138,18 +150,16 @@ export function Notes() {
   // Apply search query and filters
   const filteredNotes = useMemo(() => {
     return tabFilteredNotes.filter((n) => {
-      // Filter by tag
       if (selectedTag && !n.tags.includes(selectedTag)) return false;
 
-      // Filter by type
       if (selectedType !== "all") {
-        if (selectedType === "ai" && !n.tags.includes("pinned")) return false;
-        if (selectedType === "custom" && n.tags.includes("pinned")) return false;
-        if (selectedType === "formula" && !n.tags.includes("formula") && !n.body.includes("$$")) return false;
-        if (selectedType === "mistake" && !n.tags.includes("mistake")) return false;
+        const kind = noteKind(n);
+        if (selectedType === "ai" && kind !== "ai") return false;
+        if (selectedType === "custom" && kind === "ai") return false;
+        if (selectedType === "formula" && kind !== "formula") return false;
+        if (selectedType === "mistake" && kind !== "mistake") return false;
       }
 
-      // Filter by text search
       if (searchQuery.trim()) {
         const text = (n.body + " " + (n.selectionText ?? "") + " " + n.tags.join(" ")).toLowerCase();
         if (!text.includes(searchQuery.toLowerCase())) return false;
@@ -158,13 +168,17 @@ export function Notes() {
     });
   }, [tabFilteredNotes, selectedTag, selectedType, searchQuery]);
 
+  const timelineGroups = useMemo(
+    () => groupByTimeline(filteredNotes, (n) => n.createdAt, now),
+    [filteredNotes, now]
+  );
+
   const handleStartRecording = () => {
     setIsRecording(true);
   };
 
   const handleStopRecording = () => {
     setIsRecording(false);
-    // Auto-create a mock voice note transcription
     addNote({
       body: "🎙️ **Audio Note Transcription:** Remember that the cross product of two orthogonal unit vectors yields a third vector that is perpendicular to both, satisfying the right-hand rule system.",
       tags: ["audio", "linear-algebra", "formula"],
@@ -172,15 +186,21 @@ export function Notes() {
     });
   };
 
-  const handleQuickNote = (type: "custom" | "formula" | "code" | "mistake") => {
-    setNewType(type);
-    if (type === "formula") {
-      setNewBody("$$\n\\vec{a} \\times \\vec{b} = \\|\\vec{a}\\| \\|\\vec{b}\\| \\sin(\\theta) \\hat{n}\n$$");
+  const openCreate = (kind: CreateKind) => {
+    if (kind === "voice") {
+      handleStartRecording();
+      return;
+    }
+    setCreateKind(kind);
+    setNewFormula("");
+    if (kind === "formula") {
+      setNewFormula("\\vec{a} \\times \\vec{b} = \\|\\vec{a}\\| \\|\\vec{b}\\| \\sin(\\theta) \\hat{n}");
+      setNewBody("");
       setNewTags("formula, math");
-    } else if (type === "code") {
-      setNewBody("```javascript\nfunction dotProduct(a, b) {\n  return a.x * b.x + a.y * b.y + a.z * b.z;\n}\n```");
+    } else if (kind === "code") {
+      setNewBody("function dotProduct(a, b) {\n  return a.x * b.x + a.y * b.y + a.z * b.z;\n}");
       setNewTags("code, implementation");
-    } else if (type === "mistake") {
+    } else if (kind === "mistake") {
       setNewBody("Mistake: Subtracted coordinates in wrong order when computing displacement vector.\n\nCorrection: Displacement is always target - origin (B - A), not origin - target.");
       setNewTags("mistake, debugging");
     } else {
@@ -191,17 +211,29 @@ export function Notes() {
   };
 
   const handleSaveNewNote = () => {
-    if (!newBody.trim()) return;
     const tagsArr = newTags.split(",").map((t) => t.trim().toLowerCase()).filter((t) => t.length > 0);
-    if (newType !== "custom" && !tagsArr.includes(newType)) {
-      tagsArr.push(newType);
+    if (createKind !== "note" && !tagsArr.includes(createKind)) {
+      tagsArr.push(createKind === "code" ? "code" : createKind);
     }
+
+    let body = newBody.trim();
+    if (createKind === "formula") {
+      if (!newFormula.trim()) return;
+      body = `$$\n${newFormula.trim()}\n$$`;
+    } else if (createKind === "code") {
+      if (!body) return;
+      body = `\`\`\`javascript\n${body}\n\`\`\``;
+    } else if (!body) {
+      return;
+    }
+
     addNote({
-      body: newBody.trim(),
+      body,
       tags: tagsArr,
       lessonKey: newLessonKey || undefined
     });
     setNewBody("");
+    setNewFormula("");
     setNewTags("");
     setNewLessonKey("");
     setIsCreating(false);
@@ -244,26 +276,10 @@ export function Notes() {
 
         {/* Learning Statistics Display */}
         <div className="nb-stats">
-          <div className="nb-stat-card">
-            <span className="lbl">Streak</span>
-            <span className="val"><Plus size={10} weight="bold" style={{ color: "var(--accent)", verticalAlign: "middle" }} /> {streak} days</span>
-            <span className="desc">Active study chain</span>
-          </div>
-          <div className="nb-stat-card">
-            <span className="lbl">Captured</span>
-            <span className="val">{notes.length} notes</span>
-            <span className="desc">Formulas, code, & AI insights</span>
-          </div>
-          <div className="nb-stat-card">
-            <span className="lbl">Bookmarks</span>
-            <span className="val">{bookmarkList.length} saves</span>
-            <span className="desc">Flagged course chapters</span>
-          </div>
-          <div className="nb-stat-card">
-            <span className="lbl">Review Queue</span>
-            <span className="val">{activeReminders.length} items</span>
-            <span className="desc">Spaced repetition queue</span>
-          </div>
+          <span className="nb-stat-pill"><Sparkle size={11} weight="fill" /> {streak}d streak</span>
+          <span className="nb-stat-pill"><Notebook size={11} /> {notes.length} notes</span>
+          <span className="nb-stat-pill"><BookmarkSimple size={11} /> {bookmarkList.length} saved</span>
+          <span className="nb-stat-pill"><Clock size={11} /> {activeReminders.length} review</span>
         </div>
       </header>
 
@@ -271,31 +287,39 @@ export function Notes() {
       <div className="nb-workspace">
         {/* Left Navigation Sidebar */}
         <aside className="nb-sidebar">
-          <span className="sidebar-group-title">Knowledge Base</span>
+          <span className="sidebar-group-title">Workspace</span>
           <nav className="sidebar-links">
             <button className={`sidebar-link ${activeTab === "all" ? "active" : ""}`} onClick={() => setActiveTab("all")}>
-              <Notebook size={16} /> All Notes <span className="badge">{notes.length}</span>
+              <Notebook size={16} /> Recent <span className="badge">{notes.length}</span>
             </button>
             <button className={`sidebar-link ${activeTab === "pinned" ? "active" : ""}`} onClick={() => setActiveTab("pinned")}>
-              <PushPin size={16} /> Favorites & Pinned <span className="badge">{notes.filter((n) => n.tags.includes("pinned")).length}</span>
-            </button>
-            <button className={`sidebar-link ${activeTab === "custom" ? "active" : ""}`} onClick={() => setActiveTab("custom")}>
-              <PencilSimpleLine size={16} /> My Notes <span className="badge">{notes.filter((n) => !n.tags.includes("pinned") && !n.tags.includes("mistake")).length}</span>
-            </button>
-            <button className={`sidebar-link ${activeTab === "ai" ? "active" : ""}`} onClick={() => setActiveTab("ai")}>
-              <Sparkle size={16} /> AI Explanations <span className="badge">{notes.filter((n) => n.tags.includes("pinned")).length}</span>
-            </button>
-            <button className={`sidebar-link ${activeTab === "formulas" ? "active" : ""}`} onClick={() => setActiveTab("formulas")}>
-              <InfinityIcon size={16} /> Formula Library <span className="badge">{notes.filter((n) => n.tags.includes("formula") || n.body.includes("$$")).length}</span>
-            </button>
-            <button className={`sidebar-link ${activeTab === "bookmarks" ? "active" : ""}`} onClick={() => setActiveTab("bookmarks")}>
-              <BookmarkSimple size={16} /> Bookmarked Lessons <span className="badge">{bookmarkList.length}</span>
+              <PushPin size={16} /> Pinned <span className="badge">{notes.filter((n) => n.tags.includes("pinned")).length}</span>
             </button>
             <button className={`sidebar-link ${activeTab === "reminders" ? "active" : ""}`} onClick={() => setActiveTab("reminders")}>
               <Clock size={16} /> Review Queue <span className="badge">{activeReminders.length}</span>
             </button>
             <button className={`sidebar-link ${activeTab === "mistakes" ? "active" : ""}`} onClick={() => setActiveTab("mistakes")}>
-              <WarningOctagon size={16} /> My Mistakes <span className="badge">{notes.filter((n) => n.tags.includes("mistake")).length}</span>
+              <WarningOctagon size={16} /> Mistakes <span className="badge">{notes.filter((n) => n.tags.includes("mistake")).length}</span>
+            </button>
+          </nav>
+
+          <span className="sidebar-group-title">Knowledge</span>
+          <nav className="sidebar-links">
+            <button className={`sidebar-link ${activeTab === "formulas" ? "active" : ""}`} onClick={() => setActiveTab("formulas")}>
+              <Sigma size={16} /> Formulas <span className="badge">{notes.filter((n) => noteKind(n) === "formula").length}</span>
+            </button>
+            <button className={`sidebar-link ${activeTab === "custom" ? "active" : ""}`} onClick={() => setActiveTab("custom")}>
+              <PencilSimpleLine size={16} /> My Notes <span className="badge">{notes.filter((n) => !n.tags.includes("pinned") && !n.tags.includes("mistake")).length}</span>
+            </button>
+            <button className={`sidebar-link ${activeTab === "ai" ? "active" : ""}`} onClick={() => setActiveTab("ai")}>
+              <Sparkle size={16} /> AI Insights <span className="badge">{notes.filter((n) => n.tags.includes("pinned")).length}</span>
+            </button>
+          </nav>
+
+          <span className="sidebar-group-title">Collections</span>
+          <nav className="sidebar-links">
+            <button className={`sidebar-link ${activeTab === "bookmarks" ? "active" : ""}`} onClick={() => setActiveTab("bookmarks")}>
+              <BookmarkSimple size={16} /> Bookmarks <span className="badge">{bookmarkList.length}</span>
             </button>
             <button className={`sidebar-link ${activeTab === "scratchpad" ? "active" : ""}`} onClick={() => setActiveTab("scratchpad")}>
               <CodeIcon size={16} /> Scratchpad
@@ -412,14 +436,39 @@ export function Notes() {
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
-                <div className="filter-selects">
-                  <select value={selectedType} onChange={(e) => setSelectedType(e.target.value)}>
-                    <option value="all">All Types</option>
-                    <option value="custom">Learner Notes</option>
-                    <option value="ai">AI Concepts</option>
-                    <option value="formula">Formulas</option>
-                    <option value="mistake">Mistakes</option>
-                  </select>
+
+                <div className="nb-toolbar-right">
+                  <div className="filter-selects">
+                    <select value={selectedType} onChange={(e) => setSelectedType(e.target.value)}>
+                      <option value="all">All Types</option>
+                      <option value="custom">Learner Notes</option>
+                      <option value="ai">AI Concepts</option>
+                      <option value="formula">Formulas</option>
+                      <option value="mistake">Mistakes</option>
+                    </select>
+                  </div>
+
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button className="btn-new">
+                        <Plus size={13} weight="bold" /> New <CaretDown size={11} />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent align="end" style={{ width: "230px" }}>
+                      <div className="create-menu">
+                        <span className="menu-title">Capture something</span>
+                        {CREATE_MENU.map((item) => (
+                          <button key={item.kind} className="create-menu-item" onClick={() => openCreate(item.kind)}>
+                            <span className="cmi-ic">{item.icon}</span>
+                            <span className="cmi-text">
+                              <span className="cmi-label">{item.label}</span>
+                              <span className="cmi-desc">{item.desc}</span>
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
                 </div>
               </div>
 
@@ -437,101 +486,34 @@ export function Notes() {
                 <div className="nb-empty-state">
                   <Notebook size={24} weight="duotone" />
                   <h4>No Notes Found</h4>
-                  <p>Pin explanations inside course sidebars or click the floating action button to create your first card.</p>
+                  <p>Pin explanations inside course sidebars, or use the New button above to create your first card.</p>
                 </div>
               ) : (
-                <div className="nb-notes-list">
-                  {filteredNotes.map((note) => {
-                    const ref = lessonForKey(note.lessonKey);
-                    const isEditing = editingNoteId === note.id;
-                    const isAI = note.tags.includes("pinned");
-
-                    return (
-                      <div className={`nb-note-card ${isAI ? "ai" : ""}`} key={note.id}>
-                        {/* Note Header / Meta */}
-                        <div className="card-header">
-                          <span className="card-tag">
-                            {isAI ? <Sparkle size={10} weight="fill" /> : <NoteIcon size={10} />}
-                            {isAI ? "AI Insight" : "Note"}
-                          </span>
-
-                          {ref && (
-                            <Link className="card-lesson-link" to={lessonPath(ref.module.id, ref.lesson.id)}>
-                              <ModuleIcon id={ref.module.id} size={11} /> {ref.lesson.title}
-                            </Link>
-                          )}
-
-                          <span className="card-date">{relativeTime(note.createdAt, now)}</span>
-                        </div>
-
-                        {/* Quoted Highlighted selection if exists */}
-                        {note.selectionText && (
-                          <blockquote className="card-quote">
-                            “{note.selectionText}”
-                          </blockquote>
-                        )}
-
-                        {/* Note Body */}
-                        <div className="card-body">
-                          {isEditing ? (
-                            <div className="card-edit-form">
-                              <textarea
-                                value={editBody}
-                                onChange={(e) => setEditBody(e.target.value)}
-                                rows={4}
-                                autoFocus
-                              />
-                              <input
-                                type="text"
-                                placeholder="Tags (comma-separated)..."
-                                value={editTags}
-                                onChange={(e) => setEditTags(e.target.value)}
-                              />
-                              <div className="edit-buttons">
-                                <button className="btn-cancel" onClick={() => setEditingNoteId(null)}>Cancel</button>
-                                <button className="btn-save" onClick={() => handleSaveEdit(note.id)}>Save changes</button>
-                              </div>
-                            </div>
-                          ) : (
-                            <p className="card-text">{note.body}</p>
-                          )}
-                        </div>
-
-                        {/* Card tags display */}
-                        {!isEditing && note.tags.length > 0 && (
-                          <div className="card-tags">
-                            {note.tags.map((t) => (
-                              <span key={t} className="tag-badge">#{t}</span>
-                            ))}
-                          </div>
-                        )}
-
-                        {/* Card Footer Actions */}
-                        {!isEditing && (
-                          <div className="card-footer">
-                            <button className="foot-btn" onClick={() => handleStartEdit(note)}>Edit</button>
-
-                            {/* Spaced repetition reminder creation */}
-                            <Popover>
-                              <PopoverTrigger asChild>
-                                <button className="foot-btn">Review Queue</button>
-                              </PopoverTrigger>
-                              <PopoverContent align="start" style={{ width: "160px" }}>
-                                <div className="reminder-menu">
-                                  <span className="menu-title">Schedule Review</span>
-                                  <button onClick={() => handleQuickReminder(note, 1)}>Review Tomorrow</button>
-                                  <button onClick={() => handleQuickReminder(note, 3)}>In 3 Days</button>
-                                  <button onClick={() => handleQuickReminder(note, 7)}>In 1 Week</button>
-                                </div>
-                              </PopoverContent>
-                            </Popover>
-
-                            <button className="foot-btn danger" onClick={() => deleteNote(note.id)}>Delete</button>
-                          </div>
-                        )}
+                <div className="nb-notes-timeline">
+                  {timelineGroups.map(([label, group]) => (
+                    <section key={label} className="nb-day-group">
+                      <h5 className="nb-day-label">{label}</h5>
+                      <div className="nb-notes-list">
+                        {group.map((note) => (
+                          <NoteCard
+                            key={note.id}
+                            note={note}
+                            now={now}
+                            isEditing={editingNoteId === note.id}
+                            editBody={editBody}
+                            editTags={editTags}
+                            setEditBody={setEditBody}
+                            setEditTags={setEditTags}
+                            onStartEdit={() => handleStartEdit(note)}
+                            onCancelEdit={() => setEditingNoteId(null)}
+                            onSaveEdit={() => handleSaveEdit(note.id)}
+                            onDelete={() => deleteNote(note.id)}
+                            onQuickReminder={(days) => handleQuickReminder(note, days)}
+                          />
+                        ))}
                       </div>
-                    );
-                  })}
+                    </section>
+                  ))}
                 </div>
               )}
             </div>
@@ -539,44 +521,34 @@ export function Notes() {
         </main>
       </div>
 
-      {/* Floating Action Button (FAB) Menu */}
-      <div className="nb-fab-container">
-        <Popover>
-          <PopoverTrigger asChild>
-            <button className="nb-fab" aria-label="Add concept">
-              <Plus size={20} weight="bold" />
-            </button>
-          </PopoverTrigger>
-          <PopoverContent align="end" side="top" style={{ width: "180px", marginBottom: "8px" }}>
-            <div className="fab-menu">
-              <button onClick={() => handleQuickNote("custom")}>📝 Quick Note</button>
-              <button onClick={() => handleQuickNote("formula")}>🧮 Add Formula</button>
-              <button onClick={() => handleQuickNote("code")}>💻 Code Snippet</button>
-              <button onClick={() => handleQuickNote("mistake")}>⚠️ Log Mistake</button>
-              <button onClick={handleStartRecording}>🎙️ Record Voice Note</button>
-            </div>
-          </PopoverContent>
-        </Popover>
-      </div>
-
       {/* Quick Create Dialog */}
       {isCreating && (
         <div className="custom-dialog-overlay" onClick={() => setIsCreating(false)}>
           <div className="custom-dialog-content" onClick={(e) => e.stopPropagation()}>
             <div className="dialog-header">
-              <h3>Create Notebook Card</h3>
+              <h3>{CREATE_MENU.find((m) => m.kind === createKind)?.label ?? "Create Notebook Card"}</h3>
               <button className="close-btn" onClick={() => setIsCreating(false)}><X size={15} /></button>
             </div>
 
             <div className="dialog-form">
-              <label>Topic / Concept</label>
-              <textarea
-                placeholder="Write formula, explanation, or code..."
-                value={newBody}
-                onChange={(e) => setNewBody(e.target.value)}
-                rows={5}
-                autoFocus
-              />
+              {createKind === "formula" ? (
+                <>
+                  <label>Formula</label>
+                  <FormulaBuilder value={newFormula} onChange={setNewFormula} />
+                </>
+              ) : (
+                <>
+                  <label>{createKind === "code" ? "Code" : "Topic / Concept"}</label>
+                  <textarea
+                    className={createKind === "code" ? "mono" : ""}
+                    placeholder={createKind === "code" ? "function example() { ... }" : "Write an explanation, mistake, or thought..."}
+                    value={newBody}
+                    onChange={(e) => setNewBody(e.target.value)}
+                    rows={5}
+                    autoFocus
+                  />
+                </>
+              )}
 
               <label>Tags (comma-separated)</label>
               <input
@@ -599,7 +571,13 @@ export function Notes() {
 
             <div className="dialog-footer">
               <button className="btn-cancel" onClick={() => setIsCreating(false)}>Cancel</button>
-              <button className="btn-save" onClick={handleSaveNewNote} disabled={!newBody.trim()}>Add Card</button>
+              <button
+                className="btn-save"
+                onClick={handleSaveNewNote}
+                disabled={createKind === "formula" ? !newFormula.trim() : !newBody.trim()}
+              >
+                Add Card
+              </button>
             </div>
           </div>
         </div>
@@ -624,5 +602,151 @@ export function Notes() {
         </div>
       )}
     </div>
+  );
+}
+
+const KIND_ICON: Record<NoteKind, React.ReactNode> = {
+  ai: <Sparkle size={11} weight="fill" />,
+  formula: <Sigma size={11} weight="bold" />,
+  code: <CodeIcon size={11} weight="bold" />,
+  mistake: <WarningOctagon size={11} weight="bold" />,
+  voice: <Microphone size={11} weight="bold" />,
+  note: <PencilSimpleLine size={11} />,
+};
+
+function NoteCard({
+  note,
+  now,
+  isEditing,
+  editBody,
+  editTags,
+  setEditBody,
+  setEditTags,
+  onStartEdit,
+  onCancelEdit,
+  onSaveEdit,
+  onDelete,
+  onQuickReminder,
+}: {
+  note: Note;
+  now: number;
+  isEditing: boolean;
+  editBody: string;
+  editTags: string;
+  setEditBody: (v: string) => void;
+  setEditTags: (v: string) => void;
+  onStartEdit: () => void;
+  onCancelEdit: () => void;
+  onSaveEdit: () => void;
+  onDelete: () => void;
+  onQuickReminder: (days: number) => void;
+}) {
+  const kind = noteKind(note);
+  const meta = NOTE_KIND_META[kind];
+  const ref = lessonForKey(note.lessonKey);
+  const preview = notePreviewLine(note, kind);
+  const codeBlock = kind === "code" ? noteCodeBlock(note) : null;
+  const formula = kind === "formula" ? noteFormula(note) : null;
+
+  return (
+    <div className={`nb-note-card accent-${meta.accent}`}>
+      <div className="card-header">
+        <span className="card-tag">{KIND_ICON[kind]} {meta.label}</span>
+        {ref && (
+          <Link className="card-lesson-link" to={lessonPath(ref.module.id, ref.lesson.id)}>
+            <ModuleIcon id={ref.module.id} size={11} /> {ref.lesson.title}
+          </Link>
+        )}
+        <span className="card-date">{relativeTime(note.createdAt, now)}</span>
+      </div>
+
+      {note.selectionText && (
+        <blockquote className="card-quote">"{note.selectionText}"</blockquote>
+      )}
+
+      <div className="card-body">
+        {isEditing ? (
+          <div className="card-edit-form">
+            <textarea
+              value={editBody}
+              onChange={(e) => setEditBody(e.target.value)}
+              rows={4}
+              autoFocus
+            />
+            <input
+              type="text"
+              placeholder="Tags (comma-separated)..."
+              value={editTags}
+              onChange={(e) => setEditTags(e.target.value)}
+            />
+            <div className="edit-buttons">
+              <button className="btn-cancel" onClick={onCancelEdit}>Cancel</button>
+              <button className="btn-save" onClick={onSaveEdit}>Save changes</button>
+            </div>
+          </div>
+        ) : formula ? (
+          <div className="card-formula-preview">
+            <MBlock>{formula}</MBlock>
+          </div>
+        ) : codeBlock ? (
+          <ShikiCode code={codeBlock.code} lang={codeBlock.lang as any} />
+        ) : (
+          <p className="card-text">
+            {kind === "mistake" ? <span className="card-mistake-lbl">What I misunderstood — </span> : null}
+            <InlineNoteText text={preview} />
+          </p>
+        )}
+      </div>
+
+      {!isEditing && note.tags.length > 0 && (
+        <div className="card-tags">
+          {note.tags.map((t) => (
+            <span key={t} className="tag-badge">#{t}</span>
+          ))}
+        </div>
+      )}
+
+      {!isEditing && (
+        <div className="card-hover-actions">
+          <button className="hover-btn" title="Edit" onClick={onStartEdit}><PencilSimpleLine size={13} /></button>
+          <Popover>
+            <PopoverTrigger asChild>
+              <button className="hover-btn" title="Schedule review"><Clock size={13} /></button>
+            </PopoverTrigger>
+            <PopoverContent align="end" style={{ width: "160px" }}>
+              <div className="reminder-menu">
+                <span className="menu-title">Schedule Review</span>
+                <button onClick={() => onQuickReminder(1)}>Review Tomorrow</button>
+                <button onClick={() => onQuickReminder(3)}>In 3 Days</button>
+                <button onClick={() => onQuickReminder(7)}>In 1 Week</button>
+              </div>
+            </PopoverContent>
+          </Popover>
+          <Popover>
+            <PopoverTrigger asChild>
+              <button className="hover-btn" title="More"><DotsThree size={15} weight="bold" /></button>
+            </PopoverTrigger>
+            <PopoverContent align="end" style={{ width: "120px" }}>
+              <div className="reminder-menu">
+                <button onClick={onDelete} className="danger"><Trash size={12} /> Delete</button>
+              </div>
+            </PopoverContent>
+          </Popover>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function InlineNoteText({ text }: { text: string }) {
+  const parts = text.split(/(\$[^$]+\$)/g);
+  return (
+    <>
+      {parts.map((part, i) =>
+        part.startsWith("$") && part.endsWith("$")
+          ? <M key={i}>{part.slice(1, -1)}</M>
+          : <span key={i}>{part}</span>
+      )}
+    </>
   );
 }

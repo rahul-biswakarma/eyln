@@ -37,6 +37,10 @@
   --bg-raised-2: var(--surface-2);
   --bg-inset: var(--surface-inset);
   --ember: var(--accent);
+  --background: var(--bg);
+  --surface-card: var(--surface);
+  --accent-bright: var(--highlight);
+  --radius-xs: 6px;
 
   --mono: "SF Mono", "JetBrains Mono", "Fira Code", ui-monospace, Menlo, monospace;
   --sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -843,7 +847,33 @@ a.card:hover { color: inherit; }
 .tc-meta { display: flex; gap: 0.5rem; font-family: var(--mono); font-size: 0.72rem; color: var(--text-faint); margin-bottom: 1rem; }
 .tc-cue { font-size: 0.82rem; color: var(--text-dim); padding: 0.5rem 0; }
 .tc-cue b { font-weight: 600; }
-.track-card .tc-cta { margin-top: 1.2rem; font-family: var(--display); font-weight: 600; font-size: 0.85rem; color: var(--track-accent); transition: gap var(--dur) var(--ease); }
+.pbar-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--text-faint);
+  margin-top: 0.2rem;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.track-card .pbar {
+  height: 5px;
+  border-radius: 4px;
+  margin-bottom: 0.6rem;
+  overflow: hidden;
+  background: var(--surface-inset);
+  position: relative;
+}
+.track-card .pbar > i {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.6s var(--ease);
+}
+.track-card .tc-cta { margin-top: auto; padding-top: 1.2rem; font-family: var(--display); font-weight: 600; font-size: 0.85rem; color: var(--track-accent); transition: gap var(--dur) var(--ease); }
 
 /* ============ Track sections ============ */
 .track-section { --track-accent: var(--accent); margin-top: 3rem; }
@@ -2453,11 +2483,11 @@ table.rosetta td code { background: none; border: none; padding: 0; }
 
 /* Editorial Hero Banner */
 .nb-hero {
-  padding: 1.8rem 2.2rem 1.4rem;
+  padding: 1.4rem 2.2rem 1.1rem;
   border-bottom: 1px solid var(--border);
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
+  align-items: center;
   gap: 2rem;
   flex-shrink: 0;
 }
@@ -2466,66 +2496,56 @@ table.rosetta td code { background: none; border: none; padding: 0; }
 }
 .nb-kicker {
   font-family: var(--mono);
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   letter-spacing: 0.15em;
   color: var(--accent);
   text-transform: uppercase;
   display: block;
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.3rem;
 }
 .nb-hero h1 {
   font-family: var(--display);
-  font-size: 2.2rem;
+  font-size: 1.7rem;
   font-weight: 700;
   color: var(--text);
-  margin: 0 0 0.5rem;
+  margin: 0 0 0.3rem;
 }
 .nb-sub {
   color: var(--text-dim);
-  font-size: 0.9rem;
-  line-height: 1.5;
+  font-size: 0.84rem;
+  line-height: 1.45;
   margin: 0;
+  max-width: 540px;
 }
 
-/* Statistics display */
+/* Statistics display — compact inline pills, not dashboard widgets */
 .nb-stats {
-  display: grid;
-  grid-template-columns: repeat(4, 130px);
-  gap: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
 }
-.nb-stat-card {
+.nb-stat-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
   background: var(--surface-card);
   border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 0.6rem 0.8rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 72px;
+  border-radius: var(--radius-pill);
+  padding: 0.35rem 0.7rem;
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  color: var(--text-dim);
+  white-space: nowrap;
 }
-.nb-stat-card .lbl {
-  font-family: var(--sans);
-  font-size: 0.72rem;
-  color: var(--text-faint);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-.nb-stat-card .val {
-  font-family: var(--display);
-  font-size: 1.15rem;
-  font-weight: 600;
-  color: var(--text);
-  margin: 0.15rem 0;
-}
-.nb-stat-card .desc {
-  font-size: 0.62rem;
-  color: var(--text-faint);
+.nb-stat-pill svg {
+  color: var(--accent);
 }
 
 /* Workspace Split */
 .nb-workspace {
   display: grid;
-  grid-template-columns: 240px 1fr;
+  grid-template-columns: 232px 1fr;
   flex: 1;
   min-height: 0;
 }
@@ -2534,20 +2554,23 @@ table.rosetta td code { background: none; border: none; padding: 0; }
   padding: 1.2rem 0.8rem;
   overflow-y: auto;
   background: rgba(11, 11, 14, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 .sidebar-group-title {
   font-family: var(--mono);
-  font-size: 0.68rem;
+  font-size: 0.66rem;
   text-transform: uppercase;
   color: var(--text-faint);
-  letter-spacing: 0.1em;
-  padding: 0 0.6rem 0.6rem;
+  letter-spacing: 0.12em;
+  padding: 0 0.6rem 0.4rem;
   display: block;
 }
 .sidebar-links {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.15rem;
 }
 .sidebar-link {
   display: flex;
@@ -2628,6 +2651,12 @@ table.rosetta td code { background: none; border: none; padding: 0; }
   gap: 1rem;
   margin-bottom: 1rem;
 }
+.nb-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
 .nb-search {
   position: relative;
   flex: 1;
@@ -2671,6 +2700,65 @@ table.rosetta td code { background: none; border: none; padding: 0; }
   background-repeat: no-repeat;
   background-position: right 6px center;
   background-size: 16px;
+}
+.btn-new {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: var(--accent);
+  color: var(--on-accent);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 0.45rem 0.75rem;
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--dur) var(--ease);
+}
+.btn-new:hover {
+  background: var(--highlight);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.create-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.create-menu-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  width: 100%;
+  background: transparent;
+  border: none;
+  text-align: left;
+  padding: 0.5rem 0.5rem;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  transition: background var(--dur) var(--ease);
+}
+.create-menu-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+.create-menu-item .cmi-ic {
+  color: var(--accent);
+  margin-top: 0.15rem;
+  flex-shrink: 0;
+}
+.create-menu-item .cmi-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+.create-menu-item .cmi-label {
+  font-size: 0.84rem;
+  color: var(--text);
+  font-weight: 500;
+}
+.create-menu-item .cmi-desc {
+  font-size: 0.72rem;
+  color: var(--text-faint);
 }
 .nb-tag-chips {
   display: flex;
@@ -2834,47 +2922,69 @@ table.rosetta td code { background: none; border: none; padding: 0; }
   border-color: rgba(255, 92, 92, 0.2);
 }
 
-/* Timeline Cards */
+/* Timeline Grouping — Today / Yesterday / Last Week / Earlier */
+.nb-notes-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+}
+.nb-day-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.nb-day-label {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-faint);
+  margin: 0;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Compressed, information-dense note cards */
 .nb-notes-list {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 0.8rem;
+  gap: 0.4rem;
 }
 .nb-note-card {
   background: var(--surface-card);
   border: 1px solid var(--border);
+  border-left: 2px solid var(--type-accent, var(--border));
   border-radius: var(--radius-sm);
-  padding: 1.1rem;
+  padding: 0.7rem 0.9rem;
   transition: all var(--dur) var(--ease);
   position: relative;
 }
-.nb-note-card.ai {
-  border-left: 3px solid var(--accent);
-}
+.nb-note-card.accent-amber { --type-accent: var(--accent); }
+.nb-note-card.accent-red { --type-accent: var(--bad); }
+.nb-note-card.accent-violet { --type-accent: var(--cr-violet, #A98CFF); }
+.nb-note-card.accent-blue { --type-accent: #5B9DFF; }
+.nb-note-card.accent-green { --type-accent: var(--good); }
+.nb-note-card.accent-neutral { --type-accent: var(--border-bright); }
 .nb-note-card:hover {
   border-color: var(--border-bright);
+  border-left-color: var(--type-accent, var(--border-bright));
 }
 .card-header {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  font-size: 0.72rem;
+  gap: 0.5rem;
+  font-size: 0.68rem;
   color: var(--text-faint);
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.4rem;
 }
 .card-tag {
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
-  background: rgba(255, 255, 255, 0.05);
-  padding: 0.15rem 0.45rem;
-  border-radius: 4px;
+  color: var(--type-accent, var(--text-faint));
   font-weight: 500;
   text-transform: uppercase;
-}
-.nb-note-card.ai .card-tag {
-  background: var(--accent-soft);
-  color: var(--highlight);
+  letter-spacing: 0.03em;
 }
 .card-lesson-link {
   color: var(--text-dim);
@@ -2893,57 +3003,83 @@ table.rosetta td code { background: none; border: none; padding: 0; }
 }
 .card-quote {
   border-left: 2px solid var(--border-bright);
-  padding-left: 0.8rem;
-  margin: 0 0 0.8rem;
+  padding-left: 0.7rem;
+  margin: 0 0 0.5rem;
   font-style: italic;
-  font-size: 0.86rem;
+  font-size: 0.82rem;
   color: var(--text-faint);
-  line-height: 1.5;
+  line-height: 1.4;
 }
 .card-text {
   margin: 0;
-  font-size: 0.92rem;
-  color: var(--text);
-  line-height: 1.6;
+  font-size: 0.86rem;
+  color: var(--text-dim);
+  line-height: 1.5;
   white-space: pre-wrap;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.card-mistake-lbl {
+  color: var(--bad);
+  font-weight: 600;
+  font-size: 0.78rem;
+}
+.card-formula-preview {
+  padding: 0.3rem 0;
+  font-size: 0.95rem;
+}
+.card-body .codeblock {
+  margin: 0.1rem 0 0;
+  font-size: 0.78rem;
+  max-height: 140px;
+  overflow: auto;
 }
 .card-tags {
   display: flex;
   flex-wrap: wrap;
   gap: 0.3rem;
-  margin-top: 0.8rem;
+  margin-top: 0.5rem;
 }
 .tag-badge {
   font-family: var(--mono);
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   color: var(--accent);
   background: rgba(255, 176, 0, 0.05);
   padding: 0.05rem 0.35rem;
   border-radius: 4px;
 }
-.card-footer {
+
+/* Hover-reveal actions — replaces permanent footer links */
+.card-hover-actions {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.7rem;
   display: flex;
   align-items: center;
-  gap: 0.8rem;
-  margin-top: 1rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid var(--border);
+  gap: 0.2rem;
+  opacity: 0;
+  transition: opacity 0.15s ease;
 }
-.foot-btn {
-  background: transparent;
-  border: none;
-  padding: 0;
-  font-family: var(--sans);
-  font-size: 0.74rem;
+.nb-note-card:hover .card-hover-actions {
+  opacity: 1;
+}
+.hover-btn {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
   color: var(--text-faint);
+  padding: 0.3rem;
+  display: grid;
+  place-items: center;
   cursor: pointer;
-  transition: color var(--dur) var(--ease);
+  transition: all var(--dur) var(--ease);
 }
-.foot-btn:hover {
+.hover-btn:hover {
   color: var(--text);
-}
-.foot-btn.danger:hover {
-  color: #ff5c5c;
+  border-color: var(--border-bright);
+  background: var(--surface);
 }
 
 /* Card Editing Area */
@@ -3042,35 +3178,12 @@ table.rosetta td code { background: none; border: none; padding: 0; }
   resize: none;
 }
 
-/* Floating Action Button */
-.nb-fab-container {
-  position: fixed;
-  bottom: 2rem;
-  right: 2rem;
-  z-index: 99;
-}
-.nb-fab {
-  width: 46px;
-  height: 46px;
-  border-radius: 50%;
-  background: var(--accent);
-  color: var(--background);
-  border: none;
-  cursor: pointer;
-  display: grid;
-  place-items: center;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4), 0 0 15px rgba(255, 176, 0, 0.3);
-  transition: transform 0.2s var(--ease);
-}
-.nb-fab:hover {
-  transform: scale(1.06);
-}
-.fab-menu, .reminder-menu {
+.reminder-menu {
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
 }
-.fab-menu button, .reminder-menu button {
+.reminder-menu button {
   width: 100%;
   background: transparent;
   border: none;
@@ -3081,11 +3194,18 @@ table.rosetta td code { background: none; border: none; padding: 0; }
   font-family: var(--sans);
   font-size: 0.8rem;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
   transition: background var(--dur) var(--ease);
 }
-.fab-menu button:hover, .reminder-menu button:hover {
+.reminder-menu button:hover {
   background: rgba(255, 255, 255, 0.05);
   color: var(--text);
+}
+.reminder-menu button.danger:hover {
+  color: #ff5c5c;
+  background: rgba(255, 92, 92, 0.1);
 }
 .reminder-menu .menu-title {
   font-family: var(--mono);
@@ -3223,4 +3343,74 @@ table.rosetta td code { background: none; border: none; padding: 0; }
 }
 .btn-stop-record:hover {
   opacity: 0.9;
+}
+
+.dialog-form textarea.mono {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+}
+
+/* Formula Builder — MathLive math-field with symbol palette + live preview */
+.formula-builder {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.fb-field-wrap {
+  background: var(--surface-inset);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.2rem;
+  transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+.formula-builder.focused .fb-field-wrap {
+  border-color: var(--border-glow);
+  box-shadow: 0 0 10px rgba(255, 176, 0, 0.1);
+}
+.fb-field {
+  --hue: 38;
+  width: 100%;
+  min-height: 44px;
+  display: block;
+  font-size: 1.05rem;
+  padding: 0.4rem;
+  background: transparent;
+  color: var(--text);
+}
+.fb-palette {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 0.25rem;
+}
+.fb-symbol {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-dim);
+  font-family: var(--display);
+  font-size: 0.86rem;
+  padding: 0.35rem 0.2rem;
+  cursor: pointer;
+  transition: all var(--dur) var(--ease);
+}
+.fb-symbol:hover {
+  color: var(--highlight);
+  border-color: var(--border-glow);
+  background: var(--accent-soft);
+}
+.fb-preview {
+  background: var(--surface-inset);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.7rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.fb-preview-lbl {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-faint);
 }

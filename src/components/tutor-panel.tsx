@@ -10,128 +10,13 @@ import { useUI } from "../lib/ui";
 import { useProgress } from "../lib/progress";
 import { useNotes, type Note } from "../lib/notes";
 import { getModule, moduleProgress } from "../content/registry";
-import { M, MBlock } from "./math";
+import { MBlock, FormattedText } from "./math";
 import { Code as ShikiCode } from "./code-block";
 import { Tooltip } from "./ui";
+import { parseMarkdown, type Block } from "../lib/blocks";
 
 interface ExtractJSON {
   tasks: { kind: TutorTaskKind; text: string; topic?: string }[];
-}
-
-// Custom Markdown parsing for notebook design
-interface Block {
-  type: "text" | "code" | "math" | "heading";
-  content: string;
-  lang?: string;
-  level?: number;
-}
-
-function parseMarkdown(text: string): Block[] {
-  const blocks: Block[] = [];
-  const codeRegex = /```(\w*)\n([\s\S]*?)```/g;
-
-  let lastIndex = 0;
-  let match;
-
-  while ((match = codeRegex.exec(text)) !== null) {
-    const prevText = text.slice(lastIndex, match.index);
-    if (prevText) {
-      blocks.push(...parseMathAndText(prevText));
-    }
-    blocks.push({
-      type: "code",
-      lang: match[1] || "typescript",
-      content: match[2].trim(),
-    });
-    lastIndex = codeRegex.lastIndex;
-  }
-  const remainingText = text.slice(lastIndex);
-  if (remainingText) {
-    blocks.push(...parseMathAndText(remainingText));
-  }
-  return blocks;
-}
-
-function parseMathAndText(text: string): Block[] {
-  const blocks: Block[] = [];
-  const mathRegex = /\$\$([\s\S]*?)\$\$/g;
-
-  let lastIndex = 0;
-  let match;
-
-  while ((match = mathRegex.exec(text)) !== null) {
-    const prevText = text.slice(lastIndex, match.index);
-    if (prevText) {
-      blocks.push(...parseHeadingsAndParagraphs(prevText));
-    }
-    blocks.push({
-      type: "math",
-      content: match[1],
-    });
-    lastIndex = mathRegex.lastIndex;
-  }
-  const remainingText = text.slice(lastIndex);
-  if (remainingText) {
-    blocks.push(...parseHeadingsAndParagraphs(remainingText));
-  }
-  return blocks;
-}
-
-function parseHeadingsAndParagraphs(text: string): Block[] {
-  const lines = text.split("\n");
-  const blocks: Block[] = [];
-  let currentParagraphLines: string[] = [];
-
-  const flushParagraph = () => {
-    if (currentParagraphLines.length > 0) {
-      blocks.push({
-        type: "text",
-        content: currentParagraphLines.join("\n"),
-      });
-      currentParagraphLines = [];
-    }
-  };
-
-  for (const line of lines) {
-    const headingMatch = line.match(/^(#{1,6})\s+(.*)$/);
-    if (headingMatch) {
-      flushParagraph();
-      blocks.push({
-        type: "heading",
-        level: headingMatch[1].length,
-        content: headingMatch[2],
-      });
-    } else {
-      if (line.trim() === "") {
-        flushParagraph();
-      } else {
-        currentParagraphLines.push(line);
-      }
-    }
-  }
-  flushParagraph();
-  return blocks;
-}
-
-function FormattedText({ text }: { text: string }) {
-  const parts = text.split(/(\$[^\$]+\$)/g);
-  return (
-    <>
-      {parts.map((part, i) => {
-        if (part.startsWith("$") && part.endsWith("$")) {
-          const math = part.slice(1, -1);
-          return <M key={i}>{math}</M>;
-        }
-        const subparts = part.split(/(`[^`]+`)/g);
-        return subparts.map((sub, j) => {
-          if (sub.startsWith("`") && sub.endsWith("`")) {
-            return <code key={`${i}-${j}`}>{sub.slice(1, -1)}</code>;
-          }
-          return sub;
-        });
-      })}
-    </>
-  );
 }
 
 const ACTION_CARDS = [
