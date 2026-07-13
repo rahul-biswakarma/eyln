@@ -1,6 +1,6 @@
 import type { Module } from "../../content/types";
-import { M, MBlock } from "../../components/Math";
-import { Code } from "../../components/CodeBlock";
+import { M, MBlock } from "../../components/math";
+import { Code } from "../../components/code-block";
 
 function ContiguousMemory() {
   return (

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNotes } from "../lib/notes";
 import { REMINDER_PRESETS, ensureNotifyPermission } from "../lib/reminders";
+import { Dialog, DialogContent, DialogTitle } from "./ui";
 
 export function NotePanel({
   lessonKey,
@@ -27,7 +28,6 @@ export function NotePanel({
       addNote({ lessonKey, moduleId, selectionText: selection, body: body.trim(), tags });
     }
     if (remindMs) {
-      
       addReminder({
         lessonKey,
         note: `Review "${lessonTitle}"${body.trim() ? `: ${body.trim().slice(0, 60)}` : ""}`,
@@ -39,13 +39,10 @@ export function NotePanel({
   }
 
   return (
-    <div className="note-overlay" onClick={onClose}>
-      <div className="note-panel card" onClick={(e) => e.stopPropagation()}>
-        <div style={{ display: "flex", alignItems: "center", marginBottom: "0.8rem" }}>
-          <strong>Add a note</strong>
-          <button className="icon-btn" style={{ marginLeft: "auto" }} onClick={onClose}>✕</button>
-        </div>
-        <div className="empty-note" style={{ padding: 0, marginBottom: "0.6rem" }}>{lessonTitle}</div>
+    <Dialog open={true} onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent showCloseButton={true}>
+        <DialogTitle>Add a note</DialogTitle>
+        <div className="empty-note" style={{ padding: 0, marginBottom: "0.8rem", background: "none", border: 0 }}>{lessonTitle}</div>
 
         {selection && (
           <div className="notice" style={{ margin: "0 0 0.9rem" }}>
@@ -61,13 +58,20 @@ export function NotePanel({
           autoFocus
           placeholder="Why is this interesting / what do you want to remember?"
           onChange={(e) => setBody(e.target.value)}
+          style={{ width: "100%", marginBottom: "1rem" }}
         />
 
         <label className="fld-lbl">Tags (comma-separated)</label>
-        <input type="text" value={tagsRaw} placeholder="matrices, gotcha" onChange={(e) => setTagsRaw(e.target.value)} />
+        <input 
+          type="text" 
+          value={tagsRaw} 
+          placeholder="matrices, gotcha" 
+          onChange={(e) => setTagsRaw(e.target.value)} 
+          style={{ width: "100%", marginBottom: "1rem" }}
+        />
 
         <label className="fld-lbl">Remind me to review</label>
-        <div className="chip-row" style={{ marginBottom: "1rem" }}>
+        <div className="chip-row" style={{ marginBottom: "1.2rem" }}>
           <span
             className={"chip" + (remindMs === null ? " active" : "")}
             onClick={() => setRemindMs(null)}
@@ -85,8 +89,8 @@ export function NotePanel({
           ))}
         </div>
 
-        <button className="btn primary" onClick={save}>Save</button>
-      </div>
-    </div>
+        <button className="btn primary" onClick={save} style={{ width: "100%" }}>Save</button>
+      </DialogContent>
+    </Dialog>
   );
 }

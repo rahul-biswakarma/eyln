@@ -1,6 +1,6 @@
 import type { Module } from "../../content/types";
-import { Code } from "../../components/CodeBlock";
-import { M, MBlock } from "../../components/Math";
+import { Code } from "../../components/code-block";
+import { M, MBlock } from "../../components/math";
 import { TriangleDemo } from "../../widgets/TriangleDemo";
 import { TransformPipeline3D } from "../../widgets/TransformPipeline3D";
 import { TerrainField } from "../../widgets/TerrainField";

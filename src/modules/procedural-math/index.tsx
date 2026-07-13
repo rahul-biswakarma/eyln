@@ -1,6 +1,6 @@
 import type { Module } from "../../content/types";
-import { M, MBlock } from "../../components/Math";
-import { CodeTabs, Code } from "../../components/CodeBlock";
+import { M, MBlock } from "../../components/math";
+import { CodeTabs, Code } from "../../components/code-block";
 import { NoiseExplorer } from "../../widgets/NoiseExplorer";
 import { SplineEditor } from "../../widgets/SplineEditor";
 

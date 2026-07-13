@@ -3,7 +3,7 @@ import { CheckCircle, XCircle, Circle, ArrowRight, Sparkle } from "@phosphor-ico
 import type { Quiz as QuizType } from "../content/types";
 import { useProgress } from "../lib/progress";
 import { isLLMEnabled, generate } from "../lib/llm";
-import { KnowledgeCard, KnowledgeFooter } from "./KnowledgeCard";
+import { KnowledgeCard, KnowledgeFooter } from "./knowledge-card";
 
 export function Quiz({
   id,

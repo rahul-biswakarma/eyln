@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { createHighlighterCore, type HighlighterCore } from "shiki/core";
 import { createOnigurumaEngine } from "shiki/engine/oniguruma";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "./ui";
 
 export type Lang = "wgsl" | "cpp" | "odin" | "ts" | "bash" | "c";
 
@@ -74,24 +75,28 @@ export function Code({ code, lang, filename }: { code: string; lang: Lang; filen
 
 /** Tabbed code — the WGSL | Metal MSL | Odin teaching device. */
 export function CodeTabs({ tabs }: { tabs: CodeTab[] }) {
-  const [active, setActive] = useState(0);
-  const tab = tabs[active];
+  const [active, setActive] = useState("0");
+  const activeIdx = parseInt(active, 10);
+  const tab = tabs[activeIdx];
   const html = useHighlighted(tab.code.trim(), tab.lang);
   return (
     <div className="codeblock">
-      <div className="tabs">
-        {tabs.map((t, i) => (
-          <button
-            key={t.label}
-            className={"tab" + (i === active ? " active" : "")}
-            onClick={() => setActive(i)}
-          >
-            {t.label}
-          </button>
-        ))}
-        {tab.filename && <span className="filename">{tab.filename}</span>}
-      </div>
-      <div dangerouslySetInnerHTML={{ __html: html }} />
+      <Tabs value={active} onValueChange={setActive}>
+        <TabsList>
+          {tabs.map((t, i) => (
+            <TabsTrigger
+              key={t.label}
+              value={String(i)}
+            >
+              {t.label}
+            </TabsTrigger>
+          ))}
+          {tab.filename && <span className="filename">{tab.filename}</span>}
+        </TabsList>
+        <TabsContent value={active}>
+          <div dangerouslySetInnerHTML={{ __html: html }} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

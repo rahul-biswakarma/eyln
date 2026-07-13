@@ -4,7 +4,7 @@ import { modulesForTrack, getModule, lessonPath, lessonKey, questionaryPath, mod
 import { getTrack } from "../content/tracks";
 import { useProgress } from "../lib/progress";
 import { useUI } from "../lib/ui";
-import { ModuleIcon } from "./ModuleIcon";
+import { ModuleIcon } from "./module-icon";
 
 export function Sidebar() {
   const { moduleId, lessonId } = useParams();

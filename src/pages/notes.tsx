@@ -3,7 +3,8 @@ import { Link } from "react-router-dom";
 import { useNotes } from "../lib/notes";
 import { allLessons, lessonPath } from "../content/registry";
 import { relativeTime } from "../lib/stats";
-import { ModuleIcon } from "../components/ModuleIcon";
+import { ModuleIcon } from "../components/module-icon";
+import { Tooltip } from "../components/ui";
 
 function lessonForKey(key?: string) {
   if (!key) return undefined;
@@ -74,7 +75,9 @@ export function Notes() {
                   <span style={{ display: "flex", gap: "0.4rem" }}>
                     {ref && <Link className="btn" to={lessonPath(ref.module.id, ref.lesson.id)}>Open</Link>}
                     <button className="btn" onClick={() => completeReminder(r.id)}>Done</button>
-                    <button className="icon-btn" title="Delete" onClick={() => deleteReminder(r.id)}>✕</button>
+                    <Tooltip content="Delete reminder">
+                      <button className="icon-btn" onClick={() => deleteReminder(r.id)} aria-label="Delete reminder">✕</button>
+                    </Tooltip>
                   </span>
                 </div>
               );
@@ -100,13 +103,15 @@ export function Notes() {
                     <div className="s">{ref.module.title}</div>
                   </div>
                   <span className="when">{relativeTime(at, now)}</span>
-                  <button
-                    className="icon-btn"
-                    title="Remove bookmark"
-                    onClick={(e) => { e.preventDefault(); toggleBookmark(key); }}
-                  >
-                    ✕
-                  </button>
+                  <Tooltip content="Remove bookmark">
+                    <button
+                      className="icon-btn"
+                      onClick={(e) => { e.preventDefault(); toggleBookmark(key); }}
+                      aria-label="Remove bookmark"
+                    >
+                      ✕
+                    </button>
+                  </Tooltip>
                 </Link>
               );
             })}
@@ -158,7 +163,9 @@ export function Notes() {
                   <span className="when" style={{ marginLeft: "auto", fontFamily: "var(--mono)", fontSize: "0.72rem", color: "var(--text-faint)" }}>
                     {relativeTime(n.createdAt, now)}
                   </span>
-                  <button className="icon-btn" title="Delete note" onClick={() => deleteNote(n.id)}>✕</button>
+                  <Tooltip content="Delete note">
+                    <button className="icon-btn" onClick={() => deleteNote(n.id)} aria-label="Delete note">✕</button>
+                  </Tooltip>
                 </div>
               </div>
             );

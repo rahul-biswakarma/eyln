@@ -1,4 +1,4 @@
-import { WebGPUCanvas } from "../components/WebGPUCanvas";
+import { WebGPUCanvas } from "../components/webgpu-canvas";
 import { makeBuffer, resizeToDisplay, startLoop } from "../engine/webgpu/gpu";
 
 const WGSL =  `

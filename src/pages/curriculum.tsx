@@ -1,7 +1,7 @@
 import { modulesForTrack } from "../content/registry";
 import { tracks } from "../content/tracks";
-import { ModuleCard } from "../components/ModuleCard";
-import { TrackIcon } from "../components/ModuleIcon";
+import { ModuleCard } from "../components/module-card";
+import { TrackIcon } from "../components/module-icon";
 import { useProgress } from "../lib/progress";
 import { computeStats } from "../lib/stats";
 

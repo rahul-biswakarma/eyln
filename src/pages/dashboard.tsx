@@ -2,13 +2,13 @@ import { Link } from "react-router-dom";
 import { lessonPath } from "../content/registry";
 import { useProgress } from "../lib/progress";
 import { computeStats, formatMinutes, recentActivity, relativeTime } from "../lib/stats";
-import { StatCard } from "../components/StatCard";
-import { Sparkline } from "../components/Sparkline";
-import { RoadmapRail } from "../components/RoadmapRail";
-import { ProgressRing } from "../components/ProgressRing";
-import { CoachCard } from "../components/CoachCard";
-import { TrackCard } from "../components/TrackCard";
-import { ModuleIcon } from "../components/ModuleIcon";
+import { StatCard } from "../components/stat-card";
+import { Sparkline } from "../components/sparkline";
+import { RoadmapRail } from "../components/roadmap-rail";
+import { ProgressRing } from "../components/progress-ring";
+import { CoachCard } from "../components/coach-card";
+import { TrackCard } from "../components/track-card";
+import { ModuleIcon } from "../components/module-icon";
 import { tracks } from "../content/tracks";
 
 export function Dashboard() {

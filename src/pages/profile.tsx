@@ -5,6 +5,7 @@ import { useAuth } from "../lib/auth";
 import { computeStats } from "../lib/stats";
 import { badgeState, levelFor } from "../lib/badges";
 import { useTutor, TUTOR_KIND_META, type TutorTaskKind } from "../lib/tutor";
+import { Tooltip } from "../components/ui";
 
 const BADGE_ICON: Record<string, Icon> = {
   Sparkle, Wrench, Gear, Blueprint, Medal, Crown,
@@ -168,9 +169,11 @@ function TutorTasks() {
                       <span className="tt-text">{t.text}</span>
                       {t.source && <span className="tt-source">{t.source}</span>}
                     </div>
-                    <button className="tt-remove" onClick={() => removeTask(t.id)} aria-label="Remove">
-                      <X size={13} weight="bold" />
-                    </button>
+                    <Tooltip content="Remove task">
+                      <button className="tt-remove" onClick={() => removeTask(t.id)} aria-label="Remove task">
+                        <X size={13} weight="bold" />
+                      </button>
+                    </Tooltip>
                   </li>
                 ))}
               </ul>

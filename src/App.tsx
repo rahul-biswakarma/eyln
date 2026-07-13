@@ -1,8 +1,8 @@
 import { Outlet, useLocation } from "react-router-dom";
-import { TopNav } from "./components/TopNav";
-import { Sidebar } from "./components/Sidebar";
-import { TutorPanel } from "./components/TutorPanel";
-import { SignInScreen } from "./components/SignInScreen";
+import { TopNav } from "./components/top-nav";
+import { Sidebar } from "./components/sidebar";
+import { TutorPanel } from "./components/tutor-panel";
+import { SignInScreen } from "./components/sign-in-screen";
 import { useReminderScheduler } from "./lib/reminders";
 import { useAuth } from "./lib/auth";
 

@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import {
-  Sparkle, X, PaperPlaneRight, Lightbulb, ClipboardText, CircleNotch,
-  PushPin, MagnifyingGlass, Trash, Plus,
-  Eye, Quotes, ListChecks, Code as CodeIcon, Bug, BookOpen, Infinity as InfinityIcon
+  Sparkle, X, PaperPlaneRight, ClipboardText, CircleNotch,
+  PushPin, MagnifyingGlass, Trash, Plus
 } from "@phosphor-icons/react";
 import { isLLMEnabled, chat, generate, parseJSON, type ChatTurn } from "../lib/llm";
 import { buildLearnerContext } from "../lib/learnerContext";
@@ -11,50 +10,15 @@ import { useUI } from "../lib/ui";
 import { useNotes, type Note } from "../lib/notes";
 import { useProgress } from "../lib/progress";
 import { getModule, moduleProgress } from "../content/registry";
-import { M, MBlock } from "./Math";
-import { Code as ShikiCode } from "./CodeBlock";
+import { M, MBlock } from "./math";
+import { Code as ShikiCode } from "./code-block";
+import { Tabs, TabsList, TabsTrigger, TabsContent, Tooltip } from "./ui";
 
 interface ExtractJSON {
   tasks: { kind: TutorTaskKind; text: string; topic?: string }[];
 }
 
-const SUGGESTED_ACTIONS = [
-  { key: "explain_p", label: "Explain this paragraph", icon: Lightbulb },
-  { key: "visualize", label: "Visualize concept", icon: Eye },
-  { key: "analogy", label: "Real-world analogy", icon: Quotes },
-  { key: "quiz", label: "Generate a quiz", icon: ListChecks },
-  { key: "shader", label: "Show shader example", icon: CodeIcon },
-  { key: "relate", label: "Relate to previous", icon: BookOpen },
-  { key: "debug", label: "Debug my thinking", icon: Bug },
-  { key: "math", label: "Explain mathematically", icon: InfinityIcon }
-] as const;
 
-function getActionPrompt(key: string, ctx: { title: string; currentParagraph: string | null; selectedText: string | null }) {
-  const contextSubject = ctx.selectedText
-    ? `the highlighted text: "${ctx.selectedText}"`
-    : (ctx.currentParagraph ? `the section around "${ctx.currentParagraph}"` : `the lesson "${ctx.title}"`);
-
-  switch (key) {
-    case "explain_p":
-      return `Explain ${contextSubject} simply but precisely. Focus on building intuition first. Keep the response compact and readable.`;
-    case "visualize":
-      return `Generate a clean, text-based visual diagram (using ASCII art, unicode symbols, or a clear step-by-step layout) to visualize the core concept of ${contextSubject}.`;
-    case "analogy":
-      return `Explain the core concept of ${contextSubject} using a memorable, clear real-world analogy. Keep it short, practical and engaging.`;
-    case "quiz":
-      return `Generate a quick, challenging single-question multiple choice quiz with choices A, B, C, D to test my understanding of the concept in ${contextSubject}. Do not reveal the answer immediately, let me reply first.`;
-    case "shader":
-      return `Provide a practical, short WGSL or Metal shader code example demonstrating the graphics/mathematical concept in ${contextSubject}. Keep it clean, and add brief comments explaining the math.`;
-    case "relate":
-      return `Explain how the concepts in ${contextSubject} build upon or connect to what was learned in the previous lesson of this module. What's the thread?`;
-    case "debug":
-      return `Walk me through common gotchas, edge cases, or misunderstandings that developers face when working with the concepts in ${contextSubject}. Help me debug my mental model.`;
-    case "math":
-      return `Explain the concepts in ${contextSubject} using formal mathematical notation. Provide rigorous definitions, equations, and LaTeX formulas.`;
-    default:
-      return "";
-  }
-}
 
 // Custom Markdown parsing for notebook design
 interface Block {
@@ -353,47 +317,41 @@ export function TutorPanel() {
             <span className="tp-stat-pill">{masteryPct}% Mastery</span>
             <span className="tp-stat-pill">{currentParagraph || "Pg. 1"}</span>
           </div>
-          <button className="icon-btn close-v2" onClick={closeTutor} aria-label="Collapse workspace">
-            <X size={15} weight="bold" />
-          </button>
+          <Tooltip content="Collapse Companion">
+            <button className="icon-btn close-v2" onClick={closeTutor} aria-label="Collapse workspace">
+              <X size={15} weight="bold" />
+            </button>
+          </Tooltip>
         </div>
       </header>
 
-      {/* Tabs */}
-      <div className="tp-tabs">
-        <button
-          className={"tp-tab-btn" + (activeTab === "mentor" ? " active" : "")}
-          onClick={() => setActiveTab("mentor")}
-        >
-          Workspace
-        </button>
-        <button
-          className={"tp-tab-btn" + (activeTab === "notes" ? " active" : "")}
-          onClick={() => setActiveTab("notes")}
-        >
-          Notes & Pins <span className="tab-count">{lessonNotes.length}</span>
-        </button>
-      </div>
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
+        {/* Tabs */}
+        <TabsList>
+          <TabsTrigger value="mentor">Workspace</TabsTrigger>
+          <TabsTrigger value="notes">
+            Notes & Pins <span className="tab-count">{lessonNotes.length}</span>
+          </TabsTrigger>
+        </TabsList>
 
-      <div className="tp-search-container">
-        <div className="tp-search-bar">
-          <MagnifyingGlass size={13} className="search-icon" />
-          <input
-            type="text"
-            placeholder={activeTab === "notes" ? "Search all notes..." : "Search current lesson notes..."}
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-              if (e.target.value.trim() && activeTab !== "notes") {
-                setActiveTab("notes");
-              }
-            }}
-          />
+        <div className="tp-search-container">
+          <div className="tp-search-bar">
+            <MagnifyingGlass size={13} className="search-icon" />
+            <input
+              type="text"
+              placeholder={activeTab === "notes" ? "Search all notes..." : "Search current lesson notes..."}
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                if (e.target.value.trim() && activeTab !== "notes") {
+                  setActiveTab("notes");
+                }
+              }}
+            />
+          </div>
         </div>
-      </div>
 
-      {activeTab === "mentor" ? (
-        <>
+        <TabsContent value="mentor" style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
           {/* Main conversation log */}
           <div className="tp-workspace-log" ref={logRef}>
             {/* Dynamic Context Pill Indicator */}
@@ -446,20 +404,22 @@ export function TutorPanel() {
                             <div key={blockIdx} className={`tp-notebook-block ${block.type}`}>
                               {block.type !== "heading" && (
                                 <div className="tp-block-actions">
-                                  <button
-                                    className={"action-btn" + (isPinned ? " pinned" : "")}
-                                    onClick={() => handlePin(block)}
-                                    title={isPinned ? "Already Pinned" : "Pin to Notes"}
-                                  >
-                                    <PushPin size={11} weight={isPinned ? "fill" : "regular"} />
-                                  </button>
-                                  <button
-                                    className="action-btn"
-                                    onClick={() => navigator.clipboard.writeText(block.content)}
-                                    title="Copy content"
-                                  >
-                                    <ClipboardText size={11} />
-                                  </button>
+                                  <Tooltip content={isPinned ? "Already Pinned" : "Pin to Notes"}>
+                                    <button
+                                      className={"action-btn" + (isPinned ? " pinned" : "")}
+                                      onClick={() => handlePin(block)}
+                                    >
+                                      <PushPin size={11} weight={isPinned ? "fill" : "regular"} />
+                                    </button>
+                                  </Tooltip>
+                                  <Tooltip content="Copy content">
+                                    <button
+                                      className="action-btn"
+                                      onClick={() => navigator.clipboard.writeText(block.content)}
+                                    >
+                                      <ClipboardText size={11} />
+                                    </button>
+                                  </Tooltip>
                                 </div>
                               )}
                               <div className="block-inner">
@@ -501,30 +461,6 @@ export function TutorPanel() {
             )}
           </div>
 
-          {/* Contextual Actions Panel */}
-          <div className="tp-workspace-actions">
-            <span className="section-label">Suggested Actions</span>
-            <div className="actions-grid">
-              {SUGGESTED_ACTIONS.map((action) => {
-                const prompt = getActionPrompt(action.key, {
-                  title: ctx.title,
-                  currentParagraph,
-                  selectedText
-                });
-                return (
-                  <button
-                    key={action.key}
-                    className="action-chip"
-                    onClick={() => ask(action.label, prompt)}
-                    disabled={loading}
-                  >
-                    <action.icon size={13} />
-                    <span>{action.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
 
           {/* Input Bar */}
           <div className="tp-input-bar">
@@ -555,79 +491,81 @@ export function TutorPanel() {
               </div>
             )}
           </div>
-        </>
-      ) : (
-        /* Notes & Pins Tab */
-        <div className="tp-notes-workspace">
-          <div className="notes-actions-header">
-            <span className="section-label">
-              {searchQuery ? `Search Results (${searchResults.length})` : `Lesson Notes & Highlights`}
-            </span>
-            {!searchQuery && (
-              <button
-                className="add-note-toggle"
-                onClick={() => setShowAddNote(!showAddNote)}
-              >
-                <Plus size={12} /> Note
-              </button>
-            )}
-          </div>
+        </TabsContent>
 
-          {showAddNote && (
-            <div className="quick-note-form">
-              <textarea
-                placeholder="Write custom notes for this lesson..."
-                value={newNoteBody}
-                onChange={(e) => setNewNoteBody(e.target.value)}
-                rows={3}
-                autoFocus
-              />
-              <input
-                type="text"
-                placeholder="Tags (comma-separated)..."
-                value={newNoteTags}
-                onChange={(e) => setNewNoteTags(e.target.value)}
-              />
-              <div className="form-buttons">
-                <button className="form-btn cancel" onClick={() => setShowAddNote(false)}>Cancel</button>
-                <button className="form-btn save" onClick={handleAddCustomNote}>Save Note</button>
-              </div>
+        <TabsContent value="notes" style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
+          {/* Notes & Pins Tab */}
+          <div className="tp-notes-workspace">
+            <div className="notes-actions-header">
+              <span className="section-label">
+                {searchQuery ? `Search Results (${searchResults.length})` : `Lesson Notes & Highlights`}
+              </span>
+              {!searchQuery && (
+                <button
+                  className="add-note-toggle"
+                  onClick={() => setShowAddNote(!showAddNote)}
+                >
+                  <Plus size={12} /> Note
+                </button>
+              )}
             </div>
-          )}
 
-          <div className="notes-list-scroll">
-            {searchQuery ? (
-              searchResults.length === 0 ? (
-                <div className="empty-state">No matching notes found.</div>
-              ) : (
-                searchResults.map((note) => (
-                  <NoteItem
-                    key={note.id}
-                    note={note}
-                    onDelete={() => deleteNote(note.id)}
-                    onUpdate={(text) => updateNote(note.id, { body: text })}
-                  />
-                ))
-              )
-            ) : (
-              lessonNotes.length === 0 ? (
-                <div className="empty-state">
-                  No notes saved for this lesson yet. Pin any explanation block or highlight text to save notes here.
+            {showAddNote && (
+              <div className="quick-note-form">
+                <textarea
+                  placeholder="Write custom notes for this lesson..."
+                  value={newNoteBody}
+                  onChange={(e) => setNewNoteBody(e.target.value)}
+                  rows={3}
+                  autoFocus
+                />
+                <input
+                  type="text"
+                  placeholder="Tags (comma-separated)..."
+                  value={newNoteTags}
+                  onChange={(e) => setNewNoteTags(e.target.value)}
+                />
+                <div className="form-buttons">
+                  <button className="form-btn cancel" onClick={() => setShowAddNote(false)}>Cancel</button>
+                  <button className="form-btn save" onClick={handleAddCustomNote}>Save Note</button>
                 </div>
-              ) : (
-                lessonNotes.map((note) => (
-                  <NoteItem
-                    key={note.id}
-                    note={note}
-                    onDelete={() => deleteNote(note.id)}
-                    onUpdate={(text) => updateNote(note.id, { body: text })}
-                  />
-                ))
-              )
+              </div>
             )}
+
+            <div className="notes-list-scroll">
+              {searchQuery ? (
+                searchResults.length === 0 ? (
+                  <div className="empty-state">No matching notes found.</div>
+                ) : (
+                  searchResults.map((note) => (
+                    <NoteItem
+                      key={note.id}
+                      note={note}
+                      onDelete={() => deleteNote(note.id)}
+                      onUpdate={(text) => updateNote(note.id, { body: text })}
+                    />
+                  ))
+                )
+              ) : (
+                lessonNotes.length === 0 ? (
+                  <div className="empty-state">
+                    No notes saved for this lesson yet. Pin any explanation block or highlight text to save notes here.
+                  </div>
+                ) : (
+                  lessonNotes.map((note) => (
+                    <NoteItem
+                      key={note.id}
+                      note={note}
+                      onDelete={() => deleteNote(note.id)}
+                      onUpdate={(text) => updateNote(note.id, { body: text })}
+                    />
+                  ))
+                )
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        </TabsContent>
+      </Tabs>
     </aside>
   );
 }
@@ -664,9 +602,11 @@ function NoteItem({
             <PushPin size={10} weight="fill" />
             <span>Pinned Concept</span>
           </div>
-          <button className="pni-delete" onClick={onDelete} title="Delete Pin">
-            <Trash size={11} />
-          </button>
+          <Tooltip content="Delete Pin">
+            <button className="pni-delete" onClick={onDelete}>
+              <Trash size={11} />
+            </button>
+          </Tooltip>
         </div>
         <div className="pni-body">
           {blocks.map((block, idx) => (
@@ -689,9 +629,11 @@ function NoteItem({
     <div className="user-note-item">
       <div className="uni-header">
         <span className="uni-tag">Note</span>
-        <button className="uni-delete" onClick={onDelete} title="Delete Note">
-          <Trash size={11} />
-        </button>
+        <Tooltip content="Delete Note">
+          <button className="uni-delete" onClick={onDelete}>
+            <Trash size={11} />
+          </button>
+        </Tooltip>
       </div>
       {note.selectionText && (
         <blockquote className="uni-quote">

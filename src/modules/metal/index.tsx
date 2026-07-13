@@ -1,6 +1,6 @@
 import type { Module } from "../../content/types";
-import { Code, CodeTabs } from "../../components/CodeBlock";
-import { MBlock } from "../../components/Math";
+import { Code, CodeTabs } from "../../components/code-block";
+import { MBlock } from "../../components/math";
 import { ShaderEditor } from "../../widgets/ShaderEditor";
 import { TriangleDemo } from "../../widgets/TriangleDemo";
 

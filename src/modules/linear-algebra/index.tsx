@@ -1,6 +1,6 @@
 import type { Module } from "../../content/types";
-import { M, MBlock } from "../../components/Math";
-import { CodeTabs } from "../../components/CodeBlock";
+import { M, MBlock } from "../../components/math";
+import { CodeTabs } from "../../components/code-block";
 import { VectorPlayground } from "../../widgets/VectorPlayground";
 import { MatrixTransform2D } from "../../widgets/MatrixTransform2D";
 import { TransformPipeline3D } from "../../widgets/TransformPipeline3D";

@@ -1,13 +1,14 @@
 import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { CheckCircle, ArrowRight } from "@phosphor-icons/react";
+import { CheckCircle } from "@phosphor-icons/react";
 import {
   challengesForTrack, challengesByTopic, PRACTICE_TRACKS, challenges, trackOf,
   type PracticeTrack,
 } from "../content/challenges";
 import type { PracticeTrackId } from "../content/types";
-import { CodeChallenge } from "../components/CodeChallenge";
+import { CodeChallenge } from "../components/code-challenge";
 import { useProgress } from "../lib/progress";
+import { Tabs, TabsList, TabsTrigger } from "../components/ui";
 
 export function Practice() {
   const solved = useProgress((s) => s.solvedChallenges);
@@ -25,7 +26,6 @@ export function Practice() {
   const activeIdx = trackList.findIndex((c) => c.id === active.id);
   const solvedCount = trackList.filter((c) => solved[c.id]).length;
   const pct = trackList.length ? solvedCount / trackList.length : 0;
-  const nextUp = trackList[activeIdx + 1];
   const track = PRACTICE_TRACKS.find((t) => t.id === trackId) as PracticeTrack;
 
   function switchTrack(id: PracticeTrackId) {
@@ -36,17 +36,19 @@ export function Practice() {
   return (
     <div className="practice-shell">
       <aside className="practice-sidebar">
-        <div className="track-switch">
-          {PRACTICE_TRACKS.map((t) => (
-            <button
-              key={t.id}
-              className={"track-tab" + (t.id === trackId ? " active" : "")}
-              onClick={() => switchTrack(t.id)}
-            >
-              {t.id === "dsa" ? "DSA" : t.id === "engine" ? "Engine" : "Math"}
-            </button>
-          ))}
-        </div>
+        <Tabs value={trackId} onValueChange={(v) => switchTrack(v as PracticeTrackId)}>
+          <TabsList className="track-switch">
+            {PRACTICE_TRACKS.map((t) => (
+              <TabsTrigger
+                key={t.id}
+                value={t.id}
+                className="track-tab"
+              >
+                {t.id === "dsa" ? "DSA" : t.id === "engine" ? "Engine" : "Math"}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
 
         <div className="track-panel">
           <div className="tp-grid" aria-hidden />
@@ -63,11 +65,6 @@ export function Practice() {
             <span className="tp-mission">Mission {activeIdx + 1} of {trackList.length}</span>
           </div>
 
-          {nextUp && (
-            <button className="tp-cta" onClick={() => setActiveId(nextUp.id)}>
-              {solved[active.id] ? "Continue" : "Skip ahead"} <ArrowRight size={15} weight="bold" />
-            </button>
-          )}
         </div>
 
         <nav className="ps-list">

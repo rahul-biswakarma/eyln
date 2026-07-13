@@ -211,10 +211,14 @@ a.level-chip:hover { border-color: var(--border-glow); box-shadow: 0 0 0 3px var
   display: grid; grid-template-columns: 264px 1fr;
   height: calc(100vh - 70px);
 }
-.practice-main { min-width: 0; padding: 1rem clamp(1rem, 2.5vw, 1.6rem) 1rem 1.25rem; display: flex; }
+.practice-main {
+  min-width: 0; padding: 1rem clamp(1rem, 2.5vw, 1.6rem) 1rem 1.25rem; display: flex;
+  height: 100%; min-height: 0; overflow: hidden;
+}
 @media (max-width: 860px) {
   .practice-shell { grid-template-columns: 1fr; height: auto; }
   .practice-sidebar { display: none; }
+  .practice-main { height: auto; overflow: visible; }
 }
 
 /* Sidebar */
@@ -223,14 +227,41 @@ a.level-chip:hover { border-color: var(--border-glow); box-shadow: 0 0 0 3px var
   overflow-y: auto; display: flex; flex-direction: column; gap: 1.4rem;
 }
 /* Practice track switcher */
-.track-switch { display: flex; gap: 0.3rem; margin-bottom: 1rem; padding: 0.25rem; background: var(--surface-inset); border: 1px solid var(--border); border-radius: 12px; }
-.track-tab {
-  flex: 1; cursor: pointer; padding: 0.45rem 0.4rem; border-radius: 9px; border: none; background: transparent;
-  font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.04em; color: var(--text-faint);
+.track-switch.TabsList {
+  display: flex;
+  gap: 0.3rem;
+  margin-bottom: 1rem;
+  padding: 0.25rem;
+  background: var(--surface-inset);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.track-tab.TabsTrigger {
+  flex: 1;
+  cursor: pointer;
+  padding: 0.45rem 0.4rem;
+  border-radius: 9px;
+  border: none;
+  background: transparent;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  color: var(--text-faint);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
 }
-.track-tab:hover { color: var(--text); }
-.track-tab.active { background: var(--accent-soft); color: var(--highlight); }
+.track-tab.TabsTrigger:hover {
+  color: var(--text);
+  background: transparent;
+}
+.track-tab.TabsTrigger[data-state="active"] {
+  background: var(--accent-soft);
+  color: var(--highlight);
+  border: none;
+  box-shadow: none;
+}
 
 /* Editorial track-progress panel — mission control */
 .track-panel {
@@ -297,10 +328,6 @@ a.level-chip:hover { border-color: var(--border-glow); box-shadow: 0 0 0 3px var
 }
 .ps-item:hover { background: var(--surface); color: var(--text); }
 .ps-item.active { background: var(--accent-soft); color: var(--highlight); }
-.ps-item.active::before {
-  content: ""; position: absolute; left: 0; top: 22%; bottom: 22%; width: 2px;
-  border-radius: 2px; background: var(--accent); box-shadow: 0 0 8px var(--accent);
-}
 .ps-item-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pi-check { color: var(--good); flex: none; }
 .pi-dot { width: 7px; height: 7px; border-radius: 50%; flex: none; }
@@ -2272,4 +2299,201 @@ table.rosetta td code { background: none; border: none; padding: 0; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
+}
+
+/* ============================================================================
+   Design System: Radix UI Primitives styling
+   ========================================================================== */
+
+/* Radix Dialog (Modal Overlays) */
+.DialogOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(6, 6, 9, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 100;
+  animation: fade var(--dur) var(--ease) both;
+}
+.DialogContent {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100dvh;
+  width: min(440px, 92vw);
+  background: var(--surface);
+  border-left: 1px solid var(--border-bright);
+  box-shadow: -30px 0 80px rgba(0, 0, 0, 0.6);
+  z-index: 101;
+  padding: 1.6rem;
+  overflow-y: auto;
+  animation: slidein-right 0.28s var(--ease) both;
+  outline: none;
+}
+@keyframes slidein-right {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+.DialogClose {
+  position: absolute;
+  top: 1.2rem;
+  right: 1.2rem;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  color: var(--text-faint);
+  transition: color var(--dur) var(--ease);
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+.DialogClose:hover {
+  color: var(--text);
+  background: var(--border);
+}
+.DialogTitle {
+  font-family: var(--display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 0.8rem;
+}
+.DialogDescription {
+  font-size: 0.86rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+  margin-bottom: 1.2rem;
+}
+
+/* Radix Tabs */
+.TabsList {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  background: rgba(19, 22, 29, 0.3);
+}
+.TabsTrigger {
+  flex: 1;
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  color: var(--text-faint);
+  font-family: var(--display);
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 0.8rem 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  transition: all var(--dur) var(--ease);
+}
+.TabsTrigger:hover {
+  color: var(--text-dim);
+  background: rgba(255, 255, 255, 0.02);
+}
+.TabsTrigger[data-state="active"] {
+  color: var(--text);
+  border-bottom-color: var(--accent);
+}
+.TabsContent {
+  outline: none;
+}
+
+/* Code block tab styles mapped to Radix Tabs selectors */
+.codeblock .TabsList {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  padding: 0.5rem 0.6rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.codeblock .TabsTrigger {
+  cursor: pointer;
+  padding: 0.28rem 0.65rem;
+  font-family: var(--display);
+  font-size: 0.76rem;
+  font-weight: 500;
+  color: var(--text-dim);
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  transition: all var(--dur) var(--ease);
+}
+.codeblock .TabsTrigger:hover {
+  color: var(--text);
+  background: var(--surface-2);
+}
+.codeblock .TabsTrigger[data-state="active"] {
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-color: var(--border-glow);
+}
+
+/* Radix Tooltip */
+.TooltipContent {
+  background: rgba(19, 22, 29, 0.94);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-bright);
+  color: var(--text);
+  padding: 0.4rem 0.7rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.76rem;
+  font-family: var(--sans);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5), 0 0 10px rgba(255, 176, 0, 0.1);
+  animation: tt-rise 0.15s var(--ease) both;
+  z-index: 200;
+  max-width: 240px;
+}
+.TooltipArrow {
+  fill: var(--border-bright);
+}
+@keyframes tt-rise {
+  from { opacity: 0; transform: translateY(4px) scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Radix Switch */
+.SwitchRoot {
+  width: 36px;
+  height: 20px;
+  background-color: var(--surface-inset);
+  border: 1px solid var(--border);
+  border-radius: 9999px;
+  position: relative;
+  cursor: pointer;
+  outline: none;
+  transition: background-color var(--dur) var(--ease);
+}
+.SwitchRoot[data-state="checked"] {
+  background-color: var(--accent-soft);
+  border-color: var(--accent);
+}
+.SwitchThumb {
+  display: block;
+  width: 14px;
+  height: 14px;
+  background-color: var(--text-faint);
+  border-radius: 9999px;
+  transition: transform var(--dur) var(--ease), background-color var(--dur) var(--ease);
+  transform: translateX(2px);
+}
+.SwitchRoot[data-state="checked"] .SwitchThumb {
+  transform: translateX(18px);
+  background-color: var(--accent);
+}
+
+/* Radix Popover */
+.PopoverContent {
+  background: var(--surface-2);
+  border: 1px solid var(--border-bright);
+  padding: 1rem;
+  border-radius: var(--radius);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  animation: rise 0.2s var(--ease) both;
+  z-index: 100;
+  outline: none;
 }

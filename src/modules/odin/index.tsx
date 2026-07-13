@@ -1,6 +1,6 @@
 import type { Module } from "../../content/types";
-import { Code, CodeTabs } from "../../components/CodeBlock";
-import { M } from "../../components/Math";
+import { Code, CodeTabs } from "../../components/code-block";
+import { M } from "../../components/math";
 
 function WhyOdin() {
   return (

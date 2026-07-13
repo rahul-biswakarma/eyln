@@ -1,13 +1,12 @@
 import { createBrowserRouter } from "react-router-dom";
 import { App } from "./App";
-import { Dashboard } from "./pages/Dashboard";
-import { Curriculum } from "./pages/Curriculum";
-import { Playground } from "./pages/Playground";
-import { LessonPage } from "./pages/LessonPage";
-import { Questionary } from "./pages/Questionary";
-import { Notes } from "./pages/Notes";
-import { Profile } from "./pages/Profile";
-import { Practice } from "./pages/Practice";
+import { Dashboard } from "./pages/dashboard";
+import { Curriculum } from "./pages/curriculum";
+import { LessonPage } from "./pages/lesson-page";
+import { Questionary } from "./pages/questionary";
+import { Notes } from "./pages/notes";
+import { Profile } from "./pages/profile";
+import { Practice } from "./pages/practice";
 
 export const router = createBrowserRouter([
   {
@@ -16,7 +15,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <Dashboard /> },
       { path: "curriculum", element: <Curriculum /> },
-      { path: "playground", element: <Playground /> },
+
       { path: "m/:moduleId/questionary", element: <Questionary /> },
       { path: "m/:moduleId/:lessonId", element: <LessonPage /> },
       { path: "notes", element: <Notes /> },

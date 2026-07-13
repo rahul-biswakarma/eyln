@@ -11,9 +11,9 @@ import {
 } from "../content/registry";
 import { challengesForModule, xpForChallenge, EST_MINUTES } from "../content/challenges";
 import type { CodeChallenge } from "../content/types";
-import { Quiz } from "../components/Quiz";
-import { Exercise } from "../components/Exercise";
-import { ModuleIcon } from "../components/ModuleIcon";
+import { Quiz } from "../components/quiz";
+import { Exercise } from "../components/exercise";
+import { ModuleIcon } from "../components/module-icon";
 import { useProgress } from "../lib/progress";
 import { useUI } from "../lib/ui";
 

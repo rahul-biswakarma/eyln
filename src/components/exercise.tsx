@@ -4,7 +4,7 @@ import type { Exercise as ExerciseType, ExerciseResult } from "../content/types"
 import { isLLMEnabled, generate, parseJSON } from "../lib/llm";
 import { useNotes } from "../lib/notes";
 import { useProgress } from "../lib/progress";
-import { KnowledgeCard, KnowledgeFooter } from "./KnowledgeCard";
+import { KnowledgeCard, KnowledgeFooter } from "./knowledge-card";
 
 interface GradeJSON {
   pass: boolean;

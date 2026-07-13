@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { WebGPUCanvas } from "../components/WebGPUCanvas";
+import { WebGPUCanvas } from "../components/webgpu-canvas";
 import { makeBuffer, resizeToDisplay, startLoop } from "../engine/webgpu/gpu";
 import { mul, perspective, lookAt } from "../engine/mat";
 import { fbm } from "../engine/noise";

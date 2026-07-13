@@ -7,9 +7,10 @@ import type { LessonRef } from "../content/registry";
 import { allLessons, lessonPath, lessonKey, questionaryPath, moduleDifficulty } from "../content/registry";
 import { useProgress } from "../lib/progress";
 import { useNotes } from "../lib/notes";
-import { NotePanel } from "./NotePanel";
-import { ModuleIcon } from "./ModuleIcon";
+import { NotePanel } from "./note-panel";
+import { ModuleIcon } from "./module-icon";
 import { useUI } from "../lib/ui";
+import { Tooltip } from "./ui";
 
 export function LessonLayout({ data }: { data: LessonRef }) {
   const { module, lesson, index } = data;
@@ -188,16 +189,24 @@ export function LessonLayout({ data }: { data: LessonRef }) {
           {isInteractive && <span className="lh-chip interactive"><Sparkle size={14} weight="fill" /> Interactive</span>}
           {isDone && <span className="lh-chip done"><CheckCircle size={14} weight="fill" /> Completed</span>}
           <span className="lh-actions">
-            <button
-              className={"icon-btn" + (isBookmarked ? " on" : "")}
-              title={isBookmarked ? "Remove bookmark" : "Bookmark this lesson"}
-              onClick={() => toggleBookmark(key)}
-            >
-              <BookmarkSimple size={16} weight={isBookmarked ? "fill" : "regular"} />
-            </button>
-            <button className="icon-btn" title="Add a note (select text first to quote it)" onClick={openNote}>
-              <PencilSimpleLine size={16} weight="regular" />
-            </button>
+            <Tooltip content={isBookmarked ? "Remove bookmark" : "Bookmark this lesson"}>
+              <button
+                className={"icon-btn" + (isBookmarked ? " on" : "")}
+                onClick={() => toggleBookmark(key)}
+                aria-label="Bookmark lesson"
+              >
+                <BookmarkSimple size={16} weight={isBookmarked ? "fill" : "regular"} />
+              </button>
+            </Tooltip>
+            <Tooltip content="Add a note (select text first to quote it)">
+              <button
+                className="icon-btn"
+                onClick={openNote}
+                aria-label="Add note"
+              >
+                <PencilSimpleLine size={16} weight="regular" />
+              </button>
+            </Tooltip>
           </span>
         </div>
       </header>

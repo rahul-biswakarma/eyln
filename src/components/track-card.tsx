@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import type { Track } from "../content/types";
 import { modulesForTrack, lessonsForTrack, nextLessonInTrack, lessonPath, lessonKey } from "../content/registry";
 import { useProgress } from "../lib/progress";
-import { TrackIcon } from "./ModuleIcon";
+import { TrackIcon } from "./module-icon";
 
 export function TrackCard({ track }: { track: Track }) {
   const done = useProgress((s) => s.done);

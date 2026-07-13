@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { findLesson } from "../content/registry";
-import { LessonLayout } from "../components/LessonLayout";
+import { LessonLayout } from "../components/lesson-layout";
 
 export function LessonPage() {
   const { moduleId, lessonId } = useParams();

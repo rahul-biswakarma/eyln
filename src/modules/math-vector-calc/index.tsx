@@ -1,5 +1,5 @@
 import type { Module } from "../../content/types";
-import { M, MBlock } from "../../components/Math";
+import { M, MBlock } from "../../components/math";
 
 function VectorsRecap() {
   return (

@@ -12,7 +12,7 @@ import {
 import { getTrack } from "../content/tracks";
 import { useProgress } from "../lib/progress";
 import { formatMinutes } from "../lib/stats";
-import { ModuleIcon } from "./ModuleIcon";
+import { ModuleIcon } from "./module-icon";
 
 const MODULE_ACCENT: Record<string, string> = {
   
