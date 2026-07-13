@@ -94,7 +94,6 @@ export function Knowledge() {
     const [activeTab, setActiveTab] = useState<string>("all");
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedTag, setSelectedTag] = useState<string | null>(null);
-    const [selectedType, setSelectedType] = useState<string>("all");
     const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
     const [editBody, setEditBody] = useState("");
     const [editTags, setEditTags] = useState("");
@@ -104,8 +103,12 @@ export function Knowledge() {
     const now = Date.now();
     const allTags = useMemo(() => {
         const set = new Set<string>();
-        notes.forEach((n) => n.tags.forEach((t) => set.add(t)));
-        return [...set].sort();
+        for (const n of notes) {
+            for (const t of n.tags) {
+                set.add(t);
+            }
+        }
+        return Array.from(set);
     }, [notes]);
     const bookmarkList = Object.entries(bookmarks).sort((a, b) => b[1] - a[1]);
     const activeReminders = reminders.filter((r) => !r.done).sort((a, b) => a.dueAt - b.dueAt);
@@ -138,17 +141,6 @@ export function Knowledge() {
         return tabFilteredNotes.filter((n) => {
             if (selectedTag && !n.tags.includes(selectedTag))
                 return false;
-            if (selectedType !== "all") {
-                const kind = noteKind(n);
-                if (selectedType === "ai" && kind !== "ai")
-                    return false;
-                if (selectedType === "custom" && kind === "ai")
-                    return false;
-                if (selectedType === "formula" && kind !== "formula")
-                    return false;
-                if (selectedType === "mistake" && kind !== "mistake")
-                    return false;
-            }
             if (searchQuery.trim()) {
                 const text = (n.body + " " + (n.selectionText ?? "") + " " + n.tags.join(" ")).toLowerCase();
                 if (!text.includes(searchQuery.toLowerCase()))
@@ -156,7 +148,7 @@ export function Knowledge() {
             }
             return true;
         });
-    }, [tabFilteredNotes, selectedTag, selectedType, searchQuery]);
+    }, [tabFilteredNotes, selectedTag, searchQuery]);
     const timelineGroups = useMemo(() => groupByTimeline(filteredNotes, (n) => n.createdAt, now), [filteredNotes, now]);
     const handleSaveCapture = (body: string, tags: string[]) => {
         addNote({ body, tags });
@@ -296,16 +288,6 @@ export function Knowledge() {
                   </div>
 
                   <div className="nb-toolbar-right">
-                    <div className="filter-selects">
-                      <select value={selectedType} onChange={(e) => setSelectedType(e.target.value)}>
-                        <option value="all">All Types</option>
-                        <option value="custom">Learner Notes</option>
-                        <option value="ai">AI Concepts</option>
-                        <option value="formula">Formulas</option>
-                        <option value="mistake">Mistakes</option>
-                      </select>
-                    </div>
-
                     <button className="btn-new" onClick={() => setIsCapturing(true)}>
                       <PlusIcon size={13} weight="bold"/> Capture
                     </button>
