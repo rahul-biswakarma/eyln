@@ -1,0 +1,294 @@
+/* Shared primitives — cards, buttons, chips, badges, shared animations. */
+
+.spin {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.btn.sm {
+  padding: 0.45rem 0.85rem;
+  font-size: 0.78rem;
+}
+
+.btn.ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--text-dim);
+}
+
+.btn.ghost:hover {
+  background: var(--surface-2);
+  color: var(--text);
+  box-shadow: none;
+}
+
+.btn.danger {
+  border-color: rgba(255, 92, 92, 0.4);
+  color: var(--bad);
+}
+
+.btn.danger:hover {
+  background: rgba(255, 92, 92, 0.1);
+  border-color: var(--bad);
+  box-shadow: none;
+}
+
+.chip-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.95rem;
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease), background var(--dur) var(--ease);
+}
+
+.chip:hover {
+  color: var(--text);
+  border-color: var(--border-bright);
+}
+
+.chip.active {
+  background: var(--accent-soft);
+  color: var(--highlight);
+  border-color: var(--border-glow);
+}
+
+.chip.ghost {
+  background: transparent;
+}
+
+/* ============ Cards — machined control panel ============ */
+.card {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.028), transparent 42%),
+    var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.3rem 1.4rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.03), 0 8px 30px rgba(0, 0, 0, 0.35);
+  transition: border-color var(--dur) var(--ease), transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.card.hover:hover,
+a.card:hover {
+  border-color: var(--border-glow);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow), 0 0 0 1px rgba(255, 176, 0, 0.14);
+}
+
+/* Primary / highlighted card — amber accent frame */
+.card.grad {
+  background:
+    radial-gradient(120% 140% at 100% 0%, rgba(255, 138, 0, 0.20), transparent 55%),
+    radial-gradient(120% 140% at 0% 100%, rgba(255, 176, 0, 0.16), transparent 55%),
+    var(--surface-2);
+  border-color: var(--border-glow);
+  box-shadow: var(--accent-glow);
+}
+
+.card.grad:hover {
+  box-shadow: var(--accent-glow), var(--shadow);
+}
+
+/* shared thin progress bar */
+.pbar {
+  height: 3px;
+  border-radius: 3px;
+  background: var(--surface-inset);
+  overflow: hidden;
+  position: relative;
+  flex: 1;
+}
+
+.pbar>i {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: var(--mod-accent, var(--accent));
+  transition: width 0.6s var(--ease);
+}
+
+/* ============ Buttons ============ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border-bright);
+  border-radius: var(--radius-pill);
+  padding: 0.6rem 1.2rem;
+  font-size: 0.86rem;
+  font-weight: 500;
+  font-family: var(--display);
+  cursor: pointer;
+  transition: border-color var(--dur) var(--ease), background var(--dur) var(--ease), transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+
+.btn:hover {
+  border-color: var(--border-glow);
+  background: var(--surface-2);
+  box-shadow: 0 0 0 1px rgba(255, 176, 0, 0.14);
+}
+
+.btn.primary {
+  background: var(--accent-grad);
+  color: var(--on-accent);
+  border-color: transparent;
+  box-shadow: 0 6px 24px rgba(255, 138, 0, 0.32);
+}
+
+.btn.primary:hover {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 28px rgba(255, 138, 0, 0.4);
+}
+
+select {
+  background: var(--surface-inset);
+  color: var(--text);
+  border: 1px solid var(--border-bright);
+  border-radius: var(--radius-sm);
+  padding: 0.4rem 0.7rem;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.btn.lg {
+  padding: 0.8rem 1.5rem;
+  font-size: 0.95rem;
+}
+
+.badge {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  background: var(--surface);
+  letter-spacing: 0.03em;
+}
+
+.badge.dep {
+  color: var(--accent);
+  border-color: var(--border-glow);
+}
+
+.badge.time {
+  color: var(--text-dim);
+}
+
+/* ============ Tables (rosetta) ============ */
+table.rosetta {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1.6rem 0;
+  font-size: 0.85rem;
+}
+
+table.rosetta th,
+table.rosetta td {
+  border: 1px solid var(--border);
+  padding: 0.6rem 0.75rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+table.rosetta th {
+  background: var(--surface);
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+table.rosetta td {
+  color: var(--text-dim);
+}
+
+table.rosetta td code {
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+/* ============ Playground — balanced masonry ============ */
+.pg-head {
+  margin-bottom: 2rem;
+}
+
+.pg-grid {
+  columns: 2;
+  column-gap: 1.5rem;
+}
+
+@media (max-width: 900px) {
+  .pg-grid {
+    columns: 1;
+  }
+}
+
+.pg-item {
+  break-inside: avoid;
+  margin: 0 0 1.5rem;
+}
+
+.pg-item .widget {
+  margin: 0;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* Entrance motion */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

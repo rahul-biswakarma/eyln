@@ -1,0 +1,135 @@
+/* Lesson widget shell (canvas demos) + toggle rows. */
+
+/* ============ Widgets ============ */
+.widget {
+  margin: 1.8rem 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.widget .wtitle {
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.widget .wtitle .dotlive {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+  animation: pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.widget .wbody {
+  padding: 1.1rem;
+}
+
+.widget canvas {
+  display: block;
+  width: 100%;
+  border-radius: var(--radius-sm);
+  background: #060608;
+  touch-action: none;
+}
+
+.widget .controls {
+  display: grid;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.widget .controls {
+  display: grid;
+  gap: 0.85rem;
+  margin-top: 1.2rem;
+}
+
+.widget .ctl {
+  display: grid;
+  grid-template-columns: 116px 1fr 52px;
+  align-items: center;
+  gap: 0.9rem;
+  font-size: 0.85rem;
+}
+
+.widget .ctl label {
+  color: var(--text-dim);
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.03em;
+}
+
+.widget .ctl output {
+  font-family: var(--mono);
+  color: var(--accent);
+  text-align: right;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+.widget .ctl select {
+  width: 100%;
+}
+
+.widget .readout {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  line-height: 1.7;
+  color: var(--text-dim);
+  margin-top: 1rem;
+}
+
+.widget .readout b {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.widget canvas+.controls,
+.widget canvas+.toggle-row {
+  margin-top: 1.2rem;
+}
+
+/* toggle rows (checkbox controls) */
+.toggle-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem 1.2rem;
+  margin-top: 1.2rem;
+}
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+
+.toggle:hover {
+  color: var(--text);
+}

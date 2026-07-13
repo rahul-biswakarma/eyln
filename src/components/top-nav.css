@@ -1,0 +1,164 @@
+/* Top navigation bar. */
+
+/* ============ Top nav — clean, animated underline ============ */
+.topnav {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1rem clamp(1.2rem, 4vw, 3rem);
+  background: linear-gradient(180deg, rgba(11, 11, 14, 0.88), rgba(11, 11, 14, 0.42));
+  backdrop-filter: blur(16px) saturate(130%);
+  border-bottom: 1px solid var(--border);
+}
+
+.logo-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex: none;
+  color: var(--text);
+  font-family: var(--display);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  font-size: 1.02rem;
+}
+
+.logo-mark .glyph {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  color: var(--accent);
+  background: radial-gradient(120% 120% at 30% 20%, rgba(255, 176, 0, 0.26), rgba(255, 138, 0, 0.05));
+  border: 1px solid var(--border-glow);
+  box-shadow: inset 0 0 14px rgba(255, 176, 0, 0.22);
+}
+
+/* underline nav */
+.segmented {
+  margin: 0 auto 0 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.segmented a {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 0.9rem;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: color var(--dur) var(--ease);
+}
+
+.segmented a::after {
+  content: "";
+  position: absolute;
+  left: 0.9rem;
+  right: 0.9rem;
+  bottom: -2px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--accent-line);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform var(--dur) var(--ease);
+  box-shadow: 0 0 12px rgba(255, 176, 0, 0.7);
+}
+
+.segmented a:hover {
+  color: var(--text);
+}
+
+.segmented a.active {
+  color: var(--text);
+}
+
+.segmented a.active::after {
+  transform: scaleX(1);
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.icon-btn {
+  width: 38px;
+  height: 38px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  border-radius: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-size: 1rem;
+  transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease), background var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+
+.icon-btn:hover {
+  color: var(--accent);
+  border-color: var(--border-glow);
+  background: var(--surface-2);
+  box-shadow: 0 0 0 1px rgba(255, 176, 0, 0.16), 0 6px 20px rgba(255, 138, 0, 0.18);
+}
+
+.level-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 5px 5px 5px 14px;
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  font-family: var(--mono);
+  letter-spacing: 0.04em;
+}
+
+.level-chip .lvl-badge {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  color: var(--on-accent);
+  background: var(--accent-grad);
+  font-size: 0.78rem;
+  font-family: var(--display);
+}
+
+.nav-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: var(--bad);
+  color: #fff;
+  font-size: 0.62rem;
+  font-family: var(--mono);
+  display: grid;
+  place-items: center;
+}
+
+.icon-btn.sm {
+  width: 30px;
+  height: 30px;
+  font-size: 0.85rem;
+}

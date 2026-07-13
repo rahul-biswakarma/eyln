@@ -1,0 +1,247 @@
+/* Lesson sidebar — vertical skill tree. */
+
+.side-track-label .tg svg {
+  vertical-align: -0.2em;
+}
+
+/* ============ Sidebar — vertical skill tree ============ */
+.skill-tree {
+  --track-accent: var(--accent);
+}
+
+.st-head {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 1.6rem 1.1rem 1rem;
+  flex-shrink: 0;
+}
+
+.st-head-txt {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Collapse toggle (both expanded header + collapsed rail) */
+.st-collapse {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: none;
+  color: var(--text-faint);
+  transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+
+.st-collapse:hover {
+  color: var(--text);
+  border-color: var(--border-bright);
+}
+
+.st-ic {
+  width: 36px;
+  height: 36px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  color: var(--track-accent);
+  background: radial-gradient(120% 120% at 30% 20%, color-mix(in srgb, var(--track-accent) 24%, transparent), transparent 70%), var(--surface-inset);
+  border: 1px solid color-mix(in srgb, var(--track-accent) 30%, var(--border));
+}
+
+.st-track {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.st-module {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 0.98rem;
+  color: var(--text);
+  margin-top: 0.1rem;
+}
+
+.st-timeline {
+  position: relative;
+  padding-left: 0.4rem;
+}
+
+.st-node {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.5rem 0.6rem 0.5rem 0;
+  color: var(--text-dim);
+  font-size: 0.86rem;
+  transition: color var(--dur) var(--ease);
+}
+
+/* timeline connector between markers */
+.st-node:not(:last-child) .st-marker::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  transform: translateX(-50%);
+  width: 2px;
+  height: calc(100% - 17px);
+  background: var(--border);
+  z-index: 0;
+}
+
+.st-marker {
+  position: relative;
+  width: 20px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  color: var(--text-faint);
+  z-index: 1;
+}
+
+.st-label {
+  flex: 1;
+  min-width: 0;
+  line-height: 1.35;
+}
+
+.st-node:hover {
+  color: var(--text);
+}
+
+.st-node.done {
+  color: var(--text-dim);
+}
+
+.st-node.done .st-marker {
+  color: var(--good);
+}
+
+.st-node.done:not(:last-child) .st-marker::after {
+  background: color-mix(in srgb, var(--good) 40%, var(--border));
+}
+
+.st-node.active {
+  color: var(--highlight);
+  font-weight: 500;
+}
+
+.st-node.active .st-marker {
+  color: var(--track-accent);
+}
+
+.st-node.next .st-marker {
+  color: var(--track-accent);
+}
+
+.st-node.upcoming {
+  opacity: 0.6;
+}
+
+.st-node.questionary {
+  margin-top: 0.4rem;
+  font-weight: 500;
+}
+
+.st-node.questionary .st-marker {
+  color: var(--track-accent);
+}
+
+.st-node.questionary.active {
+  color: var(--highlight);
+}
+
+.st-modules {
+  margin-top: 1.8rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--border);
+}
+
+.st-modules-label {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  padding: 0 0.4rem 0.5rem;
+}
+
+.st-mod {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.5rem;
+  border-radius: var(--radius-sm);
+  color: var(--text-dim);
+  font-size: 0.82rem;
+  transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+
+.st-mod:hover {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.st-mod.current {
+  color: var(--track-accent);
+}
+
+.st-mod-ic {
+  flex: none;
+  opacity: 0.85;
+}
+
+.st-mod-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.st-mod-pct {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--text-faint);
+  flex: none;
+}
+
+/* Sidebar track grouping */
+.side-track {
+  --track-accent: var(--accent);
+  margin-bottom: 1.6rem;
+}
+
+.side-track-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--track-accent);
+  padding: 0.4rem 0.6rem;
+  margin-bottom: 0.3rem;
+  border-top: 1px solid color-mix(in srgb, var(--track-accent) 24%, var(--border));
+  padding-top: 0.9rem;
+}
+
+.side-track:first-child .side-track-label {
+  border-top: none;
+  padding-top: 0.3rem;
+}
+
+.side-track-label .tg {
+  font-size: 0.85rem;
+}

@@ -1,0 +1,97 @@
+/* Code block + tabbed code snippets. */
+
+/* ============ Code blocks ============ */
+.codeblock {
+  margin: 1.6rem 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--surface-inset);
+}
+
+.codeblock .tabs {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  padding: 0.5rem 0.6rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.codeblock .tab {
+  padding: 0.35rem 0.85rem;
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  cursor: pointer;
+  color: var(--text-dim);
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: 8px;
+  transition: color var(--dur) var(--ease), background var(--dur) var(--ease);
+}
+
+.codeblock .tab:hover {
+  color: var(--text);
+  background: var(--surface-2);
+}
+
+.codeblock .tab.active {
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-color: var(--border-glow);
+}
+
+.codeblock .filename {
+  margin-left: auto;
+  padding: 0 0.6rem;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-faint);
+}
+
+.codeblock pre {
+  margin: 0;
+  padding: 1.1rem 1.2rem;
+  overflow-x: auto;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  background: transparent !important;
+}
+
+.codeblock pre code {
+  font-family: var(--mono);
+}
+
+/* Code block tab styles mapped to Radix Tabs selectors */
+.codeblock .TabsList {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  padding: 0.5rem 0.6rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.codeblock .TabsTrigger {
+  cursor: pointer;
+  padding: 0.28rem 0.65rem;
+  font-family: var(--display);
+  font-size: 0.76rem;
+  font-weight: 500;
+  color: var(--text-dim);
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  transition: all var(--dur) var(--ease);
+}
+
+.codeblock .TabsTrigger:hover {
+  color: var(--text);
+  background: var(--surface-2);
+}
+
+.codeblock .TabsTrigger[data-state="active"] {
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-color: var(--border-glow);
+}
