@@ -1,5 +1,5 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { Bell } from "@phosphor-icons/react";
+import { BellIcon } from "@phosphor-icons/react";
 import { useProgress } from "../lib/progress";
 import { useNotes, dueReminders } from "../lib/notes";
 import { computeStats } from "../lib/stats";
@@ -32,12 +32,12 @@ export function TopNav() {
 
       <div className="nav-actions">
         <button className="icon-btn" title={due ? `${due} reminder(s) due` : "Reminders"} onClick={() => navigate("/knowledge")} style={{ position: "relative" }}>
-          <Bell size={19} weight="duotone"/>
+          <BellIcon size={19} weight="duotone"/>
           {due > 0 && <span className="nav-badge">{due}</span>}
         </button>
         <Link to="/profile" className="level-chip" title="Your profile">
-          <span>Lv {level}</span>
-          <span className="lvl-badge">{stats.lessonsDone}</span>
+          <span>Lv</span>
+          <span className="lvl-badge">{level}</span>
         </Link>
         <AuthButton />
       </div>

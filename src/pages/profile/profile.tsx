@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Sparkle, Wrench, Gear, Blueprint, Medal, Crown, SealCheck, Lock, Check, X, type Icon } from "@phosphor-icons/react";
+import { SparkleIcon, WrenchIcon, GearIcon, BlueprintIcon, MedalIcon, CrownIcon, SealCheckIcon, LockIcon, CheckIcon, XIcon, type Icon } from "@phosphor-icons/react";
 import { useProgress } from "../../lib/progress";
 import { useAuth } from "../../lib/auth";
 import { computeStats } from "../../lib/stats";
@@ -7,7 +7,7 @@ import { badgeState, levelFor } from "../../lib/badges";
 import { useTutor, TUTOR_KIND_META, type TutorTaskKind } from "../../lib/tutor";
 import { Tooltip } from "../../components/ui";
 const BADGE_ICON: Record<string, Icon> = {
-    Sparkle, Wrench, Gear, Blueprint, Medal, Crown,
+    SparkleIcon, WrenchIcon, GearIcon, BlueprintIcon, MedalIcon, CrownIcon,
 };
 export function Profile() {
     const done = useProgress((s) => s.done);
@@ -63,15 +63,15 @@ export function Profile() {
       <div className="section-title"><h3>Badges to earn</h3></div>
       <div className="badge-grid">
         {badges.map((b) => {
-            const Ic = BADGE_ICON[b.icon] ?? SealCheck;
+            const Ic = BADGE_ICON[b.icon] ?? SealCheckIcon;
             return (<div key={b.id} className={"badge-card card" + (b.earned ? " earned" : "")}>
               <div className="badge-ic">
-                {b.earned ? <Ic size={30} weight="duotone"/> : <Lock size={24} weight="duotone"/>}
+                {b.earned ? <Ic size={30} weight="duotone"/> : <LockIcon size={24} weight="duotone"/>}
               </div>
               <div className="badge-body">
                 <div className="badge-name">
                   {b.name}
-                  {b.earned && <SealCheck size={15} weight="fill" className="badge-check"/>}
+                  {b.earned && <SealCheckIcon size={15} weight="fill" className="badge-check"/>}
                 </div>
                 <div className="badge-desc">{b.desc}</div>
                 {!b.earned && (<div className="badge-prog">
@@ -109,7 +109,7 @@ function TutorTasks() {
         return (<>
         <div className="section-title"><h3>Tutor tasks</h3></div>
         <div className="card tutor-tasks-empty">
-          <Sparkle size={20} weight="duotone"/>
+          <SparkleIcon size={20} weight="duotone"/>
           <p>
             As you chat with the AI tutor on lessons and chapter reviews, it captures what you’re
             struggling with and what to learn next here — a study plan that also guides new course content.
@@ -135,7 +135,7 @@ function TutorTasks() {
               <ul className="tt-list">
                 {group.map((t) => (<li key={t.id} className={"tt-item" + (t.done ? " done" : "")}>
                     <button className="tt-check" onClick={() => toggleTask(t.id)} aria-label={t.done ? "Mark not done" : "Mark done"}>
-                      {t.done ? <Check size={13} weight="bold"/> : null}
+                      {t.done ? <CheckIcon size={13} weight="bold"/> : null}
                     </button>
                     <div className="tt-body">
                       <span className="tt-text">{t.text}</span>
@@ -143,7 +143,7 @@ function TutorTasks() {
                     </div>
                     <Tooltip content="Remove task">
                       <button className="tt-remove" onClick={() => removeTask(t.id)} aria-label="Remove task">
-                        <X size={13} weight="bold"/>
+                        <XIcon size={13} weight="bold"/>
                       </button>
                     </Tooltip>
                   </li>))}

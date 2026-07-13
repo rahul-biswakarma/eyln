@@ -1,12 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import { getModule, moduleProgress, lessonPath, lessonKey } from "../content/registry";
 import { useProgress } from "../lib/progress";
-import { Triangle, VideoCamera, Mountains, Wall, Check, Lock, type Icon } from "@phosphor-icons/react";
+import { TriangleIcon, VideoCameraIcon, MountainsIcon, WallIcon, CheckIcon, LockIcon, type Icon } from "@phosphor-icons/react";
 const NODE_ICON: Record<string, Icon> = {
-    triangle: Triangle,
-    camera: VideoCamera,
-    terrain: Mountains,
-    "spline-wall": Wall,
+    triangle: TriangleIcon,
+    camera: VideoCameraIcon,
+    terrain: MountainsIcon,
+    "spline-wall": WallIcon,
 };
 export function RoadmapRail() {
     const done = useProgress((s) => s.done);
@@ -27,7 +27,7 @@ export function RoadmapRail() {
             const cls = "road-node" + (isDone ? " done" : isCurrent ? " current" : locked ? " locked" : "");
             return (<div key={l.id} className={cls} style={{ cursor: locked ? "default" : "pointer" }} onClick={() => !locked && navigate(lessonPath("rendering", l.id))} title={locked ? "Finish the prerequisite modules to unlock" : l.title}>
             <div className="bead">
-              {isDone ? <Check size={22} weight="bold"/> : locked ? <Lock size={20} weight="duotone"/> : (() => {
+              {isDone ? <CheckIcon size={22} weight="bold"/> : locked ? <LockIcon size={20} weight="duotone"/> : (() => {
                     const Ic = NODE_ICON[l.id];
                     return Ic ? <Ic size={22} weight="duotone"/> : "●";
                 })()}

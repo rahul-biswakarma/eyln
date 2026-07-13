@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CheckCircle, XCircle, Circle, ArrowRight, Sparkle } from "@phosphor-icons/react";
+import { CheckCircleIcon, XCircleIcon, CircleIcon, ArrowRightIcon, SparkleIcon } from "@phosphor-icons/react";
 import type { Quiz as QuizType } from "../content/types";
 import { useProgress } from "../lib/progress";
 import { isLLMEnabled, generate } from "../lib/llm";
@@ -54,7 +54,7 @@ export function Quiz({ id, quiz, lessonTitle, lessonSummary, }: {
     if (finished) {
         return (<div className="kc-complete" role="status">
         <div className="kc-complete-glow" aria-hidden/>
-        <div className="kc-complete-icon"><Sparkle size={32} weight="fill"/></div>
+        <div className="kc-complete-icon"><SparkleIcon size={32} weight="fill"/></div>
         <div className="kc-complete-title">Knowledge Check Complete</div>
         <div className="kc-complete-score">{correctCount} / {total} correct</div>
         <div className="kc-complete-pct">{pct}%</div>
@@ -64,13 +64,13 @@ export function Quiz({ id, quiz, lessonTitle, lessonSummary, }: {
     }
     return (<KnowledgeCard key={step} eyebrow={`Question ${step + 1} of ${total}`} step={step} total={total} question={q.q} tone={answered ? (isWrong ? "wrong" : "right") : "neutral"} shake={shake} ghosts={Math.min(2, total - step - 1)} feedback={answered ? (<div className={"kc-feedback" + (isWrong ? " wrong" : " right")}>
             <div className="kc-fb-head">
-              {isWrong ? <XCircle size={17} weight="fill"/> : <CheckCircle size={17} weight="fill"/>}
+              {isWrong ? <XCircleIcon size={17} weight="fill"/> : <CheckCircleIcon size={17} weight="fill"/>}
               {isWrong ? "Not quite" : "Correct"}
             </div>
             <p>{q.explain}</p>
             {isWrong && (<ExplainMistake question={q.q} chosen={q.choices?.[chosen] ?? ""} correctAnswer={q.choices?.[q.answer] ?? ""} staticExplain={q.explain} lessonTitle={lessonTitle} lessonSummary={lessonSummary}/>)}
           </div>) : undefined} footer={<KnowledgeFooter primary={<button className="kc-btn primary" onClick={next} disabled={!answered}>
-              {step + 1 >= total ? "Finish" : "Continue"} <ArrowRight size={15} weight="bold"/>
+              {step + 1 >= total ? "Finish" : "Continue"} <ArrowRightIcon size={15} weight="bold"/>
             </button>}/>}>
       <div className="kc-options">
         {(q.choices ?? []).map((c, oi) => {
@@ -85,9 +85,9 @@ export function Quiz({ id, quiz, lessonTitle, lessonSummary, }: {
             }
             return (<button key={oi} className={"kc-opt" + state + (chosen === oi ? " picked" : "")} onClick={() => choose(oi)} disabled={answered}>
               <span className="kc-radio">
-                {answered && oi === q.answer ? <CheckCircle size={20} weight="fill"/>
-                    : answered && oi === chosen ? <XCircle size={20} weight="fill"/>
-                        : <Circle size={20} weight={chosen === oi ? "fill" : "regular"}/>}
+                {answered && oi === q.answer ? <CheckCircleIcon size={20} weight="fill"/>
+                    : answered && oi === chosen ? <XCircleIcon size={20} weight="fill"/>
+                        : <CircleIcon size={20} weight={chosen === oi ? "fill" : "regular"}/>}
               </span>
               <span className="kc-opt-text">{c}</span>
             </button>);

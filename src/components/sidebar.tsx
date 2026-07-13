@@ -1,5 +1,5 @@
 import { Link, useLocation, useParams } from "react-router-dom";
-import { CheckCircle, Circle, ListChecks, CaretDoubleLeft, CaretDoubleRight } from "@phosphor-icons/react";
+import { CheckCircleIcon, CircleIcon, ListChecksIcon, CaretDoubleLeftIcon, CaretDoubleRightIcon } from "@phosphor-icons/react";
 import { modulesForTrack, getModule, lessonPath, lessonKey, questionaryPath, moduleHasQuestionary, moduleProgress, trackIdOf } from "../content/registry";
 import { getTrack } from "../content/tracks";
 import { useProgress } from "../lib/progress";
@@ -22,7 +22,7 @@ export function Sidebar() {
     if (collapsed) {
         return (<aside className="sidebar skill-tree collapsed" style={{ "--track-accent": accent } as React.CSSProperties}>
         <button className="st-collapse" onClick={toggleSidebar} aria-label="Expand sidebar" title="Expand">
-          <CaretDoubleRight size={16} weight="bold"/>
+          <CaretDoubleRightIcon size={16} weight="bold"/>
         </button>
         <span className="st-ic rail" title={current.title}><ModuleIcon id={current.id} size={18}/></span>
       </aside>);
@@ -35,7 +35,7 @@ export function Sidebar() {
           <div className="st-module">{current.title}</div>
         </div>
         <button className="st-collapse" onClick={toggleSidebar} aria-label="Collapse sidebar" title="Collapse">
-          <CaretDoubleLeft size={16} weight="bold"/>
+          <CaretDoubleLeftIcon size={16} weight="bold"/>
         </button>
       </div>
 
@@ -48,14 +48,14 @@ export function Sidebar() {
             const state = isDone ? "done" : active ? "active" : isNext ? "next" : "upcoming";
             return (<Link key={l.id} to={lessonPath(current.id, l.id)} className={"st-node " + state}>
                 <span className="st-marker">
-                  {isDone ? <CheckCircle size={17} weight="fill"/> : <Circle size={17} weight={active || isNext ? "bold" : "duotone"}/>}
+                  {isDone ? <CheckCircleIcon size={17} weight="fill"/> : <CircleIcon size={17} weight={active || isNext ? "bold" : "duotone"}/>}
                 </span>
                 <span className="st-label">{l.title}</span>
               </Link>);
         })}
 
           {moduleHasQuestionary(current) && (<Link to={questionaryPath(current.id)} className={"st-node questionary " + (onQuestionary ? "active" : "upcoming")}>
-              <span className="st-marker"><ListChecks size={17} weight="duotone"/></span>
+              <span className="st-marker"><ListChecksIcon size={17} weight="duotone"/></span>
               <span className="st-label">Questionary</span>
             </Link>)}
         </div>

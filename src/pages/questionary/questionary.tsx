@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, ArrowRight, CheckCircle, Circle, CaretDown, ListChecks, Clock, Gauge, BookOpen, Barbell, Lightning, Trophy, Sparkle, PencilSimpleLine, Brain, } from "@phosphor-icons/react";
+import { ArrowLeftIcon, ArrowRightIcon, CheckCircleIcon, CircleIcon, CaretDownIcon, ListChecksIcon, ClockIcon, GaugeIcon, BookOpenIcon, BarbellIcon, LightningIcon, TrophyIcon, SparkleIcon, PencilSimpleLineIcon, BrainIcon } from "@phosphor-icons/react";
 import type { Lesson, Module } from "../../content/types";
 import { getModule, modulesForTrack, moduleHasQuestionary, lessonPath, lessonKey, questionaryPath, moduleDifficulty, moduleMinutes, trackIdOf, } from "../../content/registry";
 import { challengesForModule, xpForChallenge, EST_MINUTES } from "../../content/challenges";
@@ -107,11 +107,11 @@ export function Questionary() {
         </p>
 
         <div className="cr-facts">
-          <span className="cr-fact"><Clock size={15} weight="duotone"/> {minutes} min</span>
-          <span className="cr-fact"><Gauge size={15} weight="duotone"/> {diff.label}</span>
-          <span className="cr-fact"><BookOpen size={15} weight="duotone"/> {lessonsWithWork.length} lessons</span>
-          {totalEx > 0 && <span className="cr-fact"><Barbell size={15} weight="duotone"/> {totalEx} exercises</span>}
-          {totalQ > 0 && <span className="cr-fact"><Brain size={15} weight="duotone"/> {totalQ} questions</span>}
+          <span className="cr-fact"><ClockIcon size={15} weight="duotone"/> {minutes} min</span>
+          <span className="cr-fact"><GaugeIcon size={15} weight="duotone"/> {diff.label}</span>
+          <span className="cr-fact"><BookOpenIcon size={15} weight="duotone"/> {lessonsWithWork.length} lessons</span>
+          {totalEx > 0 && <span className="cr-fact"><BarbellIcon size={15} weight="duotone"/> {totalEx} exercises</span>}
+          {totalQ > 0 && <span className="cr-fact"><BrainIcon size={15} weight="duotone"/> {totalQ} questions</span>}
         </div>
       </header>
 
@@ -127,7 +127,7 @@ export function Questionary() {
                   <span className="cr-meter-cap">{bossSolved ? "solved" : "open"}</span>
                 </div>
                 <div className={"cr-token" + (bossSolved ? " on" : "")}>
-                  {bossSolved ? <CheckCircle size={20} weight="fill"/> : <Circle size={20} weight="duotone"/>}
+                  {bossSolved ? <CheckCircleIcon size={20} weight="fill"/> : <CircleIcon size={20} weight="duotone"/>}
                 </div>
               </div>)}
           </section>
@@ -137,7 +137,7 @@ export function Questionary() {
               <div className="cr-section-label">What this chapter covered</div>
               <ul className="cr-concepts">
                 {keyConcepts.map((l) => (<li key={l.id}>
-                    <CheckCircle size={17} weight="fill"/> {l.title}
+                    <CheckCircleIcon size={17} weight="fill"/> {l.title}
                   </li>))}
               </ul>
             </section>)}
@@ -154,11 +154,11 @@ export function Questionary() {
           
           {chapterComplete ? (<CompletionBanner module={module} scorePct={Math.round(chapterMeter * 100)} xp={xpEarned}/>) : (<section className="cr-footer">
               <div className="cr-footer-note">
-                <Sparkle size={18} weight="duotone"/>
+                <SparkleIcon size={18} weight="duotone"/>
                 Keep going — finish the exercises and knowledge checks to complete this chapter.
               </div>
               <Link className="btn ghost" to={lessonPath(module.id, module.lessons[0].id)}>
-                <ArrowLeft size={15} weight="bold"/> Back to chapter
+                <ArrowLeftIcon size={15} weight="bold"/> Back to chapter
               </Link>
             </section>)}
         </>)}
@@ -189,7 +189,7 @@ function SectionReview({ module, stat, index, }: {
     return (<div className={"cr-block" + (complete ? " complete" : "") + (open ? " open" : "")}>
       <button className="cr-block-head" onClick={() => setOpen((o) => !o)} aria-expanded={open}>
         <span className={"cr-block-num" + (complete ? " done" : "")}>
-          {complete ? <CheckCircle size={20} weight="fill"/> : index}
+          {complete ? <CheckCircleIcon size={20} weight="fill"/> : index}
         </span>
         <span className="cr-block-titles">
           <span className="cr-block-title">{lesson.title}</span>
@@ -201,7 +201,7 @@ function SectionReview({ module, stat, index, }: {
         </span>
         <span className="cr-block-cta">
           {complete ? "Reviewed" : open ? "Hide" : "Begin review"}
-          <CaretDown size={15} weight="bold" className="cr-caret"/>
+          <CaretDownIcon size={15} weight="bold" className="cr-caret"/>
         </span>
       </button>
 
@@ -209,12 +209,12 @@ function SectionReview({ module, stat, index, }: {
           {exCount > 0 && <ExerciseFlow module={module} lesson={lesson}/>}
 
           {quizCount > 0 && (<div className="cr-kc">
-              <div className="cr-group-label"><Brain size={14} weight="duotone"/> Knowledge Check</div>
+              <div className="cr-group-label"><BrainIcon size={14} weight="duotone"/> Knowledge Check</div>
               <Quiz id={key} quiz={lesson.quiz!} lessonTitle={lesson.title} lessonSummary={lesson.summary}/>
             </div>)}
 
           <Link className="cr-block-link" to={lessonPath(module.id, lesson.id)}>
-            <PencilSimpleLine size={13} weight="duotone"/> Revisit the lesson
+            <PencilSimpleLineIcon size={13} weight="duotone"/> Revisit the lesson
           </Link>
         </div>)}
     </div>);
@@ -244,11 +244,11 @@ function ExerciseFlow({ module, lesson }: {
     const active = allDone ? null : exercises[cursor];
     const undoneRemaining = exercises.filter((_, i) => !isDone(i) && i !== cursor).length;
     return (<div className="cr-exflow">
-      <div className="cr-group-label"><Barbell size={14} weight="duotone"/> Exercises · {doneCount}/{exercises.length}</div>
+      <div className="cr-group-label"><BarbellIcon size={14} weight="duotone"/> Exercises · {doneCount}/{exercises.length}</div>
 
       
       {exercises.map((ex, i) => isDone(i) ? (<div key={ex.id} className="cr-ex-done">
-            <CheckCircle size={17} weight="fill"/>
+            <CheckCircleIcon size={17} weight="fill"/>
             <span className="cr-ex-done-txt">{ex.prompt}</span>
           </div>) : null)}
 
@@ -262,7 +262,7 @@ function ExerciseFlow({ module, lesson }: {
                 }
             }} onSkip={undoneRemaining > 0 ? () => setCursor(nextUndone(cursor)) : undefined}/>
         </div>) : (<div className="cr-ex-allclear">
-          <CheckCircle size={18} weight="fill"/> All exercises complete.
+          <CheckCircleIcon size={18} weight="fill"/> All exercises complete.
         </div>)}
     </div>);
 }
@@ -276,27 +276,27 @@ function ChallengeCard({ challenge, solved }: {
         <div className="cr-boss-glow" aria-hidden/>
         <div className="cr-boss-head">
           <span className="cr-boss-badge">
-            {solved ? <Trophy size={22} weight="fill"/> : <Barbell size={22} weight="duotone"/>}
+            {solved ? <TrophyIcon size={22} weight="fill"/> : <BarbellIcon size={22} weight="duotone"/>}
           </span>
           <div>
             <div className="cr-boss-kicker">Boss level · combine the whole chapter</div>
             <h3 className="cr-boss-title">{challenge.title}</h3>
           </div>
-          {solved && <span className="cr-boss-solved"><CheckCircle size={16} weight="fill"/> Solved</span>}
+          {solved && <span className="cr-boss-solved"><CheckCircleIcon size={16} weight="fill"/> Solved</span>}
         </div>
 
         <div className="cr-boss-meta">
           <span className={"cr-diff " + challenge.difficulty.toLowerCase()}>{challenge.difficulty}</span>
           <span className="dot">·</span>
-          <Clock size={13} weight="duotone"/> {EST_MINUTES[challenge.difficulty]} min
+          <ClockIcon size={13} weight="duotone"/> {EST_MINUTES[challenge.difficulty]} min
           <span className="dot">·</span>
-          <Lightning size={13} weight="duotone"/> {xpForChallenge(challenge)} XP
+          <LightningIcon size={13} weight="duotone"/> {xpForChallenge(challenge)} XP
         </div>
 
         <div className="cr-boss-prompt" dangerouslySetInnerHTML={{ __html: challenge.prompt }}/>
 
         <Link className="btn primary" to={`/practice?c=${challenge.id}`}>
-          {solved ? "Revisit challenge" : "Take on the challenge"} <ArrowRight size={15} weight="bold"/>
+          {solved ? "Revisit challenge" : "Take on the challenge"} <ArrowRightIcon size={15} weight="bold"/>
         </Link>
       </div>
     </section>);
@@ -308,7 +308,7 @@ function CompletionBanner({ module, scorePct, xp, }: {
 }) {
     return (<section className="cr-complete" role="status">
       <div className="cr-complete-glow" aria-hidden/>
-      <div className="cr-complete-icon"><Trophy size={40} weight="duotone"/></div>
+      <div className="cr-complete-icon"><TrophyIcon size={40} weight="duotone"/></div>
       <div className="cr-complete-kicker">Chapter complete</div>
       <h2 className="cr-complete-title">{module.title}</h2>
 
@@ -340,10 +340,10 @@ function NextChapterLink({ module }: {
     }, [module]);
     if (!next) {
         return (<div className="cr-complete-next">
-        <ListChecks size={16} weight="duotone"/> You’ve reached the end of this track — outstanding work.
+        <ListChecksIcon size={16} weight="duotone"/> You’ve reached the end of this track — outstanding work.
       </div>);
     }
     return (<Link className="btn primary lg" to={questionaryPath(next.id)}>
-      Next chapter: {next.title} <ArrowRight size={16} weight="bold"/>
+      Next chapter: {next.title} <ArrowRightIcon size={16} weight="bold"/>
     </Link>);
 }

@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { CheckCircle } from "@phosphor-icons/react";
+import { CheckCircleIcon } from "@phosphor-icons/react";
 import { challengesForTrack, challengesByTopic, PRACTICE_TRACKS, challenges, trackOf, type PracticeTrack, } from "../../content/challenges";
 import type { PracticeTrackId } from "../../content/types";
 import { CodeChallenge } from "../../components/code-challenge";
@@ -59,7 +59,7 @@ export function Practice() {
                 {group.items.map((c) => (<button key={c.id} className={"ps-item" + (c.id === activeId ? " active" : "") + (solved[c.id] ? " solved" : "")} onClick={() => setActiveId(c.id)}>
                     <span className={"pi-dot " + c.difficulty.toLowerCase()}/>
                     <span className="ps-item-title">{c.title}</span>
-                    {solved[c.id] && <CheckCircle size={15} weight="fill" className="pi-check"/>}
+                    {solved[c.id] && <CheckCircleIcon size={15} weight="fill" className="pi-check"/>}
                   </button>))}
               </div>);
         })}

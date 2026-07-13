@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { Notebook, PushPin, PencilSimpleLine, Sigma, Code as CodeIcon, Microphone, Plus, Trash, MagnifyingGlass, Sparkle, Clock, BookmarkSimple, Check, X, CheckSquare, WarningOctagon, DotsThree, Quotes as QuotesIcon, Translate, Lightbulb, BookOpen } from "@phosphor-icons/react";
+import { NotebookIcon, PushPinIcon, PencilSimpleLineIcon, SigmaIcon, CodeIcon, MicrophoneIcon, PlusIcon, TrashIcon, MagnifyingGlassIcon, SparkleIcon, ClockIcon, BookmarkSimpleIcon, CheckIcon, XIcon, CheckSquareIcon, WarningOctagonIcon, DotsThreeIcon, QuotesIcon, TranslateIcon, LightbulbIcon, BookOpenIcon } from "@phosphor-icons/react";
 import { useNotes, type Note } from "../../lib/notes";
 import { useProgress } from "../../lib/progress";
 import { useScratchpad } from "../../lib/scratchpad";
@@ -49,32 +49,32 @@ const SIDEBAR_GROUPS: {
     {
         title: "Workspace",
         items: [
-            { tab: "all", icon: <Notebook size={16}/>, label: "Recent", count: (n) => n.length },
-            { tab: "pinned", icon: <PushPin size={16}/>, label: "Pinned", count: (n) => n.filter((x) => x.tags.includes("pinned")).length },
-            { tab: "reminders", icon: <Clock size={16}/>, label: "Review Queue", count: (_n, r) => r },
+            { tab: "all", icon: <NotebookIcon size={16}/>, label: "Recent", count: (n) => n.length },
+            { tab: "pinned", icon: <PushPinIcon size={16}/>, label: "Pinned", count: (n) => n.filter((x) => x.tags.includes("pinned")).length },
+            { tab: "reminders", icon: <ClockIcon size={16}/>, label: "Review Queue", count: (_n, r) => r },
         ],
     },
     {
         title: "Engineering",
         items: [
-            { tab: "ai", icon: <Sparkle size={16}/>, label: "AI Notes", count: (n) => n.filter((x) => x.tags.includes("pinned")).length },
-            { tab: "mistakes", icon: <WarningOctagon size={16}/>, label: "Mistakes", count: (n) => n.filter((x) => x.tags.includes("mistake")).length },
-            { tab: "formulas", icon: <Sigma size={16}/>, label: "Formula Library", count: (n) => n.filter((x) => noteKind(x) === "formula").length },
-            { tab: "code", icon: <CodeIcon size={16}/>, label: "Code Snippets", count: (n) => n.filter((x) => noteKind(x) === "code").length },
+            { tab: "ai", icon: <SparkleIcon size={16}/>, label: "AI Notes", count: (n) => n.filter((x) => x.tags.includes("pinned")).length },
+            { tab: "mistakes", icon: <WarningOctagonIcon size={16}/>, label: "Mistakes", count: (n) => n.filter((x) => x.tags.includes("mistake")).length },
+            { tab: "formulas", icon: <SigmaIcon size={16}/>, label: "Formula Library", count: (n) => n.filter((x) => noteKind(x) === "formula").length },
+            { tab: "code", icon: <CodeIcon size={16}/>, label: "CodeIcon Snippets", count: (n) => n.filter((x) => noteKind(x) === "code").length },
         ],
     },
     {
         title: "Reading",
         items: [
-            { tab: "quotes", icon: <QuotesIcon size={16}/>, label: "Quotes", count: (n) => n.filter((x) => noteKind(x) === "quote").length },
-            { tab: "vocab", icon: <Translate size={16}/>, label: "Vocabulary", count: (n) => n.filter((x) => noteKind(x) === "vocab").length },
+            { tab: "quotes", icon: <QuotesIcon size={16}/>, label: "QuotesIcon", count: (n) => n.filter((x) => noteKind(x) === "quote").length },
+            { tab: "vocab", icon: <TranslateIcon size={16}/>, label: "Vocabulary", count: (n) => n.filter((x) => noteKind(x) === "vocab").length },
         ],
     },
     {
         title: "Personal",
         items: [
-            { tab: "ideas", icon: <Lightbulb size={16}/>, label: "Ideas", count: (n) => n.filter((x) => noteKind(x) === "idea").length },
-            { tab: "custom", icon: <PencilSimpleLine size={16}/>, label: "My Notes", count: (n) => n.filter((x) => !x.tags.includes("pinned") && !x.tags.includes("mistake")).length },
+            { tab: "ideas", icon: <LightbulbIcon size={16}/>, label: "Ideas", count: (n) => n.filter((x) => noteKind(x) === "idea").length },
+            { tab: "custom", icon: <PencilSimpleLineIcon size={16}/>, label: "My Notes", count: (n) => n.filter((x) => !x.tags.includes("pinned") && !x.tags.includes("mistake")).length },
         ],
     },
 ];
@@ -199,7 +199,7 @@ export function Knowledge() {
           <span className="sidebar-group-title">Collections</span>
           <nav className="sidebar-links">
             <button className={`sidebar-link ${activeTab === "bookmarks" ? "active" : ""}`} onClick={() => setActiveTab("bookmarks")}>
-              <BookOpen size={16}/> Bookmarked Lessons <span className="badge">{bookmarkList.length}</span>
+              <BookOpenIcon size={16}/> Bookmarked Lessons <span className="badge">{bookmarkList.length}</span>
             </button>
             <button className={`sidebar-link ${activeTab === "scratchpad" ? "active" : ""}`} onClick={() => setActiveTab("scratchpad")}>
               <CodeIcon size={16}/> Scratchpad
@@ -221,7 +221,7 @@ export function Knowledge() {
                 <span className="desc">Flagged chapters from linear algebra, engine rendering, and math.</span>
               </div>
               {bookmarkList.length === 0 ? (<div className="nb-empty-state">
-                  <BookmarkSimple size={24} weight="duotone"/>
+                  <BookmarkSimpleIcon size={24} weight="duotone"/>
                   <h4>No Bookmarks Saved</h4>
                   <p>Click the bookmark icon in any course lesson to save reference material here.</p>
                 </div>) : (<div className="nb-timeline">
@@ -237,7 +237,7 @@ export function Knowledge() {
                         </div>
                         <span className="when">{relativeTime(at, now)}</span>
                         <button className="remove-btn" title="Remove bookmark" onClick={(e) => { e.preventDefault(); toggleBookmark(key); }}>
-                          <X size={12}/>
+                          <XIcon size={12}/>
                         </button>
                       </Link>);
                 })}
@@ -248,7 +248,7 @@ export function Knowledge() {
                 <span className="desc">Spaced repetition checklist for formulas, highlights, vocabulary, and concepts.</span>
               </div>
               {activeReminders.length === 0 ? (<div className="nb-empty-state">
-                  <CheckSquare size={24} weight="duotone"/>
+                  <CheckSquareIcon size={24} weight="duotone"/>
                   <h4>No Pending Reviews</h4>
                   <p>Your queue is completely clear. Good job! Add review tasks from any note card below.</p>
                 </div>) : (<div className="nb-timeline">
@@ -267,8 +267,8 @@ export function Knowledge() {
                         </div>
                         <div className="actions">
                           {ref && <Link className="action-link" to={lessonPath(ref.module.id, ref.lesson.id)}>Open Lesson</Link>}
-                          <button className="btn-done" onClick={() => completeReminder(r.id)}><Check size={12}/> Done</button>
-                          <button className="btn-del" onClick={() => deleteReminder(r.id)}><Trash size={12}/></button>
+                          <button className="btn-done" onClick={() => completeReminder(r.id)}><CheckIcon size={12}/> Done</button>
+                          <button className="btn-del" onClick={() => deleteReminder(r.id)}><TrashIcon size={12}/></button>
                         </div>
                       </div>);
                 })}
@@ -278,20 +278,20 @@ export function Knowledge() {
                 <div className="nb-title-row">
                   <h1>Knowledge</h1>
                   <div className="nb-stats-quiet">
-                    <span><Sparkle size={12} weight="fill" style={{ color: "var(--accent)" }}/> {streak}d streak</span>
+                    <span><SparkleIcon size={12} weight="fill" style={{ color: "var(--accent)" }}/> {streak}d streak</span>
                     <span className="dot">•</span>
-                    <span><Notebook size={12}/> {notes.length} notes</span>
+                    <span><NotebookIcon size={12}/> {notes.length} notes</span>
                     <span className="dot">•</span>
-                    <span><BookmarkSimple size={12}/> {bookmarkList.length} saved</span>
+                    <span><BookmarkSimpleIcon size={12}/> {bookmarkList.length} saved</span>
                     <span className="dot">•</span>
-                    <span><Clock size={12}/> {activeReminders.length} review</span>
+                    <span><ClockIcon size={12}/> {activeReminders.length} review</span>
                   </div>
                 </div>
 
                 
                 <div className="nb-toolbar">
                   <div className="nb-search">
-                    <MagnifyingGlass size={14} className="search-icon"/>
+                    <MagnifyingGlassIcon size={14} className="search-icon"/>
                     <input type="text" placeholder="Search your knowledge..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}/>
                   </div>
 
@@ -307,7 +307,7 @@ export function Knowledge() {
                     </div>
 
                     <button className="btn-new" onClick={() => setIsCapturing(true)}>
-                      <Plus size={13} weight="bold"/> Capture
+                      <PlusIcon size={13} weight="bold"/> Capture
                     </button>
                   </div>
                 </div>
@@ -320,7 +320,7 @@ export function Knowledge() {
               </div>
 
               {filteredNotes.length === 0 ? (<div className="nb-empty-state">
-                  <Notebook size={24} weight="duotone"/>
+                  <NotebookIcon size={24} weight="duotone"/>
                   <h4>Nothing Here Yet</h4>
                   <p>Pin explanations inside course sidebars, or use the Capture button above to add your first entry.</p>
                 </div>) : (<div className="nb-notes-timeline">
@@ -339,15 +339,15 @@ export function Knowledge() {
     </div>);
 }
 const KIND_ICON: Record<NoteKind, React.ReactNode> = {
-    ai: <Sparkle size={11} weight="fill"/>,
-    formula: <Sigma size={11} weight="bold"/>,
+    ai: <SparkleIcon size={11} weight="fill"/>,
+    formula: <SigmaIcon size={11} weight="bold"/>,
     code: <CodeIcon size={11} weight="bold"/>,
-    mistake: <WarningOctagon size={11} weight="bold"/>,
-    voice: <Microphone size={11} weight="bold"/>,
+    mistake: <WarningOctagonIcon size={11} weight="bold"/>,
+    voice: <MicrophoneIcon size={11} weight="bold"/>,
     quote: <QuotesIcon size={11} weight="bold"/>,
-    vocab: <Translate size={11} weight="bold"/>,
-    idea: <Lightbulb size={11} weight="bold"/>,
-    note: <PencilSimpleLine size={11}/>,
+    vocab: <TranslateIcon size={11} weight="bold"/>,
+    idea: <LightbulbIcon size={11} weight="bold"/>,
+    note: <PencilSimpleLineIcon size={11}/>,
 };
 function splitQuoteAndSource(body: string): {
     quote: string;
@@ -428,10 +428,10 @@ function NoteCard({ note, now, isEditing, editBody, editTags, setEditBody, setEd
         </div>)}
 
       {!isEditing && (<div className="card-hover-actions">
-          <button className="hover-btn" title="Edit" onClick={onStartEdit}><PencilSimpleLine size={13}/></button>
+          <button className="hover-btn" title="Edit" onClick={onStartEdit}><PencilSimpleLineIcon size={13}/></button>
           <Popover>
             <PopoverTrigger asChild>
-              <button className="hover-btn" title="Schedule review"><Clock size={13}/></button>
+              <button className="hover-btn" title="Schedule review"><ClockIcon size={13}/></button>
             </PopoverTrigger>
             <PopoverContent align="end" style={{ width: "160px" }}>
               <div className="reminder-menu">
@@ -444,11 +444,11 @@ function NoteCard({ note, now, isEditing, editBody, editTags, setEditBody, setEd
           </Popover>
           <Popover>
             <PopoverTrigger asChild>
-              <button className="hover-btn" title="More"><DotsThree size={15} weight="bold"/></button>
+              <button className="hover-btn" title="More"><DotsThreeIcon size={15} weight="bold"/></button>
             </PopoverTrigger>
             <PopoverContent align="end" style={{ width: "120px" }}>
               <div className="reminder-menu">
-                <button onClick={onDelete} className="danger"><Trash size={12}/> Delete</button>
+                <button onClick={onDelete} className="danger"><TrashIcon size={12}/> Delete</button>
               </div>
             </PopoverContent>
           </Popover>

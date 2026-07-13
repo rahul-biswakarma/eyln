@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import Editor, { type OnMount } from "@monaco-editor/react";
-import { CheckCircle, XCircle, CircleNotch, Circle, Play, Lightbulb, ArrowClockwise, Trophy, Clock, Lightning, } from "@phosphor-icons/react";
+import { CheckCircleIcon, XCircleIcon, CircleNotchIcon, CircleIcon, PlayIcon, LightbulbIcon, ArrowClockwiseIcon, TrophyIcon, ClockIcon, LightningIcon } from "@phosphor-icons/react";
 import type { CodeChallenge as Challenge } from "../content/types";
 import { EST_MINUTES, xpForChallenge } from "../content/challenges";
 import { useProgress } from "../lib/progress";
@@ -108,7 +108,7 @@ export function CodeChallenge({ challenge, missionIndex, missionTotal, }: {
     const xp = xpForChallenge(challenge);
     return (<div className={"mission" + (celebrate ? " celebrate" : "")}>
       {celebrate && (<div className="mission-complete" role="status">
-          <Trophy size={40} weight="duotone"/>
+          <TrophyIcon size={40} weight="duotone"/>
           <div className="mc-title">Mission Complete</div>
           <div className="mc-xp">+{xp} XP</div>
           {missionIndex < missionTotal && <div className="mc-next">Next mission unlocked →</div>}
@@ -123,9 +123,9 @@ export function CodeChallenge({ challenge, missionIndex, missionTotal, }: {
             <span className="dot">·</span>
             {challenge.tags.join(" · ")}
             <span className="dot">·</span>
-            <Clock size={13} weight="duotone"/> {EST_MINUTES[challenge.difficulty]} min
+            <ClockIcon size={13} weight="duotone"/> {EST_MINUTES[challenge.difficulty]} min
             <span className="dot">·</span>
-            <Lightning size={13} weight="duotone"/> {xp} XP
+            <LightningIcon size={13} weight="duotone"/> {xp} XP
           </div>
 
           <div className="mb-prompt" dangerouslySetInnerHTML={{ __html: challenge.prompt }}/>
@@ -153,7 +153,7 @@ export function CodeChallenge({ challenge, missionIndex, missionTotal, }: {
               {running ? "Executing…" : results ? (allPass ? "All checks passed" : `${passCount}/${total} passing`) : "Ready"}
             </span>
             <button className="icon-btn sm" title="Reset to starter code" onClick={() => setCode(challenge.starter)}>
-              <ArrowClockwise size={15} weight="bold"/>
+              <ArrowClockwiseIcon size={15} weight="bold"/>
             </button>
           </div>
 
@@ -176,23 +176,23 @@ export function CodeChallenge({ challenge, missionIndex, missionTotal, }: {
             <div className="ws-console-head">
               <span className="wc-label">Test Console</span>
               {results && !error && (<span className={"wc-badge " + (allPass ? "pass" : "fail")}>
-                  {allPass ? <CheckCircle size={13} weight="fill"/> : <XCircle size={13} weight="fill"/>}
+                  {allPass ? <CheckCircleIcon size={13} weight="fill"/> : <XCircleIcon size={13} weight="fill"/>}
                   {passCount}/{total}
                 </span>)}
             </div>
 
             <div className="ws-console-body">
-              {error && <div className="ch-error"><XCircle size={16} weight="fill"/> {error}</div>}
+              {error && <div className="ch-error"><XCircleIcon size={16} weight="fill"/> {error}</div>}
               <div className="ws-cases">
                 {challenge.tests.map((t, i) => {
             const st = statuses[i];
             const r = results?.find((x) => x.index === i);
             return (<div key={i} className={"ws-case " + st}>
                       <span className="wc-ic">
-                        {st === "pass" && <CheckCircle size={16} weight="fill"/>}
-                        {st === "fail" && <XCircle size={16} weight="fill"/>}
-                        {st === "running" && <CircleNotch size={16} weight="bold" className="spin"/>}
-                        {st === "waiting" && <Circle size={16} weight="duotone"/>}
+                        {st === "pass" && <CheckCircleIcon size={16} weight="fill"/>}
+                        {st === "fail" && <XCircleIcon size={16} weight="fill"/>}
+                        {st === "running" && <CircleNotchIcon size={16} weight="bold" className="spin"/>}
+                        {st === "waiting" && <CircleIcon size={16} weight="duotone"/>}
                       </span>
                       <code className="wc-call">{challenge.fnName}({t.args.map((a) => JSON.stringify(a)).join(", ")})</code>
                       <span className="wc-out">
@@ -207,7 +207,7 @@ export function CodeChallenge({ challenge, missionIndex, missionTotal, }: {
 
             <div className="ws-actionbar">
               {challenge.hint && (<button className="btn ghost sm" onClick={() => setShowHint((h) => !h)}>
-                  <Lightbulb size={14} weight="duotone"/> Hint
+                  <LightbulbIcon size={14} weight="duotone"/> Hint
                 </button>)}
               {challenge.solution && (<button className="btn ghost sm" onClick={() => setShowSolution((s) => !s)}>
                   {showSolution ? "Hide solution" : "Solution"}
@@ -215,7 +215,7 @@ export function CodeChallenge({ challenge, missionIndex, missionTotal, }: {
               <div className="ab-spacer"/>
               <button className="btn sm" onClick={() => setCode(challenge.starter)}>Reset</button>
               <button className="btn primary sm run-btn" onClick={run} disabled={running}>
-                <Play size={13} weight="fill"/> {running ? "Running…" : "Run tests"}
+                <PlayIcon size={13} weight="fill"/> {running ? "Running…" : "Run tests"}
               </button>
             </div>
           </div>

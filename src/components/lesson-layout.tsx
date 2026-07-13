@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Clock, Gauge, Sparkle, BookmarkSimple, PencilSimpleLine, CheckCircle, ArrowRight, ListChecks, } from "@phosphor-icons/react";
+import { ClockIcon, GaugeIcon, SparkleIcon, BookmarkSimpleIcon, PencilSimpleLineIcon, CheckCircleIcon, ArrowRightIcon, ListChecksIcon } from "@phosphor-icons/react";
 import type { LessonRef } from "../content/registry";
 import { allLessons, lessonPath, lessonKey, questionaryPath, moduleDifficulty } from "../content/registry";
 import { useProgress } from "../lib/progress";
@@ -165,19 +165,19 @@ export function LessonLayout({ data }: {
           <p className="lh-objective">{lesson.summary}</p>
 
           <div className="lh-meta">
-            <span className="lh-chip"><Clock size={14} weight="duotone"/> {lesson.minutes} min</span>
-            <span className="lh-chip"><Gauge size={14} weight="duotone"/> {diff.label}</span>
-            {isInteractive && <span className="lh-chip interactive"><Sparkle size={14} weight="fill"/> Interactive</span>}
-            {isDone && <span className="lh-chip done"><CheckCircle size={14} weight="fill"/> Completed</span>}
+            <span className="lh-chip"><ClockIcon size={14} weight="duotone"/> {lesson.minutes} min</span>
+            <span className="lh-chip"><GaugeIcon size={14} weight="duotone"/> {diff.label}</span>
+            {isInteractive && <span className="lh-chip interactive"><SparkleIcon size={14} weight="fill"/> Interactive</span>}
+            {isDone && <span className="lh-chip done"><CheckCircleIcon size={14} weight="fill"/> Completed</span>}
             <span className="lh-actions">
               <Tooltip content={isBookmarked ? "Remove bookmark" : "Bookmark this lesson"}>
                 <button className={"icon-btn" + (isBookmarked ? " on" : "")} onClick={() => toggleBookmark(key)} aria-label="Bookmark lesson">
-                  <BookmarkSimple size={16} weight={isBookmarked ? "fill" : "regular"}/>
+                  <BookmarkSimpleIcon size={16} weight={isBookmarked ? "fill" : "regular"}/>
                 </button>
               </Tooltip>
               <Tooltip content="Add a note (select text first to quote it)">
                 <button className="icon-btn" onClick={openNote} aria-label="Add note">
-                  <PencilSimpleLine size={16} weight="regular"/>
+                  <PencilSimpleLineIcon size={16} weight="regular"/>
                 </button>
               </Tooltip>
             </span>
@@ -190,7 +190,7 @@ export function LessonLayout({ data }: {
 
         {hasQuestions && (<div className="prose lesson-section">
             <Link className="qn-cta" to={questionaryPath(module.id)}>
-              <span className="qn-cta-ic"><ListChecks size={22} weight="duotone"/></span>
+              <span className="qn-cta-ic"><ListChecksIcon size={22} weight="duotone"/></span>
               <span className="qn-cta-body">
                 <span className="qn-cta-title">Practice in the Questionary</span>
                 <span className="qn-cta-sub">
@@ -198,13 +198,13 @@ export function LessonLayout({ data }: {
                   like an end-of-chapter problem set.
                 </span>
               </span>
-              <ArrowRight size={16} weight="bold"/>
+              <ArrowRightIcon size={16} weight="bold"/>
             </Link>
           </div>)}
 
         <div className="prose lesson-summary">
           <div className={"ls-card" + (isDone ? " done" : "")}>
-            <div className="ls-icon"><CheckCircle size={28} weight={isDone ? "fill" : "duotone"}/></div>
+            <div className="ls-icon"><CheckCircleIcon size={28} weight={isDone ? "fill" : "duotone"}/></div>
             <div className="ls-body">
               <h3>{isDone ? "Mission accomplished" : "Ready to lock it in?"}</h3>
               <p>{isDone ? "You've completed this mission. Carry the momentum forward." : "Mark this mission complete once the concept clicks."}</p>
@@ -221,7 +221,7 @@ export function LessonLayout({ data }: {
               </Link>) : <span />}
             {next ? (<Link className="next" to={lessonPath(next.module.id, next.lesson.id)}>
                 <div className="k">next mission</div>
-                <div className="t">{next.lesson.title} <ArrowRight size={14} weight="bold"/></div>
+                <div className="t">{next.lesson.title} <ArrowRightIcon size={14} weight="bold"/></div>
               </Link>) : <span />}
           </div>
         </div>

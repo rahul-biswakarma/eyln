@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useMemo } from "react";
-import { Sparkle, X, PaperPlaneRight, ClipboardText, CircleNotch, PushPin, MagnifyingGlass, Trash, Notebook, Info } from "@phosphor-icons/react";
+import { SparkleIcon, XIcon, PaperPlaneRightIcon, ClipboardTextIcon, CircleNotchIcon, PushPinIcon, MagnifyingGlassIcon, TrashIcon, NotebookIcon, InfoIcon } from "@phosphor-icons/react";
 import { isLLMEnabled, chat, generate, parseJSON, type ChatTurn } from "../lib/llm";
 import { buildLearnerContext } from "../lib/learnerContext";
 import { useTutor, type TutorTaskKind } from "../lib/tutor";
@@ -177,7 +177,7 @@ export function TutorPanel() {
     };
     if (!open) {
         return (<button className="tutor-rail-floating" onClick={openTutor} aria-label="Open Companion Workspace">
-        <Sparkle size={15} weight="fill" className="glow-icon"/>
+        <SparkleIcon size={15} weight="fill" className="glow-icon"/>
         <span className="tr-label">Companion</span>
       </button>);
     }
@@ -194,18 +194,18 @@ export function TutorPanel() {
           </div>
         </div>
         <button className="comp-close-btn" onClick={closeTutor} aria-label="Collapse companion">
-          <X size={15}/>
+          <XIcon size={15}/>
         </button>
       </header>
 
       
       <div className="comp-switcher">
         <button className={`switcher-tab ${activeTab === "mentor" ? "active" : ""}`} onClick={() => setActiveTab("mentor")}>
-          <Sparkle size={13} weight="fill"/>
+          <SparkleIcon size={13} weight="fill"/>
           <span>Mentor</span>
         </button>
         <button className={`switcher-tab ${activeTab === "notes" ? "active" : ""}`} onClick={() => setActiveTab("notes")}>
-          <Notebook size={13}/>
+          <NotebookIcon size={13}/>
           <span>Knowledge Base</span>
           {lessonNotes.length > 0 && <span className="tab-badge">{lessonNotes.length}</span>}
         </button>
@@ -247,12 +247,12 @@ export function TutorPanel() {
                               {block.type !== "heading" && (<div className="tp-block-actions">
                                   <Tooltip content={isPinned ? "Already Pinned" : "Pin to Knowledge"}>
                                     <button className={"action-btn" + (isPinned ? " pinned" : "")} onClick={() => handlePin(block)}>
-                                      <PushPin size={11} weight={isPinned ? "fill" : "regular"}/>
+                                      <PushPinIcon size={11} weight={isPinned ? "fill" : "regular"}/>
                                     </button>
                                   </Tooltip>
                                   <Tooltip content="Copy content">
                                     <button className="action-btn" onClick={() => navigator.clipboard.writeText(block.content)}>
-                                      <ClipboardText size={11}/>
+                                      <ClipboardTextIcon size={11}/>
                                     </button>
                                   </Tooltip>
                                 </div>)}
@@ -269,17 +269,17 @@ export function TutorPanel() {
               </div>)}
 
             {loading && (<div className="tp-notebook-loading">
-                <CircleNotch size={14} className="spin animate-spin"/>
+                <CircleNotchIcon size={14} className="spin animate-spin"/>
                 <span>Companion is drafting concept…</span>
               </div>)}
 
             {captured > 0 && (<div className="tp-captured-v2">
-                <ClipboardText size={13} weight="duotone"/>
+                <ClipboardTextIcon size={13} weight="duotone"/>
                 <span>Captured {captured} task{captured === 1 ? "" : "s"} to profile.</span>
               </div>)}
           </div>) : (<div className="kb-workspace">
             <div className="kb-search-box">
-              <MagnifyingGlass size={13} className="search-icon"/>
+              <MagnifyingGlassIcon size={13} className="search-icon"/>
               <input type="text" placeholder="Search all notes & timeline..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}/>
             </div>
 
@@ -298,7 +298,7 @@ export function TutorPanel() {
 
               
               {searchQuery ? (searchResults.length === 0 ? (<div className="kb-empty-state">No matching notes found.</div>) : (searchResults.map((note) => (<NoteItem key={note.id} note={note} onDelete={() => deleteNote(note.id)} onUpdate={(text) => updateNote(note.id, { body: text })}/>)))) : lessonNotes.length === 0 ? (<div className="kb-onboarding">
-                  <Info size={16}/>
+                  <InfoIcon size={16}/>
                   <h4>Interactive engineering ledger</h4>
                   <p>
                     I automatically sync with your current page context. As you read, pin derivation boxes, mathematical formulas, or custom notes using the workspace tools.
@@ -362,7 +362,7 @@ export function TutorPanel() {
                     ask(input);
             }} disabled={loading}/>
               <button className="send-btn" onClick={() => ask(input)} disabled={loading || !input.trim()} aria-label="Send query">
-                {loading ? <CircleNotch size={14} className="spin animate-spin"/> : <PaperPlaneRight size={14}/>}
+                {loading ? <CircleNotchIcon size={14} className="spin animate-spin"/> : <PaperPlaneRightIcon size={14}/>}
               </button>
             </div>
           </div>)}
@@ -388,10 +388,10 @@ function NoteItem({ note, onDelete, onUpdate }: {
         return (<div className="kb-pinned-note">
         <div className="note-header">
           <span className="note-lbl">
-            <PushPin size={10} weight="fill"/> Pinned Concept
+            <PushPinIcon size={10} weight="fill"/> Pinned Concept
           </span>
           <button className="note-delete-btn" onClick={onDelete} aria-label="Delete note">
-            <Trash size={11}/>
+            <TrashIcon size={11}/>
           </button>
         </div>
         <div className="note-body">
@@ -410,7 +410,7 @@ function NoteItem({ note, onDelete, onUpdate }: {
       <div className="note-header">
         <span className="note-lbl">Personal Note</span>
         <button className="note-delete-btn" onClick={onDelete} aria-label="Delete note">
-          <Trash size={11}/>
+          <TrashIcon size={11}/>
         </button>
       </div>
       {note.selectionText && (<blockquote className="note-quote">

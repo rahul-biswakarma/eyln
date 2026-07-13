@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { X } from "@phosphor-icons/react";
+import { XIcon } from "@phosphor-icons/react";
 export const Dialog = DialogPrimitive.Root;
 export const DialogTrigger = DialogPrimitive.Trigger;
 export const DialogPortal = DialogPrimitive.Portal;
@@ -14,7 +14,7 @@ export const DialogContent = React.forwardRef<React.ElementRef<typeof DialogPrim
     <DialogPrimitive.Content ref={ref} className="DialogContent" {...props}>
       {children}
       {showCloseButton && (<DialogPrimitive.Close className="DialogClose" aria-label="Close">
-          <X size={15} weight="bold"/>
+          <XIcon size={15} weight="bold"/>
         </DialogPrimitive.Close>)}
     </DialogPrimitive.Content>
   </DialogPortal>));

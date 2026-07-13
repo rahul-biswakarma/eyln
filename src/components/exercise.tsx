@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { CheckCircle, XCircle, Lightbulb, ArrowRight, CircleNotch } from "@phosphor-icons/react";
+import { CheckCircleIcon, XCircleIcon, LightbulbIcon, ArrowRightIcon, CircleNotchIcon } from "@phosphor-icons/react";
 import type { Exercise as ExerciseType, ExerciseResult } from "../content/types";
 import { isLLMEnabled, generate, parseJSON } from "../lib/llm";
 import { useNotes } from "../lib/notes";
@@ -94,7 +94,7 @@ export function Exercise({ ex, onResult, onSkip, step, total, logId, }: {
         : "Exercise";
     if (solved) {
         return (<div className="kc-solved" role="status">
-        <span className="kc-solved-ic"><CheckCircle size={20} weight="fill"/></span>
+        <span className="kc-solved-ic"><CheckCircleIcon size={20} weight="fill"/></span>
         <div className="kc-solved-body">
           <div className="kc-solved-q">{ex.prompt}</div>
           {value && <div className="kc-solved-a">Your answer: <strong>{value}</strong></div>}
@@ -113,18 +113,18 @@ export function Exercise({ ex, onResult, onSkip, step, total, logId, }: {
     </div>);
     return (<KnowledgeCard eyebrow={eyebrow} step={step} total={total} question={ex.prompt} tone={wrong ? "wrong" : "neutral"} feedback={<>
           {showHint && ex.hint && (<div className="kc-hint">
-              <Lightbulb size={16} weight="duotone"/> {ex.hint}
+              <LightbulbIcon size={16} weight="duotone"/> {ex.hint}
             </div>)}
           {result && !result.pass && (<div className="kc-feedback wrong">
-              <div className="kc-fb-head"><XCircle size={17} weight="fill"/> {result.message}</div>
+              <div className="kc-fb-head"><XCircleIcon size={17} weight="fill"/> {result.message}</div>
               {result.feedback && <p>{result.feedback}</p>}
             </div>)}
         </>} footer={<KnowledgeFooter primary={<button className="kc-btn primary" onClick={check} disabled={grading}>
-              {grading ? (<><CircleNotch size={15} weight="bold" className="spin"/> Grading…</>) : (<>Check Answer</>)}
+              {grading ? (<><CircleNotchIcon size={15} weight="bold" className="spin"/> Grading…</>) : (<>Check Answer</>)}
             </button>} secondary={ex.hint ? (<button className="kc-btn ghost" onClick={() => setShowHint((h) => !h)}>
-                <Lightbulb size={14} weight="duotone"/> {showHint ? "Hide hint" : "Hint"}
+                <LightbulbIcon size={14} weight="duotone"/> {showHint ? "Hide hint" : "Hint"}
               </button>) : undefined} tertiary={onSkip ? (<button className="kc-btn tertiary" onClick={onSkip}>
-                Skip <ArrowRight size={13} weight="bold"/>
+                Skip <ArrowRightIcon size={13} weight="bold"/>
               </button>) : undefined}/>}>
       {answerArea}
     </KnowledgeCard>);

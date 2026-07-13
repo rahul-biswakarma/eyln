@@ -1,15 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { MagicWand, Microphone, Quotes as QuotesIcon, Translate, Sigma, Code as CodeIcon, WarningOctagon, NotePencil, X } from "@phosphor-icons/react";
+import { MagicWandIcon, QuotesIcon, TranslateIcon, SigmaIcon, CodeIcon, WarningOctagonIcon, NotePencilIcon, XIcon } from "@phosphor-icons/react";
 import { CAPTURE_SHORTCUTS, detectCaptureKind, buildCapture, CAPTURE_KIND_TEMPLATE, type CaptureKind, } from "../lib/capture";
 import { FormulaBuilder } from "./formula-builder";
 const SHORTCUT_ICON: Record<string, React.ReactNode> = {
     quote: <QuotesIcon size={17} weight="bold"/>,
-    vocab: <Translate size={17} weight="bold"/>,
-    formula: <Sigma size={17} weight="bold"/>,
+    vocab: <TranslateIcon size={17} weight="bold"/>,
+    formula: <SigmaIcon size={17} weight="bold"/>,
     code: <CodeIcon size={17} weight="bold"/>,
-    mistake: <WarningOctagon size={17} weight="bold"/>,
-    capture: <NotePencil size={17} weight="bold"/>,
+    mistake: <WarningOctagonIcon size={17} weight="bold"/>,
+    capture: <NotePencilIcon size={17} weight="bold"/>,
 };
 const KIND_LABEL: Record<CaptureKind, string> = {
     note: "Note",
@@ -68,7 +68,7 @@ export function CaptureWorkspace({ onClose, onSave, }: {
         <div className="capture-header">
           <span className="capture-kicker">Capture Knowledge</span>
           <button className="capture-close" onClick={onClose} aria-label="Close">
-            <X size={15}/>
+            <XIcon size={15}/>
           </button>
         </div>
         <p className="capture-prompt">What would you like to remember?</p>
@@ -82,13 +82,10 @@ export function CaptureWorkspace({ onClose, onSave, }: {
         <div className="capture-footer-row">
           <div className="capture-detect">
             {detected && (<span className="capture-detect-pill">
-                <MagicWand size={11} weight="fill"/> Detected as {KIND_LABEL[detected]}
+                <MagicWandIcon size={11} weight="fill"/> Detected as {KIND_LABEL[detected]}
               </span>)}
           </div>
           <div className="capture-actions">
-            <button className="capture-voice-btn" title="Voice capture">
-              <Microphone size={15}/>
-            </button>
             <button className="capture-save-btn" onClick={handleSave} disabled={!canSave}>
               Save
             </button>
