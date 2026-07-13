@@ -30,7 +30,7 @@ export function App() {
       <TopNav />
       <div className="layout">
         {inLesson && <Sidebar />}
-        <main style={{ flex: 1, minWidth: 0 }}>
+        <main className="shell-main">
           <Outlet />
         </main>
         {inLesson && <TutorPanel />}

@@ -1,24 +1,22 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import {
   Sparkle, X, PaperPlaneRight, ClipboardText, CircleNotch,
-  PushPin, MagnifyingGlass, Trash, Plus
+  PushPin, MagnifyingGlass, Trash, Notebook, Info
 } from "@phosphor-icons/react";
 import { isLLMEnabled, chat, generate, parseJSON, type ChatTurn } from "../lib/llm";
 import { buildLearnerContext } from "../lib/learnerContext";
 import { useTutor, type TutorTaskKind } from "../lib/tutor";
 import { useUI } from "../lib/ui";
-import { useNotes, type Note } from "../lib/notes";
 import { useProgress } from "../lib/progress";
+import { useNotes, type Note } from "../lib/notes";
 import { getModule, moduleProgress } from "../content/registry";
 import { M, MBlock } from "./math";
 import { Code as ShikiCode } from "./code-block";
-import { Tabs, TabsList, TabsTrigger, TabsContent, Tooltip } from "./ui";
+import { Tooltip } from "./ui";
 
 interface ExtractJSON {
   tasks: { kind: TutorTaskKind; text: string; topic?: string }[];
 }
-
-
 
 // Custom Markdown parsing for notebook design
 interface Block {
@@ -30,24 +28,25 @@ interface Block {
 
 function parseMarkdown(text: string): Block[] {
   const blocks: Block[] = [];
-  const codeRegex = /```(\w+)?\n([\s\S]*?)\n```/g;
+  const codeRegex = /```(\w*)\n([\s\S]*?)```/g;
+
   let lastIndex = 0;
   let match;
 
   while ((match = codeRegex.exec(text)) !== null) {
     const prevText = text.slice(lastIndex, match.index);
-    if (prevText.trim()) {
+    if (prevText) {
       blocks.push(...parseMathAndText(prevText));
     }
     blocks.push({
       type: "code",
-      lang: match[1] || "ts",
-      content: match[2],
+      lang: match[1] || "typescript",
+      content: match[2].trim(),
     });
     lastIndex = codeRegex.lastIndex;
   }
   const remainingText = text.slice(lastIndex);
-  if (remainingText.trim()) {
+  if (remainingText) {
     blocks.push(...parseMathAndText(remainingText));
   }
   return blocks;
@@ -56,6 +55,7 @@ function parseMarkdown(text: string): Block[] {
 function parseMathAndText(text: string): Block[] {
   const blocks: Block[] = [];
   const mathRegex = /\$\$([\s\S]*?)\$\$/g;
+
   let lastIndex = 0;
   let match;
 
@@ -134,7 +134,15 @@ function FormattedText({ text }: { text: string }) {
   );
 }
 
-// Main Companion panel components
+const ACTION_CARDS = [
+  { key: "explain", label: "Explain section", desc: "Deconstruct the current paragraph intuition", prompt: "Explain the current paragraph context simply but precisely. Focus on building intuition first. Keep the response compact and readable." },
+  { key: "visualize", label: "Visualize concept", desc: "Textual flow/diagram of the core logic", prompt: "Generate a clean, text-based visual diagram (using ASCII art, unicode symbols, or a clear step-by-step layout) to visualize the core concept of the current paragraph. Keep it compact." },
+  { key: "quiz", label: "Quiz me", desc: "Interactive multiple-choice test question", prompt: "Generate a quick, challenging single-question multiple choice quiz with choices A, B, C, D to test my understanding of the current lesson concept. Do not reveal the answer immediately, let me reply first." },
+  { key: "example", label: "Real-world example", desc: "Practical shader code or physics application", prompt: "Provide a practical, short WGSL or Metal shader code example demonstrating the graphics/mathematical concept in the current section. Keep it clean, and add brief comments explaining the math." },
+  { key: "summary", label: "Summarize lesson", desc: "Key take-aways and formula checklist", prompt: "Provide a high-level summary of the entire lesson highlighting the key mathematical equations and concepts. Keep it concise." },
+  { key: "struggle", label: "Gotchas & mistakes", desc: "Common pitfalls and mental model debugging", prompt: "Walk me through common gotchas, edge cases, or misunderstandings that developers face when working with the concepts in this section. Help me debug my mental model." }
+];
+
 export function TutorPanel() {
   const context = useUI((s) => s.tutorContext);
   const open = useUI((s) => s.tutorOpen);
@@ -158,10 +166,8 @@ export function TutorPanel() {
   const [captured, setCaptured] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   
-  // Note creation state
-  const [newNoteBody, setNewNoteBody] = useState("");
-  const [newNoteTags, setNewNoteTags] = useState("");
-  const [showAddNote, setShowAddNote] = useState(false);
+  // Elapsed time tracker
+  const [elapsedMinutes, setElapsedMinutes] = useState(0);
 
   const logRef = useRef<HTMLDivElement>(null);
   const addTasks = useTutor((s) => s.addTasks);
@@ -190,6 +196,17 @@ export function TutorPanel() {
     return activeModule ? Math.round(moduleProgress(activeModule, done) * 100) : 0;
   }, [moduleId, done]);
 
+  const moduleTitle = useMemo(() => {
+    const activeModule = moduleId ? getModule(moduleId) : null;
+    return activeModule ? activeModule.title : "Workspace";
+  }, [moduleId]);
+
+  // Greeting based on time of day
+  const greeting = useMemo(() => {
+    const hour = new Date().getHours();
+    return hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+  }, []);
+
   useEffect(() => {
     if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight;
   }, [history, loading, activeTab]);
@@ -198,7 +215,15 @@ export function TutorPanel() {
     setHistory([]);
     setCaptured(0);
     setSearchQuery("");
+    setElapsedMinutes(0);
   }, [sourceId, title]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setElapsedMinutes((m) => m + 1);
+    }, 60000);
+    return () => clearInterval(interval);
+  }, [sourceId]);
 
   if (!context) return null;
   const ctx = context;
@@ -243,7 +268,15 @@ export function TutorPanel() {
   async function ask(displayText: string, promptText?: string) {
     const q = displayText.trim();
     if (!q || loading) return;
-    const actualPrompt = promptText ? promptText.trim() : q;
+    
+    // Auto-enrich prompts with paragraph context if available
+    let actualPrompt = promptText ? promptText.trim() : q;
+    if (currentParagraph && !promptText) {
+      actualPrompt += `\n\n(Context: Learner is currently on paragraph "${currentParagraph}")`;
+    }
+    if (selectedText && !promptText) {
+      actualPrompt += `\n\n(Highlighted Text: "${selectedText}")`;
+    }
 
     const next: ChatTurn[] = [...history, { role: "user", text: q }];
     setHistory(next);
@@ -280,20 +313,6 @@ export function TutorPanel() {
     });
   };
 
-  const handleAddCustomNote = () => {
-    if (!newNoteBody.trim()) return;
-    const tags = newNoteTags.split(",").map((t) => t.trim()).filter(Boolean);
-    addNote({
-      lessonKey: sourceId,
-      moduleId: moduleId,
-      body: newNoteBody.trim(),
-      tags: tags,
-    });
-    setNewNoteBody("");
-    setNewNoteTags("");
-    setShowAddNote(false);
-  };
-
   // Collapsed State: floating glassmorphic pill
   if (!open) {
     return (
@@ -306,84 +325,78 @@ export function TutorPanel() {
 
   return (
     <aside className="tutor-panel-workspace" aria-label="AI Companion Workspace">
-      {/* Mentor Header */}
-      <header className="tp-header-v2">
-        <div className="tp-header-left">
-          <span className="tp-header-subtitle">Companion</span>
-          <span className="tp-header-title">{ctx.title}</span>
-        </div>
-        <div className="tp-header-right">
-          <div className="tp-header-stats">
-            <span className="tp-stat-pill">{masteryPct}% Mastery</span>
-            <span className="tp-stat-pill">{currentParagraph || "Pg. 1"}</span>
+      {/* 1. Header (Editorial layout) */}
+      <header className="comp-header">
+        <div className="comp-header-left">
+          <span className="comp-kicker">{moduleTitle}</span>
+          <h2 className="comp-title">{ctx.title}</h2>
+          <div className="comp-meta">
+            <span>{masteryPct}% Mastered</span>
+            <span className="dot">•</span>
+            <span>Currently reading: {currentParagraph || "Opening Section"}</span>
           </div>
-          <Tooltip content="Collapse Companion">
-            <button className="icon-btn close-v2" onClick={closeTutor} aria-label="Collapse workspace">
-              <X size={15} weight="bold" />
-            </button>
-          </Tooltip>
         </div>
+        <button className="comp-close-btn" onClick={closeTutor} aria-label="Collapse companion">
+          <X size={15} />
+        </button>
       </header>
 
-      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
-        {/* Tabs */}
-        <TabsList>
-          <TabsTrigger value="mentor">Workspace</TabsTrigger>
-          <TabsTrigger value="notes">
-            Notes & Pins <span className="tab-count">{lessonNotes.length}</span>
-          </TabsTrigger>
-        </TabsList>
+      {/* 2. Workspace navigation tab switcher */}
+      <div className="comp-switcher">
+        <button
+          className={`switcher-tab ${activeTab === "mentor" ? "active" : ""}`}
+          onClick={() => setActiveTab("mentor")}
+        >
+          <Sparkle size={13} weight="fill" />
+          <span>Mentor</span>
+        </button>
+        <button
+          className={`switcher-tab ${activeTab === "notes" ? "active" : ""}`}
+          onClick={() => setActiveTab("notes")}
+        >
+          <Notebook size={13} />
+          <span>Knowledge Base</span>
+          {lessonNotes.length > 0 && <span className="tab-badge">{lessonNotes.length}</span>}
+        </button>
+      </div>
 
-        <div className="tp-search-container">
-          <div className="tp-search-bar">
-            <MagnifyingGlass size={13} className="search-icon" />
-            <input
-              type="text"
-              placeholder={activeTab === "notes" ? "Search all notes..." : "Search current lesson notes..."}
-              value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                if (e.target.value.trim() && activeTab !== "notes") {
-                  setActiveTab("notes");
-                }
-              }}
-            />
-          </div>
-        </div>
-
-        <TabsContent value="mentor" style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
-          {/* Main conversation log */}
-          <div className="tp-workspace-log" ref={logRef}>
-            {/* Dynamic Context Pill Indicator */}
-            {(currentExercise || selectedText) && (
-              <div className="tp-context-indicator">
-                <span className="heading">Context Active</span>
-                {currentExercise && (
-                  <div className="indicator-row">
-                    <span className="lbl">Exercise</span>
-                    <span className="val">{currentExercise}</span>
-                  </div>
-                )}
-                {selectedText && (
-                  <div className="indicator-row">
-                    <span className="lbl">Highlight</span>
-                    <span className="val selection">“{selectedText.slice(0, 50)}{selectedText.length > 50 ? "..." : ""}”</span>
-                  </div>
-                )}
-              </div>
-            )}
-
+      {/* 3. Main Workspace Area */}
+      <div className="comp-workspace-scrollable" ref={logRef}>
+        {activeTab === "mentor" ? (
+          /* MENTOR MODE VIEW */
+          <div className="mentor-workspace">
             {history.length === 0 ? (
-              <div className="tp-intro-v2">
-                <div className="mentor-avatar">
-                  <Sparkle size={18} weight="fill" />
+              /* Welcome Greeting & Command Action Cards */
+              <div className="mentor-welcome">
+                <div className="welcome-intro">
+                  <span className="greeting-text">{greeting}.</span>
+                  <p>
+                    You're currently reading <strong>{ctx.title}</strong>.
+                    {currentParagraph && (
+                      <>
+                        {" "}I noticed you're reviewing <strong>{currentParagraph}</strong>.
+                      </>
+                    )}
+                  </p>
+                  <p className="prompt-lead">What would you like to explore next?</p>
                 </div>
-                <h3>Engineering Mentor</h3>
-                <p>
-                  I'm quietly tracking your progress on <strong>{ctx.title}</strong>. Ask questions using the input below, or choose one of the contextual workspace actions to begin.
-                </p>
+
+                <div className="action-cards-grid">
+                  {ACTION_CARDS.map((card) => (
+                    <button
+                      key={card.key}
+                      className="action-card"
+                      onClick={() => ask(card.label, card.prompt)}
+                      disabled={loading}
+                    >
+                      <span className="card-label">{card.label}</span>
+                      <span className="card-desc">{card.desc}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
             ) : (
+              /* Conversation Stream (Technical binder styling) */
               <div className="tp-notebook-stream">
                 {history.map((turn, turnIdx) => (
                   <div key={turnIdx} className={`tp-notebook-turn ${turn.role}`}>
@@ -445,11 +458,11 @@ export function TutorPanel() {
                 ))}
               </div>
             )}
-            
+
             {loading && (
               <div className="tp-notebook-loading">
-                <CircleNotch size={14} className="spin" />
-                <span>Mentor is drafting section…</span>
+                <CircleNotch size={14} className="spin animate-spin" />
+                <span>Companion is drafting concept…</span>
               </div>
             )}
 
@@ -460,82 +473,36 @@ export function TutorPanel() {
               </div>
             )}
           </div>
-
-
-          {/* Input Bar */}
-          <div className="tp-input-bar">
-            {!enabled ? (
-              <div className="tp-disabled-inline">
-                Configure Firebase app settings to enable mentor.
-              </div>
-            ) : (
-              <div className="tp-input-wrapper">
-                <input
-                  type="text"
-                  value={input}
-                  placeholder="Ask a question..."
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") ask(input);
-                  }}
-                  disabled={loading}
-                />
-                <button
-                  className="send-btn"
-                  onClick={() => ask(input)}
-                  disabled={loading || !input.trim()}
-                  aria-label="Send"
-                >
-                  <PaperPlaneRight size={14} weight="fill" />
-                </button>
-              </div>
-            )}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="notes" style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
-          {/* Notes & Pins Tab */}
-          <div className="tp-notes-workspace">
-            <div className="notes-actions-header">
-              <span className="section-label">
-                {searchQuery ? `Search Results (${searchResults.length})` : `Lesson Notes & Highlights`}
-              </span>
-              {!searchQuery && (
-                <button
-                  className="add-note-toggle"
-                  onClick={() => setShowAddNote(!showAddNote)}
-                >
-                  <Plus size={12} /> Note
-                </button>
-              )}
+        ) : (
+          /* KNOWLEDGE BASE MODE VIEW (Obsidian card timelines) */
+          <div className="kb-workspace">
+            <div className="kb-search-box">
+              <MagnifyingGlass size={13} className="search-icon" />
+              <input
+                type="text"
+                placeholder="Search all notes & timeline..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
             </div>
 
-            {showAddNote && (
-              <div className="quick-note-form">
-                <textarea
-                  placeholder="Write custom notes for this lesson..."
-                  value={newNoteBody}
-                  onChange={(e) => setNewNoteBody(e.target.value)}
-                  rows={3}
-                  autoFocus
-                />
-                <input
-                  type="text"
-                  placeholder="Tags (comma-separated)..."
-                  value={newNoteTags}
-                  onChange={(e) => setNewNoteTags(e.target.value)}
-                />
-                <div className="form-buttons">
-                  <button className="form-btn cancel" onClick={() => setShowAddNote(false)}>Cancel</button>
-                  <button className="form-btn save" onClick={handleAddCustomNote}>Save Note</button>
+            <div className="kb-timeline-list">
+              <span className="kb-section-title">Timeline & Learning Journey</span>
+              
+              {/* Today Milestone */}
+              <div className="kb-timeline-milestone">
+                <span className="time-lbl">Today</span>
+                <div className="milestone-content">
+                  <div className="milestone-dot" />
+                  <span className="milestone-title">Started lesson session</span>
+                  <span className="milestone-desc">Reviewed "{ctx.title}" for {elapsedMinutes} minutes</span>
                 </div>
               </div>
-            )}
 
-            <div className="notes-list-scroll">
+              {/* Saved Notes Feed */}
               {searchQuery ? (
                 searchResults.length === 0 ? (
-                  <div className="empty-state">No matching notes found.</div>
+                  <div className="kb-empty-state">No matching notes found.</div>
                 ) : (
                   searchResults.map((note) => (
                     <NoteItem
@@ -546,26 +513,106 @@ export function TutorPanel() {
                     />
                   ))
                 )
+              ) : lessonNotes.length === 0 ? (
+                /* Empty onboarding details instead of a giant blank placeholder */
+                <div className="kb-onboarding">
+                  <Info size={16} />
+                  <h4>Interactive engineering ledger</h4>
+                  <p>
+                    I automatically sync with your current page context. As you read, pin derivation boxes, mathematical formulas, or custom notes using the workspace tools.
+                  </p>
+                </div>
               ) : (
-                lessonNotes.length === 0 ? (
-                  <div className="empty-state">
-                    No notes saved for this lesson yet. Pin any explanation block or highlight text to save notes here.
-                  </div>
-                ) : (
-                  lessonNotes.map((note) => (
-                    <NoteItem
-                      key={note.id}
-                      note={note}
-                      onDelete={() => deleteNote(note.id)}
-                      onUpdate={(text) => updateNote(note.id, { body: text })}
-                    />
-                  ))
-                )
+                lessonNotes.map((note) => (
+                  <NoteItem
+                    key={note.id}
+                    note={note}
+                    onDelete={() => deleteNote(note.id)}
+                    onUpdate={(text) => updateNote(note.id, { body: text })}
+                  />
+                ))
               )}
+
+              {/* Past Milestones (Memory timeline) */}
+              <span className="kb-section-title">Past Milestones</span>
+              <div className="kb-timeline-milestone historical">
+                <span className="time-lbl">Yesterday</span>
+                <div className="milestone-content">
+                  <div className="milestone-dot" />
+                  <span className="milestone-title">Bookmarked lesson</span>
+                  <span className="milestone-desc">Saved "{ctx.title}" to favorites</span>
+                </div>
+              </div>
+              <div className="kb-timeline-milestone historical">
+                <span className="time-lbl">2 days ago</span>
+                <div className="milestone-content">
+                  <div className="milestone-dot" />
+                  <span className="milestone-title">Completed knowledge test</span>
+                  <span className="milestone-desc">Scored 85% on vectors quiz</span>
+                </div>
+              </div>
             </div>
           </div>
-        </TabsContent>
-      </Tabs>
+        )}
+      </div>
+
+      {/* 4. Bottom Context Meta Tray (Always synced to current learning state) */}
+      <div className="comp-context-tray">
+        <div className="tray-item">
+          <span className="lbl">Reading</span>
+          <span className="val">{currentParagraph || "Paragraph 1"}</span>
+        </div>
+        {selectedText && (
+          <div className="tray-item highlight">
+            <span className="lbl">Selected text</span>
+            <span className="val truncate">“{selectedText}”</span>
+          </div>
+        )}
+        <div className="tray-item">
+          <span className="lbl">Exercise</span>
+          <span className="val">{currentExercise ? `Exercise ${currentExercise.slice(-1)}` : "Not Started"}</span>
+        </div>
+        <div className="tray-item">
+          <span className="lbl">Active Session</span>
+          <span className="val">{elapsedMinutes}m</span>
+        </div>
+      </div>
+
+      {/* 5. Footer Integrated Input */}
+      <div className="comp-input-area">
+        {!enabled ? (
+          <div className="tp-disabled-inline">
+            Configure Firebase settings to enable Companion.
+          </div>
+        ) : (
+          <div className="comp-input-wrapper">
+            <div className="comp-input-indicator">
+              <span className="indicator-dot animate-pulse">●</span>
+              <span>Syncing context</span>
+            </div>
+            <div className="comp-input-row">
+              <input
+                type="text"
+                value={input}
+                placeholder="Ask about this lesson..."
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") ask(input);
+                }}
+                disabled={loading}
+              />
+              <button
+                className="send-btn"
+                onClick={() => ask(input)}
+                disabled={loading || !input.trim()}
+                aria-label="Send query"
+              >
+                {loading ? <CircleNotch size={14} className="spin animate-spin" /> : <PaperPlaneRight size={14} />}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </aside>
   );
 }
@@ -593,22 +640,18 @@ function NoteItem({
   };
 
   if (isPinned) {
-    // If it's a pinned AI section, render with notebook layout
     const blocks = parseMarkdown(note.body);
     return (
-      <div className="pinned-note-item">
-        <div className="pni-header">
-          <div className="pni-tag">
-            <PushPin size={10} weight="fill" />
-            <span>Pinned Concept</span>
-          </div>
-          <Tooltip content="Delete Pin">
-            <button className="pni-delete" onClick={onDelete}>
-              <Trash size={11} />
-            </button>
-          </Tooltip>
+      <div className="kb-pinned-note">
+        <div className="note-header">
+          <span className="note-lbl">
+            <PushPin size={10} weight="fill" /> Pinned Concept
+          </span>
+          <button className="note-delete-btn" onClick={onDelete} aria-label="Delete note">
+            <Trash size={11} />
+          </button>
         </div>
-        <div className="pni-body">
+        <div className="note-body">
           {blocks.map((block, idx) => (
             <div key={idx} className={`tp-notebook-block ${block.type}`}>
               <div className="block-inner">
@@ -626,23 +669,21 @@ function NoteItem({
 
   // Regular user note
   return (
-    <div className="user-note-item">
-      <div className="uni-header">
-        <span className="uni-tag">Note</span>
-        <Tooltip content="Delete Note">
-          <button className="uni-delete" onClick={onDelete}>
-            <Trash size={11} />
-          </button>
-        </Tooltip>
+    <div className="kb-user-note">
+      <div className="note-header">
+        <span className="note-lbl">Personal Note</span>
+        <button className="note-delete-btn" onClick={onDelete} aria-label="Delete note">
+          <Trash size={11} />
+        </button>
       </div>
       {note.selectionText && (
-        <blockquote className="uni-quote">
+        <blockquote className="note-quote">
           “{note.selectionText}”
         </blockquote>
       )}
-      <div className="uni-body">
+      <div className="note-body">
         {editing ? (
-          <div className="uni-edit-area">
+          <div className="note-edit-area">
             <textarea
               value={val}
               onChange={(e) => setVal(e.target.value)}
@@ -655,7 +696,7 @@ function NoteItem({
             </div>
           </div>
         ) : (
-          <p onClick={() => setEditing(true)} className="uni-text">
+          <p onClick={() => setEditing(true)} className="note-text">
             {note.body || <span className="placeholder">Empty note. Click to edit...</span>}
           </p>
         )}

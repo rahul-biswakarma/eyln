@@ -211,51 +211,53 @@ export function LessonLayout({ data }: { data: LessonRef }) {
         </div>
       </header>
 
-      <div className="prose lesson-body" ref={bodyRef}>
-        <Body />
-      </div>
+      <div className="lesson-body-scrollable">
+        <div className="prose lesson-body" ref={bodyRef}>
+          <Body />
+        </div>
 
-      {hasQuestions && (
-        <div className="prose lesson-section">
-          <Link className="qn-cta" to={questionaryPath(module.id)}>
-            <span className="qn-cta-ic"><ListChecks size={22} weight="duotone" /></span>
-            <span className="qn-cta-body">
-              <span className="qn-cta-title">Practice in the Questionary</span>
-              <span className="qn-cta-sub">
-                Knowledge checks and exercises for {module.title} are collected on one page —
-                like an end-of-chapter problem set.
+        {hasQuestions && (
+          <div className="prose lesson-section">
+            <Link className="qn-cta" to={questionaryPath(module.id)}>
+              <span className="qn-cta-ic"><ListChecks size={22} weight="duotone" /></span>
+              <span className="qn-cta-body">
+                <span className="qn-cta-title">Practice in the Questionary</span>
+                <span className="qn-cta-sub">
+                  Knowledge checks and exercises for {module.title} are collected on one page —
+                  like an end-of-chapter problem set.
+                </span>
               </span>
-            </span>
-            <ArrowRight size={16} weight="bold" />
-          </Link>
-        </div>
-      )}
-
-      <div className="prose lesson-summary">
-        <div className={"ls-card" + (isDone ? " done" : "")}>
-          <div className="ls-icon"><CheckCircle size={28} weight={isDone ? "fill" : "duotone"} /></div>
-          <div className="ls-body">
-            <h3>{isDone ? "Mission accomplished" : "Ready to lock it in?"}</h3>
-            <p>{isDone ? "You've completed this mission. Carry the momentum forward." : "Mark this mission complete once the concept clicks."}</p>
+              <ArrowRight size={16} weight="bold" />
+            </Link>
           </div>
-          <button className={"btn" + (isDone ? "" : " primary")} onClick={() => toggleDone(key)}>
-            {isDone ? "Completed ✓" : "Mark complete"}
-          </button>
-        </div>
+        )}
 
-        <div className="lesson-nav">
-          {prev ? (
-            <Link className="prev" to={lessonPath(prev.module.id, prev.lesson.id)}>
-              <div className="k">← previous</div>
-              <div className="t">{prev.lesson.title}</div>
-            </Link>
-          ) : <span />}
-          {next ? (
-            <Link className="next" to={lessonPath(next.module.id, next.lesson.id)}>
-              <div className="k">next mission</div>
-              <div className="t">{next.lesson.title} <ArrowRight size={14} weight="bold" /></div>
-            </Link>
-          ) : <span />}
+        <div className="prose lesson-summary">
+          <div className={"ls-card" + (isDone ? " done" : "")}>
+            <div className="ls-icon"><CheckCircle size={28} weight={isDone ? "fill" : "duotone"} /></div>
+            <div className="ls-body">
+              <h3>{isDone ? "Mission accomplished" : "Ready to lock it in?"}</h3>
+              <p>{isDone ? "You've completed this mission. Carry the momentum forward." : "Mark this mission complete once the concept clicks."}</p>
+            </div>
+            <button className={"btn" + (isDone ? "" : " primary")} onClick={() => toggleDone(key)}>
+              {isDone ? "Completed ✓" : "Mark complete"}
+            </button>
+          </div>
+
+          <div className="lesson-nav">
+            {prev ? (
+              <Link className="prev" to={lessonPath(prev.module.id, prev.lesson.id)}>
+                <div className="k">← previous</div>
+                <div className="t">{prev.lesson.title}</div>
+              </Link>
+            ) : <span />}
+            {next ? (
+              <Link className="next" to={lessonPath(next.module.id, next.lesson.id)}>
+                <div className="k">next mission</div>
+                <div className="t">{next.lesson.title} <ArrowRight size={14} weight="bold" /></div>
+              </Link>
+            ) : <span />}
+          </div>
         </div>
       </div>
 

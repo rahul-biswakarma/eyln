@@ -47,54 +47,56 @@ export function Sidebar() {
         </button>
       </div>
 
-      <div className="st-timeline">
-        {current.lessons.map((l) => {
-          const active = l.id === lessonId;
-          const isDone = !!done[lessonKey(current.id, l.id)];
-          const isNext = !isDone && firstUndone?.id === l.id;
-          const state = isDone ? "done" : active ? "active" : isNext ? "next" : "upcoming";
-          return (
-            <Link
-              key={l.id}
-              to={lessonPath(current.id, l.id)}
-              className={"st-node " + state}
-            >
-              <span className="st-marker">
-                {isDone ? <CheckCircle size={17} weight="fill" /> : <Circle size={17} weight={active || isNext ? "bold" : "duotone"} />}
-              </span>
-              <span className="st-label">{l.title}</span>
-            </Link>
-          );
-        })}
+      <div className="st-body">
+        <div className="st-timeline">
+          {current.lessons.map((l) => {
+            const active = l.id === lessonId;
+            const isDone = !!done[lessonKey(current.id, l.id)];
+            const isNext = !isDone && firstUndone?.id === l.id;
+            const state = isDone ? "done" : active ? "active" : isNext ? "next" : "upcoming";
+            return (
+              <Link
+                key={l.id}
+                to={lessonPath(current.id, l.id)}
+                className={"st-node " + state}
+              >
+                <span className="st-marker">
+                  {isDone ? <CheckCircle size={17} weight="fill" /> : <Circle size={17} weight={active || isNext ? "bold" : "duotone"} />}
+                </span>
+                <span className="st-label">{l.title}</span>
+              </Link>
+            );
+          })}
 
-        {moduleHasQuestionary(current) && (
-          <Link
-            to={questionaryPath(current.id)}
-            className={"st-node questionary " + (onQuestionary ? "active" : "upcoming")}
-          >
-            <span className="st-marker"><ListChecks size={17} weight="duotone" /></span>
-            <span className="st-label">Questionary</span>
-          </Link>
-        )}
-      </div>
-
-      <div className="st-modules">
-        <div className="st-modules-label">{track?.title} track</div>
-        {siblings.map((m) => {
-          const p = moduleProgress(m, done);
-          const isCurrent = m.id === current.id;
-          return (
+          {moduleHasQuestionary(current) && (
             <Link
-              key={m.id}
-              to={lessonPath(m.id, m.lessons[0].id)}
-              className={"st-mod" + (isCurrent ? " current" : "")}
+              to={questionaryPath(current.id)}
+              className={"st-node questionary " + (onQuestionary ? "active" : "upcoming")}
             >
-              <span className="st-mod-ic"><ModuleIcon id={m.id} size={15} /></span>
-              <span className="st-mod-name">{m.title}</span>
-              <span className="st-mod-pct">{Math.round(p * 100)}%</span>
+              <span className="st-marker"><ListChecks size={17} weight="duotone" /></span>
+              <span className="st-label">Questionary</span>
             </Link>
-          );
-        })}
+          )}
+        </div>
+
+        <div className="st-modules">
+          <div className="st-modules-label">{track?.title} track</div>
+          {siblings.map((m) => {
+            const p = moduleProgress(m, done);
+            const isCurrent = m.id === current.id;
+            return (
+              <Link
+                key={m.id}
+                to={lessonPath(m.id, m.lessons[0].id)}
+                className={"st-mod" + (isCurrent ? " current" : "")}
+              >
+                <span className="st-mod-ic"><ModuleIcon id={m.id} size={15} /></span>
+                <span className="st-mod-name">{m.title}</span>
+                <span className="st-mod-pct">{Math.round(p * 100)}%</span>
+              </Link>
+            );
+          })}
+        </div>
       </div>
     </aside>
   );
