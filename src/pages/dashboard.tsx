@@ -49,40 +49,6 @@ export function Dashboard() {
           </Link>
         )}
       </div>
-
-      <div className="stat-row">
-        <StatCard
-          label="Overall progress"
-          value={`${s.overallPct}%`}
-          foot={<span>{s.lessonsDone}/{s.totalLessons} lessons</span>}
-        >
-          <div style={{ position: "absolute", top: "1rem", right: "1rem" }}>
-            <ProgressRing value={s.overallPct / 100} size={44} />
-          </div>
-        </StatCard>
-        <StatCard
-          label="Modules"
-          value={`${s.modulesComplete}/${s.totalModules}`}
-          foot={<span>{s.modulesStarted} started</span>}
-        >
-          <div style={{ marginTop: "0.6rem" }}>
-            <Sparkline values={series.length ? series : [0]} />
-          </div>
-        </StatCard>
-        <StatCard
-          label="Time remaining"
-          value={formatMinutes(s.minutesRemaining)}
-          foot={<span>of {formatMinutes(s.minutesTotal)} total</span>}
-        />
-        <StatCard
-          label="Avg quiz score"
-          value={s.avgQuizScore === null ? "—" : `${s.avgQuizScore}%`}
-          foot={<span className={s.avgQuizScore !== null && s.avgQuizScore >= 60 ? "delta up" : "delta down"}>
-            {s.avgQuizScore === null ? "no quizzes yet" : s.avgQuizScore >= 60 ? "passing" : "review"}
-          </span>}
-        />
-      </div>
-
       <div className="dash-body">
         <div className="stat-row">
           <StatCard

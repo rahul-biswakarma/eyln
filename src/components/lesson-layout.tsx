@@ -170,48 +170,48 @@ export function LessonLayout({ data }: { data: LessonRef }) {
     <div className="content lesson">
       <div className="readbar"><i style={{ width: `${readPct * 100}%` }} /></div>
 
-      <header className="lesson-hero prose">
-        <div className="crumbs">
-          <Link to="/">Dashboard</Link>
-          <span>/</span>
-          <Link className="seg" to={lessonPath(module.id, module.lessons[0].id)}>
-            <ModuleIcon id={module.id} size={14} /> {module.title}
-          </Link>
-        </div>
-
-        <div className="lh-kicker">Mission {lessonNumInModule} / {module.lessons.length}</div>
-        <h1 className="lh-title">{lesson.title}</h1>
-        <p className="lh-objective">{lesson.summary}</p>
-
-        <div className="lh-meta">
-          <span className="lh-chip"><Clock size={14} weight="duotone" /> {lesson.minutes} min</span>
-          <span className="lh-chip"><Gauge size={14} weight="duotone" /> {diff.label}</span>
-          {isInteractive && <span className="lh-chip interactive"><Sparkle size={14} weight="fill" /> Interactive</span>}
-          {isDone && <span className="lh-chip done"><CheckCircle size={14} weight="fill" /> Completed</span>}
-          <span className="lh-actions">
-            <Tooltip content={isBookmarked ? "Remove bookmark" : "Bookmark this lesson"}>
-              <button
-                className={"icon-btn" + (isBookmarked ? " on" : "")}
-                onClick={() => toggleBookmark(key)}
-                aria-label="Bookmark lesson"
-              >
-                <BookmarkSimple size={16} weight={isBookmarked ? "fill" : "regular"} />
-              </button>
-            </Tooltip>
-            <Tooltip content="Add a note (select text first to quote it)">
-              <button
-                className="icon-btn"
-                onClick={openNote}
-                aria-label="Add note"
-              >
-                <PencilSimpleLine size={16} weight="regular" />
-              </button>
-            </Tooltip>
-          </span>
-        </div>
-      </header>
-
       <div className="lesson-body-scrollable">
+        <header className="lesson-hero prose">
+          <div className="crumbs">
+            <Link to="/">Dashboard</Link>
+            <span>/</span>
+            <Link className="seg" to={lessonPath(module.id, module.lessons[0].id)}>
+              <ModuleIcon id={module.id} size={14} /> {module.title}
+            </Link>
+          </div>
+
+          <div className="lh-kicker">Mission {lessonNumInModule} / {module.lessons.length}</div>
+          <h1 className="lh-title">{lesson.title}</h1>
+          <p className="lh-objective">{lesson.summary}</p>
+
+          <div className="lh-meta">
+            <span className="lh-chip"><Clock size={14} weight="duotone" /> {lesson.minutes} min</span>
+            <span className="lh-chip"><Gauge size={14} weight="duotone" /> {diff.label}</span>
+            {isInteractive && <span className="lh-chip interactive"><Sparkle size={14} weight="fill" /> Interactive</span>}
+            {isDone && <span className="lh-chip done"><CheckCircle size={14} weight="fill" /> Completed</span>}
+            <span className="lh-actions">
+              <Tooltip content={isBookmarked ? "Remove bookmark" : "Bookmark this lesson"}>
+                <button
+                  className={"icon-btn" + (isBookmarked ? " on" : "")}
+                  onClick={() => toggleBookmark(key)}
+                  aria-label="Bookmark lesson"
+                >
+                  <BookmarkSimple size={16} weight={isBookmarked ? "fill" : "regular"} />
+                </button>
+              </Tooltip>
+              <Tooltip content="Add a note (select text first to quote it)">
+                <button
+                  className="icon-btn"
+                  onClick={openNote}
+                  aria-label="Add note"
+                >
+                  <PencilSimpleLine size={16} weight="regular" />
+                </button>
+              </Tooltip>
+            </span>
+          </div>
+        </header>
+
         <div className="prose lesson-body" ref={bodyRef}>
           <Body />
         </div>
