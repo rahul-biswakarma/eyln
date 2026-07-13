@@ -1,6 +1,6 @@
-/* Practice page — mission workspace, editor, console. */
 
-/* ============ Practice — engineering mission environment ============ */
+
+
 .practice-shell {
   display: grid;
   grid-template-columns: 264px 1fr;
@@ -32,7 +32,7 @@
   }
 }
 
-/* Sidebar */
+
 .practice-sidebar {
   border-right: 1px solid var(--border);
   padding: 1.4rem 1rem;
@@ -42,7 +42,7 @@
   gap: 1.4rem;
 }
 
-/* Practice track switcher */
+
 .track-switch.TabsList {
   display: flex;
   gap: 0.3rem;
@@ -82,7 +82,7 @@
   box-shadow: none;
 }
 
-/* Editorial track-progress panel — mission control */
+
 .track-panel {
   position: relative;
   overflow: hidden;
@@ -102,7 +102,7 @@
   box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4), 0 0 30px rgba(255, 138, 0, 0.14);
 }
 
-/* faint blueprint grid identity */
+
 .tp-grid {
   position: absolute;
   inset: 0;
@@ -322,7 +322,7 @@
   background: var(--bad);
 }
 
-/* Mission split */
+
 .mission {
   position: relative;
   flex: 1;
@@ -488,7 +488,7 @@
   color: var(--text-dim);
 }
 
-/* Workspace */
+
 .mission-workspace {
   background: var(--surface-inset);
 }
@@ -693,7 +693,7 @@
   margin-bottom: 0.6rem;
 }
 
-/* Mission complete celebration */
+
 .mission-complete {
   position: absolute;
   inset: 0;

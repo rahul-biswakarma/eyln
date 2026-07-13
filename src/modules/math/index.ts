@@ -5,12 +5,11 @@ import { mathDerivatives } from "../math-derivatives";
 import { mathIntegrals } from "../math-integrals";
 import { mathCurves } from "../math-curves";
 import { mathVectorCalc } from "../math-vector-calc";
-
 export const mathModules: Module[] = [
-  mathFunctions,
-  mathLimits,
-  mathDerivatives,
-  mathIntegrals,
-  mathCurves,
-  mathVectorCalc,
+    mathFunctions,
+    mathLimits,
+    mathDerivatives,
+    mathIntegrals,
+    mathCurves,
+    mathVectorCalc,
 ];

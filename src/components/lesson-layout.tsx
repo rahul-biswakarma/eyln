@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import {
-  Clock, Gauge, Sparkle, BookmarkSimple, PencilSimpleLine, CheckCircle, ArrowRight, ListChecks,
-} from "@phosphor-icons/react";
+import { Clock, Gauge, Sparkle, BookmarkSimple, PencilSimpleLine, CheckCircle, ArrowRight, ListChecks, } from "@phosphor-icons/react";
 import type { LessonRef } from "../content/registry";
 import { allLessons, lessonPath, lessonKey, questionaryPath, moduleDifficulty } from "../content/registry";
 import { useProgress } from "../lib/progress";
@@ -11,164 +9,146 @@ import { NotePanel } from "./note-panel";
 import { ModuleIcon } from "./module-icon";
 import { useUI } from "../lib/ui";
 import { Tooltip } from "./ui";
-
-export function LessonLayout({ data }: { data: LessonRef }) {
-  const { module, lesson, index } = data;
-  const done = useProgress((s) => s.done);
-  const toggleDone = useProgress((s) => s.toggleDone);
-  const visit = useProgress((s) => s.visit);
-  const bookmarks = useNotes((s) => s.bookmarks);
-  const toggleBookmark = useNotes((s) => s.toggleBookmark);
-  const key = lessonKey(module.id, lesson.id);
-  const isDone = !!done[key];
-  const isBookmarked = !!bookmarks[key];
-  const [readPct, setReadPct] = useState(0);
-  const [noteOpen, setNoteOpen] = useState(false);
-  const [selection, setSelection] = useState<string | undefined>();
-  const [bodyText, setBodyText] = useState("");
-
-  const prev = allLessons[index - 1];
-  const next = allLessons[index + 1];
-  const Body = lesson.Body;
-  const bodyRef = useRef<HTMLDivElement>(null);
-
-  const lessonNumInModule = module.lessons.findIndex((l) => l.id === lesson.id) + 1;
-  const diff = moduleDifficulty(module);
-  const isInteractive = /widget|playground|canvas|demo|editor/i.test(String(Body));
-  const hasQuestions =
-    (lesson.quiz?.questions.length ?? 0) > 0 || (lesson.exercises?.length ?? 0) > 0;
-
-  useEffect(() => { visit(key); }, [key, visit]);
-
-  // Snapshot the rendered lesson prose so the tutor can ground answers in it.
-  useEffect(() => {
-    const text = bodyRef.current?.innerText?.replace(/\s+\n/g, "\n").trim() ?? "";
-    setBodyText(text);
-  }, [key]);
-
-  // Feed the docked tutor this lesson's context.
-  const setTutorContext = useUI((s) => s.setTutorContext);
-  const setCurrentParagraph = useUI((s) => s.setCurrentParagraph);
-  const setCurrentExercise = useUI((s) => s.setCurrentExercise);
-  const setSelectedText = useUI((s) => s.setSelectedText);
-
-  useEffect(() => {
-    setTutorContext({
-      scope: "lesson",
-      title: lesson.title,
-      summary: lesson.summary,
-      body: bodyText,
-      sourceId: key,
-    });
-  }, [key, lesson.title, lesson.summary, bodyText, setTutorContext]);
-
-  useEffect(() => {
-    return () => {
-      setTutorContext(null);
-      setCurrentParagraph(null);
-      setCurrentExercise(null);
-      setSelectedText(null);
-    };
-  }, [key, setTutorContext, setCurrentParagraph, setCurrentExercise, setSelectedText]);
-
-  // Selection change observer
-  useEffect(() => {
-    const handleSelection = () => {
-      const sel = window.getSelection();
-      if (!sel) {
-        setSelectedText(null);
-        return;
-      }
-      const text = sel.toString().trim();
-      const range = sel.rangeCount > 0 ? sel.getRangeAt(0) : null;
-      if (text && range && bodyRef.current?.contains(range.commonAncestorContainer)) {
-        setSelectedText(text);
-      } else {
-        setSelectedText(null);
-      }
-    };
-    document.addEventListener("selectionchange", handleSelection);
-    return () => {
-      document.removeEventListener("selectionchange", handleSelection);
-    };
-  }, [setSelectedText]);
-
-  useEffect(() => {
-    const root = bodyRef.current;
-    if (!root) return;
-    const blocks = Array.from(root.children) as HTMLElement[];
-    if (!("IntersectionObserver" in window)) return;
-    const io = new IntersectionObserver(
-      (entries) => {
-        for (const e of entries) {
-          if (e.isIntersecting) {
-            e.target.classList.add("revealed");
-            io.unobserve(e.target);
-          }
-        }
-      },
-      { rootMargin: "0px 0px -8% 0px", threshold: 0.05 }
-    );
-    blocks.forEach((b) => { b.classList.add("reveal"); io.observe(b); });
-    return () => io.disconnect();
-  }, [key]);
-
-  useEffect(() => {
-    const onScroll = () => {
-      const h = document.documentElement;
-      const max = h.scrollHeight - h.clientHeight;
-      setReadPct(max > 0 ? Math.min(1, h.scrollTop / max) : 0);
-
-      // Track paragraph position
-      if (!bodyRef.current) return;
-      const paragraphs = Array.from(bodyRef.current.querySelectorAll("p"));
-      let activeIdx = 0;
-      for (let i = 0; i < paragraphs.length; i++) {
-        const rect = paragraphs[i].getBoundingClientRect();
-        if (rect.top <= 250) {
-          activeIdx = i + 1;
-        } else {
-          break;
-        }
-      }
-      if (activeIdx > 0) {
-        setCurrentParagraph(`Paragraph ${activeIdx}`);
-      } else {
-        setCurrentParagraph("Paragraph 1");
-      }
-
-      // Track exercise/quiz in view
-      const questions = Array.from(bodyRef.current.querySelectorAll(".kc-card, .quiz-card, .exercise, .code-challenge"));
-      let activeExName: string | null = null;
-      for (let i = 0; i < questions.length; i++) {
-        const rect = questions[i].getBoundingClientRect();
-        if (rect.top < window.innerHeight - 100 && rect.bottom > 100) {
-          const header = questions[i].querySelector(".kc-eyebrow, .quiz-eyebrow, h3, h4");
-          activeExName = header?.textContent?.trim() || `Exercise ${i + 1}`;
-          break;
-        }
-      }
-      setCurrentExercise(activeExName);
-    };
-
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
-  }, [key, setCurrentParagraph, setCurrentExercise]);
-
-  function openNote() {
-    const sel = window.getSelection?.()?.toString().trim();
-    setSelection(sel && sel.length > 0 ? sel : undefined);
-    setNoteOpen(true);
-  }
-
-  return (
-    <div className="content lesson">
-      <div className="readbar"><i style={{ width: `${readPct * 100}%` }} /></div>
+export function LessonLayout({ data }: {
+    data: LessonRef;
+}) {
+    const { module, lesson, index } = data;
+    const done = useProgress((s) => s.done);
+    const toggleDone = useProgress((s) => s.toggleDone);
+    const visit = useProgress((s) => s.visit);
+    const bookmarks = useNotes((s) => s.bookmarks);
+    const toggleBookmark = useNotes((s) => s.toggleBookmark);
+    const key = lessonKey(module.id, lesson.id);
+    const isDone = !!done[key];
+    const isBookmarked = !!bookmarks[key];
+    const [readPct, setReadPct] = useState(0);
+    const [noteOpen, setNoteOpen] = useState(false);
+    const [selection, setSelection] = useState<string | undefined>();
+    const [bodyText, setBodyText] = useState("");
+    const prev = allLessons[index - 1];
+    const next = allLessons[index + 1];
+    const Body = lesson.Body;
+    const bodyRef = useRef<HTMLDivElement>(null);
+    const lessonNumInModule = module.lessons.findIndex((l) => l.id === lesson.id) + 1;
+    const diff = moduleDifficulty(module);
+    const isInteractive = /widget|playground|canvas|demo|editor/i.test(String(Body));
+    const hasQuestions = (lesson.quiz?.questions.length ?? 0) > 0 || (lesson.exercises?.length ?? 0) > 0;
+    useEffect(() => { visit(key); }, [key, visit]);
+    useEffect(() => {
+        const text = bodyRef.current?.innerText?.replace(/\s+\n/g, "\n").trim() ?? "";
+        setBodyText(text);
+    }, [key]);
+    const setTutorContext = useUI((s) => s.setTutorContext);
+    const setCurrentParagraph = useUI((s) => s.setCurrentParagraph);
+    const setCurrentExercise = useUI((s) => s.setCurrentExercise);
+    const setSelectedText = useUI((s) => s.setSelectedText);
+    useEffect(() => {
+        setTutorContext({
+            scope: "lesson",
+            title: lesson.title,
+            summary: lesson.summary,
+            body: bodyText,
+            sourceId: key,
+        });
+    }, [key, lesson.title, lesson.summary, bodyText, setTutorContext]);
+    useEffect(() => {
+        return () => {
+            setTutorContext(null);
+            setCurrentParagraph(null);
+            setCurrentExercise(null);
+            setSelectedText(null);
+        };
+    }, [key, setTutorContext, setCurrentParagraph, setCurrentExercise, setSelectedText]);
+    useEffect(() => {
+        const handleSelection = () => {
+            const sel = window.getSelection();
+            if (!sel) {
+                setSelectedText(null);
+                return;
+            }
+            const text = sel.toString().trim();
+            const range = sel.rangeCount > 0 ? sel.getRangeAt(0) : null;
+            if (text && range && bodyRef.current?.contains(range.commonAncestorContainer)) {
+                setSelectedText(text);
+            }
+            else {
+                setSelectedText(null);
+            }
+        };
+        document.addEventListener("selectionchange", handleSelection);
+        return () => {
+            document.removeEventListener("selectionchange", handleSelection);
+        };
+    }, [setSelectedText]);
+    useEffect(() => {
+        const root = bodyRef.current;
+        if (!root)
+            return;
+        const blocks = Array.from(root.children) as HTMLElement[];
+        if (!("IntersectionObserver" in window))
+            return;
+        const io = new IntersectionObserver((entries) => {
+            for (const e of entries) {
+                if (e.isIntersecting) {
+                    e.target.classList.add("revealed");
+                    io.unobserve(e.target);
+                }
+            }
+        }, { rootMargin: "0px 0px -8% 0px", threshold: 0.05 });
+        blocks.forEach((b) => { b.classList.add("reveal"); io.observe(b); });
+        return () => io.disconnect();
+    }, [key]);
+    useEffect(() => {
+        const onScroll = () => {
+            const h = document.documentElement;
+            const max = h.scrollHeight - h.clientHeight;
+            setReadPct(max > 0 ? Math.min(1, h.scrollTop / max) : 0);
+            if (!bodyRef.current)
+                return;
+            const paragraphs = Array.from(bodyRef.current.querySelectorAll("p"));
+            let activeIdx = 0;
+            for (let i = 0; i < paragraphs.length; i++) {
+                const rect = paragraphs[i].getBoundingClientRect();
+                if (rect.top <= 250) {
+                    activeIdx = i + 1;
+                }
+                else {
+                    break;
+                }
+            }
+            if (activeIdx > 0) {
+                setCurrentParagraph(`Paragraph ${activeIdx}`);
+            }
+            else {
+                setCurrentParagraph("Paragraph 1");
+            }
+            const questions = Array.from(bodyRef.current.querySelectorAll(".kc-card, .quiz-card, .exercise, .code-challenge"));
+            let activeExName: string | null = null;
+            for (let i = 0; i < questions.length; i++) {
+                const rect = questions[i].getBoundingClientRect();
+                if (rect.top < window.innerHeight - 100 && rect.bottom > 100) {
+                    const header = questions[i].querySelector(".kc-eyebrow, .quiz-eyebrow, h3, h4");
+                    activeExName = header?.textContent?.trim() || `Exercise ${i + 1}`;
+                    break;
+                }
+            }
+            setCurrentExercise(activeExName);
+        };
+        onScroll();
+        window.addEventListener("scroll", onScroll, { passive: true });
+        window.addEventListener("resize", onScroll);
+        return () => {
+            window.removeEventListener("scroll", onScroll);
+            window.removeEventListener("resize", onScroll);
+        };
+    }, [key, setCurrentParagraph, setCurrentExercise]);
+    function openNote() {
+        const sel = window.getSelection?.()?.toString().trim();
+        setSelection(sel && sel.length > 0 ? sel : undefined);
+        setNoteOpen(true);
+    }
+    return (<div className="content lesson">
+      <div className="readbar"><i style={{ width: `${readPct * 100}%` }}/></div>
 
       <div className="lesson-body-scrollable">
         <header className="lesson-hero prose">
@@ -176,7 +156,7 @@ export function LessonLayout({ data }: { data: LessonRef }) {
             <Link to="/">Dashboard</Link>
             <span>/</span>
             <Link className="seg" to={lessonPath(module.id, module.lessons[0].id)}>
-              <ModuleIcon id={module.id} size={14} /> {module.title}
+              <ModuleIcon id={module.id} size={14}/> {module.title}
             </Link>
           </div>
 
@@ -185,27 +165,19 @@ export function LessonLayout({ data }: { data: LessonRef }) {
           <p className="lh-objective">{lesson.summary}</p>
 
           <div className="lh-meta">
-            <span className="lh-chip"><Clock size={14} weight="duotone" /> {lesson.minutes} min</span>
-            <span className="lh-chip"><Gauge size={14} weight="duotone" /> {diff.label}</span>
-            {isInteractive && <span className="lh-chip interactive"><Sparkle size={14} weight="fill" /> Interactive</span>}
-            {isDone && <span className="lh-chip done"><CheckCircle size={14} weight="fill" /> Completed</span>}
+            <span className="lh-chip"><Clock size={14} weight="duotone"/> {lesson.minutes} min</span>
+            <span className="lh-chip"><Gauge size={14} weight="duotone"/> {diff.label}</span>
+            {isInteractive && <span className="lh-chip interactive"><Sparkle size={14} weight="fill"/> Interactive</span>}
+            {isDone && <span className="lh-chip done"><CheckCircle size={14} weight="fill"/> Completed</span>}
             <span className="lh-actions">
               <Tooltip content={isBookmarked ? "Remove bookmark" : "Bookmark this lesson"}>
-                <button
-                  className={"icon-btn" + (isBookmarked ? " on" : "")}
-                  onClick={() => toggleBookmark(key)}
-                  aria-label="Bookmark lesson"
-                >
-                  <BookmarkSimple size={16} weight={isBookmarked ? "fill" : "regular"} />
+                <button className={"icon-btn" + (isBookmarked ? " on" : "")} onClick={() => toggleBookmark(key)} aria-label="Bookmark lesson">
+                  <BookmarkSimple size={16} weight={isBookmarked ? "fill" : "regular"}/>
                 </button>
               </Tooltip>
               <Tooltip content="Add a note (select text first to quote it)">
-                <button
-                  className="icon-btn"
-                  onClick={openNote}
-                  aria-label="Add note"
-                >
-                  <PencilSimpleLine size={16} weight="regular" />
+                <button className="icon-btn" onClick={openNote} aria-label="Add note">
+                  <PencilSimpleLine size={16} weight="regular"/>
                 </button>
               </Tooltip>
             </span>
@@ -216,10 +188,9 @@ export function LessonLayout({ data }: { data: LessonRef }) {
           <Body />
         </div>
 
-        {hasQuestions && (
-          <div className="prose lesson-section">
+        {hasQuestions && (<div className="prose lesson-section">
             <Link className="qn-cta" to={questionaryPath(module.id)}>
-              <span className="qn-cta-ic"><ListChecks size={22} weight="duotone" /></span>
+              <span className="qn-cta-ic"><ListChecks size={22} weight="duotone"/></span>
               <span className="qn-cta-body">
                 <span className="qn-cta-title">Practice in the Questionary</span>
                 <span className="qn-cta-sub">
@@ -227,14 +198,13 @@ export function LessonLayout({ data }: { data: LessonRef }) {
                   like an end-of-chapter problem set.
                 </span>
               </span>
-              <ArrowRight size={16} weight="bold" />
+              <ArrowRight size={16} weight="bold"/>
             </Link>
-          </div>
-        )}
+          </div>)}
 
         <div className="prose lesson-summary">
           <div className={"ls-card" + (isDone ? " done" : "")}>
-            <div className="ls-icon"><CheckCircle size={28} weight={isDone ? "fill" : "duotone"} /></div>
+            <div className="ls-icon"><CheckCircle size={28} weight={isDone ? "fill" : "duotone"}/></div>
             <div className="ls-body">
               <h3>{isDone ? "Mission accomplished" : "Ready to lock it in?"}</h3>
               <p>{isDone ? "You've completed this mission. Carry the momentum forward." : "Mark this mission complete once the concept clicks."}</p>
@@ -245,31 +215,18 @@ export function LessonLayout({ data }: { data: LessonRef }) {
           </div>
 
           <div className="lesson-nav">
-            {prev ? (
-              <Link className="prev" to={lessonPath(prev.module.id, prev.lesson.id)}>
+            {prev ? (<Link className="prev" to={lessonPath(prev.module.id, prev.lesson.id)}>
                 <div className="k">← previous</div>
                 <div className="t">{prev.lesson.title}</div>
-              </Link>
-            ) : <span />}
-            {next ? (
-              <Link className="next" to={lessonPath(next.module.id, next.lesson.id)}>
+              </Link>) : <span />}
+            {next ? (<Link className="next" to={lessonPath(next.module.id, next.lesson.id)}>
                 <div className="k">next mission</div>
-                <div className="t">{next.lesson.title} <ArrowRight size={14} weight="bold" /></div>
-              </Link>
-            ) : <span />}
+                <div className="t">{next.lesson.title} <ArrowRight size={14} weight="bold"/></div>
+              </Link>) : <span />}
           </div>
         </div>
       </div>
 
-      {noteOpen && (
-        <NotePanel
-          lessonKey={key}
-          moduleId={module.id}
-          lessonTitle={lesson.title}
-          selection={selection}
-          onClose={() => setNoteOpen(false)}
-        />
-      )}
-    </div>
-  );
+      {noteOpen && (<NotePanel lessonKey={key} moduleId={module.id} lessonTitle={lesson.title} selection={selection} onClose={() => setNoteOpen(false)}/>)}
+    </div>);
 }

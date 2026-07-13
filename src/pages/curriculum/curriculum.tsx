@@ -1,15 +1,13 @@
-import { modulesForTrack } from "../content/registry";
-import { tracks } from "../content/tracks";
-import { ModuleCard } from "../components/module-card";
-import { TrackIcon } from "../components/module-icon";
-import { useProgress } from "../lib/progress";
-import { computeStats } from "../lib/stats";
-
+import { modulesForTrack } from "../../content/registry";
+import { tracks } from "../../content/tracks";
+import { ModuleCard } from "../../components/module-card";
+import { TrackIcon } from "../../components/module-icon";
+import { useProgress } from "../../lib/progress";
+import { computeStats } from "../../lib/stats";
 export function Curriculum() {
-  const done = useProgress((s) => s.done);
-  const s = computeStats(done);
-  return (
-    <div className="dash">
+    const done = useProgress((s) => s.done);
+    const s = computeStats(done);
+    return (<div className="dash">
       <div className="dash-head">
         <div>
           <div className="eyebrow">Flight Plan</div>
@@ -30,12 +28,12 @@ export function Curriculum() {
         </div>
 
         {tracks.map((track) => {
-          const trackModules = modulesForTrack(track.id);
-          if (trackModules.length === 0) return null;
-          return (
-            <section key={track.id} className="track-section" style={{ "--track-accent": track.accent } as React.CSSProperties}>
+            const trackModules = modulesForTrack(track.id);
+            if (trackModules.length === 0)
+                return null;
+            return (<section key={track.id} className="track-section" style={{ "--track-accent": track.accent } as React.CSSProperties}>
               <div className="track-header">
-                <span className="track-glyph"><TrackIcon id={track.id} size={24} /></span>
+                <span className="track-glyph"><TrackIcon id={track.id} size={24}/></span>
                 <div>
                   <h2>{track.title}</h2>
                   <p>{track.blurb}</p>
@@ -43,14 +41,10 @@ export function Curriculum() {
                 <span className="track-count">{trackModules.length} modules</span>
               </div>
               <div className="mod-grid">
-                {trackModules.map((m) => (
-                  <ModuleCard key={m.id} module={m} highlight={s.nextRef?.module.id === m.id} />
-                ))}
+                {trackModules.map((m) => (<ModuleCard key={m.id} module={m} highlight={s.nextRef?.module.id === m.id}/>))}
               </div>
-            </section>
-          );
+            </section>);
         })}
       </div>
-    </div>
-  );
+    </div>);
 }

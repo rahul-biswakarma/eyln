@@ -1,10 +1,8 @@
-/* AI Companion / Tutor docked workspace panel. */
 
-/* ============================================================================
-   AI Tutor — docked right-hand column (not floating). Collapses to a slim rail.
-   ========================================================================== */
-/* Collapsed rail — a slim clickable strip docked on the right. */
-/* Collapsed floating pill button. */
+
+
+
+
 .tutor-rail-floating {
   position: fixed;
   bottom: 24px;
@@ -77,7 +75,7 @@
   }
 }
 
-/* ============ Premium AI Companion Workspace ============ */
+
 .comp-header {
   padding: 1.6rem 1.6rem 1.2rem;
   display: flex;
@@ -189,7 +187,7 @@
   min-height: 0;
 }
 
-/* Mentor Welcome View */
+
 .mentor-welcome {
   display: flex;
   flex-direction: column;
@@ -263,7 +261,7 @@
   color: var(--text-faint);
 }
 
-/* Timeline & Journey in KB Mode */
+
 .kb-search-box {
   position: relative;
   margin-bottom: 1.2rem;
@@ -383,7 +381,7 @@
   color: var(--text-faint);
 }
 
-/* Notebook Cards in KB Mode */
+
 .kb-pinned-note,
 .kb-user-note {
   background: var(--surface-card);
@@ -499,7 +497,7 @@
   margin: 0;
 }
 
-/* Notebook Blocks Stream styling */
+
 .tp-notebook-stream {
   display: flex;
   flex-direction: column;
@@ -623,7 +621,7 @@
   align-self: flex-start;
 }
 
-/* Bottom Context Meta Tray */
+
 .comp-context-tray {
   border-top: 1px solid var(--border);
   padding: 0.6rem 1rem;
@@ -658,7 +656,7 @@
   font-style: italic;
 }
 
-/* Bottom Integrated Input Area */
+
 .comp-input-area {
   padding: 0.8rem 1rem 1rem;
   border-top: 1px solid var(--border);

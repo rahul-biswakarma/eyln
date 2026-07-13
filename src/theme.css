@@ -1,6 +1,4 @@
-/* Aggregator — imports the split stylesheet. Order matters: tokens and shared
-   primitives first, then shell layout, then components/pages that may override
-   or extend them. See src/styles/, src/components/*.css, src/pages/*.css. */
+
 
 @import "./styles/tokens.css";
 @import "./styles/primitives.css";
@@ -27,9 +25,9 @@
 @import "./components/stat-card.css";
 @import "./components/progress-ring.css";
 
-@import "./pages/dashboard.css";
-@import "./pages/curriculum.css";
-@import "./pages/profile.css";
-@import "./pages/practice.css";
-@import "./pages/questionary.css";
-@import "./pages/knowledge.css";
+@import "./pages/dashboard/dashboard.css";
+@import "./pages/curriculum/curriculum.css";
+@import "./pages/profile/profile.css";
+@import "./pages/practice/practice.css";
+@import "./pages/questionary/questionary.css";
+@import "./pages/knowledge/knowledge.css";

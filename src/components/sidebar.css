@@ -1,10 +1,10 @@
-/* Lesson sidebar — vertical skill tree. */
+
 
 .side-track-label .tg svg {
   vertical-align: -0.2em;
 }
 
-/* ============ Sidebar — vertical skill tree ============ */
+
 .skill-tree {
   --track-accent: var(--accent);
 }
@@ -22,7 +22,7 @@
   min-width: 0;
 }
 
-/* Collapse toggle (both expanded header + collapsed rail) */
+
 .st-collapse {
   flex: none;
   display: grid;
@@ -86,7 +86,7 @@
   transition: color var(--dur) var(--ease);
 }
 
-/* timeline connector between markers */
+
 .st-node:not(:last-child) .st-marker::after {
   content: "";
   position: absolute;
@@ -216,7 +216,7 @@
   flex: none;
 }
 
-/* Sidebar track grouping */
+
 .side-track {
   --track-accent: var(--accent);
   margin-bottom: 1.6rem;

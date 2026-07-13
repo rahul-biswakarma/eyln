@@ -1,15 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { initWebGPU, resizeToDisplay, startLoop, webgpuSupported } from "../engine/webgpu/gpu";
-
 const DEFAULT_FRAG = `// Fragment shader — runs once per pixel.
 // 'uv' is 0..1 across the canvas, 't' is seconds. Return an RGB color.
 fn shade(uv : vec2<f32>, t : f32) -> vec3<f32> {
   let c = 0.5 + 0.5 * cos(t + uv.xyx * 6.0 + vec3<f32>(0.0, 2.0, 4.0));
   return c;
 }`;
-
 function buildWGSL(userBody: string): string {
-  return  `
+    return `
 struct U { t : f32, aspect : f32 };
 @group(0) @binding(0) var<uniform> u : U;
 
@@ -28,93 +26,84 @@ fn fs(@builtin(position) frag : vec4<f32>) -> @location(0) vec4<f32> {
 }
 `;
 }
-
-/** Edit a WGSL fragment shader; recompile on the fly and see it on a canvas. */
 export function ShaderEditor() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [src, setSrc] = useState(DEFAULT_FRAG);
-  const [status, setStatus] = useState<string>("compiling…");
-  const rebuildRef = useRef<((body: string) => Promise<void>) | null>(null);
-
-  useEffect(() => {
-    if (!webgpuSupported()) { setStatus("WebGPU not available"); return; }
-    const canvas = canvasRef.current!;
-    let stop: (() => void) | null = null;
-    let disposed = false;
-
-    initWebGPU(canvas).then((gpu) => {
-      if (disposed) { gpu.device.destroy(); return; }
-      const { device, context, format } = gpu;
-      const ubuf = device.createBuffer({ size: 16, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST });
-      let pipeline: GPURenderPipeline | null = null;
-      let bind: GPUBindGroup | null = null;
-
-      async function rebuild(body: string) {
-        const code = buildWGSL(body);
-        const module = device.createShaderModule({ code });
-        const info = await module.getCompilationInfo();
-        const errs = info.messages.filter((m) => m.type === "error");
-        if (errs.length) {
-          setStatus("✗ " + errs.map((e) => `line ${e.lineNum}: ${e.message}`).join(" · "));
-          return;
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const [src, setSrc] = useState(DEFAULT_FRAG);
+    const [status, setStatus] = useState<string>("compiling…");
+    const rebuildRef = useRef<((body: string) => Promise<void>) | null>(null);
+    useEffect(() => {
+        if (!webgpuSupported()) {
+            setStatus("WebGPU not available");
+            return;
         }
-        const p = device.createRenderPipeline({
-          layout: "auto",
-          vertex: { module, entryPoint: "vs" },
-          fragment: { module, entryPoint: "fs", targets: [{ format }] },
-          primitive: { topology: "triangle-list" },
-        });
-        pipeline = p;
-        bind = device.createBindGroup({ layout: p.getBindGroupLayout(0), entries: [{ binding: 0, resource: { buffer: ubuf } }] });
-        setStatus("✓ compiled");
-      }
-      rebuildRef.current = rebuild;
-      rebuild(src);
-
-      const loop = startLoop((t) => {
-        const [w, h] = resizeToDisplay(canvas);
-        if (!pipeline || !bind) return;
-        device.queue.writeBuffer(ubuf, 0, new Float32Array([t, w / h]));
-        const enc = device.createCommandEncoder();
-        const pass = enc.beginRenderPass({
-          colorAttachments: [{
-            view: context.getCurrentTexture().createView(),
-            clearValue: { r: 0, g: 0, b: 0, a: 1 }, loadOp: "clear", storeOp: "store",
-          }],
-        });
-        pass.setPipeline(pipeline); pass.setBindGroup(0, bind); pass.draw(3); pass.end();
-        device.queue.submit([enc.finish()]);
-      });
-      stop = () => { loop.stop(); ubuf.destroy(); };
-    }).catch((e) => setStatus(String(e.message ?? e)));
-
-    return () => { disposed = true; stop?.(); };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Debounced recompile as the user types.
-  useEffect(() => {
-    const id = setTimeout(() => rebuildRef.current?.(src), 400);
-    return () => clearTimeout(id);
-  }, [src]);
-
-  return (
-    <div className="widget">
-      <div className="wtitle"><span className="dotlive" /> Live shader · edit and watch it recompile</div>
+        const canvas = canvasRef.current!;
+        let stop: (() => void) | null = null;
+        let disposed = false;
+        initWebGPU(canvas).then((gpu) => {
+            if (disposed) {
+                gpu.device.destroy();
+                return;
+            }
+            const { device, context, format } = gpu;
+            const ubuf = device.createBuffer({ size: 16, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST });
+            let pipeline: GPURenderPipeline | null = null;
+            let bind: GPUBindGroup | null = null;
+            async function rebuild(body: string) {
+                const code = buildWGSL(body);
+                const module = device.createShaderModule({ code });
+                const info = await module.getCompilationInfo();
+                const errs = info.messages.filter((m) => m.type === "error");
+                if (errs.length) {
+                    setStatus("✗ " + errs.map((e) => `line ${e.lineNum}: ${e.message}`).join(" · "));
+                    return;
+                }
+                const p = device.createRenderPipeline({
+                    layout: "auto",
+                    vertex: { module, entryPoint: "vs" },
+                    fragment: { module, entryPoint: "fs", targets: [{ format }] },
+                    primitive: { topology: "triangle-list" },
+                });
+                pipeline = p;
+                bind = device.createBindGroup({ layout: p.getBindGroupLayout(0), entries: [{ binding: 0, resource: { buffer: ubuf } }] });
+                setStatus("✓ compiled");
+            }
+            rebuildRef.current = rebuild;
+            rebuild(src);
+            const loop = startLoop((t) => {
+                const [w, h] = resizeToDisplay(canvas);
+                if (!pipeline || !bind)
+                    return;
+                device.queue.writeBuffer(ubuf, 0, new Float32Array([t, w / h]));
+                const enc = device.createCommandEncoder();
+                const pass = enc.beginRenderPass({
+                    colorAttachments: [{
+                            view: context.getCurrentTexture().createView(),
+                            clearValue: { r: 0, g: 0, b: 0, a: 1 }, loadOp: "clear", storeOp: "store",
+                        }],
+                });
+                pass.setPipeline(pipeline);
+                pass.setBindGroup(0, bind);
+                pass.draw(3);
+                pass.end();
+                device.queue.submit([enc.finish()]);
+            });
+            stop = () => { loop.stop(); ubuf.destroy(); };
+        }).catch((e) => setStatus(String(e.message ?? e)));
+        return () => { disposed = true; stop?.(); };
+    }, []);
+    useEffect(() => {
+        const id = setTimeout(() => rebuildRef.current?.(src), 400);
+        return () => clearTimeout(id);
+    }, [src]);
+    return (<div className="widget">
+      <div className="wtitle"><span className="dotlive"/> Live shader · edit and watch it recompile</div>
       <div className="wbody">
-        <canvas ref={canvasRef} style={{ width: "100%", aspectRatio: "16 / 9", height: "auto", marginBottom: "1rem" }} />
-        <textarea
-          className="code-input"
-          value={src}
-          onChange={(e) => setSrc(e.target.value)}
-          spellCheck={false}
-          rows={8}
-        />
+        <canvas ref={canvasRef} style={{ width: "100%", aspectRatio: "16 / 9", height: "auto", marginBottom: "1rem" }}/>
+        <textarea className="code-input" value={src} onChange={(e) => setSrc(e.target.value)} spellCheck={false} rows={8}/>
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontFamily: "var(--mono)", fontSize: "0.76rem", marginTop: "0.7rem", color: status.startsWith("✓") ? "var(--good)" : "var(--bad)" }}>
-          <span style={{ width: 6, height: 6, borderRadius: "50%", background: "currentColor", boxShadow: "0 0 6px currentColor" }} />
+          <span style={{ width: 6, height: 6, borderRadius: "50%", background: "currentColor", boxShadow: "0 0 6px currentColor" }}/>
           {status}
         </div>
       </div>
-    </div>
-  );
+    </div>);
 }

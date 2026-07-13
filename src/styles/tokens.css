@@ -1,20 +1,16 @@
-/* Design tokens — CSS variables, resets, base typography. */
 
-/* Eyln — Industrial Engineering Academy
-   A premium, cinematic graphics-engineering workstation. Layered warm-dark
-   surfaces machined like control panels, hairline borders, restrained amber
-   highlights over near-black. Space Grotesk headings, Inter body. Every screen
-   reads like a subsystem of a rendering engine coming online. */
+
+
 :root {
-  /* Core palette — warm industrial dark */
+  
   --bg: #0B0B0E;
-  /* page */
+  
   --surface: #13161D;
-  /* base surface / control panel */
+  
   --surface-2: #1A1F29;
-  /* elevated surface */
+  
   --surface-inset: #0C0D11;
-  /* wells, code, inputs */
+  
 
   --border: rgba(255, 255, 255, 0.08);
   --border-bright: rgba(255, 255, 255, 0.14);
@@ -25,13 +21,13 @@
   --text-faint: #6E7383;
 
   --accent: #FFB000;
-  /* amber */
+  
   --accent-2: #FF8A00;
-  /* deep orange */
+  
   --highlight: #FFD35C;
-  /* warm highlight */
+  
   --on-accent: #1A1205;
-  /* text on amber fills */
+  
   --accent-soft: rgba(255, 176, 0, 0.12);
   --accent-line: linear-gradient(90deg, #FFB000, #FF8A00);
   --accent-grad: linear-gradient(150deg, #FFD35C 0%, #FFB000 42%, #FF8A00 100%);
@@ -41,7 +37,7 @@
   --warn: #FFD35C;
   --bad: #FF5C5C;
 
-  /* legacy aliases so existing components keep resolving */
+  
   --panel: var(--surface);
   --bg-raised: var(--surface);
   --bg-raised-2: var(--surface-2);
@@ -85,7 +81,7 @@ body {
   overflow-x: hidden;
 }
 
-/* Hide scrollbars everywhere while keeping scroll behavior. */
+
 * {
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -107,7 +103,7 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 
-  /* Near-black base + warm amber glow from the top edge + faint machined grid */
+  
   background-color: var(--bg);
   background-image:
     radial-gradient(1100px 720px at 84% -10%, rgba(255, 138, 0, 0.10), transparent 62%),

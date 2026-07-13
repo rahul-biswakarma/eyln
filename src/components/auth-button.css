@@ -1,6 +1,6 @@
-/* Auth avatar button + account menu. */
 
-/* ============ Auth ============ */
+
+
 .auth-wrap {
   position: relative;
 }
@@ -72,7 +72,7 @@
   }
 }
 
-/* small pointer bridging the gap so the menu reads as attached-but-floating */
+
 .auth-menu::before {
   content: "";
   position: absolute;

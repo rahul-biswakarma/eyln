@@ -7,14 +7,13 @@ import { dsaTrees } from "../dsa-trees";
 import { dsaGraphs } from "../dsa-graphs";
 import { dsaSorting } from "../dsa-sorting";
 import { dsaRecursion } from "../dsa-recursion";
-
 export const dsaModules: Module[] = [
-  dsaComplexity,
-  dsaArrays,
-  dsaHashing,
-  dsaLinear,
-  dsaTrees,
-  dsaGraphs,
-  dsaSorting,
-  dsaRecursion,
+    dsaComplexity,
+    dsaArrays,
+    dsaHashing,
+    dsaLinear,
+    dsaTrees,
+    dsaGraphs,
+    dsaSorting,
+    dsaRecursion,
 ];

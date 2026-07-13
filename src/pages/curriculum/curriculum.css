@@ -1,6 +1,6 @@
-/* Curriculum page — track sections + module grid. */
 
-/* ============ Track sections ============ */
+
+
 .track-section {
   --track-accent: var(--accent);
   margin-top: 3rem;
@@ -73,7 +73,7 @@
   }
 }
 
-/* ============ Module cards — minimal, premium ============ */
+
 .mod-grid {
   display: grid;
   gap: 1.25rem;

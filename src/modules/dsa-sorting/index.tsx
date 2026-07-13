@@ -1,10 +1,8 @@
 import type { Module } from "../../content/types";
 import { M, MBlock } from "../../components/math";
 import { Code, CodeTabs } from "../../components/code-block";
-
 function BinarySearch() {
-  return (
-    <div className="prose">
+    return (<div className="prose">
       <p>
         <strong>Binary search</strong> finds a target in a <em>sorted</em> array by repeatedly halving the
         search space. You track a range <M>{`[\\text{lo}, \\text{hi}]`}</M> that is guaranteed to contain the
@@ -17,10 +15,7 @@ function BinarySearch() {
         <strong> invariant</strong> and be consistent about whether your range is inclusive on both ends and
         whether <code>mid</code> has been ruled out.
       </p>
-      <Code
-        lang="ts"
-        filename="bsearch.ts"
-        code={`// Inclusive range [lo, hi]. Loop while the range is non-empty.
+      <Code lang="ts" filename="bsearch.ts" code={`// Inclusive range [lo, hi]. Loop while the range is non-empty.
 function binarySearch(a: number[], target: number): number {
   let lo = 0, hi = a.length - 1;
   while (lo <= hi) {                       // <= because hi is inclusive
@@ -30,8 +25,7 @@ function binarySearch(a: number[], target: number): number {
     else hi = mid - 1;                     // mid ruled out, go left
   }
   return -1;                                // not found
-}`}
-      />
+}`}/>
       <p>
         Two details prevent classic bugs. Computing <code>mid</code> as <code>lo + (hi - lo) / 2</code> rather
         than <code>(lo + hi) / 2</code> avoids integer overflow in fixed-width languages. And every branch
@@ -84,13 +78,10 @@ function binarySearch(a: number[], target: number): number {
         returns wrong answers. If you search once, a linear scan at <M>{`O(n)`}</M> may beat sorting first at
         <M>{` O(n \\log n)`}</M>.
       </div>
-    </div>
-  );
+    </div>);
 }
-
 function QuadraticSorts() {
-  return (
-    <div className="prose">
+    return (<div className="prose">
       <p>
         The two simplest sorts both run in <M>{`O(n^2)`}</M>, yet they are not useless — they win in specific
         situations, which is exactly why they are worth understanding.
@@ -107,10 +98,7 @@ function QuadraticSorts() {
           sorted data</strong> and has tiny constant factors.
         </li>
       </ul>
-      <Code
-        lang="ts"
-        filename="insertion.ts"
-        code={`function insertionSort(a: number[]): void {
+      <Code lang="ts" filename="insertion.ts" code={`function insertionSort(a: number[]): void {
   for (let i = 1; i < a.length; i++) {
     const key = a[i];
     let j = i - 1;
@@ -120,8 +108,7 @@ function QuadraticSorts() {
     }
     a[j + 1] = key;                  // drop key into the gap
   }
-}`}
-      />
+}`}/>
       <p>
         Insertion sort's near-sorted speed is why it is the base case inside industrial sorts: below a
         threshold (often ~16 elements), Timsort and introsort switch to insertion sort because its low
@@ -166,13 +153,10 @@ function QuadraticSorts() {
         cost of <M>{`O(n)`}</M> extra space for the indices, which is exactly the trade-off in-place algorithms
         are trying to avoid.
       </p>
-    </div>
-  );
+    </div>);
 }
-
 function MergeSort() {
-  return (
-    <div className="prose">
+    return (<div className="prose">
       <p>
         <strong>Merge sort</strong> is the archetype of <strong>divide and conquer</strong>: split the array in
         half, sort each half recursively, then <strong>merge</strong> the two sorted halves into one. Merging
@@ -180,23 +164,22 @@ function MergeSort() {
         depth <M>{`\\log n`}</M>, giving the recurrence:
       </p>
       <MBlock>{`T(n) = 2\\,T(n/2) + O(n) = O(n \\log n)`}</MBlock>
-      <CodeTabs
-        tabs={[
-          {
-            label: "merge sort",
-            lang: "ts",
-            code: `function mergeSort(a: number[]): number[] {
+      <CodeTabs tabs={[
+            {
+                label: "merge sort",
+                lang: "ts",
+                code: `function mergeSort(a: number[]): number[] {
   if (a.length <= 1) return a;               // base case
   const mid = a.length >> 1;
   const left = mergeSort(a.slice(0, mid));
   const right = mergeSort(a.slice(mid));
   return merge(left, right);
 }`,
-          },
-          {
-            label: "merge step",
-            lang: "ts",
-            code: `function merge(l: number[], r: number[]): number[] {
+            },
+            {
+                label: "merge step",
+                lang: "ts",
+                code: `function merge(l: number[], r: number[]): number[] {
   const out: number[] = [];
   let i = 0, j = 0;
   while (i < l.length && j < r.length) {
@@ -208,9 +191,8 @@ function MergeSort() {
   while (j < r.length) out.push(r[j++]);
   return out;
 }`,
-          },
-        ]}
-      />
+            },
+        ]}/>
       <p>
         Merge sort's virtues: it is <strong>stable</strong> and it guarantees <M>{`O(n \\log n)`}</M>{" "}
         <em>in the worst case</em>, unlike quicksort. Its cost is <M>{`O(n)`}</M> extra memory for the merge
@@ -256,13 +238,10 @@ function MergeSort() {
         The whole engine is the merge: walk both sorted inputs with a pointer each, always emitting the smaller
         front element. Because inputs are already sorted, one linear pass suffices.
       </div>
-    </div>
-  );
+    </div>);
 }
-
 function QuickSort() {
-  return (
-    <div className="prose">
+    return (<div className="prose">
       <p>
         <strong>Quicksort</strong> is the other divide-and-conquer sort, but it divides <em>before</em> it
         recurses. It chooses a <strong>pivot</strong>, <strong>partitions</strong> the array so that everything
@@ -288,12 +267,11 @@ function QuickSort() {
         </li>
       </ul>
 
-      <CodeTabs
-        tabs={[
-          {
-            label: "Lomuto Partition",
-            lang: "ts",
-            code: `function quickSortLomuto(a: number[], lo = 0, hi = a.length - 1): void {
+      <CodeTabs tabs={[
+            {
+                label: "Lomuto Partition",
+                lang: "ts",
+                code: `function quickSortLomuto(a: number[], lo = 0, hi = a.length - 1): void {
   if (lo >= hi) return;
   const p = partitionLomuto(a, lo, hi);
   quickSortLomuto(a, lo, p - 1);
@@ -312,11 +290,11 @@ function partitionLomuto(a: number[], lo: number, hi: number): number {
   [a[i], a[hi]] = [a[hi], a[i]];
   return i;
 }`,
-          },
-          {
-            label: "Hoare Partition",
-            lang: "ts",
-            code: `function quickSortHoare(a: number[], lo = 0, hi = a.length - 1): void {
+            },
+            {
+                label: "Hoare Partition",
+                lang: "ts",
+                code: `function quickSortHoare(a: number[], lo = 0, hi = a.length - 1): void {
   if (lo >= hi) return;
   const p = partitionHoare(a, lo, hi);
   quickSortHoare(a, lo, p);      // Note: p is included here
@@ -334,9 +312,8 @@ function partitionHoare(a: number[], lo: number, hi: number): number {
     [a[i], a[j]] = [a[j], a[i]]; // swap out-of-order pair
   }
 }`,
-          },
-        ]}
-      />
+            },
+        ]}/>
 
       <p>
         On a balanced split the recurrence is <M>{`T(n) = 2T(n/2) + O(n) = O(n \\log n)`}</M>, and quicksort's
@@ -390,13 +367,10 @@ function partitionHoare(a: number[], lo: number, hi: number): number {
         Standard in-place quicksort is <strong>not stable</strong>. And a fixed first/last-element pivot turns
         sorted data — a very common input — into the <M>{`O(n^2)`}</M> disaster. Randomize the pivot.
       </div>
-    </div>
-  );
+    </div>);
 }
-
 function LowerBound() {
-  return (
-    <div className="prose">
+    return (<div className="prose">
       <p>
         Is <M>{`O(n \\log n)`}</M> just the best we have found, or is it a wall? For any sort that learns about
         the data <em>only through comparisons</em>, it is a wall — a proven lower bound.
@@ -443,10 +417,7 @@ function LowerBound() {
           digit. For <M>{`d`}</M> digits: <M>{`O(d(n + k))`}</M>, effectively linear when <M>{`d`}</M> is small.
         </li>
       </ul>
-      <Code
-        lang="ts"
-        filename="counting.ts"
-        code={`function countingSort(a: number[], k: number): number[] {
+      <Code lang="ts" filename="counting.ts" code={`function countingSort(a: number[], k: number): number[] {
   const count = new Array(k).fill(0);
   for (const x of a) count[x]++;              // tally frequencies
   const out: number[] = [];
@@ -454,211 +425,202 @@ function LowerBound() {
     for (let c = 0; c < count[v]; c++) out.push(v);
   }
   return out;                                  // O(n + k)
-}`}
-      />
+}`}/>
       <div className="notice warn">
         <span className="lbl">Gotcha: the range k matters</span>
         Counting/radix sorts are only linear when the key range <M>{`k`}</M> (or digit count) is small relative
         to <M>{`n`}</M>. Counting-sort of 32-bit integers with <M>{`k = 2^{32}`}</M> is a memory catastrophe;
         that is what radix's digit-by-digit approach fixes.
       </div>
-    </div>
-  );
+    </div>);
 }
-
 export const dsaSorting: Module = {
-  id: "dsa-sorting",
-  title: "Sorting & Searching",
-  icon: "🔀",
-  track: "dsa",
-  blurb: "Binary search, the quadratic sorts, merge sort and quicksort, and the comparison-sort lower bound.",
-  dependsOn: ["dsa-arrays"],
-  lessons: [
-    {
-      id: "binary-search",
-      title: "Binary Search",
-      minutes: 14,
-      summary: "The halving invariant, off-by-one pitfalls, and searching an answer space.",
-      Body: BinarySearch,
-      quiz: {
-        questions: [
-          {
-            q: "Binary search runs in what time on a sorted array of n elements?",
-            choices: ["O(1)", "O(log n)", "O(n)", "O(n log n)"],
-            answer: 1,
-            explain: "Each comparison halves the remaining search space, giving log2(n) steps.",
-          },
-          {
-            q: "Why compute mid as lo + (hi - lo) / 2 rather than (lo + hi) / 2?",
-            choices: [
-              "It is faster",
-              "It avoids integer overflow when lo + hi is large",
-              "It rounds differently",
-              "It is required by the language",
-            ],
-            answer: 1,
-            explain: "In fixed-width integer languages, lo + hi can overflow; the subtraction form stays within range.",
-          },
-        ],
-      },
-      exercises: [
+    id: "dsa-sorting",
+    title: "Sorting & Searching",
+    icon: "🔀",
+    track: "dsa",
+    blurb: "Binary search, the quadratic sorts, merge sort and quicksort, and the comparison-sort lower bound.",
+    dependsOn: ["dsa-arrays"],
+    lessons: [
         {
-          id: "bsearch-steps",
-          kind: "numeric",
-          prompt:
-            "What is the maximum number of comparisons binary search needs on a sorted array of 1,000,000 elements? (Use ceil(log2 n).) Enter an integer.",
-          starter: "",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 20) < 0.01
-              ? { pass: true, message: "Correct — log2(1,000,000) ≈ 19.93, so ceil is 20 comparisons." }
-              : { pass: false, message: "Not quite. Compute ceil(log2(1,000,000)) ≈ ceil(19.93)." },
-          hint: "2^20 = 1,048,576 > 1,000,000 > 2^19.",
-        },
-      ],
-    },
-    {
-      id: "quadratic-sorts",
-      title: "The O(n²) Sorts",
-      minutes: 12,
-      summary: "Insertion and selection sort — and the cases where they still win.",
-      Body: QuadraticSorts,
-      quiz: {
-        questions: [
-          {
-            q: "Insertion sort's running time on already-sorted input is…",
-            choices: ["O(n^2)", "O(n)", "O(log n)", "O(n log n)"],
-            answer: 1,
-            explain: "Each element is already in place, so the inner shift loop never runs — a single O(n) pass.",
-          },
-          {
-            q: "Selection sort is notable for making only…",
-            choices: ["O(n) comparisons", "O(n) swaps", "O(log n) swaps", "no comparisons"],
-            answer: 1,
-            explain: "It does O(n^2) comparisons but only one swap per pass, useful when writes are expensive.",
-          },
-        ],
-      },
-    },
-    {
-      id: "merge-sort",
-      title: "Merge Sort",
-      minutes: 13,
-      summary: "Divide and conquer, the two-pointer merge, stability, guaranteed O(n log n).",
-      Body: MergeSort,
-      quiz: {
-        questions: [
-          {
-            q: "Merge sort's recurrence T(n) = 2T(n/2) + O(n) solves to…",
-            choices: ["O(n)", "O(n log n)", "O(n^2)", "O(log n)"],
-            answer: 1,
-            explain: "log n levels, each doing O(n) merge work, gives O(n log n) — in the worst case, not just average.",
-          },
-          {
-            q: "A key advantage of merge sort over quicksort is that it…",
-            choices: [
-              "Sorts in place with no extra memory",
-              "Guarantees O(n log n) worst case and is stable",
-              "Is always faster in practice",
-              "Needs no comparisons",
+            id: "binary-search",
+            title: "Binary Search",
+            minutes: 14,
+            summary: "The halving invariant, off-by-one pitfalls, and searching an answer space.",
+            Body: BinarySearch,
+            quiz: {
+                questions: [
+                    {
+                        q: "Binary search runs in what time on a sorted array of n elements?",
+                        choices: ["O(1)", "O(log n)", "O(n)", "O(n log n)"],
+                        answer: 1,
+                        explain: "Each comparison halves the remaining search space, giving log2(n) steps.",
+                    },
+                    {
+                        q: "Why compute mid as lo + (hi - lo) / 2 rather than (lo + hi) / 2?",
+                        choices: [
+                            "It is faster",
+                            "It avoids integer overflow when lo + hi is large",
+                            "It rounds differently",
+                            "It is required by the language",
+                        ],
+                        answer: 1,
+                        explain: "In fixed-width integer languages, lo + hi can overflow; the subtraction form stays within range.",
+                    },
+                ],
+            },
+            exercises: [
+                {
+                    id: "bsearch-steps",
+                    kind: "numeric",
+                    prompt: "What is the maximum number of comparisons binary search needs on a sorted array of 1,000,000 elements? (Use ceil(log2 n).) Enter an integer.",
+                    starter: "",
+                    validate: (s) => Math.abs(parseFloat(s) - 20) < 0.01
+                        ? { pass: true, message: "Correct — log2(1,000,000) ≈ 19.93, so ceil is 20 comparisons." }
+                        : { pass: false, message: "Not quite. Compute ceil(log2(1,000,000)) ≈ ceil(19.93)." },
+                    hint: "2^20 = 1,048,576 > 1,000,000 > 2^19.",
+                },
             ],
-            answer: 1,
-            explain: "Merge sort has no O(n^2) worst case and preserves the order of equal elements; the cost is O(n) extra space.",
-          },
-        ],
-      },
-      exercises: [
+        },
         {
-          id: "merge-levels",
-          kind: "numeric",
-          prompt:
-            "Merge sort on n = 64 elements recurses until subarrays have size 1. How many levels of merging are there (i.e. log2(64))? Enter an integer.",
-          starter: "",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 6) < 0.01
-              ? { pass: true, message: "Correct — 2^6 = 64, so there are 6 levels, each doing O(n) work: 6 * 64 = O(n log n)." }
-              : { pass: false, message: "Not quite. Solve 2^levels = 64." },
-          hint: "How many times can you halve 64 to reach 1?",
+            id: "quadratic-sorts",
+            title: "The O(n²) Sorts",
+            minutes: 12,
+            summary: "Insertion and selection sort — and the cases where they still win.",
+            Body: QuadraticSorts,
+            quiz: {
+                questions: [
+                    {
+                        q: "Insertion sort's running time on already-sorted input is…",
+                        choices: ["O(n^2)", "O(n)", "O(log n)", "O(n log n)"],
+                        answer: 1,
+                        explain: "Each element is already in place, so the inner shift loop never runs — a single O(n) pass.",
+                    },
+                    {
+                        q: "Selection sort is notable for making only…",
+                        choices: ["O(n) comparisons", "O(n) swaps", "O(log n) swaps", "no comparisons"],
+                        answer: 1,
+                        explain: "It does O(n^2) comparisons but only one swap per pass, useful when writes are expensive.",
+                    },
+                ],
+            },
         },
-      ],
-    },
-    {
-      id: "quicksort",
-      title: "Quicksort",
-      minutes: 14,
-      summary: "Partitioning, pivot choice, the O(n²) worst case, and how to avoid it.",
-      Body: QuickSort,
-      quiz: {
-        questions: [
-          {
-            q: "Quicksort's worst-case time, triggered by consistently bad pivots, is…",
-            choices: ["O(n log n)", "O(n^2)", "O(n)", "O(log n)"],
-            answer: 1,
-            explain: "If each partition peels off just one element, the recursion depth is n and total work is O(n^2).",
-          },
-          {
-            q: "Which pivot strategy makes the O(n^2) worst case very unlikely?",
-            choices: [
-              "Always the first element",
-              "Always the last element",
-              "A random element or median-of-three",
-              "The largest element",
-            ],
-            answer: 2,
-            explain: "Randomization (or median-of-three) prevents an adversarial or sorted input from forcing unbalanced splits.",
-          },
-          {
-            q: "Standard in-place quicksort is…",
-            choices: ["Stable", "Not stable", "Always O(n)", "Comparison-free"],
-            answer: 1,
-            explain: "The partition swaps can reorder equal elements, so quicksort is not stable by default.",
-          },
-        ],
-      },
-    },
-    {
-      id: "lower-bound",
-      title: "The Sorting Lower Bound & Linear Sorts",
-      minutes: 13,
-      summary: "Why comparison sorts need Ω(n log n), and how counting/radix beat it.",
-      Body: LowerBound,
-      quiz: {
-        questions: [
-          {
-            q: "The Ω(n log n) lower bound applies to sorts that…",
-            choices: [
-              "Use recursion",
-              "Learn about the data only through comparisons",
-              "Use extra memory",
-              "Sort integers",
-            ],
-            answer: 1,
-            explain: "The decision-tree argument bounds any comparison-based sort; non-comparison sorts sidestep it.",
-          },
-          {
-            q: "Counting sort achieves O(n + k) time by…",
-            choices: [
-              "Comparing every pair",
-              "Tallying the frequency of each key in a range [0, k)",
-              "Using a heap",
-              "Recursively halving",
-            ],
-            answer: 1,
-            explain: "It counts occurrences of each value and reconstructs the sorted output — no comparisons, but needs a bounded key range.",
-          },
-        ],
-      },
-      exercises: [
         {
-          id: "why-linear",
-          kind: "open",
-          prompt:
-            "You must sort 10 million 32-bit integers. Explain when counting sort is a poor choice here and how radix sort addresses the problem.",
-          starter: "",
-          rubric:
-            "Full credit: counting sort needs an array of size k = 2^32 (~4 billion), which is infeasible memory; radix sort processes the number a few bits/digits at a time with a small k per pass (e.g. 8 bits -> k = 256), running in O(d(n + k)) with tiny memory. Partial: identifies the memory problem but not radix's digit-by-digit fix.",
-          hint: "Counting sort's memory is proportional to the key range k.",
+            id: "merge-sort",
+            title: "Merge Sort",
+            minutes: 13,
+            summary: "Divide and conquer, the two-pointer merge, stability, guaranteed O(n log n).",
+            Body: MergeSort,
+            quiz: {
+                questions: [
+                    {
+                        q: "Merge sort's recurrence T(n) = 2T(n/2) + O(n) solves to…",
+                        choices: ["O(n)", "O(n log n)", "O(n^2)", "O(log n)"],
+                        answer: 1,
+                        explain: "log n levels, each doing O(n) merge work, gives O(n log n) — in the worst case, not just average.",
+                    },
+                    {
+                        q: "A key advantage of merge sort over quicksort is that it…",
+                        choices: [
+                            "Sorts in place with no extra memory",
+                            "Guarantees O(n log n) worst case and is stable",
+                            "Is always faster in practice",
+                            "Needs no comparisons",
+                        ],
+                        answer: 1,
+                        explain: "Merge sort has no O(n^2) worst case and preserves the order of equal elements; the cost is O(n) extra space.",
+                    },
+                ],
+            },
+            exercises: [
+                {
+                    id: "merge-levels",
+                    kind: "numeric",
+                    prompt: "Merge sort on n = 64 elements recurses until subarrays have size 1. How many levels of merging are there (i.e. log2(64))? Enter an integer.",
+                    starter: "",
+                    validate: (s) => Math.abs(parseFloat(s) - 6) < 0.01
+                        ? { pass: true, message: "Correct — 2^6 = 64, so there are 6 levels, each doing O(n) work: 6 * 64 = O(n log n)." }
+                        : { pass: false, message: "Not quite. Solve 2^levels = 64." },
+                    hint: "How many times can you halve 64 to reach 1?",
+                },
+            ],
         },
-      ],
-    },
-  ],
+        {
+            id: "quicksort",
+            title: "Quicksort",
+            minutes: 14,
+            summary: "Partitioning, pivot choice, the O(n²) worst case, and how to avoid it.",
+            Body: QuickSort,
+            quiz: {
+                questions: [
+                    {
+                        q: "Quicksort's worst-case time, triggered by consistently bad pivots, is…",
+                        choices: ["O(n log n)", "O(n^2)", "O(n)", "O(log n)"],
+                        answer: 1,
+                        explain: "If each partition peels off just one element, the recursion depth is n and total work is O(n^2).",
+                    },
+                    {
+                        q: "Which pivot strategy makes the O(n^2) worst case very unlikely?",
+                        choices: [
+                            "Always the first element",
+                            "Always the last element",
+                            "A random element or median-of-three",
+                            "The largest element",
+                        ],
+                        answer: 2,
+                        explain: "Randomization (or median-of-three) prevents an adversarial or sorted input from forcing unbalanced splits.",
+                    },
+                    {
+                        q: "Standard in-place quicksort is…",
+                        choices: ["Stable", "Not stable", "Always O(n)", "Comparison-free"],
+                        answer: 1,
+                        explain: "The partition swaps can reorder equal elements, so quicksort is not stable by default.",
+                    },
+                ],
+            },
+        },
+        {
+            id: "lower-bound",
+            title: "The Sorting Lower Bound & Linear Sorts",
+            minutes: 13,
+            summary: "Why comparison sorts need Ω(n log n), and how counting/radix beat it.",
+            Body: LowerBound,
+            quiz: {
+                questions: [
+                    {
+                        q: "The Ω(n log n) lower bound applies to sorts that…",
+                        choices: [
+                            "Use recursion",
+                            "Learn about the data only through comparisons",
+                            "Use extra memory",
+                            "Sort integers",
+                        ],
+                        answer: 1,
+                        explain: "The decision-tree argument bounds any comparison-based sort; non-comparison sorts sidestep it.",
+                    },
+                    {
+                        q: "Counting sort achieves O(n + k) time by…",
+                        choices: [
+                            "Comparing every pair",
+                            "Tallying the frequency of each key in a range [0, k)",
+                            "Using a heap",
+                            "Recursively halving",
+                        ],
+                        answer: 1,
+                        explain: "It counts occurrences of each value and reconstructs the sorted output — no comparisons, but needs a bounded key range.",
+                    },
+                ],
+            },
+            exercises: [
+                {
+                    id: "why-linear",
+                    kind: "open",
+                    prompt: "You must sort 10 million 32-bit integers. Explain when counting sort is a poor choice here and how radix sort addresses the problem.",
+                    starter: "",
+                    rubric: "Full credit: counting sort needs an array of size k = 2^32 (~4 billion), which is infeasible memory; radix sort processes the number a few bits/digits at a time with a small k per pass (e.g. 8 bits -> k = 256), running in O(d(n + k)) with tiny memory. Partial: identifies the memory problem but not radix's digit-by-digit fix.",
+                    hint: "Counting sort's memory is proportional to the key range k.",
+                },
+            ],
+        },
+    ],
 };

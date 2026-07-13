@@ -3,10 +3,8 @@ import { Code, CodeTabs } from "../../components/code-block";
 import { MBlock } from "../../components/math";
 import { ShaderEditor } from "../../widgets/ShaderEditor";
 import { TriangleDemo } from "../../widgets/TriangleDemo";
-
 function GpuModel() {
-  return (
-    <div className="prose">
+    return (<div className="prose">
       <p>
         A CPU is built of a few extremely fast, sophisticated cores designed to run arbitrary, branching sequential code. 
         A GPU is the opposite: thousands of tiny, simple cores that all execute the <strong>same</strong> instructions in parallel on different data — perfect for running a shader program on millions of vertices or pixels.
@@ -39,13 +37,10 @@ function GpuModel() {
         idea transfers. Where it helps, code samples show all three of{" "}
         <strong>WGSL</strong>, <strong>Metal (MSL)</strong>, and <strong>Odin</strong>.
       </div>
-    </div>
-  );
+    </div>);
 }
-
 function Pipeline() {
-  return (
-    <div className="prose">
+    return (<div className="prose">
       <p>
         Rendering a frame in Metal is a fixed dance of objects. Learn these seven and you understand
         the whole API:
@@ -81,9 +76,7 @@ function Pipeline() {
         Creating a pipeline state during your frame loop will cause severe frame stutters. You must compile all pipeline states at startup or background-thread load time, and cache them for reuse.
       </p>
 
-      <Code
-        lang="odin" filename="frame.odin"
-        code={`// --- once, at startup ---
+      <Code lang="odin" filename="frame.odin" code={`// --- once, at startup ---
 device := MTL.CreateSystemDefaultDevice()
 queue  := device->newCommandQueue()
 // ... build pipeline_state and vertex_buffer ...
@@ -110,26 +103,20 @@ render_frame :: proc() {
 
     cmd->presentDrawable(drawable)
     cmd->commit()
-}`}
-      />
+}`}/>
       <TriangleDemo />
       <p>The triangle above is the WebGPU mirror of that exact sequence — the "hello world" of the GPU.</p>
-    </div>
-  );
+    </div>);
 }
-
 function RuntimeShaders() {
-  return (
-    <div className="prose">
+    return (<div className="prose">
       <p>
         Normally you'd precompile <code>.metal</code> files into a <code>.metallib</code> using
         Xcode's <code>metal</code> compiler. But this machine has only the Command Line Tools — no
         <code> xcrun metal</code>. The clean workaround, and honestly a great one for learning, is to
         compile shaders <strong>at runtime from a source string</strong>.
       </p>
-      <Code
-        lang="odin" filename="shaders.odin"
-        code={`shader_src := \`
+      <Code lang="odin" filename="shaders.odin" code={`shader_src := \`
 #include <metal_stdlib>
 using namespace metal;
 
@@ -160,20 +147,16 @@ if library == nil {
     return
 }
 vfn := library->newFunctionWithName(NS.AT("vs"))
-ffn := library->newFunctionWithName(NS.AT("fs"))`}
-      />
+ffn := library->newFunctionWithName(NS.AT("fs"))`}/>
       <div className="notice">
         <span className="lbl">Bonus</span>
         Runtime compilation means you can hot-reload shaders while your engine runs — edit the
         string, recompile, see the change. That's exactly what the live editor below does with WGSL.
       </div>
-    </div>
-  );
+    </div>);
 }
-
 function Shaders() {
-  return (
-    <div className="prose">
+    return (<div className="prose">
       <p>
         Shaders are small programs. The <strong>vertex shader</strong> transforms each vertex into
         clip space; whatever it returns for other fields gets <em>interpolated</em> across the
@@ -213,11 +196,10 @@ function Shaders() {
         <code>[[stage_in]]</code>, <code>[[buffer(0)]]</code>, <code>[[position]]</code>; WGSL uses{" "}
         <code>@location</code>, <code>@binding</code>, <code>@builtin(position)</code>.
       </p>
-      <CodeTabs
-        tabs={[
-          {
-            label: "Metal (MSL)", lang: "cpp", filename: "shader.metal",
-            code: `struct Uniforms { float4x4 mvp; };
+      <CodeTabs tabs={[
+            {
+                label: "Metal (MSL)", lang: "cpp", filename: "shader.metal",
+                code: `struct Uniforms { float4x4 mvp; };
 struct VSOut { float4 pos [[position]]; float3 color; };
 
 vertex VSOut vs(uint vid                 [[vertex_id]],
@@ -232,10 +214,10 @@ vertex VSOut vs(uint vid                 [[vertex_id]],
 fragment float4 fs(VSOut in [[stage_in]]) {
     return float4(in.color, 1.0);
 }`,
-          },
-          {
-            label: "WGSL", lang: "wgsl", filename: "shader.wgsl",
-            code: `struct Uniforms { mvp : mat4x4<f32> };
+            },
+            {
+                label: "WGSL", lang: "wgsl", filename: "shader.wgsl",
+                code: `struct Uniforms { mvp : mat4x4<f32> };
 @group(0) @binding(0) var<uniform> u : Uniforms;
 
 struct VSOut {
@@ -256,9 +238,8 @@ fn vs(@location(0) position : vec3<f32>,
 fn fs(in : VSOut) -> @location(0) vec4<f32> {
   return vec4<f32>(in.color, 1.0);
 }`,
-          },
-        ]}
-      />
+            },
+        ]}/>
       <h3>WGSL ↔ Metal Rosetta</h3>
       <table className="rosetta">
         <thead><tr><th>Concept</th><th>WGSL</th><th>Metal (MSL)</th></tr></thead>
@@ -271,13 +252,10 @@ fn fs(in : VSOut) -> @location(0) vec4<f32> {
           <tr><td>Entry point</td><td><code>@vertex</code> / <code>@fragment</code></td><td><code>vertex</code> / <code>fragment</code></td></tr>
         </tbody>
       </table>
-    </div>
-  );
+    </div>);
 }
-
 function LiveShader() {
-  return (
-    <div className="prose">
+    return (<div className="prose">
       <p>
         Time to write a shader and watch it run. The editor below compiles your WGSL fragment shader
         on every keystroke and paints the result across a full-screen triangle — the same
@@ -298,70 +276,68 @@ function LiveShader() {
         Break the syntax on purpose — the status line shows the compiler error with a line number,
         just like Metal's <code>newLibraryWithSource</code> returns an <code>NSError</code>.
       </div>
-    </div>
-  );
+    </div>);
 }
-
 export const metal: Module = {
-  id: "metal",
-  title: "Metal",
-  icon: "🔩",
-  blurb: "The GPU mental model, Metal's pipeline objects, runtime shader compilation, and MSL/WGSL shaders you can edit live.",
-  dependsOn: ["odin", "linear-algebra"],
-  lessons: [
-    {
-      id: "gpu-model", title: "The GPU Mental Model", minutes: 11,
-      summary: "Thousands of cores running the same tiny program on different data.",
-      Body: GpuModel,
-      quiz: {
-        questions: [
-          { q: "A GPU is best described as…", choices: ["A faster CPU", "Thousands of cores doing the same op on different data (SIMD)", "A storage device", "A network card"], answer: 1, explain: "GPUs excel at data-parallel work — the same shader over millions of elements." },
-          { q: "The CPU and GPU communicate mainly through…", choices: ["Function calls", "Buffers of contiguous data", "The file system", "Shared classes"], answer: 1, explain: "You pack data into buffers and hand them to the GPU — hence Data-Oriented Design." },
-        ],
-      },
-    },
-    {
-      id: "pipeline", title: "Metal Pipeline Objects", minutes: 15,
-      summary: "Device, queue, buffer, library, pipeline state, command buffer, encoder.",
-      Body: Pipeline,
-      quiz: {
-        questions: [
-          { q: "Which object is built once and reused every frame?", choices: ["CommandBuffer", "RenderCommandEncoder", "RenderPipelineState", "Drawable"], answer: 2, explain: "The pipeline state (shaders + vertex layout + formats) is expensive to build — create it once." },
-          { q: "Where do you record draw calls?", choices: ["The Device", "The RenderCommandEncoder", "The Library", "The Buffer"], answer: 1, explain: "The encoder records commands (set pipeline, set buffers, draw) into the command buffer." },
-        ],
-      },
-    },
-    {
-      id: "runtime-shaders", title: "Runtime Shader Compilation", minutes: 12,
-      summary: "newLibraryWithSource — required here (no full Xcode), great for hot-reload.",
-      Body: RuntimeShaders,
-      quiz: {
-        questions: [
-          { q: "Why compile shaders from a source string at runtime here?", choices: ["It's faster to draw", "Only Command Line Tools are installed — no offline metal compiler", "Metal requires it", "To hide the code"], answer: 1, explain: "Without full Xcode there's no `xcrun metal`, so we use newLibraryWithSource at runtime." },
-          { q: "A side benefit of runtime compilation is…", choices: ["Smaller binaries", "Hot-reloading shaders while the app runs", "No shaders needed", "Automatic lighting"], answer: 1, explain: "You can edit and recompile shaders live — exactly what the editor demo does." },
-        ],
-      },
-    },
-    {
-      id: "shaders", title: "Vertex & Fragment Shaders", minutes: 14,
-      summary: "How data flows through shaders; the WGSL ↔ Metal Rosetta table.",
-      Body: Shaders,
-      quiz: {
-        questions: [
-          { q: "The fragment shader runs…", choices: ["Once per vertex", "Once per pixel/fragment", "Once per frame", "Once at startup"], answer: 1, explain: "Fragment shaders execute per rasterized pixel, receiving interpolated vertex outputs." },
-          { q: "WGSL's @builtin(position) corresponds to Metal's…", choices: ["[[buffer(0)]]", "[[stage_in]]", "[[position]]", "[[vertex_id]]"], answer: 2, explain: "Both mark the clip-space output position of the vertex shader." },
-        ],
-      },
-    },
-    {
-      id: "live-shader", title: "Write a Shader (live)", minutes: 15,
-      summary: "Edit a WGSL fragment shader and watch it recompile on a canvas.",
-      Body: LiveShader,
-      quiz: {
-        questions: [
-          { q: "In the editor, 'uv' ranges over…", choices: ["Pixels (0..512)", "Roughly 0..1 across the canvas", "-1..1", "World space"], answer: 1, explain: "uv is normalized 0..1 so shaders are resolution-independent." },
-        ],
-      },
-    },
-  ],
+    id: "metal",
+    title: "Metal",
+    icon: "🔩",
+    blurb: "The GPU mental model, Metal's pipeline objects, runtime shader compilation, and MSL/WGSL shaders you can edit live.",
+    dependsOn: ["odin", "linear-algebra"],
+    lessons: [
+        {
+            id: "gpu-model", title: "The GPU Mental Model", minutes: 11,
+            summary: "Thousands of cores running the same tiny program on different data.",
+            Body: GpuModel,
+            quiz: {
+                questions: [
+                    { q: "A GPU is best described as…", choices: ["A faster CPU", "Thousands of cores doing the same op on different data (SIMD)", "A storage device", "A network card"], answer: 1, explain: "GPUs excel at data-parallel work — the same shader over millions of elements." },
+                    { q: "The CPU and GPU communicate mainly through…", choices: ["Function calls", "Buffers of contiguous data", "The file system", "Shared classes"], answer: 1, explain: "You pack data into buffers and hand them to the GPU — hence Data-Oriented Design." },
+                ],
+            },
+        },
+        {
+            id: "pipeline", title: "Metal Pipeline Objects", minutes: 15,
+            summary: "Device, queue, buffer, library, pipeline state, command buffer, encoder.",
+            Body: Pipeline,
+            quiz: {
+                questions: [
+                    { q: "Which object is built once and reused every frame?", choices: ["CommandBuffer", "RenderCommandEncoder", "RenderPipelineState", "Drawable"], answer: 2, explain: "The pipeline state (shaders + vertex layout + formats) is expensive to build — create it once." },
+                    { q: "Where do you record draw calls?", choices: ["The Device", "The RenderCommandEncoder", "The Library", "The Buffer"], answer: 1, explain: "The encoder records commands (set pipeline, set buffers, draw) into the command buffer." },
+                ],
+            },
+        },
+        {
+            id: "runtime-shaders", title: "Runtime Shader Compilation", minutes: 12,
+            summary: "newLibraryWithSource — required here (no full Xcode), great for hot-reload.",
+            Body: RuntimeShaders,
+            quiz: {
+                questions: [
+                    { q: "Why compile shaders from a source string at runtime here?", choices: ["It's faster to draw", "Only Command Line Tools are installed — no offline metal compiler", "Metal requires it", "To hide the code"], answer: 1, explain: "Without full Xcode there's no `xcrun metal`, so we use newLibraryWithSource at runtime." },
+                    { q: "A side benefit of runtime compilation is…", choices: ["Smaller binaries", "Hot-reloading shaders while the app runs", "No shaders needed", "Automatic lighting"], answer: 1, explain: "You can edit and recompile shaders live — exactly what the editor demo does." },
+                ],
+            },
+        },
+        {
+            id: "shaders", title: "Vertex & Fragment Shaders", minutes: 14,
+            summary: "How data flows through shaders; the WGSL ↔ Metal Rosetta table.",
+            Body: Shaders,
+            quiz: {
+                questions: [
+                    { q: "The fragment shader runs…", choices: ["Once per vertex", "Once per pixel/fragment", "Once per frame", "Once at startup"], answer: 1, explain: "Fragment shaders execute per rasterized pixel, receiving interpolated vertex outputs." },
+                    { q: "WGSL's @builtin(position) corresponds to Metal's…", choices: ["[[buffer(0)]]", "[[stage_in]]", "[[position]]", "[[vertex_id]]"], answer: 2, explain: "Both mark the clip-space output position of the vertex shader." },
+                ],
+            },
+        },
+        {
+            id: "live-shader", title: "Write a Shader (live)", minutes: 15,
+            summary: "Edit a WGSL fragment shader and watch it recompile on a canvas.",
+            Body: LiveShader,
+            quiz: {
+                questions: [
+                    { q: "In the editor, 'uv' ranges over…", choices: ["Pixels (0..512)", "Roughly 0..1 across the canvas", "-1..1", "World space"], answer: 1, explain: "uv is normalized 0..1 so shaders are resolution-independent." },
+                ],
+            },
+        },
+    ],
 };

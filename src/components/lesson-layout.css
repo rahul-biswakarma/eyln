@@ -1,7 +1,7 @@
-/* Lesson page shell — hero, sections, nav, summary. */
 
-/* ============ Icons (Phosphor duotone) ============ */
-/* Inline icons in breadcrumbs / note links sit on the text baseline nicely. */
+
+
+
 .crumbs .seg svg,
 .section-title .more svg {
   vertical-align: -0.15em;
@@ -14,7 +14,7 @@
   width: 100%;
 }
 
-/* ============ Lesson page ============ */
+
 .readbar {
   position: sticky;
   top: 70px;
@@ -39,7 +39,7 @@
   border-bottom: 1px solid var(--border);
 }
 
-/* Ambient glow bleeds toward the right edge without creating overflow. */
+
 .lesson-hero::after {
   content: "";
   position: absolute;
@@ -126,7 +126,7 @@
   border-color: var(--border-glow);
 }
 
-/* Progressive reveal of body blocks */
+
 .reveal {
   opacity: 0;
   transform: translateY(14px);
@@ -138,7 +138,7 @@
   transform: none;
 }
 
-/* Lesson sections + eyebrows */
+
 .lesson-section {
   margin-top: 2.6rem;
 }
@@ -176,7 +176,7 @@
   background: var(--good);
 }
 
-/* Questionary CTA (shown at the end of a lesson) */
+
 .qn-cta {
   display: flex;
   align-items: center;
@@ -224,7 +224,7 @@
   line-height: 1.45;
 }
 
-/* Mission summary */
+
 .lesson-summary {
   margin-top: 3rem;
 }

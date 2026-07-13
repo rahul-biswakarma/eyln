@@ -1,6 +1,6 @@
-/* Lesson widget shell (canvas demos) + toggle rows. */
 
-/* ============ Widgets ============ */
+
+
 .widget {
   margin: 1.8rem 0;
   border: 1px solid var(--border);
@@ -112,7 +112,7 @@
   margin-top: 1.2rem;
 }
 
-/* toggle rows (checkbox controls) */
+
 .toggle-row {
   display: flex;
   flex-wrap: wrap;

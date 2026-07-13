@@ -1,10 +1,8 @@
 import type { Module } from "../../content/types";
 import { M, MBlock } from "../../components/math";
 import { Code } from "../../components/code-block";
-
 function IdeaOfALimit() {
-  return (
-    <div className="prose">
+    return (<div className="prose">
       <p>
         A limit answers a subtle question: <em>where is a function headed</em> as its input closes in
         on some value — regardless of what happens (or fails to happen) exactly at that value? This
@@ -35,16 +33,13 @@ function IdeaOfALimit() {
         <M>{`2`}</M>. The limit is <M>{`2`}</M> even though <M>{`f(1)`}</M> does not exist. The value at
         the point and the limit at the point are independent questions.
       </p>
-      <Code
-        lang="ts"
-        code={`// Watch the function home in on 2 as x approaches 1 — without ever being 1.
+      <Code lang="ts" code={`// Watch the function home in on 2 as x approaches 1 — without ever being 1.
 const f = (x: number) => (x * x - 1) / (x - 1);
 f(0.9);    // 1.9
 f(0.99);   // 1.99
 f(0.999);  // 1.999
 f(1.001);  // 2.001
-f(1);      // NaN  <- the hole; the limit doesn't care`}
-      />
+f(1);      // NaN  <- the hole; the limit doesn't care`}/>
       <p>
         Informally we say the limit exists when the left-hand and right-hand approaches agree on a
         single finite value. The precise version — the <M>{`\\varepsilon`}</M>-<M>{`\\delta`}</M>{" "}
@@ -57,13 +52,10 @@ f(1);      // NaN  <- the hole; the limit doesn't care`}
         map</strong>. What the function does at <M>{`a`}</M> is a separate fact from what it approaches
         near <M>{`a`}</M>.
       </div>
-    </div>
-  );
+    </div>);
 }
-
 function ComputingLimits() {
-  return (
-    <div className="prose">
+    return (<div className="prose">
       <p>
         Most limits are computed, not graphed. There is a reliable ladder of techniques; you climb it
         only as far as you need.
@@ -99,13 +91,10 @@ function ComputingLimits() {
         algebraic factor to cancel. Those need the squeeze theorem — the final lesson — or, later,
         L'Hôpital's rule.
       </div>
-    </div>
-  );
+    </div>);
 }
-
 function OneSidedAndInfinity() {
-  return (
-    <div className="prose">
+    return (<div className="prose">
       <p>
         Sometimes a function approaches different values from the left and the right. We split the
         limit into two <strong>one-sided limits</strong>:
@@ -149,13 +138,10 @@ function OneSidedAndInfinity() {
         <strong>Vertical</strong> asymptotes come from the output running away at a finite input. Don't
         confuse the two — they answer opposite questions.
       </div>
-    </div>
-  );
+    </div>);
 }
-
 function Continuity() {
-  return (
-    <div className="prose">
+    return (<div className="prose">
       <p>
         Intuitively, a function is <strong>continuous</strong> if you can draw it without lifting your
         pen — no holes, no jumps, no vertical blowups. Limits let us make that precise. A function{" "}
@@ -217,13 +203,10 @@ function Continuity() {
         continuous. So the only places to hunt for trouble are denominators, piece boundaries, and
         domain edges.
       </div>
-    </div>
-  );
+    </div>);
 }
-
 function SqueezeTheorem() {
-  return (
-    <div className="prose">
+    return (<div className="prose">
       <p>
         Some limits resist algebra entirely. The <strong>squeeze theorem</strong> (a.k.a. the sandwich
         theorem) handles them by trapping the mystery function between two functions whose limits we
@@ -260,524 +243,473 @@ function SqueezeTheorem() {
         evaluate the function directly but you <em>can</em> bound it above and below by things you can
         evaluate.
       </div>
-    </div>
-  );
+    </div>);
 }
-
 export const mathLimits: Module = {
-  id: "math-limits",
-  title: "Limits & Continuity",
-  icon: "➡️",
-  track: "math",
-  blurb:
-    "The bridge into calculus: approaching versus arriving, computing indeterminate forms, asymptotes, the three conditions for continuity, and the squeeze theorem.",
-  dependsOn: ["math-functions"],
-  lessons: [
-    {
-      id: "idea-of-a-limit",
-      title: "The Idea of a Limit",
-      minutes: 12,
-      summary: "Approaching a value without reaching it.",
-      Body: IdeaOfALimit,
-      exercises: [
+    id: "math-limits",
+    title: "Limits & Continuity",
+    icon: "➡️",
+    track: "math",
+    blurb: "The bridge into calculus: approaching versus arriving, computing indeterminate forms, asymptotes, the three conditions for continuity, and the squeeze theorem.",
+    dependsOn: ["math-functions"],
+    lessons: [
         {
-          id: "limit-numeric",
-          kind: "numeric",
-          prompt: "Evaluate lim(x→2) (x² − 4)/(x − 2).",
-          starter: "",
-          hint: "Factor the numerator, cancel, then substitute.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 4) < 0.01
-              ? { pass: true, message: "Correct — (x−2)(x+2)/(x−2) = x+2 → 4." }
-              : { pass: false, message: "Not quite. Factor x²−4 = (x−2)(x+2) and cancel." },
-        },
-        {
-          id: "idea-of-a-limit-p1",
-          kind: "numeric",
-          prompt: "Evaluate lim(x→3) (2x + 1) by substitution.",
-          starter: "",
-          hint: "This is a polynomial — just plug in x = 3.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 7) < 0.01
-              ? { pass: true, message: "Correct — 2·3 + 1 = 7." }
-              : { pass: false, message: "Not quite. A polynomial is continuous, so substitute x = 3." },
-        },
-        {
-          id: "idea-of-a-limit-p2",
-          kind: "numeric",
-          prompt: "Evaluate lim(x→0) (x² + 5).",
-          starter: "",
-          hint: "Substitute x = 0.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 5) < 0.01
-              ? { pass: true, message: "Correct — 0 + 5 = 5." }
-              : { pass: false, message: "Not quite. Plug x = 0 into x² + 5." },
-        },
-        {
-          id: "idea-of-a-limit-p3",
-          kind: "numeric",
-          prompt: "Evaluate lim(x→1) (x² − 1)/(x − 1).",
-          starter: "",
-          hint: "Factor the numerator (x−1)(x+1) and cancel.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 2) < 0.01
-              ? { pass: true, message: "Correct — cancels to x + 1 → 2." }
-              : { pass: false, message: "Not quite. (x−1)(x+1)/(x−1) = x + 1, then let x → 1." },
-        },
-        {
-          id: "idea-of-a-limit-p4",
-          kind: "numeric",
-          prompt: "Evaluate lim(x→3) (x² − 9)/(x − 3).",
-          starter: "",
-          hint: "Factor x² − 9 = (x − 3)(x + 3).",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 6) < 0.01
-              ? { pass: true, message: "Correct — cancels to x + 3 → 6." }
-              : { pass: false, message: "Not quite. (x−3)(x+3)/(x−3) = x + 3, then let x → 3." },
-        },
-        {
-          id: "idea-of-a-limit-p5",
-          kind: "numeric",
-          prompt: "Evaluate lim(x→2) (x³ − 8)/(x − 2). (Hint: x³ − 8 = (x − 2)(x² + 2x + 4).)",
-          starter: "",
-          hint: "Cancel (x − 2), then substitute x = 2 into x² + 2x + 4.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 12) < 0.01
-              ? { pass: true, message: "Correct — x² + 2x + 4 at x = 2 is 4 + 4 + 4 = 12." }
-              : { pass: false, message: "Not quite. After cancelling, evaluate x² + 2x + 4 at x = 2." },
-        },
-      ],
-      quiz: {
-        questions: [
-          {
-            q: "For lim(x→a) f(x) to equal L, what must be true about f(a)?",
-            choices: [
-              "f(a) must equal L",
-              "f(a) must exist",
-              "Nothing — f need not even be defined at a",
-              "f(a) must be zero",
+            id: "idea-of-a-limit",
+            title: "The Idea of a Limit",
+            minutes: 12,
+            summary: "Approaching a value without reaching it.",
+            Body: IdeaOfALimit,
+            exercises: [
+                {
+                    id: "limit-numeric",
+                    kind: "numeric",
+                    prompt: "Evaluate lim(x→2) (x² − 4)/(x − 2).",
+                    starter: "",
+                    hint: "Factor the numerator, cancel, then substitute.",
+                    validate: (s) => Math.abs(parseFloat(s) - 4) < 0.01
+                        ? { pass: true, message: "Correct — (x−2)(x+2)/(x−2) = x+2 → 4." }
+                        : { pass: false, message: "Not quite. Factor x²−4 = (x−2)(x+2) and cancel." },
+                },
+                {
+                    id: "idea-of-a-limit-p1",
+                    kind: "numeric",
+                    prompt: "Evaluate lim(x→3) (2x + 1) by substitution.",
+                    starter: "",
+                    hint: "This is a polynomial — just plug in x = 3.",
+                    validate: (s) => Math.abs(parseFloat(s) - 7) < 0.01
+                        ? { pass: true, message: "Correct — 2·3 + 1 = 7." }
+                        : { pass: false, message: "Not quite. A polynomial is continuous, so substitute x = 3." },
+                },
+                {
+                    id: "idea-of-a-limit-p2",
+                    kind: "numeric",
+                    prompt: "Evaluate lim(x→0) (x² + 5).",
+                    starter: "",
+                    hint: "Substitute x = 0.",
+                    validate: (s) => Math.abs(parseFloat(s) - 5) < 0.01
+                        ? { pass: true, message: "Correct — 0 + 5 = 5." }
+                        : { pass: false, message: "Not quite. Plug x = 0 into x² + 5." },
+                },
+                {
+                    id: "idea-of-a-limit-p3",
+                    kind: "numeric",
+                    prompt: "Evaluate lim(x→1) (x² − 1)/(x − 1).",
+                    starter: "",
+                    hint: "Factor the numerator (x−1)(x+1) and cancel.",
+                    validate: (s) => Math.abs(parseFloat(s) - 2) < 0.01
+                        ? { pass: true, message: "Correct — cancels to x + 1 → 2." }
+                        : { pass: false, message: "Not quite. (x−1)(x+1)/(x−1) = x + 1, then let x → 1." },
+                },
+                {
+                    id: "idea-of-a-limit-p4",
+                    kind: "numeric",
+                    prompt: "Evaluate lim(x→3) (x² − 9)/(x − 3).",
+                    starter: "",
+                    hint: "Factor x² − 9 = (x − 3)(x + 3).",
+                    validate: (s) => Math.abs(parseFloat(s) - 6) < 0.01
+                        ? { pass: true, message: "Correct — cancels to x + 3 → 6." }
+                        : { pass: false, message: "Not quite. (x−3)(x+3)/(x−3) = x + 3, then let x → 3." },
+                },
+                {
+                    id: "idea-of-a-limit-p5",
+                    kind: "numeric",
+                    prompt: "Evaluate lim(x→2) (x³ − 8)/(x − 2). (Hint: x³ − 8 = (x − 2)(x² + 2x + 4).)",
+                    starter: "",
+                    hint: "Cancel (x − 2), then substitute x = 2 into x² + 2x + 4.",
+                    validate: (s) => Math.abs(parseFloat(s) - 12) < 0.01
+                        ? { pass: true, message: "Correct — x² + 2x + 4 at x = 2 is 4 + 4 + 4 = 12." }
+                        : { pass: false, message: "Not quite. After cancelling, evaluate x² + 2x + 4 at x = 2." },
+                },
             ],
-            answer: 2,
-            explain:
-              "A limit describes behavior near a, not at a. The function can have a hole at a and still have a limit.",
-          },
-          {
-            q: "The value f(1) = NaN for f(x) = (x²−1)/(x−1), yet the limit as x→1 is…",
-            choices: ["Undefined", "0", "2", "1"],
-            answer: 2,
-            explain:
-              "Near x = 1 the function equals x + 1, which heads to 2. The hole at x = 1 doesn't affect the limit.",
-          },
-        ],
-      },
-    },
-    {
-      id: "computing-limits",
-      title: "Computing Limits",
-      minutes: 14,
-      summary: "Substitution, factoring, and rationalizing 0/0 forms.",
-      Body: ComputingLimits,
-      exercises: [
-        {
-          id: "rationalize",
-          kind: "numeric",
-          prompt: "Evaluate lim(x→0) (√(x+1) − 1)/x.",
-          starter: "",
-          hint: "Multiply numerator and denominator by the conjugate √(x+1) + 1.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 0.5) < 0.01
-              ? { pass: true, message: "Correct — rationalizing leaves 1/(√(x+1)+1) → 1/2." }
-              : { pass: false, message: "Not quite. Multiply by the conjugate to clear the root." },
+            quiz: {
+                questions: [
+                    {
+                        q: "For lim(x→a) f(x) to equal L, what must be true about f(a)?",
+                        choices: [
+                            "f(a) must equal L",
+                            "f(a) must exist",
+                            "Nothing — f need not even be defined at a",
+                            "f(a) must be zero",
+                        ],
+                        answer: 2,
+                        explain: "A limit describes behavior near a, not at a. The function can have a hole at a and still have a limit.",
+                    },
+                    {
+                        q: "The value f(1) = NaN for f(x) = (x²−1)/(x−1), yet the limit as x→1 is…",
+                        choices: ["Undefined", "0", "2", "1"],
+                        answer: 2,
+                        explain: "Near x = 1 the function equals x + 1, which heads to 2. The hole at x = 1 doesn't affect the limit.",
+                    },
+                ],
+            },
         },
         {
-          id: "computing-limits-p1",
-          kind: "numeric",
-          prompt: "Evaluate lim(x→4) (x² − 16)/(x − 4).",
-          starter: "",
-          hint: "Factor x² − 16 = (x − 4)(x + 4).",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 8) < 0.01
-              ? { pass: true, message: "Correct — cancels to x + 4 → 8." }
-              : { pass: false, message: "Not quite. (x−4)(x+4)/(x−4) = x + 4, then let x → 4." },
-        },
-        {
-          id: "computing-limits-p2",
-          kind: "numeric",
-          prompt: "Evaluate lim(x→2) (x² − 4)/(x² − x − 2).",
-          starter: "",
-          hint: "Factor both: (x−2)(x+2) over (x−2)(x+1).",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 1.3333) < 0.01
-              ? { pass: true, message: "Correct — cancels to (x+2)/(x+1) → 4/3 ≈ 1.33." }
-              : { pass: false, message: "Not quite. Cancel (x−2): left with (x+2)/(x+1) = 4/3." },
-        },
-        {
-          id: "computing-limits-p3",
-          kind: "numeric",
-          prompt: "Evaluate lim(x→5) (x − 5)/(x² − 25).",
-          starter: "",
-          hint: "Factor x² − 25 = (x − 5)(x + 5).",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 0.1) < 0.01
-              ? { pass: true, message: "Correct — cancels to 1/(x+5) → 1/10 = 0.1." }
-              : { pass: false, message: "Not quite. (x−5)/((x−5)(x+5)) = 1/(x+5) → 1/10." },
-        },
-        {
-          id: "computing-limits-p4",
-          kind: "numeric",
-          prompt: "Evaluate lim(x→0) (√(x+4) − 2)/x.",
-          starter: "",
-          hint: "Multiply by the conjugate √(x+4) + 2.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 0.25) < 0.01
-              ? { pass: true, message: "Correct — rationalizing leaves 1/(√(x+4)+2) → 1/4 = 0.25." }
-              : { pass: false, message: "Not quite. Conjugate gives 1/(√(x+4)+2) → 1/4." },
-        },
-        {
-          id: "computing-limits-p5",
-          kind: "numeric",
-          prompt: "Evaluate lim(x→3) (x² − 2x − 3)/(x − 3).",
-          starter: "",
-          hint: "Factor the numerator: (x − 3)(x + 1).",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 4) < 0.01
-              ? { pass: true, message: "Correct — cancels to x + 1 → 4." }
-              : { pass: false, message: "Not quite. (x−3)(x+1)/(x−3) = x + 1, then let x → 3." },
-        },
-      ],
-      quiz: {
-        questions: [
-          {
-            q: "Plugging in gives 0/0. This means…",
-            choices: [
-              "The limit is 0",
-              "The limit does not exist",
-              "It's an indeterminate form — do algebra first",
-              "The limit is infinite",
+            id: "computing-limits",
+            title: "Computing Limits",
+            minutes: 14,
+            summary: "Substitution, factoring, and rationalizing 0/0 forms.",
+            Body: ComputingLimits,
+            exercises: [
+                {
+                    id: "rationalize",
+                    kind: "numeric",
+                    prompt: "Evaluate lim(x→0) (√(x+1) − 1)/x.",
+                    starter: "",
+                    hint: "Multiply numerator and denominator by the conjugate √(x+1) + 1.",
+                    validate: (s) => Math.abs(parseFloat(s) - 0.5) < 0.01
+                        ? { pass: true, message: "Correct — rationalizing leaves 1/(√(x+1)+1) → 1/2." }
+                        : { pass: false, message: "Not quite. Multiply by the conjugate to clear the root." },
+                },
+                {
+                    id: "computing-limits-p1",
+                    kind: "numeric",
+                    prompt: "Evaluate lim(x→4) (x² − 16)/(x − 4).",
+                    starter: "",
+                    hint: "Factor x² − 16 = (x − 4)(x + 4).",
+                    validate: (s) => Math.abs(parseFloat(s) - 8) < 0.01
+                        ? { pass: true, message: "Correct — cancels to x + 4 → 8." }
+                        : { pass: false, message: "Not quite. (x−4)(x+4)/(x−4) = x + 4, then let x → 4." },
+                },
+                {
+                    id: "computing-limits-p2",
+                    kind: "numeric",
+                    prompt: "Evaluate lim(x→2) (x² − 4)/(x² − x − 2).",
+                    starter: "",
+                    hint: "Factor both: (x−2)(x+2) over (x−2)(x+1).",
+                    validate: (s) => Math.abs(parseFloat(s) - 1.3333) < 0.01
+                        ? { pass: true, message: "Correct — cancels to (x+2)/(x+1) → 4/3 ≈ 1.33." }
+                        : { pass: false, message: "Not quite. Cancel (x−2): left with (x+2)/(x+1) = 4/3." },
+                },
+                {
+                    id: "computing-limits-p3",
+                    kind: "numeric",
+                    prompt: "Evaluate lim(x→5) (x − 5)/(x² − 25).",
+                    starter: "",
+                    hint: "Factor x² − 25 = (x − 5)(x + 5).",
+                    validate: (s) => Math.abs(parseFloat(s) - 0.1) < 0.01
+                        ? { pass: true, message: "Correct — cancels to 1/(x+5) → 1/10 = 0.1." }
+                        : { pass: false, message: "Not quite. (x−5)/((x−5)(x+5)) = 1/(x+5) → 1/10." },
+                },
+                {
+                    id: "computing-limits-p4",
+                    kind: "numeric",
+                    prompt: "Evaluate lim(x→0) (√(x+4) − 2)/x.",
+                    starter: "",
+                    hint: "Multiply by the conjugate √(x+4) + 2.",
+                    validate: (s) => Math.abs(parseFloat(s) - 0.25) < 0.01
+                        ? { pass: true, message: "Correct — rationalizing leaves 1/(√(x+4)+2) → 1/4 = 0.25." }
+                        : { pass: false, message: "Not quite. Conjugate gives 1/(√(x+4)+2) → 1/4." },
+                },
+                {
+                    id: "computing-limits-p5",
+                    kind: "numeric",
+                    prompt: "Evaluate lim(x→3) (x² − 2x − 3)/(x − 3).",
+                    starter: "",
+                    hint: "Factor the numerator: (x − 3)(x + 1).",
+                    validate: (s) => Math.abs(parseFloat(s) - 4) < 0.01
+                        ? { pass: true, message: "Correct — cancels to x + 1 → 4." }
+                        : { pass: false, message: "Not quite. (x−3)(x+1)/(x−3) = x + 1, then let x → 3." },
+                },
             ],
-            answer: 2,
-            explain:
-              "0/0 is indeterminate: it signals a shared factor. Factor or rationalize to resolve it, then substitute.",
-          },
-          {
-            q: "The first technique to try on any limit is…",
-            choices: ["Rationalizing", "Direct substitution", "L'Hôpital's rule", "The squeeze theorem"],
-            answer: 1,
-            explain:
-              "Substitution works whenever the function is continuous at the point, and is always the quickest first check.",
-          },
-        ],
-      },
-    },
-    {
-      id: "one-sided-infinity",
-      title: "One-Sided Limits & Limits at Infinity",
-      minutes: 13,
-      summary: "Left/right agreement and horizontal versus vertical asymptotes.",
-      Body: OneSidedAndInfinity,
-      exercises: [
-        {
-          id: "at-infinity",
-          kind: "numeric",
-          prompt: "Evaluate lim(x→∞) (2x² + 7)/(5x² − 3x). Enter a decimal.",
-          starter: "",
-          hint: "Equal degrees: take the ratio of leading coefficients.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 0.4) < 0.01
-              ? { pass: true, message: "Correct — leading coefficients 2/5 = 0.4." }
-              : { pass: false, message: "Not quite. Divide through by x²; only leading terms survive: 2/5." },
+            quiz: {
+                questions: [
+                    {
+                        q: "Plugging in gives 0/0. This means…",
+                        choices: [
+                            "The limit is 0",
+                            "The limit does not exist",
+                            "It's an indeterminate form — do algebra first",
+                            "The limit is infinite",
+                        ],
+                        answer: 2,
+                        explain: "0/0 is indeterminate: it signals a shared factor. Factor or rationalize to resolve it, then substitute.",
+                    },
+                    {
+                        q: "The first technique to try on any limit is…",
+                        choices: ["Rationalizing", "Direct substitution", "L'Hôpital's rule", "The squeeze theorem"],
+                        answer: 1,
+                        explain: "Substitution works whenever the function is continuous at the point, and is always the quickest first check.",
+                    },
+                ],
+            },
         },
         {
-          id: "one-sided-infinity-p1",
-          kind: "numeric",
-          prompt: "Evaluate lim(x→∞) (3x + 2)/(x + 5). Enter a decimal.",
-          starter: "",
-          hint: "Equal degrees: ratio of leading coefficients 3/1.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 3) < 0.01
-              ? { pass: true, message: "Correct — leading coefficients 3/1 = 3." }
-              : { pass: false, message: "Not quite. Divide by x; only leading terms survive: 3/1 = 3." },
-        },
-        {
-          id: "one-sided-infinity-p2",
-          kind: "numeric",
-          prompt: "Evaluate lim(x→∞) (4x + 1)/(x² + 3).",
-          starter: "",
-          hint: "Denominator has higher degree.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 0) < 0.01
-              ? { pass: true, message: "Correct — the denominator wins, so the limit is 0." }
-              : { pass: false, message: "Not quite. Higher-degree denominator drives the ratio to 0." },
-        },
-        {
-          id: "one-sided-infinity-p3",
-          kind: "numeric",
-          prompt: "Evaluate lim(x→∞) (6x³ − x)/(2x³ + 5). Enter a decimal.",
-          starter: "",
-          hint: "Equal degrees: ratio of leading coefficients 6/2.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 3) < 0.01
-              ? { pass: true, message: "Correct — 6/2 = 3." }
-              : { pass: false, message: "Not quite. Equal degrees give 6/2 = 3." },
-        },
-        {
-          id: "one-sided-infinity-p4",
-          kind: "numeric",
-          prompt:
-            "For f(x) = |x|/x, evaluate the right-hand limit lim(x→0⁺) f(x).",
-          starter: "",
-          hint: "For x > 0, |x| = x, so |x|/x = 1.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 1) < 0.01
-              ? { pass: true, message: "Correct — for x > 0, |x|/x = 1." }
-              : { pass: false, message: "Not quite. Approaching from the right, x > 0 so |x|/x = 1." },
-        },
-        {
-          id: "one-sided-infinity-p5",
-          kind: "numeric",
-          prompt:
-            "For f(x) = |x|/x, evaluate the left-hand limit lim(x→0⁻) f(x).",
-          starter: "",
-          hint: "For x < 0, |x| = −x, so |x|/x = −1.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - -1) < 0.01
-              ? { pass: true, message: "Correct — for x < 0, |x|/x = −1." }
-              : { pass: false, message: "Not quite. Approaching from the left, x < 0 so |x|/x = −1." },
-        },
-      ],
-      quiz: {
-        questions: [
-          {
-            q: "A two-sided limit at a exists if and only if…",
-            choices: [
-              "f(a) is defined",
-              "the left- and right-hand limits are equal",
-              "f is a polynomial",
-              "the function is increasing",
+            id: "one-sided-infinity",
+            title: "One-Sided Limits & Limits at Infinity",
+            minutes: 13,
+            summary: "Left/right agreement and horizontal versus vertical asymptotes.",
+            Body: OneSidedAndInfinity,
+            exercises: [
+                {
+                    id: "at-infinity",
+                    kind: "numeric",
+                    prompt: "Evaluate lim(x→∞) (2x² + 7)/(5x² − 3x). Enter a decimal.",
+                    starter: "",
+                    hint: "Equal degrees: take the ratio of leading coefficients.",
+                    validate: (s) => Math.abs(parseFloat(s) - 0.4) < 0.01
+                        ? { pass: true, message: "Correct — leading coefficients 2/5 = 0.4." }
+                        : { pass: false, message: "Not quite. Divide through by x²; only leading terms survive: 2/5." },
+                },
+                {
+                    id: "one-sided-infinity-p1",
+                    kind: "numeric",
+                    prompt: "Evaluate lim(x→∞) (3x + 2)/(x + 5). Enter a decimal.",
+                    starter: "",
+                    hint: "Equal degrees: ratio of leading coefficients 3/1.",
+                    validate: (s) => Math.abs(parseFloat(s) - 3) < 0.01
+                        ? { pass: true, message: "Correct — leading coefficients 3/1 = 3." }
+                        : { pass: false, message: "Not quite. Divide by x; only leading terms survive: 3/1 = 3." },
+                },
+                {
+                    id: "one-sided-infinity-p2",
+                    kind: "numeric",
+                    prompt: "Evaluate lim(x→∞) (4x + 1)/(x² + 3).",
+                    starter: "",
+                    hint: "Denominator has higher degree.",
+                    validate: (s) => Math.abs(parseFloat(s) - 0) < 0.01
+                        ? { pass: true, message: "Correct — the denominator wins, so the limit is 0." }
+                        : { pass: false, message: "Not quite. Higher-degree denominator drives the ratio to 0." },
+                },
+                {
+                    id: "one-sided-infinity-p3",
+                    kind: "numeric",
+                    prompt: "Evaluate lim(x→∞) (6x³ − x)/(2x³ + 5). Enter a decimal.",
+                    starter: "",
+                    hint: "Equal degrees: ratio of leading coefficients 6/2.",
+                    validate: (s) => Math.abs(parseFloat(s) - 3) < 0.01
+                        ? { pass: true, message: "Correct — 6/2 = 3." }
+                        : { pass: false, message: "Not quite. Equal degrees give 6/2 = 3." },
+                },
+                {
+                    id: "one-sided-infinity-p4",
+                    kind: "numeric",
+                    prompt: "For f(x) = |x|/x, evaluate the right-hand limit lim(x→0⁺) f(x).",
+                    starter: "",
+                    hint: "For x > 0, |x| = x, so |x|/x = 1.",
+                    validate: (s) => Math.abs(parseFloat(s) - 1) < 0.01
+                        ? { pass: true, message: "Correct — for x > 0, |x|/x = 1." }
+                        : { pass: false, message: "Not quite. Approaching from the right, x > 0 so |x|/x = 1." },
+                },
+                {
+                    id: "one-sided-infinity-p5",
+                    kind: "numeric",
+                    prompt: "For f(x) = |x|/x, evaluate the left-hand limit lim(x→0⁻) f(x).",
+                    starter: "",
+                    hint: "For x < 0, |x| = −x, so |x|/x = −1.",
+                    validate: (s) => Math.abs(parseFloat(s) - -1) < 0.01
+                        ? { pass: true, message: "Correct — for x < 0, |x|/x = −1." }
+                        : { pass: false, message: "Not quite. Approaching from the left, x < 0 so |x|/x = −1." },
+                },
             ],
-            answer: 1,
-            explain:
-              "The two one-sided limits must exist and agree; if they differ (a jump), the two-sided limit fails.",
-          },
-          {
-            q: "A horizontal asymptote comes from…",
-            choices: [
-              "a zero denominator at a finite x",
-              "the limit as x → ±∞",
-              "a removable hole",
-              "the y-intercept",
+            quiz: {
+                questions: [
+                    {
+                        q: "A two-sided limit at a exists if and only if…",
+                        choices: [
+                            "f(a) is defined",
+                            "the left- and right-hand limits are equal",
+                            "f is a polynomial",
+                            "the function is increasing",
+                        ],
+                        answer: 1,
+                        explain: "The two one-sided limits must exist and agree; if they differ (a jump), the two-sided limit fails.",
+                    },
+                    {
+                        q: "A horizontal asymptote comes from…",
+                        choices: [
+                            "a zero denominator at a finite x",
+                            "the limit as x → ±∞",
+                            "a removable hole",
+                            "the y-intercept",
+                        ],
+                        answer: 1,
+                        explain: "Horizontal asymptotes describe end behavior — limits at infinity. Vertical asymptotes come from finite inputs where the output blows up.",
+                    },
+                ],
+            },
+        },
+        {
+            id: "continuity",
+            title: "Continuity",
+            minutes: 13,
+            summary: "The three conditions and the types of discontinuity.",
+            Body: Continuity,
+            exercises: [
+                {
+                    id: "continuity-open",
+                    kind: "open",
+                    prompt: "The function f(x) = (x² − 1)/(x − 1) is undefined at x = 1. Classify the discontinuity and explain how (if at all) it could be repaired.",
+                    starter: "",
+                    rubric: "Full credit: identifies it as a removable discontinuity (a hole) because the limit exists (= 2) but f(1) is undefined; repaired by defining f(1) = 2. Partial: names 'removable' OR gives the repair value 2 but not both, or omits that the limit exists.",
+                    hint: "Does the limit exist even though the point is missing?",
+                },
+                {
+                    id: "continuity-p1",
+                    kind: "numeric",
+                    prompt: "f(x) = (x² − 1)/(x − 1) has a removable hole at x = 1. Enter the value that would fill the hole to make f continuous.",
+                    starter: "",
+                    hint: "It's the limit as x → 1; the expression simplifies to x + 1.",
+                    validate: (s) => Math.abs(parseFloat(s) - 2) < 0.01
+                        ? { pass: true, message: "Correct — the limit is x + 1 → 2, so define f(1) = 2." }
+                        : { pass: false, message: "Not quite. Simplify to x + 1 and evaluate at x = 1." },
+                },
+                {
+                    id: "continuity-p2",
+                    kind: "numeric",
+                    prompt: "The piecewise f(x) = 3x + 1 for x ≤ 2 and f(x) = x² + c for x > 2 is continuous at x = 2. Find c.",
+                    starter: "",
+                    hint: "Match the two pieces at x = 2: 3(2) + 1 = 2² + c.",
+                    validate: (s) => Math.abs(parseFloat(s) - 3) < 0.01
+                        ? { pass: true, message: "Correct — 7 = 4 + c gives c = 3." }
+                        : { pass: false, message: "Not quite. Set 3·2 + 1 = 2² + c, so 7 = 4 + c." },
+                },
+                {
+                    id: "continuity-p3",
+                    kind: "numeric",
+                    prompt: "For f(x) = (x² − 9)/(x − 3), enter the value f(3) should be assigned to remove the discontinuity.",
+                    starter: "",
+                    hint: "Simplify to x + 3 and evaluate at x = 3.",
+                    validate: (s) => Math.abs(parseFloat(s) - 6) < 0.01
+                        ? { pass: true, message: "Correct — the limit is x + 3 → 6, so f(3) = 6." }
+                        : { pass: false, message: "Not quite. Simplify to x + 3 and let x → 3." },
+                },
+                {
+                    id: "continuity-p4",
+                    kind: "numeric",
+                    prompt: "The piecewise f(x) = x² for x < 1 and f(x) = ax for x ≥ 1 is continuous at x = 1. Find a.",
+                    starter: "",
+                    hint: "Match the pieces at x = 1: 1² = a·1.",
+                    validate: (s) => Math.abs(parseFloat(s) - 1) < 0.01
+                        ? { pass: true, message: "Correct — 1 = a, so a = 1." }
+                        : { pass: false, message: "Not quite. Set 1² = a·1, giving a = 1." },
+                },
+                {
+                    id: "continuity-p5",
+                    kind: "numeric",
+                    prompt: "g(x) = (x² + x − 6)/(x − 2) has a removable hole at x = 2. Enter the value that fills it.",
+                    starter: "",
+                    hint: "Factor the numerator (x − 2)(x + 3) and cancel.",
+                    validate: (s) => Math.abs(parseFloat(s) - 5) < 0.01
+                        ? { pass: true, message: "Correct — simplifies to x + 3 → 5." }
+                        : { pass: false, message: "Not quite. (x−2)(x+3)/(x−2) = x + 3, then let x → 2." },
+                },
             ],
-            answer: 1,
-            explain:
-              "Horizontal asymptotes describe end behavior — limits at infinity. Vertical asymptotes come from finite inputs where the output blows up.",
-          },
-        ],
-      },
-    },
-    {
-      id: "continuity",
-      title: "Continuity",
-      minutes: 13,
-      summary: "The three conditions and the types of discontinuity.",
-      Body: Continuity,
-      exercises: [
-        {
-          id: "continuity-open",
-          kind: "open",
-          prompt:
-            "The function f(x) = (x² − 1)/(x − 1) is undefined at x = 1. Classify the discontinuity and explain how (if at all) it could be repaired.",
-          starter: "",
-          rubric:
-            "Full credit: identifies it as a removable discontinuity (a hole) because the limit exists (= 2) but f(1) is undefined; repaired by defining f(1) = 2. Partial: names 'removable' OR gives the repair value 2 but not both, or omits that the limit exists.",
-          hint: "Does the limit exist even though the point is missing?",
+            quiz: {
+                questions: [
+                    {
+                        q: "Which is NOT one of the three conditions for continuity at a?",
+                        choices: [
+                            "f(a) exists",
+                            "lim(x→a) f(x) exists",
+                            "lim(x→a) f(x) = f(a)",
+                            "f is increasing at a",
+                        ],
+                        answer: 3,
+                        explain: "Continuity requires the value to exist, the limit to exist, and the two to match. Monotonicity is irrelevant.",
+                    },
+                    {
+                        q: "A jump discontinuity occurs when…",
+                        choices: [
+                            "the function has a hole",
+                            "the one-sided limits exist but disagree",
+                            "the function goes to infinity",
+                            "f(a) equals the limit",
+                        ],
+                        answer: 1,
+                        explain: "In a jump, both one-sided limits exist but are unequal, so the two-sided limit doesn't exist.",
+                    },
+                ],
+            },
         },
         {
-          id: "continuity-p1",
-          kind: "numeric",
-          prompt:
-            "f(x) = (x² − 1)/(x − 1) has a removable hole at x = 1. Enter the value that would fill the hole to make f continuous.",
-          starter: "",
-          hint: "It's the limit as x → 1; the expression simplifies to x + 1.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 2) < 0.01
-              ? { pass: true, message: "Correct — the limit is x + 1 → 2, so define f(1) = 2." }
-              : { pass: false, message: "Not quite. Simplify to x + 1 and evaluate at x = 1." },
-        },
-        {
-          id: "continuity-p2",
-          kind: "numeric",
-          prompt:
-            "The piecewise f(x) = 3x + 1 for x ≤ 2 and f(x) = x² + c for x > 2 is continuous at x = 2. Find c.",
-          starter: "",
-          hint: "Match the two pieces at x = 2: 3(2) + 1 = 2² + c.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 3) < 0.01
-              ? { pass: true, message: "Correct — 7 = 4 + c gives c = 3." }
-              : { pass: false, message: "Not quite. Set 3·2 + 1 = 2² + c, so 7 = 4 + c." },
-        },
-        {
-          id: "continuity-p3",
-          kind: "numeric",
-          prompt:
-            "For f(x) = (x² − 9)/(x − 3), enter the value f(3) should be assigned to remove the discontinuity.",
-          starter: "",
-          hint: "Simplify to x + 3 and evaluate at x = 3.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 6) < 0.01
-              ? { pass: true, message: "Correct — the limit is x + 3 → 6, so f(3) = 6." }
-              : { pass: false, message: "Not quite. Simplify to x + 3 and let x → 3." },
-        },
-        {
-          id: "continuity-p4",
-          kind: "numeric",
-          prompt:
-            "The piecewise f(x) = x² for x < 1 and f(x) = ax for x ≥ 1 is continuous at x = 1. Find a.",
-          starter: "",
-          hint: "Match the pieces at x = 1: 1² = a·1.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 1) < 0.01
-              ? { pass: true, message: "Correct — 1 = a, so a = 1." }
-              : { pass: false, message: "Not quite. Set 1² = a·1, giving a = 1." },
-        },
-        {
-          id: "continuity-p5",
-          kind: "numeric",
-          prompt:
-            "g(x) = (x² + x − 6)/(x − 2) has a removable hole at x = 2. Enter the value that fills it.",
-          starter: "",
-          hint: "Factor the numerator (x − 2)(x + 3) and cancel.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 5) < 0.01
-              ? { pass: true, message: "Correct — simplifies to x + 3 → 5." }
-              : { pass: false, message: "Not quite. (x−2)(x+3)/(x−2) = x + 3, then let x → 2." },
-        },
-      ],
-      quiz: {
-        questions: [
-          {
-            q: "Which is NOT one of the three conditions for continuity at a?",
-            choices: [
-              "f(a) exists",
-              "lim(x→a) f(x) exists",
-              "lim(x→a) f(x) = f(a)",
-              "f is increasing at a",
+            id: "squeeze-theorem",
+            title: "The Squeeze Theorem",
+            minutes: 12,
+            summary: "Trapping a limit, and proving lim sin(x)/x = 1.",
+            Body: SqueezeTheorem,
+            exercises: [
+                {
+                    id: "sinx-over-x",
+                    kind: "numeric",
+                    prompt: "Using the squeeze result, evaluate lim(x→0) sin(3x)/x.",
+                    starter: "",
+                    hint: "Write it as 3 · sin(3x)/(3x); the inner ratio → 1.",
+                    validate: (s) => Math.abs(parseFloat(s) - 3) < 0.01
+                        ? { pass: true, message: "Correct — sin(3x)/x = 3·sin(3x)/(3x) → 3·1 = 3." }
+                        : { pass: false, message: "Not quite. Factor to 3·sin(3x)/(3x); the ratio tends to 1." },
+                },
+                {
+                    id: "squeeze-theorem-p1",
+                    kind: "numeric",
+                    prompt: "Evaluate lim(x→0) sin(x)/x.",
+                    starter: "",
+                    hint: "The fundamental squeeze result.",
+                    validate: (s) => Math.abs(parseFloat(s) - 1) < 0.01
+                        ? { pass: true, message: "Correct — lim(x→0) sin(x)/x = 1." }
+                        : { pass: false, message: "Not quite. This is the anchor squeeze limit; it equals 1." },
+                },
+                {
+                    id: "squeeze-theorem-p2",
+                    kind: "numeric",
+                    prompt: "Evaluate lim(x→0) sin(5x)/x.",
+                    starter: "",
+                    hint: "Write as 5·sin(5x)/(5x); the inner ratio → 1.",
+                    validate: (s) => Math.abs(parseFloat(s) - 5) < 0.01
+                        ? { pass: true, message: "Correct — 5·sin(5x)/(5x) → 5·1 = 5." }
+                        : { pass: false, message: "Not quite. Factor to 5·sin(5x)/(5x), ratio → 1, so 5." },
+                },
+                {
+                    id: "squeeze-theorem-p3",
+                    kind: "numeric",
+                    prompt: "Evaluate lim(x→0) sin(2x)/sin(x). (Hint: sin(2x)/x → 2 and sin(x)/x → 1.)",
+                    starter: "",
+                    hint: "Divide top and bottom by x: (sin(2x)/x)/(sin(x)/x) → 2/1.",
+                    validate: (s) => Math.abs(parseFloat(s) - 2) < 0.01
+                        ? { pass: true, message: "Correct — (sin(2x)/x)/(sin(x)/x) → 2/1 = 2." }
+                        : { pass: false, message: "Not quite. Divide by x: 2/1 = 2." },
+                },
+                {
+                    id: "squeeze-theorem-p4",
+                    kind: "numeric",
+                    prompt: "Evaluate lim(x→0) x² sin(1/x).",
+                    starter: "",
+                    hint: "sin(1/x) is bounded in [−1, 1] and x² → 0; squeeze it.",
+                    validate: (s) => Math.abs(parseFloat(s) - 0) < 0.01
+                        ? { pass: true, message: "Correct — −x² ≤ x²sin(1/x) ≤ x², both bounds → 0." }
+                        : { pass: false, message: "Not quite. Squeeze between −x² and x²; both go to 0." },
+                },
+                {
+                    id: "squeeze-theorem-p5",
+                    kind: "numeric",
+                    prompt: "Evaluate lim(x→0) tan(x)/x. (Hint: tan(x)/x = (sin(x)/x)·(1/cos(x)).)",
+                    starter: "",
+                    hint: "sin(x)/x → 1 and 1/cos(x) → 1.",
+                    validate: (s) => Math.abs(parseFloat(s) - 1) < 0.01
+                        ? { pass: true, message: "Correct — (sin(x)/x)(1/cos x) → 1·1 = 1." }
+                        : { pass: false, message: "Not quite. Split into (sin(x)/x)·(1/cos x); both → 1." },
+                },
             ],
-            answer: 3,
-            explain:
-              "Continuity requires the value to exist, the limit to exist, and the two to match. Monotonicity is irrelevant.",
-          },
-          {
-            q: "A jump discontinuity occurs when…",
-            choices: [
-              "the function has a hole",
-              "the one-sided limits exist but disagree",
-              "the function goes to infinity",
-              "f(a) equals the limit",
-            ],
-            answer: 1,
-            explain:
-              "In a jump, both one-sided limits exist but are unequal, so the two-sided limit doesn't exist.",
-          },
-        ],
-      },
-    },
-    {
-      id: "squeeze-theorem",
-      title: "The Squeeze Theorem",
-      minutes: 12,
-      summary: "Trapping a limit, and proving lim sin(x)/x = 1.",
-      Body: SqueezeTheorem,
-      exercises: [
-        {
-          id: "sinx-over-x",
-          kind: "numeric",
-          prompt: "Using the squeeze result, evaluate lim(x→0) sin(3x)/x.",
-          starter: "",
-          hint: "Write it as 3 · sin(3x)/(3x); the inner ratio → 1.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 3) < 0.01
-              ? { pass: true, message: "Correct — sin(3x)/x = 3·sin(3x)/(3x) → 3·1 = 3." }
-              : { pass: false, message: "Not quite. Factor to 3·sin(3x)/(3x); the ratio tends to 1." },
+            quiz: {
+                questions: [
+                    {
+                        q: "The squeeze theorem requires that…",
+                        choices: [
+                            "f is continuous",
+                            "g(x) ≤ f(x) ≤ h(x) near a, with g and h sharing the same limit",
+                            "f is a polynomial",
+                            "the limit is zero",
+                        ],
+                        answer: 1,
+                        explain: "If f is trapped between g and h, and both outer functions tend to the same L, then f must tend to L as well.",
+                    },
+                    {
+                        q: "lim(x→0) sin(x)/x equals…",
+                        choices: ["0", "1", "∞", "undefined"],
+                        answer: 1,
+                        explain: "A unit-circle area argument squeezes the ratio between cos x and 1; both tend to 1, so the limit is 1 (x in radians).",
+                    },
+                ],
+            },
         },
-        {
-          id: "squeeze-theorem-p1",
-          kind: "numeric",
-          prompt: "Evaluate lim(x→0) sin(x)/x.",
-          starter: "",
-          hint: "The fundamental squeeze result.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 1) < 0.01
-              ? { pass: true, message: "Correct — lim(x→0) sin(x)/x = 1." }
-              : { pass: false, message: "Not quite. This is the anchor squeeze limit; it equals 1." },
-        },
-        {
-          id: "squeeze-theorem-p2",
-          kind: "numeric",
-          prompt: "Evaluate lim(x→0) sin(5x)/x.",
-          starter: "",
-          hint: "Write as 5·sin(5x)/(5x); the inner ratio → 1.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 5) < 0.01
-              ? { pass: true, message: "Correct — 5·sin(5x)/(5x) → 5·1 = 5." }
-              : { pass: false, message: "Not quite. Factor to 5·sin(5x)/(5x), ratio → 1, so 5." },
-        },
-        {
-          id: "squeeze-theorem-p3",
-          kind: "numeric",
-          prompt: "Evaluate lim(x→0) sin(2x)/sin(x). (Hint: sin(2x)/x → 2 and sin(x)/x → 1.)",
-          starter: "",
-          hint: "Divide top and bottom by x: (sin(2x)/x)/(sin(x)/x) → 2/1.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 2) < 0.01
-              ? { pass: true, message: "Correct — (sin(2x)/x)/(sin(x)/x) → 2/1 = 2." }
-              : { pass: false, message: "Not quite. Divide by x: 2/1 = 2." },
-        },
-        {
-          id: "squeeze-theorem-p4",
-          kind: "numeric",
-          prompt: "Evaluate lim(x→0) x² sin(1/x).",
-          starter: "",
-          hint: "sin(1/x) is bounded in [−1, 1] and x² → 0; squeeze it.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 0) < 0.01
-              ? { pass: true, message: "Correct — −x² ≤ x²sin(1/x) ≤ x², both bounds → 0." }
-              : { pass: false, message: "Not quite. Squeeze between −x² and x²; both go to 0." },
-        },
-        {
-          id: "squeeze-theorem-p5",
-          kind: "numeric",
-          prompt: "Evaluate lim(x→0) tan(x)/x. (Hint: tan(x)/x = (sin(x)/x)·(1/cos(x)).)",
-          starter: "",
-          hint: "sin(x)/x → 1 and 1/cos(x) → 1.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 1) < 0.01
-              ? { pass: true, message: "Correct — (sin(x)/x)(1/cos x) → 1·1 = 1." }
-              : { pass: false, message: "Not quite. Split into (sin(x)/x)·(1/cos x); both → 1." },
-        },
-      ],
-      quiz: {
-        questions: [
-          {
-            q: "The squeeze theorem requires that…",
-            choices: [
-              "f is continuous",
-              "g(x) ≤ f(x) ≤ h(x) near a, with g and h sharing the same limit",
-              "f is a polynomial",
-              "the limit is zero",
-            ],
-            answer: 1,
-            explain:
-              "If f is trapped between g and h, and both outer functions tend to the same L, then f must tend to L as well.",
-          },
-          {
-            q: "lim(x→0) sin(x)/x equals…",
-            choices: ["0", "1", "∞", "undefined"],
-            answer: 1,
-            explain:
-              "A unit-circle area argument squeezes the ratio between cos x and 1; both tend to 1, so the limit is 1 (x in radians).",
-          },
-        ],
-      },
-    },
-  ],
+    ],
 };

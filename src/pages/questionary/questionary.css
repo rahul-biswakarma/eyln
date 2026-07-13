@@ -1,8 +1,6 @@
-/* Questionary / Chapter Review page. */
 
-/* ============================================================================
-   Chapter Review — editorial, textbook-inspired end-of-chapter experience
-   ========================================================================== */
+
+
 .chapter-review {
   --cr-accent: var(--track-accent, var(--accent));
   --cr-violet: #A98CFF;
@@ -23,7 +21,7 @@
   }
 }
 
-/* 1 · Editorial hero — generous type, no box */
+
 .cr-hero {
   padding-bottom: 2.4rem;
   border-bottom: 1px solid var(--border);
@@ -91,7 +89,7 @@
   margin-bottom: 1.1rem;
 }
 
-/* Progress rail — animated bars, minimal chrome */
+
 .cr-progress {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -166,7 +164,7 @@
   border-color: color-mix(in srgb, var(--accent) 45%, transparent);
 }
 
-/* 2 · Chapter summary — light section, checkmark list, no cards */
+
 .cr-summary {
   padding: 2.4rem 0;
   border-bottom: 1px solid var(--border);
@@ -197,7 +195,7 @@
   flex: none;
 }
 
-/* 3 · Section review — collapsible, separators over borders */
+
 .cr-sections {
   padding: 2.4rem 0 0;
 }
@@ -322,7 +320,7 @@
   color: var(--cr-accent);
 }
 
-/* 4 · Exercise flow — one at a time; completed collapse to success rows */
+
 .cr-exflow {
   margin-bottom: 1.8rem;
 }
@@ -374,7 +372,7 @@
   margin-top: 1.8rem;
 }
 
-/* 6 · Challenge problem — the chapter boss level */
+
 .cr-challenge {
   padding: 3rem 0 1rem;
 }
@@ -501,7 +499,7 @@
   color: var(--text);
 }
 
-/* 7 · Completion celebration */
+
 .cr-footer {
   padding: 3rem 0 0;
   display: flex;

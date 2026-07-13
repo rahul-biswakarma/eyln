@@ -3,10 +3,8 @@ import { M, MBlock } from "../../components/math";
 import { CodeTabs, Code } from "../../components/code-block";
 import { NoiseExplorer } from "../../widgets/NoiseExplorer";
 import { SplineEditor } from "../../widgets/SplineEditor";
-
 function Noise() {
-  return (
-    <div className="prose">
+    return (<div className="prose">
       <p>
         A grid of pure math is flat and sterile. Nature has bumps, ridges, and cliffs. You get them
         from <strong>noise</strong>: functions that look random but are smooth and repeatable—given the same coordinate input, they always return the same output.
@@ -66,13 +64,10 @@ function Noise() {
         noise" articles. <strong>Anastasia Opara</strong> (Tiny Glade) shows how to turn noise into{" "}
         <em>believable</em> art rather than just terrain.
       </div>
-    </div>
-  );
+    </div>);
 }
-
 function Fbm() {
-  return (
-    <div className="prose">
+    return (<div className="prose">
       <p>
         One octave of noise is smooth and boring. Real terrain has detail at many scales: mountain
         ranges, hills on the ranges, rocks on the hills. You get that by summing several octaves of
@@ -91,11 +86,10 @@ function Fbm() {
         <strong>ridged</strong> — folding each octave with <M>{`1 - |2n-1|`}</M> — to turn rolling
         hills into sharp mountain ridges.
       </p>
-      <CodeTabs
-        tabs={[
-          {
-            label: "Odin", lang: "odin", filename: "terrain.odin",
-            code: `fbm :: proc(x, y: f32, octaves: int, freq, lacunarity, gain: f32) -> f32 {
+      <CodeTabs tabs={[
+            {
+                label: "Odin", lang: "odin", filename: "terrain.odin",
+                code: `fbm :: proc(x, y: f32, octaves: int, freq, lacunarity, gain: f32) -> f32 {
     sum, amp, f, norm : f32 = 0, 1, freq, 0
     for i in 0..<octaves {
         sum  += amp * perlin(x * f, y * f)
@@ -105,10 +99,10 @@ function Fbm() {
     }
     return sum / norm
 }`,
-          },
-          {
-            label: "WGSL", lang: "wgsl", filename: "terrain.wgsl",
-            code: `fn fbm(p: vec2<f32>, octaves: i32, freq: f32, lac: f32, gain: f32) -> f32 {
+            },
+            {
+                label: "WGSL", lang: "wgsl", filename: "terrain.wgsl",
+                code: `fn fbm(p: vec2<f32>, octaves: i32, freq: f32, lac: f32, gain: f32) -> f32 {
   var sum = 0.0; var amp = 1.0; var f = freq; var norm = 0.0;
   for (var i = 0; i < octaves; i = i + 1) {
     sum = sum + amp * perlin(p * f);
@@ -118,16 +112,12 @@ function Fbm() {
   }
   return sum / norm;
 }`,
-          },
-        ]}
-      />
-    </div>
-  );
+            },
+        ]}/>
+    </div>);
 }
-
 function Voronoi() {
-  return (
-    <div className="prose">
+    return (<div className="prose">
       <p>
         Perlin gives you smooth blobs. But cliffs, cracked rock, and stone walls need{" "}
         <strong>cells</strong>. That's <strong>Voronoi / cellular noise</strong>: scatter feature
@@ -139,9 +129,7 @@ function Voronoi() {
         <em> borders</em> between cells — exactly the fractured, blocky cliff edges you see in Tiny
         Glade. Combine that with a heightfield and you get stable rock faces that look carved.
       </p>
-      <Code
-        lang="wgsl" filename="voronoi.wgsl"
-        code={`// Cellular noise: distance to nearest feature point in each grid cell.
+      <Code lang="wgsl" filename="voronoi.wgsl" code={`// Cellular noise: distance to nearest feature point in each grid cell.
 fn voronoi(p: vec2<f32>) -> f32 {
   let cell = floor(p);
   var d = 1e9;
@@ -153,21 +141,17 @@ fn voronoi(p: vec2<f32>) -> f32 {
     }
   }
   return d;   // F1. Use a second 'd2' for F2-F1 edges.
-}`}
-      />
+}`}/>
       <div className="notice">
         <span className="lbl">Tiny Glade connection</span>
         Blocky cliff-sides come from Voronoi cells: each cell becomes a chunk of rock, and the
         cell boundaries become the fracture lines. Deforming the ground just moves the feature
         points, and the cracks re-stitch naturally.
       </div>
-    </div>
-  );
+    </div>);
 }
-
 function Splines() {
-  return (
-    <div className="prose">
+    return (<div className="prose">
       <p>
         When a player draws a path or a wall, they click a few points and expect a{" "}
         <strong>smooth curve</strong> through them. A <strong>spline</strong> is a piecewise
@@ -201,11 +185,10 @@ function Splines() {
       <MBlock>{`p(t) = \\tfrac12 \\big[ 2p_1 + (p_2 - p_0)t + (2p_0 - 5p_1 + 4p_2 - p_3)t^2 + (-p_0 + 3p_1 - 3p_2 + p_3)t^3 \\big]`}</MBlock>
       <SplineEditor />
       <p>Drag the control points and watch the smooth curve track them.</p>
-      <CodeTabs
-        tabs={[
-          {
-            label: "Odin", lang: "odin", filename: "spline.odin",
-            code: `catmull_rom :: proc(p0, p1, p2, p3: [2]f32, t: f32) -> [2]f32 {
+      <CodeTabs tabs={[
+            {
+                label: "Odin", lang: "odin", filename: "spline.odin",
+                code: `catmull_rom :: proc(p0, p1, p2, p3: [2]f32, t: f32) -> [2]f32 {
     t2 := t * t
     t3 := t2 * t
     return 0.5 * (
@@ -215,25 +198,21 @@ function Splines() {
         (-p0 + 3*p1 - 3*p2 + p3) * t3
     )
 }`,
-          },
-          {
-            label: "TypeScript (this site)", lang: "ts", filename: "spline.ts",
-            code: `export function catmullRom(p0, p1, p2, p3, t) {
+            },
+            {
+                label: "TypeScript (this site)", lang: "ts", filename: "spline.ts",
+                code: `export function catmullRom(p0, p1, p2, p3, t) {
   const t2 = t*t, t3 = t2*t;
   const f = (a,b,c,d) =>
     0.5*(2*b + (-a+c)*t + (2*a-5*b+4*c-d)*t2 + (-a+3*b-3*c+d)*t3);
   return [f(p0[0],p1[0],p2[0],p3[0]), f(p0[1],p1[1],p2[1],p3[1])];
 }`,
-          },
-        ]}
-      />
-    </div>
-  );
+            },
+        ]}/>
+    </div>);
 }
-
 function Extrusion() {
-  return (
-    <div className="prose">
+    return (<div className="prose">
       <p>
         A spline is just a 1D line. A wall or track requires <em>width</em> and <em>height</em>. 
         To turn a 1D spline into a 3D polygonal mesh, we must <strong>extrude</strong> a 2D profile along the curve.
@@ -267,9 +246,7 @@ function Extrusion() {
         <strong> procedural mesh</strong>, built in RAM from a handful of clicks, not loaded from a
         file.
       </p>
-      <Code
-        lang="odin" filename="extrude.odin"
-        code={`// Offset each centerline point along its normal to get wall edges.
+      <Code lang="odin" filename="extrude.odin" code={`// Offset each centerline point along its normal to get wall edges.
 extrude_ribbon :: proc(center: [][2]f32, half_w: f32) -> (left, right: [dynamic][2]f32) {
     for p, i in center {
         prev := center[max(0, i-1)]
@@ -280,8 +257,7 @@ extrude_ribbon :: proc(center: [][2]f32, half_w: f32) -> (left, right: [dynamic]
         append(&right, p - n * half_w)
     }
     return
-}`}
-      />
+}`}/>
       <div className="notice">
         <span className="lbl">The Tiny Glade secret</span>
         When two walls meet, you don't let them intersect like ghosts. You detect where the two
@@ -289,71 +265,69 @@ extrude_ribbon :: proc(center: [][2]f32, half_w: f32) -> (left, right: [dynamic]
         stitch a seamless corner — <strong>dynamic vertex generation / CSG</strong>. The capstone's
         final lesson builds the extrusion; the corner-stitching is the boss level.
       </div>
-    </div>
-  );
+    </div>);
 }
-
 export const proceduralMath: Module = {
-  id: "procedural-math",
-  title: "Procedural Math",
-  icon: "🌱",
-  blurb: "Noise, fBm, Voronoi cells, and splines — the math that makes worlds look organic and lets players draw them.",
-  dependsOn: ["linear-algebra"],
-  lessons: [
-    {
-      id: "noise", title: "Noise: Value, Perlin, Simplex", minutes: 14,
-      summary: "Smooth pseudo-randomness — the source of organic terrain.",
-      Body: Noise,
-      quiz: {
-        questions: [
-          { q: "Perlin noise interpolates…", choices: ["Random values on a grid", "Random gradients on a grid", "Pixels from an image", "Nothing — it's pure random"], answer: 1, explain: "Perlin interpolates random gradient directions, which is what gives it its organic look." },
-          { q: "Noise functions are 'coherent', meaning…", choices: ["Truly random each call", "Same input always gives the same smooth output", "Only work in 2D", "Require a GPU"], answer: 1, explain: "They're deterministic and smooth — repeatable given the same coordinate." },
-        ],
-      },
-    },
-    {
-      id: "fbm", title: "fBm & Octaves", minutes: 12,
-      summary: "Summing octaves for multi-scale detail; ridged noise for mountains.",
-      Body: Fbm,
-      quiz: {
-        questions: [
-          { q: "In fBm, 'gain' of 0.5 means…", choices: ["Each octave is twice as strong", "Each octave contributes half the amplitude of the last", "Frequency halves", "Nothing changes"], answer: 1, explain: "Gain multiplies amplitude per octave; 0.5 halves each octave's contribution." },
-          { q: "Lacunarity controls…", choices: ["Amplitude falloff", "Frequency growth per octave", "The seed", "Color"], answer: 1, explain: "Lacunarity (~2) multiplies frequency each octave — finer detail." },
-        ],
-      },
-    },
-    {
-      id: "voronoi", title: "Voronoi / Cellular Noise", minutes: 11,
-      summary: "Cell structures for cracked rock and blocky cliffs.",
-      Body: Voronoi,
-      quiz: {
-        questions: [
-          { q: "Voronoi noise is based on…", choices: ["Interpolated gradients", "Distance to the nearest feature point", "Fourier transforms", "Random colors"], answer: 1, explain: "Each pixel's value is the distance to the closest scattered feature point (F1)." },
-          { q: "To highlight cell borders (cracks) you use…", choices: ["F1 alone", "F2 − F1", "F1 × 2", "The seed"], answer: 1, explain: "The gap between nearest and second-nearest lights up the boundaries." },
-        ],
-      },
-    },
-    {
-      id: "splines", title: "Splines & Curves", minutes: 13,
-      summary: "Catmull-Rom and Bézier — smooth curves through clicked points.",
-      Body: Splines,
-      quiz: {
-        questions: [
-          { q: "Catmull-Rom splines…", choices: ["Miss all control points", "Pass through every control point", "Only work with 4 points total", "Are straight lines"], answer: 1, explain: "Catmull-Rom interpolates — the curve passes through each control point." },
-          { q: "Bézier curves…", choices: ["Pass through all control points", "Are pulled toward inner control points but don't pass through them", "Can't be smooth", "Need noise"], answer: 1, explain: "Interior control points act as attractors; the curve doesn't touch them." },
-        ],
-      },
-    },
-    {
-      id: "extrusion", title: "Extrusion: Spline → Wall", minutes: 12,
-      summary: "Offset along normals to turn a curve into a triangle-strip mesh.",
-      Body: Extrusion,
-      quiz: {
-        questions: [
-          { q: "To extrude a spline into a wall, you offset each point along its…", choices: ["Tangent", "Normal (tangent rotated 90°)", "Color", "Z axis only"], answer: 1, explain: "Stepping left/right along the normal gives the two edges of the ribbon." },
-          { q: "The Tiny-Glade-style seamless corners come from…", choices: ["Pre-made Blender models", "Dynamic vertex generation / CSG at intersections", "Physics", "Textures"], answer: 1, explain: "Meshes are recomputed and stitched where walls meet — not modeled by hand." },
-        ],
-      },
-    },
-  ],
+    id: "procedural-math",
+    title: "Procedural Math",
+    icon: "🌱",
+    blurb: "Noise, fBm, Voronoi cells, and splines — the math that makes worlds look organic and lets players draw them.",
+    dependsOn: ["linear-algebra"],
+    lessons: [
+        {
+            id: "noise", title: "Noise: Value, Perlin, Simplex", minutes: 14,
+            summary: "Smooth pseudo-randomness — the source of organic terrain.",
+            Body: Noise,
+            quiz: {
+                questions: [
+                    { q: "Perlin noise interpolates…", choices: ["Random values on a grid", "Random gradients on a grid", "Pixels from an image", "Nothing — it's pure random"], answer: 1, explain: "Perlin interpolates random gradient directions, which is what gives it its organic look." },
+                    { q: "Noise functions are 'coherent', meaning…", choices: ["Truly random each call", "Same input always gives the same smooth output", "Only work in 2D", "Require a GPU"], answer: 1, explain: "They're deterministic and smooth — repeatable given the same coordinate." },
+                ],
+            },
+        },
+        {
+            id: "fbm", title: "fBm & Octaves", minutes: 12,
+            summary: "Summing octaves for multi-scale detail; ridged noise for mountains.",
+            Body: Fbm,
+            quiz: {
+                questions: [
+                    { q: "In fBm, 'gain' of 0.5 means…", choices: ["Each octave is twice as strong", "Each octave contributes half the amplitude of the last", "Frequency halves", "Nothing changes"], answer: 1, explain: "Gain multiplies amplitude per octave; 0.5 halves each octave's contribution." },
+                    { q: "Lacunarity controls…", choices: ["Amplitude falloff", "Frequency growth per octave", "The seed", "Color"], answer: 1, explain: "Lacunarity (~2) multiplies frequency each octave — finer detail." },
+                ],
+            },
+        },
+        {
+            id: "voronoi", title: "Voronoi / Cellular Noise", minutes: 11,
+            summary: "Cell structures for cracked rock and blocky cliffs.",
+            Body: Voronoi,
+            quiz: {
+                questions: [
+                    { q: "Voronoi noise is based on…", choices: ["Interpolated gradients", "Distance to the nearest feature point", "Fourier transforms", "Random colors"], answer: 1, explain: "Each pixel's value is the distance to the closest scattered feature point (F1)." },
+                    { q: "To highlight cell borders (cracks) you use…", choices: ["F1 alone", "F2 − F1", "F1 × 2", "The seed"], answer: 1, explain: "The gap between nearest and second-nearest lights up the boundaries." },
+                ],
+            },
+        },
+        {
+            id: "splines", title: "Splines & Curves", minutes: 13,
+            summary: "Catmull-Rom and Bézier — smooth curves through clicked points.",
+            Body: Splines,
+            quiz: {
+                questions: [
+                    { q: "Catmull-Rom splines…", choices: ["Miss all control points", "Pass through every control point", "Only work with 4 points total", "Are straight lines"], answer: 1, explain: "Catmull-Rom interpolates — the curve passes through each control point." },
+                    { q: "Bézier curves…", choices: ["Pass through all control points", "Are pulled toward inner control points but don't pass through them", "Can't be smooth", "Need noise"], answer: 1, explain: "Interior control points act as attractors; the curve doesn't touch them." },
+                ],
+            },
+        },
+        {
+            id: "extrusion", title: "Extrusion: Spline → Wall", minutes: 12,
+            summary: "Offset along normals to turn a curve into a triangle-strip mesh.",
+            Body: Extrusion,
+            quiz: {
+                questions: [
+                    { q: "To extrude a spline into a wall, you offset each point along its…", choices: ["Tangent", "Normal (tangent rotated 90°)", "Color", "Z axis only"], answer: 1, explain: "Stepping left/right along the normal gives the two edges of the ribbon." },
+                    { q: "The Tiny-Glade-style seamless corners come from…", choices: ["Pre-made Blender models", "Dynamic vertex generation / CSG at intersections", "Physics", "Textures"], answer: 1, explain: "Meshes are recomputed and stitched where walls meet — not modeled by hand." },
+                ],
+            },
+        },
+    ],
 };

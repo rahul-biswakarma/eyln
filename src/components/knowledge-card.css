@@ -1,16 +1,12 @@
-/* Knowledge Card — shared shell for Exercise / Quiz / Challenge. */
 
-/* ============================================================================
-   Knowledge Card — one unified interaction language for Exercise / Quiz /
-   Challenge. Same shell (eyebrow · large question · interactive area · footer);
-   only the interactive area changes between modes.
-   ========================================================================== */
+
+
 .kc-wrap {
   --kc-accent: var(--track-accent, var(--accent));
   margin: 0.6rem 0 0.4rem;
 }
 
-/* Segmented progress — shared with quiz + exercise */
+
 .kc-segs {
   display: flex;
   gap: 5px;
@@ -34,7 +30,7 @@
   background: color-mix(in srgb, var(--kc-accent) 45%, transparent);
 }
 
-/* Stacked-card illusion — faded cards fanned behind the active one */
+
 .kc-stack {
   position: relative;
 }
@@ -61,7 +57,7 @@
   opacity: 0.3;
 }
 
-/* The card — editorial, minimal chrome, subtle ambient glow */
+
 .kc-card {
   position: relative;
   z-index: 1;
@@ -166,7 +162,7 @@
   position: relative;
 }
 
-/* --- Interactive area: notebook answer (Exercise) ------------------------- */
+
 .kc-notebook {
   position: relative;
   cursor: text;
@@ -217,7 +213,7 @@
   color: var(--text-faint);
 }
 
-/* elegant underline that animates on focus */
+
 .kc-notebook-rule {
   position: absolute;
   left: 8%;
@@ -254,7 +250,7 @@
   transform: scaleX(1);
 }
 
-/* --- Interactive area: option cards (Quiz) -------------------------------- */
+
 .kc-options {
   display: flex;
   flex-direction: column;
@@ -334,7 +330,7 @@
   cursor: default;
 }
 
-/* --- Feedback + hint (shared) --------------------------------------------- */
+
 .kc-feedback {
   position: relative;
   margin-top: 1.4rem;
@@ -432,7 +428,7 @@
   color: var(--kc-accent);
 }
 
-/* --- Action footer (shared): primary spans width, sub-row beneath --------- */
+
 .kc-footer {
   position: relative;
   margin-top: 1.8rem;
@@ -510,7 +506,7 @@
   color: var(--text-dim);
 }
 
-/* --- Compact solved state (Exercise) -------------------------------------- */
+
 .kc-solved {
   display: flex;
   align-items: center;
@@ -557,7 +553,7 @@
   color: var(--good);
 }
 
-/* --- Knowledge Check completion ------------------------------------------- */
+
 .kc-complete {
   position: relative;
   overflow: hidden;

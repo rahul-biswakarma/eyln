@@ -1,6 +1,6 @@
-/* Precision form controls — range/checkbox inputs, code/shader editor input, notices. */
 
-/* ============ Precision form controls ============ */
+
+
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
@@ -110,7 +110,7 @@ input[type="checkbox"]:focus-visible {
   outline-offset: 2px;
 }
 
-/* Code / shader editor input */
+
 .code-input {
   width: 100%;
   background: var(--surface-inset);

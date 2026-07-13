@@ -1,10 +1,8 @@
 import type { Module } from "../../content/types";
 import { M, MBlock } from "../../components/math";
 import { Code } from "../../components/code-block";
-
 function LinkedLists() {
-  return (
-    <div className="prose">
+    return (<div className="prose">
       <p>
         An array stores its elements together and pays for it at the edges (mid-array insert is{" "}
         <M>{`O(n)`}</M>). A <strong>linked list</strong> makes the opposite trade: elements live
@@ -83,10 +81,7 @@ function LinkedLists() {
         on memory-access constants. Lists shine when you hold direct references to nodes and splice
         constantly (LRU caches, adjacency lists, free lists).
       </p>
-      <Code
-        lang="ts"
-        filename="list.ts"
-        code={`class ListNode<T> {
+      <Code lang="ts" filename="list.ts" code={`class ListNode<T> {
   constructor(public value: T, public next: ListNode<T> | null = null) {}
 }
 
@@ -104,21 +99,17 @@ function reverse<T>(head: ListNode<T> | null): ListNode<T> | null {
     prev = cur; cur = next;
   }
   return prev;             // new head
-}`}
-      />
+}`}/>
       <div className="notice warn">
         <span className="lbl">Save 'next' before you overwrite it</span>
         The single most common linked-list bug is reassigning <code>cur.next</code> before stashing
         the old value, which severs the rest of the list. Whenever you rewire pointers, capture what
         you'll need next <em>first</em>.
       </div>
-    </div>
-  );
+    </div>);
 }
-
 function Stacks() {
-  return (
-    <div className="prose">
+    return (<div className="prose">
       <p>
         A <strong>stack</strong> is a collection with one rule: the last thing in is the first thing
         out — <strong>LIFO</strong>. You may only <code>push</code> onto the top and{" "}
@@ -166,10 +157,7 @@ function Stacks() {
         So of the <M>{`n!`}</M> conceivable output orders, only <M>{`C_n \\ll n!`}</M> are achievable
         with a single stack — a concrete, countable measure of how much structure LIFO imposes.
       </p>
-      <Code
-        lang="ts"
-        filename="balanced.ts"
-        code={`// Balanced-brackets check — the canonical stack problem, O(n).
+      <Code lang="ts" filename="balanced.ts" code={`// Balanced-brackets check — the canonical stack problem, O(n).
 function isBalanced(s: string): boolean {
   const stack: string[] = [];
   const close: Record<string, string> = { ")": "(", "]": "[", "}": "{" };
@@ -182,8 +170,7 @@ function isBalanced(s: string): boolean {
   }
   return stack.length === 0;               // nothing left unclosed
 }
-console.log(isBalanced("([]{})"), isBalanced("([)]")); // true false`}
-      />
+console.log(isBalanced("([]{})"), isBalanced("([)]")); // true false`}/>
       <div className="notice">
         <span className="lbl">Why the most-recent opener?</span>
         Brackets nest, and nesting is inherently LIFO: the bracket you must close next is always the
@@ -191,13 +178,10 @@ console.log(isBalanced("([]{})"), isBalanced("([)]")); // true false`}
         fails because the <code>)</code> tries to close a <code>(</code> while a <code>[</code> is
         still the most recent opener.
       </div>
-    </div>
-  );
+    </div>);
 }
-
 function QueuesDeques() {
-  return (
-    <div className="prose">
+    return (<div className="prose">
       <p>
         A <strong>queue</strong> flips the discipline: first in, first out — <strong>FIFO</strong>.
         You <code>enqueue</code> at the back and <code>dequeue</code> from the front, modeling
@@ -271,10 +255,7 @@ function QueuesDeques() {
         The bank balance never goes negative, which certifies the <M>{`O(1)`}</M> amortized bound as a
         worst-case guarantee over any sequence — not a probabilistic average.
       </p>
-      <Code
-        lang="ts"
-        filename="twostackqueue.ts"
-        code={`class TwoStackQueue<T> {
+      <Code lang="ts" filename="twostackqueue.ts" code={`class TwoStackQueue<T> {
   private inStack: T[] = [];   // enqueue lands here
   private outStack: T[] = [];  // dequeue pulls from here
 
@@ -287,18 +268,14 @@ function QueuesDeques() {
     return this.outStack.pop();                          // FIFO order restored
   }
 }
-// Each element is moved at most once from in→out, so n ops cost O(n) total.`}
-      />
+// Each element is moved at most once from in→out, so n ops cost O(n) total.`}/>
       <div className="notice">
         <span className="lbl">Why the reversal yields FIFO</span>
         Pushing <code>1,2,3</code> onto <M>{`\\text{in}`}</M> leaves 3 on top. Popping them one by one
         and pushing onto <M>{`\\text{out}`}</M> lands 1 on top — so the next <code>dequeue</code>{" "}
         returns 1, the oldest element. One reversal of a LIFO stack is exactly a FIFO queue.
       </div>
-      <Code
-        lang="ts"
-        filename="ringbuffer.ts"
-        code={`class RingQueue<T> {
+      <Code lang="ts" filename="ringbuffer.ts" code={`class RingQueue<T> {
   private buf: (T | undefined)[];
   private head = 0;   // index of the front element
   private tail = 0;   // index where the next enqueue goes
@@ -319,21 +296,17 @@ function QueuesDeques() {
     this.count--;
     return x;
   }
-}`}
-      />
+}`}/>
       <div className="notice warn">
         <span className="lbl">Distinguish full from empty</span>
         In a ring buffer, <code>head === tail</code> is ambiguous — it can mean empty <em>or</em>
         full. Track an explicit <code>count</code> (as above) or leave one slot always unused. Getting
         this wrong silently drops or overwrites elements.
       </div>
-    </div>
-  );
+    </div>);
 }
-
 function FastSlow() {
-  return (
-    <div className="prose">
+    return (<div className="prose">
       <p>
         The <strong>fast/slow pointer</strong> pattern (Floyd's "tortoise and hare") runs two pointers
         through a linked structure at different speeds. It answers questions about structure using{" "}
@@ -353,10 +326,7 @@ function FastSlow() {
         <M>{`O(n)`}</M> time, <M>{`O(1)`}</M> space — strictly better on memory than the obvious
         hash-set approach.
       </p>
-      <Code
-        lang="ts"
-        filename="floyd.ts"
-        code={`class Node { constructor(public next: Node | null = null) {} }
+      <Code lang="ts" filename="floyd.ts" code={`class Node { constructor(public next: Node | null = null) {} }
 
 // Does the list contain a cycle? Floyd's algorithm — O(n) time, O(1) space.
 function hasCycle(head: Node | null): boolean {
@@ -374,21 +344,17 @@ function middle(head: Node | null): Node | null {
   let slow = head, fast = head;
   while (fast && fast.next) { slow = slow!.next; fast = fast.next.next; }
   return slow;                // slow is at the midpoint
-}`}
-      />
+}`}/>
       <div className="notice">
         <span className="lbl">Why not just a visited set?</span>
         A hash set of visited nodes also detects cycles in <M>{`O(n)`}</M> — but at <M>{`O(n)`}</M>{" "}
         space. Floyd's trick gets the same answer in <M>{`O(1)`}</M> space, which matters when the
         structure is huge or memory is tight. It's the classic space-optimization win.
       </div>
-    </div>
-  );
+    </div>);
 }
-
 function MonotonicStack() {
-  return (
-    <div className="prose">
+    return (<div className="prose">
       <p>
         A <strong>monotonic stack</strong> is an ordinary stack with one extra invariant: its
         contents stay sorted (all-increasing or all-decreasing) as you go from bottom to top. Before
@@ -408,10 +374,7 @@ function MonotonicStack() {
         total work is <M>{`\\le 2n`}</M> operations — <M>{`O(n)`}</M>.
       </p>
       <MBlock>{`\\text{each index: } 1 \\text{ push} + \\le 1 \\text{ pop} \\;\\Rightarrow\\; \\text{total} \\le 2n = O(n)`}</MBlock>
-      <Code
-        lang="ts"
-        filename="monotonic.ts"
-        code={`// For each index i, next[i] = value of the first later element greater than a[i],
+      <Code lang="ts" filename="monotonic.ts" code={`// For each index i, next[i] = value of the first later element greater than a[i],
 // or -1 if none. Monotonic (decreasing) stack of indices. O(n).
 function nextGreater(a: number[]): number[] {
   const next = new Array<number>(a.length).fill(-1);
@@ -424,8 +387,7 @@ function nextGreater(a: number[]): number[] {
   }
   return next;                                // leftover indices keep -1
 }
-console.log(nextGreater([2, 1, 3, 1])); // [3, 3, -1, -1]`}
-      />
+console.log(nextGreater([2, 1, 3, 1])); // [3, 3, -1, -1]`}/>
       <div className="notice warn">
         <span className="lbl">Store indices, not just values</span>
         Pushing indices (not raw values) lets you also recover <em>distance</em> to the next greater
@@ -466,10 +428,7 @@ console.log(nextGreater([2, 1, 3, 1])); // [3, 3, -1, -1]`}
         despite the inner <code>while</code> loops total work is <M>{`\\le 2n = O(n)`}</M> — beating the{" "}
         <M>{`O(nk)`}</M> naive rescan and the <M>{`O(n \\log k)`}</M> balanced-heap approach.
       </p>
-      <Code
-        lang="ts"
-        filename="windowmax.ts"
-        code={`// Maximum of every window of width k. Monotonic deque of indices. O(n).
+      <Code lang="ts" filename="windowmax.ts" code={`// Maximum of every window of width k. Monotonic deque of indices. O(n).
 function maxSlidingWindow(a: number[], k: number): number[] {
   const dq: number[] = [];        // indices; values strictly decreasing front→back
   const out: number[] = [];
@@ -483,8 +442,7 @@ function maxSlidingWindow(a: number[], k: number): number[] {
   }
   return out;
 }
-console.log(maxSlidingWindow([1, 3, -1, -3, 5, 3, 6, 7], 3)); // [3,3,5,5,6,7]`}
-      />
+console.log(maxSlidingWindow([1, 3, -1, -3, 5, 3, 6, 7], 3)); // [3,3,5,5,6,7]`}/>
       <div className="notice">
         <span className="lbl">Why a deque, not a stack</span>
         You prune stale-by-<em>value</em> indices from the back but stale-by-<em>position</em> indices
@@ -492,119 +450,116 @@ console.log(maxSlidingWindow([1, 3, -1, -3, 5, 3, 6, 7], 3)); // [3,3,5,5,6,7]`}
         stack can't evict the oldest element cheaply, which is why "next greater" needs only a stack but
         "window maximum" needs a deque.
       </div>
-    </div>
-  );
+    </div>);
 }
-
 export const dsaLinear: Module = {
-  id: "dsa-linear",
-  title: "Linked Lists, Stacks & Queues",
-  icon: "🔗",
-  track: "dsa",
-  blurb:
-    "Pointer-based structures and the disciplines built on them: linked lists, LIFO stacks, FIFO queues and ring buffers, fast/slow pointers, and monotonic stacks.",
-  dependsOn: ["dsa-complexity"],
-  lessons: [
-    {
-      id: "linked-lists", title: "Linked Lists", minutes: 13,
-      summary: "Nodes and pointers — the mirror image of an array's tradeoffs.",
-      Body: LinkedLists,
-      quiz: {
-        questions: [
-          { q: "Accessing the i-th element of a singly linked list is…", choices: ["O(1)", "O(log n)", "O(n) — you walk i pointers", "O(n²)"], answer: 2, explain: "There's no address formula; you follow next pointers one at a time." },
-          { q: "The advantage a doubly linked list has over a singly linked one is…", choices: ["Less memory", "O(1) backward traversal and node removal given a reference", "Faster indexing", "Cache locality"], answer: 1, explain: "The prev pointer lets you go backward and splice out a node in O(1)." },
-          { q: "Despite good Big-O for splicing, linked lists often lose to arrays because…", choices: ["They use less memory", "They have no cache locality — scattered nodes cause cache misses", "They can't be reversed", "Pointers are slow to declare"], answer: 1, explain: "Non-contiguous nodes defeat the cache, so constant factors favor contiguous arrays." },
-        ],
-      },
-      exercises: [
+    id: "dsa-linear",
+    title: "Linked Lists, Stacks & Queues",
+    icon: "🔗",
+    track: "dsa",
+    blurb: "Pointer-based structures and the disciplines built on them: linked lists, LIFO stacks, FIFO queues and ring buffers, fast/slow pointers, and monotonic stacks.",
+    dependsOn: ["dsa-complexity"],
+    lessons: [
         {
-          id: "reverse-open", kind: "open",
-          prompt: "In the in-place list reversal loop, explain why we must save `cur.next` into a temporary before setting `cur.next = prev`. What breaks if we don't?",
-          starter: "",
-          rubric: "Full credit: setting cur.next = prev overwrites the only pointer to the rest of the list, so without saving it first you lose access to all following nodes (the loop can't advance / the list is severed). Partial: says the list breaks without explaining the lost forward pointer.",
-          hint: "cur.next is the only reference to the remainder of the list.",
+            id: "linked-lists", title: "Linked Lists", minutes: 13,
+            summary: "Nodes and pointers — the mirror image of an array's tradeoffs.",
+            Body: LinkedLists,
+            quiz: {
+                questions: [
+                    { q: "Accessing the i-th element of a singly linked list is…", choices: ["O(1)", "O(log n)", "O(n) — you walk i pointers", "O(n²)"], answer: 2, explain: "There's no address formula; you follow next pointers one at a time." },
+                    { q: "The advantage a doubly linked list has over a singly linked one is…", choices: ["Less memory", "O(1) backward traversal and node removal given a reference", "Faster indexing", "Cache locality"], answer: 1, explain: "The prev pointer lets you go backward and splice out a node in O(1)." },
+                    { q: "Despite good Big-O for splicing, linked lists often lose to arrays because…", choices: ["They use less memory", "They have no cache locality — scattered nodes cause cache misses", "They can't be reversed", "Pointers are slow to declare"], answer: 1, explain: "Non-contiguous nodes defeat the cache, so constant factors favor contiguous arrays." },
+                ],
+            },
+            exercises: [
+                {
+                    id: "reverse-open", kind: "open",
+                    prompt: "In the in-place list reversal loop, explain why we must save `cur.next` into a temporary before setting `cur.next = prev`. What breaks if we don't?",
+                    starter: "",
+                    rubric: "Full credit: setting cur.next = prev overwrites the only pointer to the rest of the list, so without saving it first you lose access to all following nodes (the loop can't advance / the list is severed). Partial: says the list breaks without explaining the lost forward pointer.",
+                    hint: "cur.next is the only reference to the remainder of the list.",
+                },
+            ],
         },
-      ],
-    },
-    {
-      id: "stacks", title: "Stacks (LIFO)", minutes: 11,
-      summary: "Last-in-first-out: call stacks, undo, and expression matching.",
-      Body: Stacks,
-      quiz: {
-        questions: [
-          { q: "A stack is characterized by…", choices: ["FIFO order", "LIFO — last in, first out", "Random access", "Sorted order"], answer: 1, explain: "Push and pop both act on the top; the most recent element leaves first." },
-          { q: "Which is NOT a natural fit for a stack?", choices: ["Undo history", "Function call frames", "Breadth-first search", "Balanced-bracket checking"], answer: 2, explain: "BFS is FIFO (a queue). The other three are inherently LIFO." },
-          { q: "'([)]' is not balanced because…", choices: ["It has odd length", "')' tries to close '(' while '[' is the most recent unclosed opener", "Brackets can't nest", "It's too short"], answer: 1, explain: "Nesting is LIFO; the ')' doesn't match the most-recently-opened '[', so the stack top mismatches." },
-        ],
-      },
-      exercises: [
         {
-          id: "stack-eval", kind: "numeric",
-          prompt: "Evaluate the RPN (postfix) expression '3 4 + 5 *' using a stack. Push numbers; on an operator pop two, apply, push the result. What is the final value?",
-          starter: "", hint: "(3 + 4) then × 5.",
-          validate: (s) => Math.abs(parseFloat(s) - 35) < 0.01 ? { pass: true, message: "Correct — (3 + 4) × 5 = 35." } : { pass: false, message: "Push 3, 4; '+' pops them → 7; push 5; '*' pops 7 and 5 → 35." },
+            id: "stacks", title: "Stacks (LIFO)", minutes: 11,
+            summary: "Last-in-first-out: call stacks, undo, and expression matching.",
+            Body: Stacks,
+            quiz: {
+                questions: [
+                    { q: "A stack is characterized by…", choices: ["FIFO order", "LIFO — last in, first out", "Random access", "Sorted order"], answer: 1, explain: "Push and pop both act on the top; the most recent element leaves first." },
+                    { q: "Which is NOT a natural fit for a stack?", choices: ["Undo history", "Function call frames", "Breadth-first search", "Balanced-bracket checking"], answer: 2, explain: "BFS is FIFO (a queue). The other three are inherently LIFO." },
+                    { q: "'([)]' is not balanced because…", choices: ["It has odd length", "')' tries to close '(' while '[' is the most recent unclosed opener", "Brackets can't nest", "It's too short"], answer: 1, explain: "Nesting is LIFO; the ')' doesn't match the most-recently-opened '[', so the stack top mismatches." },
+                ],
+            },
+            exercises: [
+                {
+                    id: "stack-eval", kind: "numeric",
+                    prompt: "Evaluate the RPN (postfix) expression '3 4 + 5 *' using a stack. Push numbers; on an operator pop two, apply, push the result. What is the final value?",
+                    starter: "", hint: "(3 + 4) then × 5.",
+                    validate: (s) => Math.abs(parseFloat(s) - 35) < 0.01 ? { pass: true, message: "Correct — (3 + 4) × 5 = 35." } : { pass: false, message: "Push 3, 4; '+' pops them → 7; push 5; '*' pops 7 and 5 → 35." },
+                },
+            ],
         },
-      ],
-    },
-    {
-      id: "queues-deques", title: "Queues, Deques & Ring Buffers", minutes: 12,
-      summary: "FIFO with O(1) ends via circular indexing.",
-      Body: QueuesDeques,
-      quiz: {
-        questions: [
-          { q: "A queue processes elements in…", choices: ["LIFO order", "FIFO order", "Sorted order", "Random order"], answer: 1, explain: "First in, first out — enqueue at the back, dequeue from the front." },
-          { q: "Why implement a queue as a ring buffer instead of using arr.shift()?", choices: ["shift() is O(n) — it shifts every element; ring buffer dequeue is O(1)", "Ring buffers use less memory", "shift() is undefined", "Ring buffers sort automatically"], answer: 0, explain: "shift() moves all remaining elements down each time; wrapping head/tail indices avoids that." },
-          { q: "A deque supports…", choices: ["Push/pop at one end only", "O(1) push and pop at both ends", "Sorted insertion", "Random access only"], answer: 1, explain: "Double-ended: both front and back are O(1), so it acts as stack and queue." },
-        ],
-      },
-      exercises: [
         {
-          id: "ring", kind: "numeric",
-          prompt: "A ring buffer has capacity 5. head is at index 3. After a dequeue, head advances by (3 + 1) mod 5. What is the new head index?",
-          starter: "", hint: "(3 + 1) mod 5.",
-          validate: (s) => Math.abs(parseFloat(s) - 4) < 0.01 ? { pass: true, message: "Correct — (3 + 1) mod 5 = 4." } : { pass: false, message: "Compute (3 + 1) mod 5." },
+            id: "queues-deques", title: "Queues, Deques & Ring Buffers", minutes: 12,
+            summary: "FIFO with O(1) ends via circular indexing.",
+            Body: QueuesDeques,
+            quiz: {
+                questions: [
+                    { q: "A queue processes elements in…", choices: ["LIFO order", "FIFO order", "Sorted order", "Random order"], answer: 1, explain: "First in, first out — enqueue at the back, dequeue from the front." },
+                    { q: "Why implement a queue as a ring buffer instead of using arr.shift()?", choices: ["shift() is O(n) — it shifts every element; ring buffer dequeue is O(1)", "Ring buffers use less memory", "shift() is undefined", "Ring buffers sort automatically"], answer: 0, explain: "shift() moves all remaining elements down each time; wrapping head/tail indices avoids that." },
+                    { q: "A deque supports…", choices: ["Push/pop at one end only", "O(1) push and pop at both ends", "Sorted insertion", "Random access only"], answer: 1, explain: "Double-ended: both front and back are O(1), so it acts as stack and queue." },
+                ],
+            },
+            exercises: [
+                {
+                    id: "ring", kind: "numeric",
+                    prompt: "A ring buffer has capacity 5. head is at index 3. After a dequeue, head advances by (3 + 1) mod 5. What is the new head index?",
+                    starter: "", hint: "(3 + 1) mod 5.",
+                    validate: (s) => Math.abs(parseFloat(s) - 4) < 0.01 ? { pass: true, message: "Correct — (3 + 1) mod 5 = 4." } : { pass: false, message: "Compute (3 + 1) mod 5." },
+                },
+            ],
         },
-      ],
-    },
-    {
-      id: "fast-slow", title: "The Fast/Slow Pointer Pattern", minutes: 12,
-      summary: "Floyd's tortoise & hare — cycle detection in O(1) space.",
-      Body: FastSlow,
-      quiz: {
-        questions: [
-          { q: "In Floyd's cycle detection, the pointers move by…", choices: ["Both by 1", "slow by 1, fast by 2", "Both by 2", "slow by 2, fast by 1"], answer: 1, explain: "The speed difference of 1 per step guarantees they meet inside any cycle." },
-          { q: "Why must fast and slow meet if a cycle exists?", choices: ["Random chance", "Inside the loop the gap closes by exactly 1 each step, so it reaches 0", "Fast reaches null", "They start together"], answer: 1, explain: "Once both are in the cycle, the gap shrinks by 2−1=1 per step and cannot skip past 0." },
-          { q: "Floyd's advantage over a visited hash set is…", choices: ["Faster time complexity", "O(1) space instead of O(n)", "It's simpler to code", "It works on arrays only"], answer: 1, explain: "Both are O(n) time, but Floyd's uses constant extra space." },
-        ],
-      },
-      exercises: [
         {
-          id: "middle", kind: "numeric",
-          prompt: "A linked list has 7 nodes (indices 0..6). Using the fast/slow middle-finding loop (fast +2, slow +1, stop when fast can't advance), what index does slow end on? (For odd length it lands on the exact middle.)",
-          starter: "", hint: "Middle of 7 nodes is index 3.",
-          validate: (s) => Math.abs(parseFloat(s) - 3) < 0.01 ? { pass: true, message: "Correct — slow lands on index 3, the exact middle of 7 nodes." } : { pass: false, message: "For 7 nodes, the midpoint index is 3." },
+            id: "fast-slow", title: "The Fast/Slow Pointer Pattern", minutes: 12,
+            summary: "Floyd's tortoise & hare — cycle detection in O(1) space.",
+            Body: FastSlow,
+            quiz: {
+                questions: [
+                    { q: "In Floyd's cycle detection, the pointers move by…", choices: ["Both by 1", "slow by 1, fast by 2", "Both by 2", "slow by 2, fast by 1"], answer: 1, explain: "The speed difference of 1 per step guarantees they meet inside any cycle." },
+                    { q: "Why must fast and slow meet if a cycle exists?", choices: ["Random chance", "Inside the loop the gap closes by exactly 1 each step, so it reaches 0", "Fast reaches null", "They start together"], answer: 1, explain: "Once both are in the cycle, the gap shrinks by 2−1=1 per step and cannot skip past 0." },
+                    { q: "Floyd's advantage over a visited hash set is…", choices: ["Faster time complexity", "O(1) space instead of O(n)", "It's simpler to code", "It works on arrays only"], answer: 1, explain: "Both are O(n) time, but Floyd's uses constant extra space." },
+                ],
+            },
+            exercises: [
+                {
+                    id: "middle", kind: "numeric",
+                    prompt: "A linked list has 7 nodes (indices 0..6). Using the fast/slow middle-finding loop (fast +2, slow +1, stop when fast can't advance), what index does slow end on? (For odd length it lands on the exact middle.)",
+                    starter: "", hint: "Middle of 7 nodes is index 3.",
+                    validate: (s) => Math.abs(parseFloat(s) - 3) < 0.01 ? { pass: true, message: "Correct — slow lands on index 3, the exact middle of 7 nodes." } : { pass: false, message: "For 7 nodes, the midpoint index is 3." },
+                },
+            ],
         },
-      ],
-    },
-    {
-      id: "monotonic-stack", title: "Monotonic Stack", minutes: 12,
-      summary: "Keep a stack sorted to solve next-greater problems in O(n).",
-      Body: MonotonicStack,
-      quiz: {
-        questions: [
-          { q: "A monotonic stack maintains the invariant that…", choices: ["It's always empty", "Its contents stay sorted (increasing or decreasing)", "It holds at most 2 items", "It's FIFO"], answer: 1, explain: "You pop violating elements before pushing, keeping the stack monotonic." },
-          { q: "The 'next greater element' monotonic-stack algorithm runs in…", choices: ["O(n²)", "O(n log n)", "O(n)", "O(log n)"], answer: 2, explain: "Each index is pushed once and popped at most once — total work ≤ 2n." },
-          { q: "Why push indices rather than values onto the stack?", choices: ["Indices are smaller", "To recover distance/position and index back into the array", "Values can't be pushed", "It changes the complexity"], answer: 1, explain: "Indices let you compute how far away the next greater element is and look up neighbors." },
-        ],
-      },
-      exercises: [
         {
-          id: "next-greater", kind: "numeric",
-          prompt: "For a = [2, 1, 3, 1], nextGreater returns the value of the first later element greater than each. What is nextGreater[1] (the answer for the element with value 1 at index 1)?",
-          starter: "", hint: "After the 1 at index 1, the first larger value is 3.",
-          validate: (s) => Math.abs(parseFloat(s) - 3) < 0.01 ? { pass: true, message: "Correct — the next element greater than a[1]=1 is 3." } : { pass: false, message: "Scan right from index 1: the first value greater than 1 is 3." },
+            id: "monotonic-stack", title: "Monotonic Stack", minutes: 12,
+            summary: "Keep a stack sorted to solve next-greater problems in O(n).",
+            Body: MonotonicStack,
+            quiz: {
+                questions: [
+                    { q: "A monotonic stack maintains the invariant that…", choices: ["It's always empty", "Its contents stay sorted (increasing or decreasing)", "It holds at most 2 items", "It's FIFO"], answer: 1, explain: "You pop violating elements before pushing, keeping the stack monotonic." },
+                    { q: "The 'next greater element' monotonic-stack algorithm runs in…", choices: ["O(n²)", "O(n log n)", "O(n)", "O(log n)"], answer: 2, explain: "Each index is pushed once and popped at most once — total work ≤ 2n." },
+                    { q: "Why push indices rather than values onto the stack?", choices: ["Indices are smaller", "To recover distance/position and index back into the array", "Values can't be pushed", "It changes the complexity"], answer: 1, explain: "Indices let you compute how far away the next greater element is and look up neighbors." },
+                ],
+            },
+            exercises: [
+                {
+                    id: "next-greater", kind: "numeric",
+                    prompt: "For a = [2, 1, 3, 1], nextGreater returns the value of the first later element greater than each. What is nextGreater[1] (the answer for the element with value 1 at index 1)?",
+                    starter: "", hint: "After the 1 at index 1, the first larger value is 3.",
+                    validate: (s) => Math.abs(parseFloat(s) - 3) < 0.01 ? { pass: true, message: "Correct — the next element greater than a[1]=1 is 3." } : { pass: false, message: "Scan right from index 1: the first value greater than 1 is 3." },
+                },
+            ],
         },
-      ],
-    },
-  ],
+    ],
 };

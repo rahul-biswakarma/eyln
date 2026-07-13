@@ -1,10 +1,8 @@
 import type { Module } from "../../content/types";
 import { M, MBlock } from "../../components/math";
 import { Code } from "../../components/code-block";
-
 function DerivativeAsLimit() {
-  return (
-    <div className="prose">
+    return (<div className="prose">
       <p>
         The derivative measures <strong>instantaneous rate of change</strong> — how fast the output
         moves as the input nudges. Geometrically it is the <strong>slope of the tangent line</strong>,
@@ -54,22 +52,16 @@ function DerivativeAsLimit() {
         continuity. The converse fails: <M>{`|x|`}</M> is continuous at <M>{`0`}</M> but has a corner,
         so no single tangent slope exists. Smoothness is stronger than mere connectedness.
       </div>
-      <Code
-        lang="ts"
-        code={`// Numerically approach the derivative of x² at x = 3 (true answer: 6).
+      <Code lang="ts" code={`// Numerically approach the derivative of x² at x = 3 (true answer: 6).
 const f = (x: number) => x * x;
 const slope = (x: number, h: number) => (f(x + h) - f(x)) / h;
 slope(3, 0.1);    // 6.1
 slope(3, 0.01);   // 6.01
-slope(3, 0.001);  // 6.001  -> homing in on 6`}
-      />
-    </div>
-  );
+slope(3, 0.001);  // 6.001  -> homing in on 6`}/>
+    </div>);
 }
-
 function Rules() {
-  return (
-    <div className="prose">
+    return (<div className="prose">
       <p>
         Computing every derivative from the limit definition would be exhausting. Instead we prove a
         handful of <strong>rules</strong> once and then compose them. These four cover almost
@@ -122,13 +114,10 @@ function Rules() {
         <M>{`(fg)' \\neq f' g'`}</M>. Test it: <M>{`\\tfrac{d}{dx}(x \\cdot x) = 2x`}</M>, but{" "}
         <M>{`(1)(1) = 1`}</M>. The product rule's cross terms are not optional.
       </div>
-    </div>
-  );
+    </div>);
 }
-
 function TranscendentalDerivatives() {
-  return (
-    <div className="prose">
+    return (<div className="prose">
       <p>
         Polynomials are only half the world. The other half — waves, growth, decay — runs on trig,
         exponential, and log functions, and each has a derivative worth memorizing.
@@ -168,13 +157,10 @@ function TranscendentalDerivatives() {
         velocity is the derivative <M>{`-k e^{-kt}`}</M>. This module is a prerequisite for the 3D
         engine track for exactly this reason.
       </div>
-    </div>
-  );
+    </div>);
 }
-
 function HigherDerivativesConcavity() {
-  return (
-    <div className="prose">
+    return (<div className="prose">
       <p>
         The derivative of a function is itself a function, so you can differentiate <em>again</em>. The{" "}
         <strong>second derivative</strong> <M>{`f''(x)`}</M> is the rate of change of the rate of
@@ -216,13 +202,10 @@ function HigherDerivativesConcavity() {
         series that lets a machine approximate <M>{`\\sin`}</M>, <M>{`e^x`}</M>, and friends from
         polynomials alone — the numerical bedrock under every graphics library.
       </div>
-    </div>
-  );
+    </div>);
 }
-
 function OptimizationRelatedRates() {
-  return (
-    <div className="prose">
+    return (<div className="prose">
       <p>
         Here is the derivative's most famous payoff: finding the <strong>largest or smallest</strong>{" "}
         value a quantity can take. Peaks and valleys of a smooth curve have one thing in common — the
@@ -268,513 +251,465 @@ function OptimizationRelatedRates() {
         differentiate with respect to <M>{`t`}</M>, plug in the instant's known values, solve for the
         unknown rate.
       </div>
-    </div>
-  );
+    </div>);
 }
-
 export const mathDerivatives: Module = {
-  id: "math-derivatives",
-  title: "Derivatives",
-  icon: "📉",
-  track: "math",
-  blurb:
-    "Instantaneous change: the limit definition, the differentiation rules, derivatives of trig/exp/log, concavity, and optimization with related rates. A prerequisite for the 3D engine track.",
-  dependsOn: ["math-limits"],
-  lessons: [
-    {
-      id: "derivative-as-limit",
-      title: "The Derivative as a Limit",
-      minutes: 14,
-      summary: "The difference quotient and the slope of the tangent.",
-      Body: DerivativeAsLimit,
-      exercises: [
+    id: "math-derivatives",
+    title: "Derivatives",
+    icon: "📉",
+    track: "math",
+    blurb: "Instantaneous change: the limit definition, the differentiation rules, derivatives of trig/exp/log, concavity, and optimization with related rates. A prerequisite for the 3D engine track.",
+    dependsOn: ["math-limits"],
+    lessons: [
         {
-          id: "from-definition",
-          kind: "numeric",
-          prompt:
-            "Using f'(x) = 2x for f(x) = x², what is the slope of the tangent to y = x² at x = 4?",
-          starter: "",
-          hint: "Evaluate the derivative 2x at x = 4.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 8) < 0.01
-              ? { pass: true, message: "Correct — f'(4) = 2·4 = 8." }
-              : { pass: false, message: "Not quite. Plug x = 4 into f'(x) = 2x." },
-        },
-        {
-          id: "derivative-as-limit-p1",
-          kind: "numeric",
-          prompt: "For f(x) = x² with f'(x) = 2x, find the slope of the tangent at x = 3.",
-          starter: "",
-          hint: "Evaluate 2x at x = 3.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 6) < 0.01
-              ? { pass: true, message: "Correct — f'(3) = 2·3 = 6." }
-              : { pass: false, message: "Not quite. Plug x = 3 into f'(x) = 2x." },
-        },
-        {
-          id: "derivative-as-limit-p2",
-          kind: "numeric",
-          prompt: "For the line f(x) = 5x − 2, what is f'(x) (its constant slope)?",
-          starter: "",
-          hint: "The derivative of a line is its slope everywhere.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 5) < 0.01
-              ? { pass: true, message: "Correct — the slope of 5x − 2 is 5." }
-              : { pass: false, message: "Not quite. A line's derivative is its slope m = 5." },
-        },
-        {
-          id: "derivative-as-limit-p3",
-          kind: "numeric",
-          prompt:
-            "For f(x) = x² the difference quotient at x = 2 is (f(2+h) − f(2))/h = 4 + h. What value does it approach as h → 0?",
-          starter: "",
-          hint: "Let h → 0 in 4 + h.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 4) < 0.01
-              ? { pass: true, message: "Correct — 4 + h → 4, matching f'(2) = 2·2 = 4." }
-              : { pass: false, message: "Not quite. As h → 0, 4 + h → 4." },
-        },
-        {
-          id: "derivative-as-limit-p4",
-          kind: "numeric",
-          prompt: "For f(x) = x² with f'(x) = 2x, find the tangent slope at x = −2.",
-          starter: "",
-          hint: "Evaluate 2x at x = −2.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - -4) < 0.01
-              ? { pass: true, message: "Correct — f'(−2) = 2·(−2) = −4." }
-              : { pass: false, message: "Not quite. Plug x = −2 into f'(x) = 2x." },
-        },
-        {
-          id: "derivative-as-limit-p5",
-          kind: "numeric",
-          prompt:
-            "For f(x) = x³ the derivative is f'(x) = 3x². Find the tangent slope at x = 2.",
-          starter: "",
-          hint: "Evaluate 3x² at x = 2.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 12) < 0.01
-              ? { pass: true, message: "Correct — f'(2) = 3·4 = 12." }
-              : { pass: false, message: "Not quite. Plug x = 2 into f'(x) = 3x²." },
-        },
-      ],
-      quiz: {
-        questions: [
-          {
-            q: "The difference quotient (f(x+h) − f(x))/h represents…",
-            choices: [
-              "the tangent slope exactly",
-              "the average rate of change over a step h (a secant slope)",
-              "the area under f",
-              "the second derivative",
+            id: "derivative-as-limit",
+            title: "The Derivative as a Limit",
+            minutes: 14,
+            summary: "The difference quotient and the slope of the tangent.",
+            Body: DerivativeAsLimit,
+            exercises: [
+                {
+                    id: "from-definition",
+                    kind: "numeric",
+                    prompt: "Using f'(x) = 2x for f(x) = x², what is the slope of the tangent to y = x² at x = 4?",
+                    starter: "",
+                    hint: "Evaluate the derivative 2x at x = 4.",
+                    validate: (s) => Math.abs(parseFloat(s) - 8) < 0.01
+                        ? { pass: true, message: "Correct — f'(4) = 2·4 = 8." }
+                        : { pass: false, message: "Not quite. Plug x = 4 into f'(x) = 2x." },
+                },
+                {
+                    id: "derivative-as-limit-p1",
+                    kind: "numeric",
+                    prompt: "For f(x) = x² with f'(x) = 2x, find the slope of the tangent at x = 3.",
+                    starter: "",
+                    hint: "Evaluate 2x at x = 3.",
+                    validate: (s) => Math.abs(parseFloat(s) - 6) < 0.01
+                        ? { pass: true, message: "Correct — f'(3) = 2·3 = 6." }
+                        : { pass: false, message: "Not quite. Plug x = 3 into f'(x) = 2x." },
+                },
+                {
+                    id: "derivative-as-limit-p2",
+                    kind: "numeric",
+                    prompt: "For the line f(x) = 5x − 2, what is f'(x) (its constant slope)?",
+                    starter: "",
+                    hint: "The derivative of a line is its slope everywhere.",
+                    validate: (s) => Math.abs(parseFloat(s) - 5) < 0.01
+                        ? { pass: true, message: "Correct — the slope of 5x − 2 is 5." }
+                        : { pass: false, message: "Not quite. A line's derivative is its slope m = 5." },
+                },
+                {
+                    id: "derivative-as-limit-p3",
+                    kind: "numeric",
+                    prompt: "For f(x) = x² the difference quotient at x = 2 is (f(2+h) − f(2))/h = 4 + h. What value does it approach as h → 0?",
+                    starter: "",
+                    hint: "Let h → 0 in 4 + h.",
+                    validate: (s) => Math.abs(parseFloat(s) - 4) < 0.01
+                        ? { pass: true, message: "Correct — 4 + h → 4, matching f'(2) = 2·2 = 4." }
+                        : { pass: false, message: "Not quite. As h → 0, 4 + h → 4." },
+                },
+                {
+                    id: "derivative-as-limit-p4",
+                    kind: "numeric",
+                    prompt: "For f(x) = x² with f'(x) = 2x, find the tangent slope at x = −2.",
+                    starter: "",
+                    hint: "Evaluate 2x at x = −2.",
+                    validate: (s) => Math.abs(parseFloat(s) - -4) < 0.01
+                        ? { pass: true, message: "Correct — f'(−2) = 2·(−2) = −4." }
+                        : { pass: false, message: "Not quite. Plug x = −2 into f'(x) = 2x." },
+                },
+                {
+                    id: "derivative-as-limit-p5",
+                    kind: "numeric",
+                    prompt: "For f(x) = x³ the derivative is f'(x) = 3x². Find the tangent slope at x = 2.",
+                    starter: "",
+                    hint: "Evaluate 3x² at x = 2.",
+                    validate: (s) => Math.abs(parseFloat(s) - 12) < 0.01
+                        ? { pass: true, message: "Correct — f'(2) = 3·4 = 12." }
+                        : { pass: false, message: "Not quite. Plug x = 2 into f'(x) = 3x²." },
+                },
             ],
-            answer: 1,
-            explain:
-              "It is the secant slope between x and x+h — an average rate. Taking h → 0 turns it into the tangent slope.",
-          },
-          {
-            q: "Which statement is true?",
-            choices: [
-              "Continuous implies differentiable",
-              "Differentiable implies continuous",
-              "The two are equivalent",
-              "Neither implies the other",
+            quiz: {
+                questions: [
+                    {
+                        q: "The difference quotient (f(x+h) − f(x))/h represents…",
+                        choices: [
+                            "the tangent slope exactly",
+                            "the average rate of change over a step h (a secant slope)",
+                            "the area under f",
+                            "the second derivative",
+                        ],
+                        answer: 1,
+                        explain: "It is the secant slope between x and x+h — an average rate. Taking h → 0 turns it into the tangent slope.",
+                    },
+                    {
+                        q: "Which statement is true?",
+                        choices: [
+                            "Continuous implies differentiable",
+                            "Differentiable implies continuous",
+                            "The two are equivalent",
+                            "Neither implies the other",
+                        ],
+                        answer: 1,
+                        explain: "Differentiability is the stronger condition. |x| is continuous at 0 but not differentiable there (a corner), so the converse fails.",
+                    },
+                ],
+            },
+        },
+        {
+            id: "rules",
+            title: "Differentiation Rules",
+            minutes: 15,
+            summary: "Power, product, quotient, and chain rules.",
+            Body: Rules,
+            exercises: [
+                {
+                    id: "chain-rule",
+                    kind: "numeric",
+                    prompt: "Let f(x) = (2x + 1)³. Compute f'(1).",
+                    starter: "",
+                    hint: "Chain rule: 3(2x+1)² · 2, then evaluate at x = 1.",
+                    validate: (s) => Math.abs(parseFloat(s) - 54) < 0.01
+                        ? { pass: true, message: "Correct — f'(x) = 6(2x+1)²; at x = 1, 6·9 = 54." }
+                        : { pass: false, message: "Not quite. f'(x) = 3(2x+1)²·2 = 6(2x+1)²; evaluate at x = 1." },
+                },
+                {
+                    id: "rules-p1",
+                    kind: "numeric",
+                    prompt: "For f(x) = x⁴, use the power rule to find f'(2).",
+                    starter: "",
+                    hint: "f'(x) = 4x³; evaluate at x = 2.",
+                    validate: (s) => Math.abs(parseFloat(s) - 32) < 0.01
+                        ? { pass: true, message: "Correct — f'(x) = 4x³, so f'(2) = 4·8 = 32." }
+                        : { pass: false, message: "Not quite. f'(x) = 4x³; plug in x = 2." },
+                },
+                {
+                    id: "rules-p2",
+                    kind: "numeric",
+                    prompt: "For f(x) = 3x² − 2x + 1, compute f'(2).",
+                    starter: "",
+                    hint: "f'(x) = 6x − 2.",
+                    validate: (s) => Math.abs(parseFloat(s) - 10) < 0.01
+                        ? { pass: true, message: "Correct — f'(x) = 6x − 2, so f'(2) = 12 − 2 = 10." }
+                        : { pass: false, message: "Not quite. f'(x) = 6x − 2; evaluate at x = 2." },
+                },
+                {
+                    id: "rules-p3",
+                    kind: "numeric",
+                    prompt: "Using the product rule, let f(x) = x²·(x + 1). Compute f'(1).",
+                    starter: "",
+                    hint: "f'(x) = 2x(x+1) + x²·1 = 3x² + 2x.",
+                    validate: (s) => Math.abs(parseFloat(s) - 5) < 0.01
+                        ? { pass: true, message: "Correct — f'(x) = 3x² + 2x, so f'(1) = 3 + 2 = 5." }
+                        : { pass: false, message: "Not quite. f'(x) = 2x(x+1) + x² = 3x² + 2x; at x = 1 that's 5." },
+                },
+                {
+                    id: "rules-p4",
+                    kind: "numeric",
+                    prompt: "Using the quotient rule, let f(x) = x/(x + 1). Compute f'(1). Round to 2 decimals.",
+                    starter: "",
+                    hint: "f'(x) = [(1)(x+1) − x(1)]/(x+1)² = 1/(x+1)².",
+                    validate: (s) => Math.abs(parseFloat(s) - 0.25) < 0.01
+                        ? { pass: true, message: "Correct — f'(x) = 1/(x+1)², so f'(1) = 1/4 = 0.25." }
+                        : { pass: false, message: "Not quite. f'(x) = 1/(x+1)²; at x = 1 that's 1/4." },
+                },
+                {
+                    id: "rules-p5",
+                    kind: "numeric",
+                    prompt: "For f(x) = (3x² + 1)⁵, compute f'(0).",
+                    starter: "",
+                    hint: "Chain rule: f'(x) = 5(3x²+1)⁴·6x; note the factor 6x.",
+                    validate: (s) => Math.abs(parseFloat(s) - 0) < 0.01
+                        ? { pass: true, message: "Correct — f'(x) = 30x(3x²+1)⁴; at x = 0 the 30x factor gives 0." }
+                        : { pass: false, message: "Not quite. f'(x) = 5(3x²+1)⁴·6x = 30x(3x²+1)⁴; at x = 0 it's 0." },
+                },
             ],
-            answer: 1,
-            explain:
-              "Differentiability is the stronger condition. |x| is continuous at 0 but not differentiable there (a corner), so the converse fails.",
-          },
-        ],
-      },
-    },
-    {
-      id: "rules",
-      title: "Differentiation Rules",
-      minutes: 15,
-      summary: "Power, product, quotient, and chain rules.",
-      Body: Rules,
-      exercises: [
-        {
-          id: "chain-rule",
-          kind: "numeric",
-          prompt: "Let f(x) = (2x + 1)³. Compute f'(1).",
-          starter: "",
-          hint: "Chain rule: 3(2x+1)² · 2, then evaluate at x = 1.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 54) < 0.01
-              ? { pass: true, message: "Correct — f'(x) = 6(2x+1)²; at x = 1, 6·9 = 54." }
-              : { pass: false, message: "Not quite. f'(x) = 3(2x+1)²·2 = 6(2x+1)²; evaluate at x = 1." },
+            quiz: {
+                questions: [
+                    {
+                        q: "The derivative of x⁴ is…",
+                        choices: ["4x³", "4x⁵", "x³", "3x⁴"],
+                        answer: 0,
+                        explain: "Power rule: bring down the exponent and subtract one — 4x^(4−1) = 4x³.",
+                    },
+                    {
+                        q: "d/dx [f(g(x))] equals…",
+                        choices: ["f'(x)·g'(x)", "f'(g(x))·g'(x)", "f'(g(x))", "f(g'(x))"],
+                        answer: 1,
+                        explain: "The chain rule: differentiate the outer at the inner, then multiply by the derivative of the inner.",
+                    },
+                    {
+                        q: "(fg)' equals…",
+                        choices: ["f'g'", "f'g + fg'", "f'g − fg'", "(f'g + fg')/g²"],
+                        answer: 1,
+                        explain: "The product rule keeps both cross terms: f'g + fg'. It is NOT f'g'.",
+                    },
+                ],
+            },
         },
         {
-          id: "rules-p1",
-          kind: "numeric",
-          prompt: "For f(x) = x⁴, use the power rule to find f'(2).",
-          starter: "",
-          hint: "f'(x) = 4x³; evaluate at x = 2.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 32) < 0.01
-              ? { pass: true, message: "Correct — f'(x) = 4x³, so f'(2) = 4·8 = 32." }
-              : { pass: false, message: "Not quite. f'(x) = 4x³; plug in x = 2." },
-        },
-        {
-          id: "rules-p2",
-          kind: "numeric",
-          prompt: "For f(x) = 3x² − 2x + 1, compute f'(2).",
-          starter: "",
-          hint: "f'(x) = 6x − 2.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 10) < 0.01
-              ? { pass: true, message: "Correct — f'(x) = 6x − 2, so f'(2) = 12 − 2 = 10." }
-              : { pass: false, message: "Not quite. f'(x) = 6x − 2; evaluate at x = 2." },
-        },
-        {
-          id: "rules-p3",
-          kind: "numeric",
-          prompt: "Using the product rule, let f(x) = x²·(x + 1). Compute f'(1).",
-          starter: "",
-          hint: "f'(x) = 2x(x+1) + x²·1 = 3x² + 2x.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 5) < 0.01
-              ? { pass: true, message: "Correct — f'(x) = 3x² + 2x, so f'(1) = 3 + 2 = 5." }
-              : { pass: false, message: "Not quite. f'(x) = 2x(x+1) + x² = 3x² + 2x; at x = 1 that's 5." },
-        },
-        {
-          id: "rules-p4",
-          kind: "numeric",
-          prompt: "Using the quotient rule, let f(x) = x/(x + 1). Compute f'(1). Round to 2 decimals.",
-          starter: "",
-          hint: "f'(x) = [(1)(x+1) − x(1)]/(x+1)² = 1/(x+1)².",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 0.25) < 0.01
-              ? { pass: true, message: "Correct — f'(x) = 1/(x+1)², so f'(1) = 1/4 = 0.25." }
-              : { pass: false, message: "Not quite. f'(x) = 1/(x+1)²; at x = 1 that's 1/4." },
-        },
-        {
-          id: "rules-p5",
-          kind: "numeric",
-          prompt: "For f(x) = (3x² + 1)⁵, compute f'(0).",
-          starter: "",
-          hint: "Chain rule: f'(x) = 5(3x²+1)⁴·6x; note the factor 6x.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 0) < 0.01
-              ? { pass: true, message: "Correct — f'(x) = 30x(3x²+1)⁴; at x = 0 the 30x factor gives 0." }
-              : { pass: false, message: "Not quite. f'(x) = 5(3x²+1)⁴·6x = 30x(3x²+1)⁴; at x = 0 it's 0." },
-        },
-      ],
-      quiz: {
-        questions: [
-          {
-            q: "The derivative of x⁴ is…",
-            choices: ["4x³", "4x⁵", "x³", "3x⁴"],
-            answer: 0,
-            explain: "Power rule: bring down the exponent and subtract one — 4x^(4−1) = 4x³.",
-          },
-          {
-            q: "d/dx [f(g(x))] equals…",
-            choices: ["f'(x)·g'(x)", "f'(g(x))·g'(x)", "f'(g(x))", "f(g'(x))"],
-            answer: 1,
-            explain:
-              "The chain rule: differentiate the outer at the inner, then multiply by the derivative of the inner.",
-          },
-          {
-            q: "(fg)' equals…",
-            choices: ["f'g'", "f'g + fg'", "f'g − fg'", "(f'g + fg')/g²"],
-            answer: 1,
-            explain: "The product rule keeps both cross terms: f'g + fg'. It is NOT f'g'.",
-          },
-        ],
-      },
-    },
-    {
-      id: "trig-exp-log",
-      title: "Derivatives of Trig, Exp & Log",
-      minutes: 13,
-      summary: "The transcendental derivatives you must know.",
-      Body: TranscendentalDerivatives,
-      exercises: [
-        {
-          id: "exp-chain",
-          kind: "open",
-          prompt:
-            "Explain why d/dx eˣ = eˣ makes eˣ special, and give the derivative of e^(3x) using the chain rule.",
-          starter: "",
-          rubric:
-            "Full credit: states eˣ is its own derivative (rate of change equals current value), and gives d/dx e^(3x) = 3e^(3x) via the chain rule (factor of 3 from the inner function). Partial: one of the two.",
-          hint: "The inner function is 3x; its derivative is the extra factor.",
-        },
-        {
-          id: "trig-exp-log-p1",
-          kind: "numeric",
-          prompt: "For f(x) = sin(x), f'(x) = cos(x). Compute f'(0).",
-          starter: "",
-          hint: "cos(0).",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 1) < 0.01
-              ? { pass: true, message: "Correct — f'(0) = cos(0) = 1." }
-              : { pass: false, message: "Not quite. f'(x) = cos(x), and cos(0) = 1." },
-        },
-        {
-          id: "trig-exp-log-p2",
-          kind: "numeric",
-          prompt: "For f(x) = cos(x), f'(x) = −sin(x). Compute f'(π/2).",
-          starter: "",
-          hint: "−sin(π/2).",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - -1) < 0.01
-              ? { pass: true, message: "Correct — f'(π/2) = −sin(π/2) = −1." }
-              : { pass: false, message: "Not quite. f'(x) = −sin(x), and sin(π/2) = 1, so −1." },
-        },
-        {
-          id: "trig-exp-log-p3",
-          kind: "numeric",
-          prompt: "For f(x) = eˣ, compute f'(0).",
-          starter: "",
-          hint: "eˣ is its own derivative; evaluate e⁰.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 1) < 0.01
-              ? { pass: true, message: "Correct — f'(x) = eˣ, so f'(0) = e⁰ = 1." }
-              : { pass: false, message: "Not quite. f'(x) = eˣ and e⁰ = 1." },
-        },
-        {
-          id: "trig-exp-log-p4",
-          kind: "numeric",
-          prompt: "For f(x) = ln(x), f'(x) = 1/x. Compute f'(4). Round to 2 decimals.",
-          starter: "",
-          hint: "1/4.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 0.25) < 0.01
-              ? { pass: true, message: "Correct — f'(4) = 1/4 = 0.25." }
-              : { pass: false, message: "Not quite. f'(x) = 1/x, so f'(4) = 1/4." },
-        },
-        {
-          id: "trig-exp-log-p5",
-          kind: "numeric",
-          prompt: "For f(x) = e^(2x), use the chain rule to compute f'(0).",
-          starter: "",
-          hint: "f'(x) = 2e^(2x); evaluate at x = 0.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 2) < 0.01
-              ? { pass: true, message: "Correct — f'(x) = 2e^(2x), so f'(0) = 2·1 = 2." }
-              : { pass: false, message: "Not quite. f'(x) = 2e^(2x); at x = 0 that's 2." },
-        },
-      ],
-      quiz: {
-        questions: [
-          {
-            q: "d/dx sin(x) equals…",
-            choices: ["cos x", "−cos x", "−sin x", "sec² x"],
-            answer: 0,
-            explain: "The derivative of sine is cosine (with x in radians). Cosine differentiates to −sin x.",
-          },
-          {
-            q: "d/dx ln(x) equals…",
-            choices: ["1/x", "ln x", "x ln x", "eˣ"],
-            answer: 0,
-            explain: "The natural log has derivative 1/x for x > 0 — a consequence of being the inverse of eˣ.",
-          },
-        ],
-      },
-    },
-    {
-      id: "higher-concavity",
-      title: "Higher Derivatives & Concavity",
-      minutes: 12,
-      summary: "The second derivative, concavity, and inflection points.",
-      Body: HigherDerivativesConcavity,
-      exercises: [
-        {
-          id: "second-deriv",
-          kind: "numeric",
-          prompt: "For f(x) = x³ − 6x², compute f''(2).",
-          starter: "",
-          hint: "f'(x) = 3x² − 12x, so f''(x) = 6x − 12.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 0) < 0.01
-              ? { pass: true, message: "Correct — f''(x) = 6x − 12; at x = 2 that's 0 (an inflection point)." }
-              : { pass: false, message: "Not quite. Differentiate twice: f''(x) = 6x − 12, then evaluate at x = 2." },
-        },
-        {
-          id: "higher-concavity-p1",
-          kind: "numeric",
-          prompt: "For f(x) = x³, compute f''(1).",
-          starter: "",
-          hint: "f'(x) = 3x², f''(x) = 6x.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 6) < 0.01
-              ? { pass: true, message: "Correct — f''(x) = 6x, so f''(1) = 6." }
-              : { pass: false, message: "Not quite. f''(x) = 6x; evaluate at x = 1." },
-        },
-        {
-          id: "higher-concavity-p2",
-          kind: "numeric",
-          prompt: "For f(x) = x⁴, compute f''(1).",
-          starter: "",
-          hint: "f'(x) = 4x³, f''(x) = 12x².",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 12) < 0.01
-              ? { pass: true, message: "Correct — f''(x) = 12x², so f''(1) = 12." }
-              : { pass: false, message: "Not quite. f''(x) = 12x²; at x = 1 that's 12." },
-        },
-        {
-          id: "higher-concavity-p3",
-          kind: "numeric",
-          prompt: "For f(x) = x³ − 6x², the inflection point is where f''(x) = 0. Find that x.",
-          starter: "",
-          hint: "f''(x) = 6x − 12; set it to zero.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 2) < 0.01
-              ? { pass: true, message: "Correct — 6x − 12 = 0 gives x = 2." }
-              : { pass: false, message: "Not quite. Solve f''(x) = 6x − 12 = 0." },
-        },
-        {
-          id: "higher-concavity-p4",
-          kind: "numeric",
-          prompt: "For f(x) = 2x³ − 3x², compute f''(0).",
-          starter: "",
-          hint: "f'(x) = 6x² − 6x, f''(x) = 12x − 6.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - -6) < 0.01
-              ? { pass: true, message: "Correct — f''(x) = 12x − 6, so f''(0) = −6." }
-              : { pass: false, message: "Not quite. f''(x) = 12x − 6; at x = 0 that's −6." },
-        },
-        {
-          id: "higher-concavity-p5",
-          kind: "numeric",
-          prompt: "For f(x) = x⁵, compute f''(2).",
-          starter: "",
-          hint: "f'(x) = 5x⁴, f''(x) = 20x³.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 160) < 0.01
-              ? { pass: true, message: "Correct — f''(x) = 20x³, so f''(2) = 20·8 = 160." }
-              : { pass: false, message: "Not quite. f''(x) = 20x³; at x = 2 that's 20·8 = 160." },
-        },
-      ],
-      quiz: {
-        questions: [
-          {
-            q: "If f''(x) > 0 on an interval, the graph is…",
-            choices: ["concave down (∩)", "concave up (∪)", "a straight line", "decreasing"],
-            answer: 1,
-            explain: "A positive second derivative means the slope is increasing, so the curve bends upward like a cup.",
-          },
-          {
-            q: "An inflection point is where…",
-            choices: [
-              "f' = 0",
-              "concavity changes sign (typically f'' = 0 and switches)",
-              "the function is zero",
-              "f'' is largest",
+            id: "trig-exp-log",
+            title: "Derivatives of Trig, Exp & Log",
+            minutes: 13,
+            summary: "The transcendental derivatives you must know.",
+            Body: TranscendentalDerivatives,
+            exercises: [
+                {
+                    id: "exp-chain",
+                    kind: "open",
+                    prompt: "Explain why d/dx eˣ = eˣ makes eˣ special, and give the derivative of e^(3x) using the chain rule.",
+                    starter: "",
+                    rubric: "Full credit: states eˣ is its own derivative (rate of change equals current value), and gives d/dx e^(3x) = 3e^(3x) via the chain rule (factor of 3 from the inner function). Partial: one of the two.",
+                    hint: "The inner function is 3x; its derivative is the extra factor.",
+                },
+                {
+                    id: "trig-exp-log-p1",
+                    kind: "numeric",
+                    prompt: "For f(x) = sin(x), f'(x) = cos(x). Compute f'(0).",
+                    starter: "",
+                    hint: "cos(0).",
+                    validate: (s) => Math.abs(parseFloat(s) - 1) < 0.01
+                        ? { pass: true, message: "Correct — f'(0) = cos(0) = 1." }
+                        : { pass: false, message: "Not quite. f'(x) = cos(x), and cos(0) = 1." },
+                },
+                {
+                    id: "trig-exp-log-p2",
+                    kind: "numeric",
+                    prompt: "For f(x) = cos(x), f'(x) = −sin(x). Compute f'(π/2).",
+                    starter: "",
+                    hint: "−sin(π/2).",
+                    validate: (s) => Math.abs(parseFloat(s) - -1) < 0.01
+                        ? { pass: true, message: "Correct — f'(π/2) = −sin(π/2) = −1." }
+                        : { pass: false, message: "Not quite. f'(x) = −sin(x), and sin(π/2) = 1, so −1." },
+                },
+                {
+                    id: "trig-exp-log-p3",
+                    kind: "numeric",
+                    prompt: "For f(x) = eˣ, compute f'(0).",
+                    starter: "",
+                    hint: "eˣ is its own derivative; evaluate e⁰.",
+                    validate: (s) => Math.abs(parseFloat(s) - 1) < 0.01
+                        ? { pass: true, message: "Correct — f'(x) = eˣ, so f'(0) = e⁰ = 1." }
+                        : { pass: false, message: "Not quite. f'(x) = eˣ and e⁰ = 1." },
+                },
+                {
+                    id: "trig-exp-log-p4",
+                    kind: "numeric",
+                    prompt: "For f(x) = ln(x), f'(x) = 1/x. Compute f'(4). Round to 2 decimals.",
+                    starter: "",
+                    hint: "1/4.",
+                    validate: (s) => Math.abs(parseFloat(s) - 0.25) < 0.01
+                        ? { pass: true, message: "Correct — f'(4) = 1/4 = 0.25." }
+                        : { pass: false, message: "Not quite. f'(x) = 1/x, so f'(4) = 1/4." },
+                },
+                {
+                    id: "trig-exp-log-p5",
+                    kind: "numeric",
+                    prompt: "For f(x) = e^(2x), use the chain rule to compute f'(0).",
+                    starter: "",
+                    hint: "f'(x) = 2e^(2x); evaluate at x = 0.",
+                    validate: (s) => Math.abs(parseFloat(s) - 2) < 0.01
+                        ? { pass: true, message: "Correct — f'(x) = 2e^(2x), so f'(0) = 2·1 = 2." }
+                        : { pass: false, message: "Not quite. f'(x) = 2e^(2x); at x = 0 that's 2." },
+                },
             ],
-            answer: 1,
-            explain:
-              "An inflection point is where concavity flips — the second derivative changes sign, usually passing through zero.",
-          },
-        ],
-      },
-    },
-    {
-      id: "optimization-related-rates",
-      title: "Optimization & Related Rates",
-      minutes: 15,
-      summary: "Critical points, maxima/minima, and rates linked by the chain rule.",
-      Body: OptimizationRelatedRates,
-      exercises: [
-        {
-          id: "optimize",
-          kind: "numeric",
-          prompt:
-            "A rectangle has perimeter 40. Its area is A(x) = x(20 − x). What value of x maximizes the area?",
-          starter: "",
-          hint: "Set A'(x) = 20 − 2x = 0.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 10) < 0.01
-              ? { pass: true, message: "Correct — A'(x) = 20 − 2x = 0 gives x = 10 (a 10×10 square)." }
-              : { pass: false, message: "Not quite. Differentiate A, set A'(x) = 0: 20 − 2x = 0." },
+            quiz: {
+                questions: [
+                    {
+                        q: "d/dx sin(x) equals…",
+                        choices: ["cos x", "−cos x", "−sin x", "sec² x"],
+                        answer: 0,
+                        explain: "The derivative of sine is cosine (with x in radians). Cosine differentiates to −sin x.",
+                    },
+                    {
+                        q: "d/dx ln(x) equals…",
+                        choices: ["1/x", "ln x", "x ln x", "eˣ"],
+                        answer: 0,
+                        explain: "The natural log has derivative 1/x for x > 0 — a consequence of being the inverse of eˣ.",
+                    },
+                ],
+            },
         },
         {
-          id: "optimization-related-rates-p1",
-          kind: "numeric",
-          prompt: "For f(x) = x² − 6x + 5, find the critical point (where f'(x) = 0).",
-          starter: "",
-          hint: "f'(x) = 2x − 6; set to zero.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 3) < 0.01
-              ? { pass: true, message: "Correct — 2x − 6 = 0 gives x = 3." }
-              : { pass: false, message: "Not quite. Solve f'(x) = 2x − 6 = 0." },
+            id: "higher-concavity",
+            title: "Higher Derivatives & Concavity",
+            minutes: 12,
+            summary: "The second derivative, concavity, and inflection points.",
+            Body: HigherDerivativesConcavity,
+            exercises: [
+                {
+                    id: "second-deriv",
+                    kind: "numeric",
+                    prompt: "For f(x) = x³ − 6x², compute f''(2).",
+                    starter: "",
+                    hint: "f'(x) = 3x² − 12x, so f''(x) = 6x − 12.",
+                    validate: (s) => Math.abs(parseFloat(s) - 0) < 0.01
+                        ? { pass: true, message: "Correct — f''(x) = 6x − 12; at x = 2 that's 0 (an inflection point)." }
+                        : { pass: false, message: "Not quite. Differentiate twice: f''(x) = 6x − 12, then evaluate at x = 2." },
+                },
+                {
+                    id: "higher-concavity-p1",
+                    kind: "numeric",
+                    prompt: "For f(x) = x³, compute f''(1).",
+                    starter: "",
+                    hint: "f'(x) = 3x², f''(x) = 6x.",
+                    validate: (s) => Math.abs(parseFloat(s) - 6) < 0.01
+                        ? { pass: true, message: "Correct — f''(x) = 6x, so f''(1) = 6." }
+                        : { pass: false, message: "Not quite. f''(x) = 6x; evaluate at x = 1." },
+                },
+                {
+                    id: "higher-concavity-p2",
+                    kind: "numeric",
+                    prompt: "For f(x) = x⁴, compute f''(1).",
+                    starter: "",
+                    hint: "f'(x) = 4x³, f''(x) = 12x².",
+                    validate: (s) => Math.abs(parseFloat(s) - 12) < 0.01
+                        ? { pass: true, message: "Correct — f''(x) = 12x², so f''(1) = 12." }
+                        : { pass: false, message: "Not quite. f''(x) = 12x²; at x = 1 that's 12." },
+                },
+                {
+                    id: "higher-concavity-p3",
+                    kind: "numeric",
+                    prompt: "For f(x) = x³ − 6x², the inflection point is where f''(x) = 0. Find that x.",
+                    starter: "",
+                    hint: "f''(x) = 6x − 12; set it to zero.",
+                    validate: (s) => Math.abs(parseFloat(s) - 2) < 0.01
+                        ? { pass: true, message: "Correct — 6x − 12 = 0 gives x = 2." }
+                        : { pass: false, message: "Not quite. Solve f''(x) = 6x − 12 = 0." },
+                },
+                {
+                    id: "higher-concavity-p4",
+                    kind: "numeric",
+                    prompt: "For f(x) = 2x³ − 3x², compute f''(0).",
+                    starter: "",
+                    hint: "f'(x) = 6x² − 6x, f''(x) = 12x − 6.",
+                    validate: (s) => Math.abs(parseFloat(s) - -6) < 0.01
+                        ? { pass: true, message: "Correct — f''(x) = 12x − 6, so f''(0) = −6." }
+                        : { pass: false, message: "Not quite. f''(x) = 12x − 6; at x = 0 that's −6." },
+                },
+                {
+                    id: "higher-concavity-p5",
+                    kind: "numeric",
+                    prompt: "For f(x) = x⁵, compute f''(2).",
+                    starter: "",
+                    hint: "f'(x) = 5x⁴, f''(x) = 20x³.",
+                    validate: (s) => Math.abs(parseFloat(s) - 160) < 0.01
+                        ? { pass: true, message: "Correct — f''(x) = 20x³, so f''(2) = 20·8 = 160." }
+                        : { pass: false, message: "Not quite. f''(x) = 20x³; at x = 2 that's 20·8 = 160." },
+                },
+            ],
+            quiz: {
+                questions: [
+                    {
+                        q: "If f''(x) > 0 on an interval, the graph is…",
+                        choices: ["concave down (∩)", "concave up (∪)", "a straight line", "decreasing"],
+                        answer: 1,
+                        explain: "A positive second derivative means the slope is increasing, so the curve bends upward like a cup.",
+                    },
+                    {
+                        q: "An inflection point is where…",
+                        choices: [
+                            "f' = 0",
+                            "concavity changes sign (typically f'' = 0 and switches)",
+                            "the function is zero",
+                            "f'' is largest",
+                        ],
+                        answer: 1,
+                        explain: "An inflection point is where concavity flips — the second derivative changes sign, usually passing through zero.",
+                    },
+                ],
+            },
         },
         {
-          id: "optimization-related-rates-p2",
-          kind: "numeric",
-          prompt:
-            "For f(x) = x² − 6x + 5, find the minimum value of f (the y-value at the critical point).",
-          starter: "",
-          hint: "The critical point is x = 3; evaluate f(3).",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - -4) < 0.01
-              ? { pass: true, message: "Correct — f(3) = 9 − 18 + 5 = −4." }
-              : { pass: false, message: "Not quite. Evaluate f at x = 3: 9 − 18 + 5 = −4." },
+            id: "optimization-related-rates",
+            title: "Optimization & Related Rates",
+            minutes: 15,
+            summary: "Critical points, maxima/minima, and rates linked by the chain rule.",
+            Body: OptimizationRelatedRates,
+            exercises: [
+                {
+                    id: "optimize",
+                    kind: "numeric",
+                    prompt: "A rectangle has perimeter 40. Its area is A(x) = x(20 − x). What value of x maximizes the area?",
+                    starter: "",
+                    hint: "Set A'(x) = 20 − 2x = 0.",
+                    validate: (s) => Math.abs(parseFloat(s) - 10) < 0.01
+                        ? { pass: true, message: "Correct — A'(x) = 20 − 2x = 0 gives x = 10 (a 10×10 square)." }
+                        : { pass: false, message: "Not quite. Differentiate A, set A'(x) = 0: 20 − 2x = 0." },
+                },
+                {
+                    id: "optimization-related-rates-p1",
+                    kind: "numeric",
+                    prompt: "For f(x) = x² − 6x + 5, find the critical point (where f'(x) = 0).",
+                    starter: "",
+                    hint: "f'(x) = 2x − 6; set to zero.",
+                    validate: (s) => Math.abs(parseFloat(s) - 3) < 0.01
+                        ? { pass: true, message: "Correct — 2x − 6 = 0 gives x = 3." }
+                        : { pass: false, message: "Not quite. Solve f'(x) = 2x − 6 = 0." },
+                },
+                {
+                    id: "optimization-related-rates-p2",
+                    kind: "numeric",
+                    prompt: "For f(x) = x² − 6x + 5, find the minimum value of f (the y-value at the critical point).",
+                    starter: "",
+                    hint: "The critical point is x = 3; evaluate f(3).",
+                    validate: (s) => Math.abs(parseFloat(s) - -4) < 0.01
+                        ? { pass: true, message: "Correct — f(3) = 9 − 18 + 5 = −4." }
+                        : { pass: false, message: "Not quite. Evaluate f at x = 3: 9 − 18 + 5 = −4." },
+                },
+                {
+                    id: "optimization-related-rates-p3",
+                    kind: "numeric",
+                    prompt: "The rectangle with perimeter 40 and area A(x) = x(20 − x) is maximized at x = 10. Enter its maximum area.",
+                    starter: "",
+                    hint: "A(10) = 10·(20 − 10).",
+                    validate: (s) => Math.abs(parseFloat(s) - 100) < 0.01
+                        ? { pass: true, message: "Correct — A(10) = 10·10 = 100." }
+                        : { pass: false, message: "Not quite. A(10) = 10·(20 − 10) = 100." },
+                },
+                {
+                    id: "optimization-related-rates-p4",
+                    kind: "numeric",
+                    prompt: "For f(x) = x³ − 3x, find the positive critical point (where f'(x) = 0).",
+                    starter: "",
+                    hint: "f'(x) = 3x² − 3 = 0 gives x² = 1.",
+                    validate: (s) => Math.abs(parseFloat(s) - 1) < 0.01
+                        ? { pass: true, message: "Correct — 3x² − 3 = 0 gives x = ±1; the positive one is 1." }
+                        : { pass: false, message: "Not quite. Solve 3x² − 3 = 0, so x² = 1, positive root x = 1." },
+                },
+                {
+                    id: "optimization-related-rates-p5",
+                    kind: "numeric",
+                    prompt: "A balloon has V = (4/3)πr³, so dV/dt = 4πr²·dr/dt. If r = 2 and dr/dt = 3, find dV/dt. Round to the nearest whole number.",
+                    starter: "",
+                    hint: "4π·(2²)·3 = 48π.",
+                    validate: (s) => Math.abs(parseFloat(s) - 150.8) < 0.5
+                        ? { pass: true, message: "Correct — 4π·4·3 = 48π ≈ 150.80." }
+                        : { pass: false, message: "Not quite. dV/dt = 4π·r²·(dr/dt) = 4π·4·3 = 48π ≈ 150.8." },
+                },
+            ],
+            quiz: {
+                questions: [
+                    {
+                        q: "A critical point of a differentiable f is where…",
+                        choices: ["f(x) = 0", "f'(x) = 0", "f''(x) = 0", "f is largest"],
+                        answer: 1,
+                        explain: "Critical points are where the derivative (tangent slope) is zero — the candidates for local maxima and minima.",
+                    },
+                    {
+                        q: "At a critical point, f''(x) < 0 indicates a…",
+                        choices: ["local minimum", "local maximum", "inflection point", "vertical asymptote"],
+                        answer: 1,
+                        explain: "Concave down at a horizontal tangent means a peak — the second-derivative test flags a local maximum.",
+                    },
+                    {
+                        q: "Related-rates problems fundamentally rely on which rule?",
+                        choices: ["The power rule", "The chain rule", "The quotient rule", "The squeeze theorem"],
+                        answer: 1,
+                        explain: "Differentiating a relation with respect to t treats each variable as a function of t, so the chain rule produces the linked rates.",
+                    },
+                ],
+            },
         },
-        {
-          id: "optimization-related-rates-p3",
-          kind: "numeric",
-          prompt:
-            "The rectangle with perimeter 40 and area A(x) = x(20 − x) is maximized at x = 10. Enter its maximum area.",
-          starter: "",
-          hint: "A(10) = 10·(20 − 10).",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 100) < 0.01
-              ? { pass: true, message: "Correct — A(10) = 10·10 = 100." }
-              : { pass: false, message: "Not quite. A(10) = 10·(20 − 10) = 100." },
-        },
-        {
-          id: "optimization-related-rates-p4",
-          kind: "numeric",
-          prompt: "For f(x) = x³ − 3x, find the positive critical point (where f'(x) = 0).",
-          starter: "",
-          hint: "f'(x) = 3x² − 3 = 0 gives x² = 1.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 1) < 0.01
-              ? { pass: true, message: "Correct — 3x² − 3 = 0 gives x = ±1; the positive one is 1." }
-              : { pass: false, message: "Not quite. Solve 3x² − 3 = 0, so x² = 1, positive root x = 1." },
-        },
-        {
-          id: "optimization-related-rates-p5",
-          kind: "numeric",
-          prompt:
-            "A balloon has V = (4/3)πr³, so dV/dt = 4πr²·dr/dt. If r = 2 and dr/dt = 3, find dV/dt. Round to the nearest whole number.",
-          starter: "",
-          hint: "4π·(2²)·3 = 48π.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 150.8) < 0.5
-              ? { pass: true, message: "Correct — 4π·4·3 = 48π ≈ 150.80." }
-              : { pass: false, message: "Not quite. dV/dt = 4π·r²·(dr/dt) = 4π·4·3 = 48π ≈ 150.8." },
-        },
-      ],
-      quiz: {
-        questions: [
-          {
-            q: "A critical point of a differentiable f is where…",
-            choices: ["f(x) = 0", "f'(x) = 0", "f''(x) = 0", "f is largest"],
-            answer: 1,
-            explain:
-              "Critical points are where the derivative (tangent slope) is zero — the candidates for local maxima and minima.",
-          },
-          {
-            q: "At a critical point, f''(x) < 0 indicates a…",
-            choices: ["local minimum", "local maximum", "inflection point", "vertical asymptote"],
-            answer: 1,
-            explain:
-              "Concave down at a horizontal tangent means a peak — the second-derivative test flags a local maximum.",
-          },
-          {
-            q: "Related-rates problems fundamentally rely on which rule?",
-            choices: ["The power rule", "The chain rule", "The quotient rule", "The squeeze theorem"],
-            answer: 1,
-            explain:
-              "Differentiating a relation with respect to t treats each variable as a function of t, so the chain rule produces the linked rates.",
-          },
-        ],
-      },
-    },
-  ],
+    ],
 };

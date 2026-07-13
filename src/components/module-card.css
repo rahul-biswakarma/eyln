@@ -1,7 +1,6 @@
-/* Curriculum module card. */
 
-/* Module/track icon tiles tint their glyph with the accent (duotone picks up
-   currentColor for the solid layer + a translucent secondary automatically). */
+
+
 .mod-card .ic {
   color: var(--mod-accent);
 }
@@ -28,7 +27,7 @@
     0 0 34px color-mix(in srgb, var(--mod-accent) 16%, transparent);
 }
 
-/* watermark index — subtle, low-opacity, behind everything */
+
 .mod-idx {
   position: absolute;
   top: 4px;

@@ -1,6 +1,6 @@
-/* App shell layout — .shell / .layout / .sidebar / .content / .prose. */
 
-/* ============ App shell — full-bleed cinematic ============ */
+
+
 .shell {
   width: 100vw;
   height: 100vh;
@@ -14,7 +14,7 @@
   color: var(--text-dim);
 }
 
-/* ============ Sign-in gate ============ */
+
 .signin-screen {
   min-height: 100vh;
   display: grid;
@@ -32,7 +32,7 @@
   letter-spacing: 0.1em;
 }
 
-/* ============ Layout ============ */
+
 .layout {
   display: flex;
   align-items: stretch;
@@ -117,7 +117,7 @@
   margin: 0.35rem 0;
 }
 
-/* Collapsed rail */
+
 .sidebar.collapsed {
   width: 56px;
   padding: 1.1rem 0;
@@ -131,7 +131,7 @@
   margin: 0;
 }
 
-/* ---- Lesson as an engineering notebook ---- */
+
 .content.lesson {
   padding-top: 0;
 }

@@ -1,8 +1,8 @@
-/* Legacy note-taking side panel. */
 
-/* the widget's own .wtitle is the heading — no external duplicate needed */
 
-/* ============ Notes, capture & tutor ============ */
+
+
+
 .note-overlay {
   position: fixed;
   inset: 0;

@@ -1,10 +1,8 @@
 import type { Module } from "../../content/types";
 import { M, MBlock } from "../../components/math";
 import { Code } from "../../components/code-block";
-
 function WhatIsAFunction() {
-  return (
-    <div className="prose">
+    return (<div className="prose">
       <p>
         Before calculus can say anything about change, we need the object that changes. That object is
         a <strong>function</strong>: a rule that takes an input and returns <em>exactly one</em> output.
@@ -57,22 +55,16 @@ function WhatIsAFunction() {
         hit. Both at once means <strong>bijective</strong>, and only bijections have a true inverse. We
         will need this the moment we invert exponentials into logarithms.
       </div>
-      <Code
-        lang="ts"
-        code={`// A function in code is the same idea: one input, one deterministic output.
+      <Code lang="ts" code={`// A function in code is the same idea: one input, one deterministic output.
 const f = (x: number): number => x * x - 3 * x + 2;
 f(0); //  2
 f(1); //  0   <- a root
 f(2); //  0   <- another root
-f(1); //  0   again, always — same input, same output`}
-      />
-    </div>
-  );
+f(1); //  0   again, always — same input, same output`}/>
+    </div>);
 }
-
 function LinearAndPolynomial() {
-  return (
-    <div className="prose">
+    return (<div className="prose">
       <p>
         The simplest non-constant function is the <strong>line</strong>. Everything in calculus is,
         locally, a line — the derivative is literally the slope of the best-fitting line — so it pays
@@ -114,13 +106,10 @@ function LinearAndPolynomial() {
         valleys). A parabola (<M>{`n=2`}</M>) has one; a cubic has at most two. When we reach
         derivatives, "turning point" becomes "the slope is zero here."
       </div>
-    </div>
-  );
+    </div>);
 }
-
 function ExpAndLog() {
-  return (
-    <div className="prose">
+    return (<div className="prose">
       <p>
         Polynomials grow by <em>adding</em> a fixed slope. Exponentials grow by <em>multiplying</em> by
         a fixed factor — a constant <strong>percentage</strong> per step. That single difference is why
@@ -156,13 +145,10 @@ function ExpAndLog() {
         <M>{`\\log(x + y)`}</M> does <strong>not</strong> simplify. The sum rule is for{" "}
         <M>{`\\log(xy)`}</M> — products, not sums. There is no rule for the log of a sum.
       </div>
-    </div>
-  );
+    </div>);
 }
-
 function Trigonometry() {
-  return (
-    <div className="prose">
+    return (<div className="prose">
       <p>
         Trig functions are the language of <strong>rotation and repetition</strong> — anything that
         cycles: waves, orbits, oscillating springs, and the spin of a camera around a scene. The whole
@@ -225,13 +211,10 @@ function Trigonometry() {
         Cosine is the same list read backwards. These five angles cover most of what you will ever
         evaluate by hand.
       </div>
-    </div>
-  );
+    </div>);
 }
-
 function Transformations() {
-  return (
-    <div className="prose">
+    return (<div className="prose">
       <p>
         Once you know one graph, you know a whole family of them for free. Small edits to a formula
         move, stretch, or flip the graph in predictable ways. Learn the four moves and you never
@@ -273,496 +256,449 @@ function Transformations() {
         appears when you take the derivative later. Recognizing the outer and inner function now is the
         skill you will lean on constantly.
       </div>
-    </div>
-  );
+    </div>);
 }
-
 export const mathFunctions: Module = {
-  id: "math-functions",
-  title: "Functions & Graphs",
-  icon: "📊",
-  track: "math",
-  blurb:
-    "The raw material of calculus: what a function really is, plus lines, polynomials, exponentials, logs, trig, and the transformations that reshape them.",
-  dependsOn: [],
-  lessons: [
-    {
-      id: "what-is-a-function",
-      title: "What Is a Function?",
-      minutes: 12,
-      summary: "Domain, range, and the one-input-one-output rule.",
-      Body: WhatIsAFunction,
-      exercises: [
+    id: "math-functions",
+    title: "Functions & Graphs",
+    icon: "📊",
+    track: "math",
+    blurb: "The raw material of calculus: what a function really is, plus lines, polynomials, exponentials, logs, trig, and the transformations that reshape them.",
+    dependsOn: [],
+    lessons: [
         {
-          id: "domain",
-          kind: "open",
-          prompt:
-            "State the natural domain of h(x) = 1 / (x² − 4) and explain in one sentence why the excluded values are excluded.",
-          starter: "",
-          rubric:
-            "Full credit: domain is all real x except x = 2 and x = −2 (equivalently x ≠ ±2), because those make the denominator zero, and division by zero is undefined. Partial: identifies the excluded points OR the reason but not both.",
-          hint: "Where does the denominator equal zero?",
-        },
-        {
-          id: "func-p1",
-          kind: "numeric",
-          prompt: "For f(x) = x² − 3x + 2, evaluate f(0).",
-          starter: "",
-          hint: "Substitute x = 0 into every term.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 2) < 0.01
-              ? { pass: true, message: "Correct — 0 − 0 + 2 = 2." }
-              : { pass: false, message: "Not quite. Plug x = 0 in: only the constant term survives." },
-        },
-        {
-          id: "func-p2",
-          kind: "numeric",
-          prompt: "For f(x) = x² − 3x + 2, evaluate f(5).",
-          starter: "",
-          hint: "Compute 25 − 15 + 2.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 12) < 0.01
-              ? { pass: true, message: "Correct — 25 − 15 + 2 = 12." }
-              : { pass: false, message: "Not quite. 5² = 25, then subtract 3·5 = 15 and add 2." },
-        },
-        {
-          id: "func-p3",
-          kind: "numeric",
-          prompt:
-            "The natural domain of g(x) = 1 / √(x − 2) is x > c. Enter the boundary value c.",
-          starter: "",
-          hint: "The inside of the root must be positive, and the root sits in a denominator.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 2) < 0.01
-              ? { pass: true, message: "Correct — x − 2 > 0 forces x > 2, so c = 2." }
-              : { pass: false, message: "Not quite. Set x − 2 > 0 (strictly, since it is under a root in a denominator)." },
-        },
-        {
-          id: "func-p4",
-          kind: "numeric",
-          prompt: "For h(x) = 1 / (x² − 4), enter the largest x-value excluded from the domain.",
-          starter: "",
-          hint: "The denominator is zero at x = ±2.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 2) < 0.01
-              ? { pass: true, message: "Correct — x² − 4 = 0 at x = ±2; the larger is 2." }
-              : { pass: false, message: "Not quite. Solve x² − 4 = 0 and take the larger root." },
-        },
-        {
-          id: "func-p5",
-          kind: "numeric",
-          prompt: "Find the root of the linear function f(x) = 2x − 7 (the x where f(x) = 0).",
-          starter: "",
-          hint: "Solve 2x − 7 = 0.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 3.5) < 0.01
-              ? { pass: true, message: "Correct — 2x = 7, so x = 3.5." }
-              : { pass: false, message: "Not quite. Set 2x − 7 = 0 and solve for x." },
-        },
-      ],
-      quiz: {
-        questions: [
-          {
-            q: "Which of these is NOT a function of x?",
-            choices: ["y = x²", "y = √x for x ≥ 0", "x² + y² = 1", "y = 3"],
-            answer: 2,
-            explain:
-              "The circle assigns two y-values (±) to most x-values, failing the vertical line test. The others each give exactly one output per input.",
-          },
-          {
-            q: "A function has a true inverse exactly when it is…",
-            choices: ["Continuous", "Bijective (one-to-one and onto)", "A polynomial", "Increasing"],
-            answer: 1,
-            explain:
-              "Only a bijection pairs inputs and outputs uniquely in both directions, so the mapping can be reversed unambiguously.",
-          },
-        ],
-      },
-    },
-    {
-      id: "linear-polynomial",
-      title: "Linear & Polynomial Functions",
-      minutes: 13,
-      summary: "Slope, roots, degree, and end behavior.",
-      Body: LinearAndPolynomial,
-      exercises: [
-        {
-          id: "slope",
-          kind: "numeric",
-          prompt: "Find the slope of the line through (1, 2) and (4, 11).",
-          starter: "",
-          hint: "(y₂ − y₁) / (x₂ − x₁).",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 3) < 0.01
-              ? { pass: true, message: "Correct — (11 − 2)/(4 − 1) = 9/3 = 3." }
-              : { pass: false, message: "Not quite. Compute rise over run: (11 − 2)/(4 − 1)." },
-        },
-        {
-          id: "linear-polynomial-p1",
-          kind: "numeric",
-          prompt: "The line y = mx + b passes through (0, −5). Enter its y-intercept b.",
-          starter: "",
-          hint: "The y-intercept is the output at x = 0.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - -5) < 0.01
-              ? { pass: true, message: "Correct — at x = 0 the point (0, −5) gives b = −5." }
-              : { pass: false, message: "Not quite. The y-intercept is the y-value when x = 0." },
-        },
-        {
-          id: "linear-polynomial-p2",
-          kind: "numeric",
-          prompt: "For the line through (2, 3) and (6, 3), enter its slope.",
-          starter: "",
-          hint: "Rise over run when the y-values are equal.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 0) < 0.01
-              ? { pass: true, message: "Correct — (3 − 3)/(6 − 2) = 0; a horizontal line." }
-              : { pass: false, message: "Not quite. The y-values are equal, so the rise is 0." },
-        },
-        {
-          id: "linear-polynomial-p3",
-          kind: "numeric",
-          prompt: "The roots of x² − 3x + 2 are 1 and 2. Enter the larger root.",
-          starter: "",
-          hint: "It factors as (x − 1)(x − 2).",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 2) < 0.01
-              ? { pass: true, message: "Correct — (x − 1)(x − 2) = 0 gives roots 1 and 2; the larger is 2." }
-              : { pass: false, message: "Not quite. Factor to (x − 1)(x − 2) and take the larger zero." },
-        },
-        {
-          id: "linear-polynomial-p4",
-          kind: "numeric",
-          prompt: "Find the positive root of x² − 5x + 6 = 0 that is larger than the other.",
-          starter: "",
-          hint: "Factor: (x − 2)(x − 3).",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 3) < 0.01
-              ? { pass: true, message: "Correct — (x − 2)(x − 3) = 0 gives 2 and 3; the larger is 3." }
-              : { pass: false, message: "Not quite. Factor to (x − 2)(x − 3) and pick the larger root." },
-        },
-        {
-          id: "linear-polynomial-p5",
-          kind: "numeric",
-          prompt: "Evaluate the polynomial p(x) = 2x³ − x + 4 at x = 2.",
-          starter: "",
-          hint: "2·8 − 2 + 4.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 18) < 0.01
-              ? { pass: true, message: "Correct — 2·8 − 2 + 4 = 16 − 2 + 4 = 18." }
-              : { pass: false, message: "Not quite. 2³ = 8, so 2·8 = 16; then subtract 2 and add 4." },
-        },
-      ],
-      quiz: {
-        questions: [
-          {
-            q: "How many real roots can a degree-5 polynomial have at most?",
-            choices: ["4", "5", "6", "Infinitely many"],
-            answer: 1,
-            explain:
-              "A degree-n polynomial has at most n real roots; here n = 5. (It could have fewer if some roots are complex or repeated.)",
-          },
-          {
-            q: "For large |x|, the behavior of a polynomial is governed by…",
-            choices: ["The constant term", "The leading (highest-degree) term", "The number of terms", "The y-intercept"],
-            answer: 1,
-            explain:
-              "As |x| → ∞ the highest-degree term dominates every lower term, so it sets the end behavior.",
-          },
-          {
-            q: "The roots of x² − 3x + 2 are…",
-            choices: ["0 and 3", "1 and 2", "−1 and −2", "2 and 3"],
-            answer: 1,
-            explain: "It factors as (x − 1)(x − 2), so it is zero at x = 1 and x = 2.",
-          },
-        ],
-      },
-    },
-    {
-      id: "exp-log",
-      title: "Exponentials & Logarithms",
-      minutes: 14,
-      summary: "Multiplicative growth, the inverse relationship, and log rules.",
-      Body: ExpAndLog,
-      exercises: [
-        {
-          id: "log-eval",
-          kind: "numeric",
-          prompt: "Evaluate log₂(32).",
-          starter: "",
-          hint: "2 to what power gives 32?",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 5) < 0.01
-              ? { pass: true, message: "Correct — 2⁵ = 32, so log₂(32) = 5." }
-              : { pass: false, message: "Not quite. Ask: 2 raised to what power equals 32?" },
-        },
-        {
-          id: "exp-log-p1",
-          kind: "numeric",
-          prompt: "Evaluate 2^5.",
-          starter: "",
-          hint: "Multiply 2 by itself five times.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 32) < 0.01
-              ? { pass: true, message: "Correct — 2^5 = 32." }
-              : { pass: false, message: "Not quite. 2·2·2·2·2 = 32." },
-        },
-        {
-          id: "exp-log-p2",
-          kind: "numeric",
-          prompt: "Evaluate log₁₀(1000).",
-          starter: "",
-          hint: "10 to what power gives 1000?",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 3) < 0.01
-              ? { pass: true, message: "Correct — 10³ = 1000, so log₁₀(1000) = 3." }
-              : { pass: false, message: "Not quite. 10 raised to what power equals 1000?" },
-        },
-        {
-          id: "exp-log-p3",
-          kind: "numeric",
-          prompt: "Evaluate ln(e²).",
-          starter: "",
-          hint: "ln and eˣ are inverses: ln(eˣ) = x.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 2) < 0.01
-              ? { pass: true, message: "Correct — ln(e²) = 2 since ln and eˣ undo each other." }
-              : { pass: false, message: "Not quite. ln(eˣ) = x, so ln(e²) = 2." },
-        },
-        {
-          id: "exp-log-p4",
-          kind: "numeric",
-          prompt: "Using log rules, evaluate log₂(8) + log₂(4).",
-          starter: "",
-          hint: "log₂(8) = 3 and log₂(4) = 2; or combine as log₂(32).",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 5) < 0.01
-              ? { pass: true, message: "Correct — 3 + 2 = 5 (equivalently log₂(32) = 5)." }
-              : { pass: false, message: "Not quite. log₂(8) = 3, log₂(4) = 2; add them." },
-        },
-        {
-          id: "exp-log-p5",
-          kind: "numeric",
-          prompt: "Evaluate ln(e^5) − ln(e^2).",
-          starter: "",
-          hint: "Each ln(eᵏ) = k; subtract.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 3) < 0.01
-              ? { pass: true, message: "Correct — 5 − 2 = 3." }
-              : { pass: false, message: "Not quite. ln(e^5) = 5 and ln(e^2) = 2, so the difference is 3." },
-        },
-      ],
-      quiz: {
-        questions: [
-          {
-            q: "log(xy) equals…",
-            choices: ["log x · log y", "log x + log y", "log x − log y", "(log x)(log y) / 2"],
-            answer: 1,
-            explain:
-              "The product rule for logs turns multiplication into addition: log(xy) = log x + log y.",
-          },
-          {
-            q: "Which statement about eˣ and ln x is correct?",
-            choices: [
-              "They are the same function",
-              "They are inverses, reflected across y = x",
-              "ln x grows faster than eˣ",
-              "eˣ can be negative",
+            id: "what-is-a-function",
+            title: "What Is a Function?",
+            minutes: 12,
+            summary: "Domain, range, and the one-input-one-output rule.",
+            Body: WhatIsAFunction,
+            exercises: [
+                {
+                    id: "domain",
+                    kind: "open",
+                    prompt: "State the natural domain of h(x) = 1 / (x² − 4) and explain in one sentence why the excluded values are excluded.",
+                    starter: "",
+                    rubric: "Full credit: domain is all real x except x = 2 and x = −2 (equivalently x ≠ ±2), because those make the denominator zero, and division by zero is undefined. Partial: identifies the excluded points OR the reason but not both.",
+                    hint: "Where does the denominator equal zero?",
+                },
+                {
+                    id: "func-p1",
+                    kind: "numeric",
+                    prompt: "For f(x) = x² − 3x + 2, evaluate f(0).",
+                    starter: "",
+                    hint: "Substitute x = 0 into every term.",
+                    validate: (s) => Math.abs(parseFloat(s) - 2) < 0.01
+                        ? { pass: true, message: "Correct — 0 − 0 + 2 = 2." }
+                        : { pass: false, message: "Not quite. Plug x = 0 in: only the constant term survives." },
+                },
+                {
+                    id: "func-p2",
+                    kind: "numeric",
+                    prompt: "For f(x) = x² − 3x + 2, evaluate f(5).",
+                    starter: "",
+                    hint: "Compute 25 − 15 + 2.",
+                    validate: (s) => Math.abs(parseFloat(s) - 12) < 0.01
+                        ? { pass: true, message: "Correct — 25 − 15 + 2 = 12." }
+                        : { pass: false, message: "Not quite. 5² = 25, then subtract 3·5 = 15 and add 2." },
+                },
+                {
+                    id: "func-p3",
+                    kind: "numeric",
+                    prompt: "The natural domain of g(x) = 1 / √(x − 2) is x > c. Enter the boundary value c.",
+                    starter: "",
+                    hint: "The inside of the root must be positive, and the root sits in a denominator.",
+                    validate: (s) => Math.abs(parseFloat(s) - 2) < 0.01
+                        ? { pass: true, message: "Correct — x − 2 > 0 forces x > 2, so c = 2." }
+                        : { pass: false, message: "Not quite. Set x − 2 > 0 (strictly, since it is under a root in a denominator)." },
+                },
+                {
+                    id: "func-p4",
+                    kind: "numeric",
+                    prompt: "For h(x) = 1 / (x² − 4), enter the largest x-value excluded from the domain.",
+                    starter: "",
+                    hint: "The denominator is zero at x = ±2.",
+                    validate: (s) => Math.abs(parseFloat(s) - 2) < 0.01
+                        ? { pass: true, message: "Correct — x² − 4 = 0 at x = ±2; the larger is 2." }
+                        : { pass: false, message: "Not quite. Solve x² − 4 = 0 and take the larger root." },
+                },
+                {
+                    id: "func-p5",
+                    kind: "numeric",
+                    prompt: "Find the root of the linear function f(x) = 2x − 7 (the x where f(x) = 0).",
+                    starter: "",
+                    hint: "Solve 2x − 7 = 0.",
+                    validate: (s) => Math.abs(parseFloat(s) - 3.5) < 0.01
+                        ? { pass: true, message: "Correct — 2x = 7, so x = 3.5." }
+                        : { pass: false, message: "Not quite. Set 2x − 7 = 0 and solve for x." },
+                },
             ],
-            answer: 1,
-            explain:
-              "ln is the inverse of eˣ; each is the reflection of the other across the line y = x, and eˣ is always positive.",
-          },
-        ],
-      },
-    },
-    {
-      id: "trigonometry",
-      title: "Trigonometric Functions",
-      minutes: 15,
-      summary: "The unit circle, radians, sin/cos/tan, and periodicity.",
-      Body: Trigonometry,
-      exercises: [
-        {
-          id: "sin-eval",
-          kind: "numeric",
-          prompt: "Evaluate sin(π/6) as a decimal.",
-          starter: "",
-          hint: "One of the memorized anchor values.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 0.5) < 0.01
-              ? { pass: true, message: "Correct — sin(π/6) = 1/2 = 0.5." }
-              : { pass: false, message: "Not quite. π/6 is 30°, an anchor value; recall sin(π/6)." },
+            quiz: {
+                questions: [
+                    {
+                        q: "Which of these is NOT a function of x?",
+                        choices: ["y = x²", "y = √x for x ≥ 0", "x² + y² = 1", "y = 3"],
+                        answer: 2,
+                        explain: "The circle assigns two y-values (±) to most x-values, failing the vertical line test. The others each give exactly one output per input.",
+                    },
+                    {
+                        q: "A function has a true inverse exactly when it is…",
+                        choices: ["Continuous", "Bijective (one-to-one and onto)", "A polynomial", "Increasing"],
+                        answer: 1,
+                        explain: "Only a bijection pairs inputs and outputs uniquely in both directions, so the mapping can be reversed unambiguously.",
+                    },
+                ],
+            },
         },
         {
-          id: "trigonometry-p1",
-          kind: "numeric",
-          prompt: "Evaluate cos(0).",
-          starter: "",
-          hint: "At angle 0 the unit-circle point is (1, 0).",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 1) < 0.01
-              ? { pass: true, message: "Correct — cos(0) = 1." }
-              : { pass: false, message: "Not quite. At θ = 0 the x-coordinate on the unit circle is 1." },
+            id: "linear-polynomial",
+            title: "Linear & Polynomial Functions",
+            minutes: 13,
+            summary: "Slope, roots, degree, and end behavior.",
+            Body: LinearAndPolynomial,
+            exercises: [
+                {
+                    id: "slope",
+                    kind: "numeric",
+                    prompt: "Find the slope of the line through (1, 2) and (4, 11).",
+                    starter: "",
+                    hint: "(y₂ − y₁) / (x₂ − x₁).",
+                    validate: (s) => Math.abs(parseFloat(s) - 3) < 0.01
+                        ? { pass: true, message: "Correct — (11 − 2)/(4 − 1) = 9/3 = 3." }
+                        : { pass: false, message: "Not quite. Compute rise over run: (11 − 2)/(4 − 1)." },
+                },
+                {
+                    id: "linear-polynomial-p1",
+                    kind: "numeric",
+                    prompt: "The line y = mx + b passes through (0, −5). Enter its y-intercept b.",
+                    starter: "",
+                    hint: "The y-intercept is the output at x = 0.",
+                    validate: (s) => Math.abs(parseFloat(s) - -5) < 0.01
+                        ? { pass: true, message: "Correct — at x = 0 the point (0, −5) gives b = −5." }
+                        : { pass: false, message: "Not quite. The y-intercept is the y-value when x = 0." },
+                },
+                {
+                    id: "linear-polynomial-p2",
+                    kind: "numeric",
+                    prompt: "For the line through (2, 3) and (6, 3), enter its slope.",
+                    starter: "",
+                    hint: "Rise over run when the y-values are equal.",
+                    validate: (s) => Math.abs(parseFloat(s) - 0) < 0.01
+                        ? { pass: true, message: "Correct — (3 − 3)/(6 − 2) = 0; a horizontal line." }
+                        : { pass: false, message: "Not quite. The y-values are equal, so the rise is 0." },
+                },
+                {
+                    id: "linear-polynomial-p3",
+                    kind: "numeric",
+                    prompt: "The roots of x² − 3x + 2 are 1 and 2. Enter the larger root.",
+                    starter: "",
+                    hint: "It factors as (x − 1)(x − 2).",
+                    validate: (s) => Math.abs(parseFloat(s) - 2) < 0.01
+                        ? { pass: true, message: "Correct — (x − 1)(x − 2) = 0 gives roots 1 and 2; the larger is 2." }
+                        : { pass: false, message: "Not quite. Factor to (x − 1)(x − 2) and take the larger zero." },
+                },
+                {
+                    id: "linear-polynomial-p4",
+                    kind: "numeric",
+                    prompt: "Find the positive root of x² − 5x + 6 = 0 that is larger than the other.",
+                    starter: "",
+                    hint: "Factor: (x − 2)(x − 3).",
+                    validate: (s) => Math.abs(parseFloat(s) - 3) < 0.01
+                        ? { pass: true, message: "Correct — (x − 2)(x − 3) = 0 gives 2 and 3; the larger is 3." }
+                        : { pass: false, message: "Not quite. Factor to (x − 2)(x − 3) and pick the larger root." },
+                },
+                {
+                    id: "linear-polynomial-p5",
+                    kind: "numeric",
+                    prompt: "Evaluate the polynomial p(x) = 2x³ − x + 4 at x = 2.",
+                    starter: "",
+                    hint: "2·8 − 2 + 4.",
+                    validate: (s) => Math.abs(parseFloat(s) - 18) < 0.01
+                        ? { pass: true, message: "Correct — 2·8 − 2 + 4 = 16 − 2 + 4 = 18." }
+                        : { pass: false, message: "Not quite. 2³ = 8, so 2·8 = 16; then subtract 2 and add 4." },
+                },
+            ],
+            quiz: {
+                questions: [
+                    {
+                        q: "How many real roots can a degree-5 polynomial have at most?",
+                        choices: ["4", "5", "6", "Infinitely many"],
+                        answer: 1,
+                        explain: "A degree-n polynomial has at most n real roots; here n = 5. (It could have fewer if some roots are complex or repeated.)",
+                    },
+                    {
+                        q: "For large |x|, the behavior of a polynomial is governed by…",
+                        choices: ["The constant term", "The leading (highest-degree) term", "The number of terms", "The y-intercept"],
+                        answer: 1,
+                        explain: "As |x| → ∞ the highest-degree term dominates every lower term, so it sets the end behavior.",
+                    },
+                    {
+                        q: "The roots of x² − 3x + 2 are…",
+                        choices: ["0 and 3", "1 and 2", "−1 and −2", "2 and 3"],
+                        answer: 1,
+                        explain: "It factors as (x − 1)(x − 2), so it is zero at x = 1 and x = 2.",
+                    },
+                ],
+            },
         },
         {
-          id: "trigonometry-p2",
-          kind: "numeric",
-          prompt: "Evaluate sin(π/2).",
-          starter: "",
-          hint: "π/2 is a quarter turn, the top of the unit circle.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 1) < 0.01
-              ? { pass: true, message: "Correct — sin(π/2) = 1." }
-              : { pass: false, message: "Not quite. At π/2 the point is (0, 1), so sine is 1." },
+            id: "exp-log",
+            title: "Exponentials & Logarithms",
+            minutes: 14,
+            summary: "Multiplicative growth, the inverse relationship, and log rules.",
+            Body: ExpAndLog,
+            exercises: [
+                {
+                    id: "log-eval",
+                    kind: "numeric",
+                    prompt: "Evaluate log₂(32).",
+                    starter: "",
+                    hint: "2 to what power gives 32?",
+                    validate: (s) => Math.abs(parseFloat(s) - 5) < 0.01
+                        ? { pass: true, message: "Correct — 2⁵ = 32, so log₂(32) = 5." }
+                        : { pass: false, message: "Not quite. Ask: 2 raised to what power equals 32?" },
+                },
+                {
+                    id: "exp-log-p1",
+                    kind: "numeric",
+                    prompt: "Evaluate 2^5.",
+                    starter: "",
+                    hint: "Multiply 2 by itself five times.",
+                    validate: (s) => Math.abs(parseFloat(s) - 32) < 0.01
+                        ? { pass: true, message: "Correct — 2^5 = 32." }
+                        : { pass: false, message: "Not quite. 2·2·2·2·2 = 32." },
+                },
+                {
+                    id: "exp-log-p2",
+                    kind: "numeric",
+                    prompt: "Evaluate log₁₀(1000).",
+                    starter: "",
+                    hint: "10 to what power gives 1000?",
+                    validate: (s) => Math.abs(parseFloat(s) - 3) < 0.01
+                        ? { pass: true, message: "Correct — 10³ = 1000, so log₁₀(1000) = 3." }
+                        : { pass: false, message: "Not quite. 10 raised to what power equals 1000?" },
+                },
+                {
+                    id: "exp-log-p3",
+                    kind: "numeric",
+                    prompt: "Evaluate ln(e²).",
+                    starter: "",
+                    hint: "ln and eˣ are inverses: ln(eˣ) = x.",
+                    validate: (s) => Math.abs(parseFloat(s) - 2) < 0.01
+                        ? { pass: true, message: "Correct — ln(e²) = 2 since ln and eˣ undo each other." }
+                        : { pass: false, message: "Not quite. ln(eˣ) = x, so ln(e²) = 2." },
+                },
+                {
+                    id: "exp-log-p4",
+                    kind: "numeric",
+                    prompt: "Using log rules, evaluate log₂(8) + log₂(4).",
+                    starter: "",
+                    hint: "log₂(8) = 3 and log₂(4) = 2; or combine as log₂(32).",
+                    validate: (s) => Math.abs(parseFloat(s) - 5) < 0.01
+                        ? { pass: true, message: "Correct — 3 + 2 = 5 (equivalently log₂(32) = 5)." }
+                        : { pass: false, message: "Not quite. log₂(8) = 3, log₂(4) = 2; add them." },
+                },
+                {
+                    id: "exp-log-p5",
+                    kind: "numeric",
+                    prompt: "Evaluate ln(e^5) − ln(e^2).",
+                    starter: "",
+                    hint: "Each ln(eᵏ) = k; subtract.",
+                    validate: (s) => Math.abs(parseFloat(s) - 3) < 0.01
+                        ? { pass: true, message: "Correct — 5 − 2 = 3." }
+                        : { pass: false, message: "Not quite. ln(e^5) = 5 and ln(e^2) = 2, so the difference is 3." },
+                },
+            ],
+            quiz: {
+                questions: [
+                    {
+                        q: "log(xy) equals…",
+                        choices: ["log x · log y", "log x + log y", "log x − log y", "(log x)(log y) / 2"],
+                        answer: 1,
+                        explain: "The product rule for logs turns multiplication into addition: log(xy) = log x + log y.",
+                    },
+                    {
+                        q: "Which statement about eˣ and ln x is correct?",
+                        choices: [
+                            "They are the same function",
+                            "They are inverses, reflected across y = x",
+                            "ln x grows faster than eˣ",
+                            "eˣ can be negative",
+                        ],
+                        answer: 1,
+                        explain: "ln is the inverse of eˣ; each is the reflection of the other across the line y = x, and eˣ is always positive.",
+                    },
+                ],
+            },
         },
         {
-          id: "trigonometry-p3",
-          kind: "numeric",
-          prompt: "Evaluate tan(π/4).",
-          starter: "",
-          hint: "tan = sin/cos, and sin(π/4) = cos(π/4).",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 1) < 0.01
-              ? { pass: true, message: "Correct — sin(π/4) = cos(π/4), so tan(π/4) = 1." }
-              : { pass: false, message: "Not quite. tan(π/4) = sin(π/4)/cos(π/4) = 1." },
+            id: "trigonometry",
+            title: "Trigonometric Functions",
+            minutes: 15,
+            summary: "The unit circle, radians, sin/cos/tan, and periodicity.",
+            Body: Trigonometry,
+            exercises: [
+                {
+                    id: "sin-eval",
+                    kind: "numeric",
+                    prompt: "Evaluate sin(π/6) as a decimal.",
+                    starter: "",
+                    hint: "One of the memorized anchor values.",
+                    validate: (s) => Math.abs(parseFloat(s) - 0.5) < 0.01
+                        ? { pass: true, message: "Correct — sin(π/6) = 1/2 = 0.5." }
+                        : { pass: false, message: "Not quite. π/6 is 30°, an anchor value; recall sin(π/6)." },
+                },
+                {
+                    id: "trigonometry-p1",
+                    kind: "numeric",
+                    prompt: "Evaluate cos(0).",
+                    starter: "",
+                    hint: "At angle 0 the unit-circle point is (1, 0).",
+                    validate: (s) => Math.abs(parseFloat(s) - 1) < 0.01
+                        ? { pass: true, message: "Correct — cos(0) = 1." }
+                        : { pass: false, message: "Not quite. At θ = 0 the x-coordinate on the unit circle is 1." },
+                },
+                {
+                    id: "trigonometry-p2",
+                    kind: "numeric",
+                    prompt: "Evaluate sin(π/2).",
+                    starter: "",
+                    hint: "π/2 is a quarter turn, the top of the unit circle.",
+                    validate: (s) => Math.abs(parseFloat(s) - 1) < 0.01
+                        ? { pass: true, message: "Correct — sin(π/2) = 1." }
+                        : { pass: false, message: "Not quite. At π/2 the point is (0, 1), so sine is 1." },
+                },
+                {
+                    id: "trigonometry-p3",
+                    kind: "numeric",
+                    prompt: "Evaluate tan(π/4).",
+                    starter: "",
+                    hint: "tan = sin/cos, and sin(π/4) = cos(π/4).",
+                    validate: (s) => Math.abs(parseFloat(s) - 1) < 0.01
+                        ? { pass: true, message: "Correct — sin(π/4) = cos(π/4), so tan(π/4) = 1." }
+                        : { pass: false, message: "Not quite. tan(π/4) = sin(π/4)/cos(π/4) = 1." },
+                },
+                {
+                    id: "trigonometry-p4",
+                    kind: "numeric",
+                    prompt: "Evaluate cos(π).",
+                    starter: "",
+                    hint: "π is a half turn to the point (−1, 0).",
+                    validate: (s) => Math.abs(parseFloat(s) - -1) < 0.01
+                        ? { pass: true, message: "Correct — cos(π) = −1." }
+                        : { pass: false, message: "Not quite. At π the unit-circle point is (−1, 0)." },
+                },
+                {
+                    id: "trigonometry-p5",
+                    kind: "numeric",
+                    prompt: "Evaluate sin(π/3) as a decimal. Round to 2 decimals.",
+                    starter: "",
+                    hint: "sin(π/3) = √3/2.",
+                    validate: (s) => Math.abs(parseFloat(s) - 0.87) < 0.05
+                        ? { pass: true, message: "Correct — sin(π/3) = √3/2 ≈ 0.87." }
+                        : { pass: false, message: "Not quite. sin(π/3) = √3/2 ≈ 0.866." },
+                },
+            ],
+            quiz: {
+                questions: [
+                    {
+                        q: "On the unit circle, the point at angle θ has coordinates…",
+                        choices: ["(sin θ, cos θ)", "(cos θ, sin θ)", "(tan θ, 1)", "(θ, θ²)"],
+                        answer: 1,
+                        explain: "By definition the x-coordinate is cos θ and the y-coordinate is sin θ, which is why sin²θ + cos²θ = 1.",
+                    },
+                    {
+                        q: "The period of sin(x) is…",
+                        choices: ["π", "2π", "π/2", "1"],
+                        answer: 1,
+                        explain: "Walking a full turn around the circle takes 2π radians, after which sine repeats. (tan repeats every π.)",
+                    },
+                ],
+            },
         },
         {
-          id: "trigonometry-p4",
-          kind: "numeric",
-          prompt: "Evaluate cos(π).",
-          starter: "",
-          hint: "π is a half turn to the point (−1, 0).",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - -1) < 0.01
-              ? { pass: true, message: "Correct — cos(π) = −1." }
-              : { pass: false, message: "Not quite. At π the unit-circle point is (−1, 0)." },
+            id: "transformations",
+            title: "Transformations & Composition",
+            minutes: 13,
+            summary: "Shift, scale, reflect, and compose functions.",
+            Body: Transformations,
+            exercises: [
+                {
+                    id: "compose",
+                    kind: "numeric",
+                    prompt: "With f(x) = 2x + 1 and g(x) = x², compute (f ∘ g)(3).",
+                    starter: "",
+                    hint: "Apply g first, then f: f(g(3)).",
+                    validate: (s) => Math.abs(parseFloat(s) - 19) < 0.01
+                        ? { pass: true, message: "Correct — g(3) = 9, then f(9) = 2·9 + 1 = 19." }
+                        : { pass: false, message: "Not quite. First g(3) = 9, then feed that into f." },
+                },
+                {
+                    id: "transformations-p1",
+                    kind: "numeric",
+                    prompt: "With f(x) = x² and g(x) = x + 2, compute (f ∘ g)(1).",
+                    starter: "",
+                    hint: "Apply g first: g(1) = 3, then square.",
+                    validate: (s) => Math.abs(parseFloat(s) - 9) < 0.01
+                        ? { pass: true, message: "Correct — g(1) = 3, then f(3) = 9." }
+                        : { pass: false, message: "Not quite. g(1) = 3, then f(3) = 3² = 9." },
+                },
+                {
+                    id: "transformations-p2",
+                    kind: "numeric",
+                    prompt: "With f(x) = x² and g(x) = x + 2, compute (g ∘ f)(1).",
+                    starter: "",
+                    hint: "Apply f first: f(1) = 1, then add 2.",
+                    validate: (s) => Math.abs(parseFloat(s) - 3) < 0.01
+                        ? { pass: true, message: "Correct — f(1) = 1, then g(1) = 1 + 2 = 3." }
+                        : { pass: false, message: "Not quite. f(1) = 1, then g(1) = 3. Order matters!" },
+                },
+                {
+                    id: "transformations-p3",
+                    kind: "numeric",
+                    prompt: "The graph of f(x) = x² is shifted to give g(x) = (x − 4)². Enter how many units it moved to the right.",
+                    starter: "",
+                    hint: "f(x − h) shifts right by h.",
+                    validate: (s) => Math.abs(parseFloat(s) - 4) < 0.01
+                        ? { pass: true, message: "Correct — subtracting 4 inside shifts the graph right by 4." }
+                        : { pass: false, message: "Not quite. f(x − h) moves the graph right by h; here h = 4." },
+                },
+                {
+                    id: "transformations-p4",
+                    kind: "numeric",
+                    prompt: "With f(x) = √x and g(x) = x² + 1, compute (f ∘ g)(2). Round to 2 decimals.",
+                    starter: "",
+                    hint: "g(2) = 5, then take √5.",
+                    validate: (s) => Math.abs(parseFloat(s) - 2.24) < 0.05
+                        ? { pass: true, message: "Correct — g(2) = 5, then √5 ≈ 2.24." }
+                        : { pass: false, message: "Not quite. g(2) = 2² + 1 = 5, then √5 ≈ 2.236." },
+                },
+                {
+                    id: "transformations-p5",
+                    kind: "numeric",
+                    prompt: "With f(x) = 3x − 1 and g(x) = 2x, compute (f ∘ g)(4).",
+                    starter: "",
+                    hint: "g(4) = 8, then apply f.",
+                    validate: (s) => Math.abs(parseFloat(s) - 23) < 0.01
+                        ? { pass: true, message: "Correct — g(4) = 8, then f(8) = 3·8 − 1 = 23." }
+                        : { pass: false, message: "Not quite. g(4) = 8, then f(8) = 24 − 1 = 23." },
+                },
+            ],
+            quiz: {
+                questions: [
+                    {
+                        q: "The graph of f(x − 3) is f(x) shifted…",
+                        choices: ["Left by 3", "Right by 3", "Up by 3", "Down by 3"],
+                        answer: 1,
+                        explain: "Subtracting inside the argument shifts the graph right by 3 — the input must be larger to reproduce the same output.",
+                    },
+                    {
+                        q: "(f ∘ g)(x) means…",
+                        choices: ["f(x) · g(x)", "g(f(x))", "f(g(x))", "f(x) + g(x)"],
+                        answer: 2,
+                        explain: "Composition applies the inner function g first, then feeds its output into the outer function f.",
+                    },
+                ],
+            },
         },
-        {
-          id: "trigonometry-p5",
-          kind: "numeric",
-          prompt: "Evaluate sin(π/3) as a decimal. Round to 2 decimals.",
-          starter: "",
-          hint: "sin(π/3) = √3/2.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 0.87) < 0.05
-              ? { pass: true, message: "Correct — sin(π/3) = √3/2 ≈ 0.87." }
-              : { pass: false, message: "Not quite. sin(π/3) = √3/2 ≈ 0.866." },
-        },
-      ],
-      quiz: {
-        questions: [
-          {
-            q: "On the unit circle, the point at angle θ has coordinates…",
-            choices: ["(sin θ, cos θ)", "(cos θ, sin θ)", "(tan θ, 1)", "(θ, θ²)"],
-            answer: 1,
-            explain:
-              "By definition the x-coordinate is cos θ and the y-coordinate is sin θ, which is why sin²θ + cos²θ = 1.",
-          },
-          {
-            q: "The period of sin(x) is…",
-            choices: ["π", "2π", "π/2", "1"],
-            answer: 1,
-            explain:
-              "Walking a full turn around the circle takes 2π radians, after which sine repeats. (tan repeats every π.)",
-          },
-        ],
-      },
-    },
-    {
-      id: "transformations",
-      title: "Transformations & Composition",
-      minutes: 13,
-      summary: "Shift, scale, reflect, and compose functions.",
-      Body: Transformations,
-      exercises: [
-        {
-          id: "compose",
-          kind: "numeric",
-          prompt: "With f(x) = 2x + 1 and g(x) = x², compute (f ∘ g)(3).",
-          starter: "",
-          hint: "Apply g first, then f: f(g(3)).",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 19) < 0.01
-              ? { pass: true, message: "Correct — g(3) = 9, then f(9) = 2·9 + 1 = 19." }
-              : { pass: false, message: "Not quite. First g(3) = 9, then feed that into f." },
-        },
-        {
-          id: "transformations-p1",
-          kind: "numeric",
-          prompt: "With f(x) = x² and g(x) = x + 2, compute (f ∘ g)(1).",
-          starter: "",
-          hint: "Apply g first: g(1) = 3, then square.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 9) < 0.01
-              ? { pass: true, message: "Correct — g(1) = 3, then f(3) = 9." }
-              : { pass: false, message: "Not quite. g(1) = 3, then f(3) = 3² = 9." },
-        },
-        {
-          id: "transformations-p2",
-          kind: "numeric",
-          prompt: "With f(x) = x² and g(x) = x + 2, compute (g ∘ f)(1).",
-          starter: "",
-          hint: "Apply f first: f(1) = 1, then add 2.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 3) < 0.01
-              ? { pass: true, message: "Correct — f(1) = 1, then g(1) = 1 + 2 = 3." }
-              : { pass: false, message: "Not quite. f(1) = 1, then g(1) = 3. Order matters!" },
-        },
-        {
-          id: "transformations-p3",
-          kind: "numeric",
-          prompt:
-            "The graph of f(x) = x² is shifted to give g(x) = (x − 4)². Enter how many units it moved to the right.",
-          starter: "",
-          hint: "f(x − h) shifts right by h.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 4) < 0.01
-              ? { pass: true, message: "Correct — subtracting 4 inside shifts the graph right by 4." }
-              : { pass: false, message: "Not quite. f(x − h) moves the graph right by h; here h = 4." },
-        },
-        {
-          id: "transformations-p4",
-          kind: "numeric",
-          prompt:
-            "With f(x) = √x and g(x) = x² + 1, compute (f ∘ g)(2). Round to 2 decimals.",
-          starter: "",
-          hint: "g(2) = 5, then take √5.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 2.24) < 0.05
-              ? { pass: true, message: "Correct — g(2) = 5, then √5 ≈ 2.24." }
-              : { pass: false, message: "Not quite. g(2) = 2² + 1 = 5, then √5 ≈ 2.236." },
-        },
-        {
-          id: "transformations-p5",
-          kind: "numeric",
-          prompt: "With f(x) = 3x − 1 and g(x) = 2x, compute (f ∘ g)(4).",
-          starter: "",
-          hint: "g(4) = 8, then apply f.",
-          validate: (s) =>
-            Math.abs(parseFloat(s) - 23) < 0.01
-              ? { pass: true, message: "Correct — g(4) = 8, then f(8) = 3·8 − 1 = 23." }
-              : { pass: false, message: "Not quite. g(4) = 8, then f(8) = 24 − 1 = 23." },
-        },
-      ],
-      quiz: {
-        questions: [
-          {
-            q: "The graph of f(x − 3) is f(x) shifted…",
-            choices: ["Left by 3", "Right by 3", "Up by 3", "Down by 3"],
-            answer: 1,
-            explain:
-              "Subtracting inside the argument shifts the graph right by 3 — the input must be larger to reproduce the same output.",
-          },
-          {
-            q: "(f ∘ g)(x) means…",
-            choices: ["f(x) · g(x)", "g(f(x))", "f(g(x))", "f(x) + g(x)"],
-            answer: 2,
-            explain:
-              "Composition applies the inner function g first, then feeds its output into the outer function f.",
-          },
-        ],
-      },
-    },
-  ],
+    ],
 };

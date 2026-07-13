@@ -5,10 +5,8 @@ import { TriangleDemo } from "../../widgets/TriangleDemo";
 import { TransformPipeline3D } from "../../widgets/TransformPipeline3D";
 import { TerrainField } from "../../widgets/TerrainField";
 import { SplineEditor } from "../../widgets/SplineEditor";
-
 function Step1() {
-  return (
-    <div className="prose">
+    return (<div className="prose">
       <p>
         This is it — the "Hello, World" of graphics. It feels humble, but drawing one triangle forces
         you to stand up the <em>entire</em> pipeline correctly: open a window, get a Metal layer,
@@ -34,9 +32,7 @@ function Step1() {
 
       <TriangleDemo />
       <p>Locally, in Odin, the skeleton is:</p>
-      <Code
-        lang="odin" filename="odin-examples/01-triangle/main.odin"
-        code={`package main
+      <Code lang="odin" filename="odin-examples/01-triangle/main.odin" code={`package main
 
 import "vendor:glfw"
 import NS  "core:sys/darwin/Foundation"
@@ -71,20 +67,16 @@ main :: proc() {
         glfw.PollEvents()
         // acquire drawable, encode a render pass, draw 3 vertices, commit
     }
-}`}
-      />
+}`}/>
       <div className="notice">
         <span className="lbl">Milestone</span>
         Run <code>odin run odin-examples/01-triangle</code>. A window opens with a colored triangle.
         You now own a working GPU pipeline — the hardest 100 lines you'll write.
       </div>
-    </div>
-  );
+    </div>);
 }
-
 function Step2() {
-  return (
-    <div className="prose">
+    return (<div className="prose">
       <p>
         A triangle is 2D. To enter 3D you feed the vertex shader the <strong>MVP matrix</strong> from
         the Linear Algebra module, turn the triangle into a cube (36 vertices), and add a{" "}
@@ -121,9 +113,7 @@ function Step2() {
         The camera is just an <code>eye</code> position and a <code>target</code>; a fly-cam updates
         them from input each frame and rebuilds the view matrix:
       </p>
-      <Code
-        lang="odin" filename="odin-examples/02-cube-camera/camera.odin"
-        code={`Camera :: struct { pos: [3]f32, yaw, pitch: f32 }
+      <Code lang="odin" filename="odin-examples/02-cube-camera/camera.odin" code={`Camera :: struct { pos: [3]f32, yaw, pitch: f32 }
 
 view_matrix :: proc(c: Camera) -> matrix[4,4]f32 {
     dir := [3]f32{
@@ -143,21 +133,17 @@ update_camera :: proc(c: ^Camera, dt: f32, input: Input) {
     if input.a do c.pos -= right * speed * dt
     c.yaw   += input.mouse_dx * 0.002
     c.pitch  = clamp(c.pitch - input.mouse_dy * 0.002, -1.5, 1.5)
-}`}
-      />
+}`}/>
       <div className="notice warn">
         <span className="lbl">Don't forget the depth buffer</span>
         Without a depth attachment, triangles draw in submission order and the cube looks
         inside-out. Add a <code>depth24plus</code> texture and set{" "}
         <code>depthCompare = .Less</code> in the pipeline.
       </div>
-    </div>
-  );
+    </div>);
 }
-
 function Step3() {
-  return (
-    <div className="prose">
+    return (<div className="prose">
       <p>
         Now generate a <strong>heightfield</strong>: a grid of thousands of vertices whose Y comes
         from the <code>fbm</code> Perlin noise you built in Procedural Math. Compute a normal per
@@ -180,9 +166,7 @@ function Step3() {
 
       <TerrainField />
       <p>Drag the sliders — you're re-generating ~15,000 triangles of terrain in real time.</p>
-      <Code
-        lang="odin" filename="odin-examples/03-terrain/terrain.odin"
-        code={`N :: 128   // N x N grid
+      <Code lang="odin" filename="odin-examples/03-terrain/terrain.odin" code={`N :: 128   // N x N grid
 
 generate_terrain :: proc() -> [dynamic]Vertex {
     verts: [dynamic]Vertex
@@ -196,20 +180,16 @@ generate_terrain :: proc() -> [dynamic]Vertex {
         }
     }
     return verts   // upload as one big vertex buffer
-}`}
-      />
+}`}/>
       <div className="notice">
         <span className="lbl">Performance note</span>
         This is where Data-Oriented Design pays off: the terrain is one contiguous vertex buffer,
         uploaded once, drawn in a single call. No per-object overhead.
       </div>
-    </div>
-  );
+    </div>);
 }
-
 function Step4() {
-  return (
-    <div className="prose">
+    return (<div className="prose">
       <p>
         The finale. Let the player click on the terrain (a ray–plane test from Physics) to drop
         points. Fit a <strong>Catmull-Rom spline</strong> through them, then <strong>extrude</strong>{" "}
@@ -244,9 +224,7 @@ function Step4() {
         In 3D you'd also give the wall height (a second row of vertices lifted along +Y) and drape it
         onto the terrain height under each point.
       </p>
-      <Code
-        lang="odin" filename="odin-examples/04-spline-wall/wall.odin"
-        code={`build_wall :: proc(control_pts: [][3]f32, height, half_w: f32) -> [dynamic]Vertex {
+      <Code lang="odin" filename="odin-examples/04-spline-wall/wall.odin" code={`build_wall :: proc(control_pts: [][3]f32, height, half_w: f32) -> [dynamic]Vertex {
     // 1. Smooth the clicked points into a dense centerline.
     center := catmull_rom_chain(control_pts, steps_per_seg = 16)
 
@@ -260,8 +238,7 @@ function Step4() {
         emit_wall_segment(&verts, left[i], right[i], left[i+1], right[i+1], height)
     }
     return verts
-}`}
-      />
+}`}/>
       <div className="notice warn">
         <span className="lbl">Boss level: seamless corners (the Tiny Glade secret)</span>
         When two walls meet, don't let them interpenetrate. Detect the intersection, recompute the
@@ -275,57 +252,55 @@ function Step4() {
         Metal — a windowing layer, a GPU pipeline, a 3D camera, procedural terrain, and a
         spline-driven procedural wall generator. That's a real engine. Go build worlds.
       </p>
-    </div>
-  );
+    </div>);
 }
-
 export const rendering: Module = {
-  id: "rendering",
-  title: "Rendering Capstone",
-  icon: "🏔️",
-  blurb: "Put it together: triangle → 3D camera → heightfield terrain → spline-extruded walls. The Tiny-Glade roadmap.",
-  dependsOn: ["metal", "procedural-math", "physics"],
-  lessons: [
-    {
-      id: "triangle", title: "Step 1 — Window & Triangle", minutes: 20,
-      summary: "Open a window, stand up the pipeline, draw one colored triangle.",
-      Body: Step1,
-      quiz: {
-        questions: [
-          { q: "Why is 'draw a triangle' the key first milestone?", choices: ["Triangles are pretty", "It forces the entire pipeline (window, shaders, buffers, draw) to work", "It's required by Odin", "It teaches noise"], answer: 1, explain: "Everything downstream reuses the pipeline you must build to draw one triangle." },
-        ],
-      },
-    },
-    {
-      id: "camera", title: "Step 2 — 3D Camera", minutes: 22,
-      summary: "Feed MVP matrices, draw a cube, add depth, fly with WASD + mouse.",
-      Body: Step2,
-      quiz: {
-        questions: [
-          { q: "Without a depth buffer, a 3D cube looks wrong because…", choices: ["Colors are off", "Triangles draw in submission order, not by distance", "It's too small", "The camera breaks"], answer: 1, explain: "Depth testing ensures nearer fragments occlude farther ones." },
-        ],
-      },
-    },
-    {
-      id: "terrain", title: "Step 3 — Heightfield Terrain", minutes: 20,
-      summary: "A grid of thousands of triangles with heights from Perlin fBm.",
-      Body: Step3,
-      quiz: {
-        questions: [
-          { q: "Terrain vertex heights come from…", choices: ["Random each frame", "fBm/Perlin noise sampled at grid coordinates", "A texture only", "The camera"], answer: 1, explain: "You sample fBm at each grid point to get a coherent, natural heightfield." },
-        ],
-      },
-    },
-    {
-      id: "spline-wall", title: "Step 4 — Spline Walls", minutes: 25,
-      summary: "Click to drop points, fit a spline, extrude a wall; the CSG frontier.",
-      Body: Step4,
-      quiz: {
-        questions: [
-          { q: "Placing wall points by clicking terrain uses which technique from Physics?", choices: ["Sphere collision", "Ray–plane / ray–heightfield intersection", "Verlet integration", "AABB"], answer: 1, explain: "You cast a ray from the camera through the cursor to find the ground point." },
-          { q: "Seamless wall corners are achieved by…", choices: ["Importing models", "Dynamic vertex generation / CSG at intersections", "Bigger textures", "More lights"], answer: 1, explain: "The mesh is recomputed and stitched where walls meet — the Tiny Glade approach." },
-        ],
-      },
-    },
-  ],
+    id: "rendering",
+    title: "Rendering Capstone",
+    icon: "🏔️",
+    blurb: "Put it together: triangle → 3D camera → heightfield terrain → spline-extruded walls. The Tiny-Glade roadmap.",
+    dependsOn: ["metal", "procedural-math", "physics"],
+    lessons: [
+        {
+            id: "triangle", title: "Step 1 — Window & Triangle", minutes: 20,
+            summary: "Open a window, stand up the pipeline, draw one colored triangle.",
+            Body: Step1,
+            quiz: {
+                questions: [
+                    { q: "Why is 'draw a triangle' the key first milestone?", choices: ["Triangles are pretty", "It forces the entire pipeline (window, shaders, buffers, draw) to work", "It's required by Odin", "It teaches noise"], answer: 1, explain: "Everything downstream reuses the pipeline you must build to draw one triangle." },
+                ],
+            },
+        },
+        {
+            id: "camera", title: "Step 2 — 3D Camera", minutes: 22,
+            summary: "Feed MVP matrices, draw a cube, add depth, fly with WASD + mouse.",
+            Body: Step2,
+            quiz: {
+                questions: [
+                    { q: "Without a depth buffer, a 3D cube looks wrong because…", choices: ["Colors are off", "Triangles draw in submission order, not by distance", "It's too small", "The camera breaks"], answer: 1, explain: "Depth testing ensures nearer fragments occlude farther ones." },
+                ],
+            },
+        },
+        {
+            id: "terrain", title: "Step 3 — Heightfield Terrain", minutes: 20,
+            summary: "A grid of thousands of triangles with heights from Perlin fBm.",
+            Body: Step3,
+            quiz: {
+                questions: [
+                    { q: "Terrain vertex heights come from…", choices: ["Random each frame", "fBm/Perlin noise sampled at grid coordinates", "A texture only", "The camera"], answer: 1, explain: "You sample fBm at each grid point to get a coherent, natural heightfield." },
+                ],
+            },
+        },
+        {
+            id: "spline-wall", title: "Step 4 — Spline Walls", minutes: 25,
+            summary: "Click to drop points, fit a spline, extrude a wall; the CSG frontier.",
+            Body: Step4,
+            quiz: {
+                questions: [
+                    { q: "Placing wall points by clicking terrain uses which technique from Physics?", choices: ["Sphere collision", "Ray–plane / ray–heightfield intersection", "Verlet integration", "AABB"], answer: 1, explain: "You cast a ray from the camera through the cursor to find the ground point." },
+                    { q: "Seamless wall corners are achieved by…", choices: ["Importing models", "Dynamic vertex generation / CSG at intersections", "Bigger textures", "More lights"], answer: 1, explain: "The mesh is recomputed and stitched where walls meet — the Tiny Glade approach." },
+                ],
+            },
+        },
+    ],
 };

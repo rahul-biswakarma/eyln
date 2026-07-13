@@ -1,6 +1,6 @@
-/* Top navigation bar. */
 
-/* ============ Top nav — clean, animated underline ============ */
+
+
 .topnav {
   position: sticky;
   top: 0;
@@ -39,7 +39,7 @@
   box-shadow: inset 0 0 14px rgba(255, 176, 0, 0.22);
 }
 
-/* underline nav */
+
 .segmented {
   margin: 0 auto 0 1rem;
   display: flex;

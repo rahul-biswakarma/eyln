@@ -1,9 +1,6 @@
-/* Capture Workspace — command-palette style knowledge capture. */
 
-/* ============ Capture Workspace ============
-   A floating command-palette-style surface for capturing knowledge,
-   replacing the old dropdown + modal-form pattern. Capture first,
-   classify automatically, organize later. */
+
+
 .capture-overlay {
   position: fixed;
   inset: 0;

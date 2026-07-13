@@ -1,6 +1,6 @@
-/* Profile page — badges, stats, tutor task list. */
 
-/* ============ Profile ============ */
+
+
 .profile-band {
   display: grid;
   grid-template-columns: 1fr 2fr;
@@ -147,7 +147,7 @@
   flex-wrap: wrap;
 }
 
-/* ---- Profile: tutor task list ---- */
+
 .tt-count {
   font-family: var(--mono);
   font-size: 0.72rem;

@@ -1,12 +1,9 @@
 import { useAuth } from "../lib/auth";
-
 export function SignInScreen() {
-  const signIn = useAuth((s) => s.signIn);
-  const error = useAuth((s) => s.error);
-
-  return (
-    <div className="signin-screen">
-      <div className="signin-bg" aria-hidden />
+    const signIn = useAuth((s) => s.signIn);
+    const error = useAuth((s) => s.error);
+    return (<div className="signin-screen">
+      <div className="signin-bg" aria-hidden/>
       <div className="signin-card card">
         <div className="signin-mark">◆</div>
         <div className="eyebrow">Eyln · Engineering Academy</div>
@@ -28,6 +25,5 @@ export function SignInScreen() {
           algorithms, and the mathematics underneath.
         </div>
       </div>
-    </div>
-  );
+    </div>);
 }
