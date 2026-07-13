@@ -5,12 +5,14 @@ import { TutorPanel } from "./components/tutor-panel";
 import { SignInScreen } from "./components/sign-in-screen";
 import { useReminderScheduler } from "./lib/reminders";
 import { useAuth } from "./lib/auth";
+import { useSync } from "./lib/sync";
 export function App() {
     const loc = useLocation();
     const user = useAuth((s) => s.user);
     const ready = useAuth((s) => s.ready);
+    const loaded = useSync((s) => s.loaded);
     useReminderScheduler();
-    if (!ready) {
+    if (!ready || (user && !loaded)) {
         return (<div className="signin-screen">
         <div className="signin-bg" aria-hidden/>
         <div className="auth-loading">Loading…</div>

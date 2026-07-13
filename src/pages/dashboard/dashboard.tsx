@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { lessonPath } from "../../content/registry";
 import { useProgress } from "../../lib/progress";
+import { useNotes, dueReminders } from "../../lib/notes";
 import { computeStats, formatMinutes, recentActivity, relativeTime } from "../../lib/stats";
 import { StatCard } from "../../components/stat-card";
 import { Sparkline } from "../../components/sparkline";
@@ -14,7 +15,16 @@ export function Dashboard() {
     const done = useProgress((s) => s.done);
     const quizScores = useProgress((s) => s.quizScores);
     const lastVisited = useProgress((s) => s.lastVisited);
+    const solvedChallenges = useProgress((s) => s.solvedChallenges);
+    const exercisesDone = useProgress((s) => s.exercisesDone);
     const s = computeStats(done, quizScores);
+    const notes = useNotes((s) => s.notes);
+    const reminders = useNotes((s) => s.reminders);
+    const bookmarks = useNotes((s) => s.bookmarks);
+    const dueCount = dueReminders(reminders, Date.now()).length;
+    const totalBookmarks = Object.keys(bookmarks).length;
+    const solvedCount = Object.keys(solvedChallenges).length;
+    const exercisesCount = Object.values(exercisesDone).filter(Boolean).length;
     const greeting = (() => {
         const h = new Date().getHours();
         return h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
@@ -57,6 +67,12 @@ export function Dashboard() {
           <StatCard label="Avg quiz score" value={s.avgQuizScore === null ? "—" : `${s.avgQuizScore}%`} foot={<span className={s.avgQuizScore !== null && s.avgQuizScore >= 60 ? "delta up" : "delta down"}>
               {s.avgQuizScore === null ? "no quizzes yet" : s.avgQuizScore >= 60 ? "passing" : "review"}
             </span>}/>
+        </div>
+
+        <div className="stat-row">
+          <StatCard label="Notebook entries" value={String(notes.length)} foot={<span>{totalBookmarks} bookmarked</span>}/>
+          <StatCard label="Review queue" value={String(dueCount)} foot={<span>{dueCount > 0 ? `${dueCount} items overdue` : "all caught up"}</span>} className={dueCount > 0 ? "urgent" : ""}/>
+          <StatCard label="Coding builds" value={`${solvedCount} solved`} foot={<span>{solvedCount} challenges · {exercisesCount} practice Qs</span>}/>
         </div>
 
         <div className="grid-dash">

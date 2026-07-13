@@ -1,8 +1,9 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Notebook, PushPin, PencilSimpleLine, Sigma, Code as CodeIcon, Microphone, Plus, Trash, MagnifyingGlass, Sparkle, Clock, BookmarkSimple, Check, X, CheckSquare, WarningOctagon, DotsThree, Quotes as QuotesIcon, Translate, Lightbulb, BookOpen } from "@phosphor-icons/react";
 import { useNotes, type Note } from "../../lib/notes";
 import { useProgress } from "../../lib/progress";
+import { useScratchpad } from "../../lib/scratchpad";
 import { allLessons, lessonPath } from "../../content/registry";
 import { relativeTime } from "../../lib/stats";
 import { groupByTimeline } from "../../lib/timeline";
@@ -98,13 +99,9 @@ export function Knowledge() {
     const [editBody, setEditBody] = useState("");
     const [editTags, setEditTags] = useState("");
     const [isCapturing, setIsCapturing] = useState(false);
-    const [scratchpadText, setScratchpadText] = useState(() => {
-        return localStorage.getItem("eyln-scratchpad") ?? "";
-    });
+    const scratchpadText = useScratchpad((s) => s.text);
+    const setScratchpadText = useScratchpad((s) => s.setText);
     const now = Date.now();
-    useEffect(() => {
-        localStorage.setItem("eyln-scratchpad", scratchpadText);
-    }, [scratchpadText]);
     const allTags = useMemo(() => {
         const set = new Set<string>();
         notes.forEach((n) => n.tags.forEach((t) => set.add(t)));
