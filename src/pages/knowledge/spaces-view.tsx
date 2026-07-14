@@ -84,7 +84,7 @@ export function SpacesView({ now, focusId, onConsumeFocus }: { now: number; focu
   return (
     <div className={rw.library}>
       <header className={rw.libHeader}>
-        <div className="rw-lib-title">
+        <div>
           <h1 className={rw.libTitleH1}>Learning Spaces</h1>
           <span className={rw.libSub}>Everything you're learning, organized by source</span>
         </div>
@@ -124,7 +124,7 @@ function SpaceCard({ space, stats, now, onOpen }: { space: UnifiedSpace; stats: 
     <button className={rw.card} onClick={onOpen}>
       <span className={rw.spaceIc}><SpaceIcon space={space} size={22} /></span>
       <div className={rw.cardBody}>
-        <div className="rw-card-head">
+        <div>
           <h3 className={rw.cardHeadH3}>{space.title}</h3>
           <span className={rw.cardAuthor}>{space.kind === "module" ? "Curriculum" : "Custom space"}</span>
         </div>
@@ -208,7 +208,7 @@ function SpaceDetail({ space, now, onBack }: { space: UnifiedSpace; now: number;
         </div>
       </header>
 
-      <Tabs defaultValue="overview" className="rw-tabs">
+      <Tabs defaultValue="overview">
         <div className={rw.tabsRow}>
           <TabsList unstyled className={rw.tabsList}>
             <TabsTrigger unstyled className={rw.tabsTrigger} value="overview">Overview</TabsTrigger>
@@ -415,8 +415,8 @@ function AITab({ space, caps, conversations, now }: { space: UnifiedSpace; caps:
       )}
       {filtered.map((c) => <ConversationCard key={c.id} convo={c} now={now} />)}
       {caps.ai.map((n) => (
-        <article key={n.id} className="rw-quote-card">
-          <span className="rw-quote-date"><SparkleIcon size={12} weight="fill" /> Pinned insight · {relativeDay(n.createdAt, now)}</span>
+        <article key={n.id} className="bg-surface border border-border rounded p-[1.1rem_1.2rem]">
+          <span className="inline-flex items-center gap-[0.3rem] text-[0.72rem] text-text-faint"><SparkleIcon size={12} weight="fill" /> Pinned insight · {relativeDay(n.createdAt, now)}</span>
           <p className={rw.noteBody} style={{ marginTop: 6 }}>{n.body.replace(/```/g, "")}</p>
         </article>
       ))}

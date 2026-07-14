@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { MagnifyingGlassIcon, CircleNotchIcon, BookOpenIcon } from "@phosphor-icons/react";
 import { searchBooks, type BookMetadata } from "../lib/book-metadata";
+import { cn } from "../lib/cn";
 
 /**
  * Debounced Open Library search box. Calls onPick with the chosen metadata
@@ -11,10 +12,12 @@ export function BookSearch({
   onPick,
   placeholder = "Search a book by title or author…",
   autoFocus,
+  className,
 }: {
   onPick: (meta: BookMetadata) => void;
   placeholder?: string;
   autoFocus?: boolean;
+  className?: string;
 }) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<BookMetadata[]>([]);
@@ -52,7 +55,7 @@ export function BookSearch({
   };
 
   return (
-    <div className="book-search relative my-4">
+    <div className={cn("relative my-4", className)}>
       <div className="flex items-center gap-2 bg-surface-inset border border-border rounded-sm px-[0.7rem] text-text-dim focus-within:border-accent">
         {loading ? <CircleNotchIcon size={14} className="spin animate-spin" /> : <MagnifyingGlassIcon size={14} />}
         <input

@@ -178,7 +178,7 @@ export function BooksView({ now, focusId, onConsumeFocus }: { now: number; focus
           <h1 className={rw.libTitleH1}>Books</h1>
           <span className={rw.libSub}>{books.length} {books.length === 1 ? "book" : "books"} in your library</span>
         </div>
-        <BookSearch onPick={handlePickMetadata} placeholder="Add a book by title or author…" />
+        <BookSearch onPick={handlePickMetadata} placeholder="Add a book by title or author…" className="!my-0 w-[min(360px,42vw)]" />
       </header>
 
       <div className={rw.libSearch}>

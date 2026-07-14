@@ -45,7 +45,7 @@ export function ProjectsView({ now, focusId, onConsumeFocus }: { now: number; fo
   return (
     <div className={rw.library}>
       <header className={rw.libHeader}>
-        <div className="rw-lib-title">
+        <div>
           <h1 className={rw.libTitleH1}>Projects</h1>
           <span className={rw.libSub}>Everything you're building</span>
         </div>
@@ -82,7 +82,7 @@ function ProjectCard({ project, stats, now, onOpen }: { project: Project; stats:
     <button className={rw.card} onClick={onOpen}>
       <span className={rw.spaceIc}><StackIcon size={22} weight="duotone" /></span>
       <div className={rw.cardBody}>
-        <div className="rw-card-head">
+        <div>
           <h3 className={rw.cardHeadH3}>{project.title}</h3>
           <span className={rw.cardAuthor}>{STATUS_LABEL[project.status]}</span>
         </div>
@@ -135,7 +135,7 @@ function ProjectDetail({ project, now, onBack }: { project: Project; now: number
         </div>
       </header>
 
-      <Tabs defaultValue="overview" className="rw-tabs">
+      <Tabs defaultValue="overview">
         <div className={rw.tabsRow}>
           <TabsList unstyled className={rw.tabsList}>
             <TabsTrigger unstyled className={rw.tabsTrigger} value="overview">Overview</TabsTrigger>

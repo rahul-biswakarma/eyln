@@ -306,6 +306,13 @@ table.rosetta td code { background: none; border: none; padding: 0; }
 
 .spin { animation: spin 0.8s linear infinite; }
 
+/* Scroll-reveal: toggled at runtime via JS classList (not present in JSX). */
+.reveal { opacity: 0; transform: translateY(14px); transition: opacity 0.5s var(--ease), transform 0.5s var(--ease); }
+.reveal.revealed { opacity: 1; transform: none; }
+
+/* SVG baseline nudge for icons inside shared breadcrumb / section-title links. */
+.crumbs .seg svg, .section-title .more svg { vertical-align: -0.15em; }
+
 /* ══════════════════════════════════════════════════════════════════
    Interactive widget chrome (.widget/.toggle) — a content primitive with
    many free-form descendant classes used across lesson widgets. Kept as
