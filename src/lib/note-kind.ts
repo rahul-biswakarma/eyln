@@ -1,6 +1,8 @@
 import type { Note } from "./notes";
 export type NoteKind = "ai" | "formula" | "code" | "mistake" | "voice" | "quote" | "vocab" | "idea" | "note";
 export function noteKind(note: Note): NoteKind {
+    if (note.type && note.type !== "note")
+        return note.type;
     if (note.tags.includes("mistake"))
         return "mistake";
     if (note.tags.includes("audio"))

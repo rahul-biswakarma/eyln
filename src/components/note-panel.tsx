@@ -29,8 +29,10 @@ export function NotePanel({ lessonKey, moduleId, lessonTitle, selection, onClose
         }
         onClose();
     }
-    return (<Dialog open={true} onOpenChange={(open) => { if (!open)
-        onClose(); }}>
+    return (<Dialog open={true} onOpenChange={(open) => {
+            if (!open)
+                onClose();
+        }}>
       <DialogContent showCloseButton={true}>
         <DialogTitle>Add a note</DialogTitle>
         <div className="empty-note" style={{ padding: 0, marginBottom: "0.8rem", background: "none", border: 0 }}>{lessonTitle}</div>

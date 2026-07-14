@@ -107,8 +107,10 @@ export function Exercise({ ex, onResult, onSkip, step, total, logId, }: {
       <textarea rows={6} value={value} placeholder="Write your answer…" onChange={(e) => edit(e.target.value)} onFocus={() => setFocused(true)} onBlur={() => setFocused(false)} spellCheck={false}/>
       <span className="kc-notebook-rule"/>
     </div>) : (<div className={"kc-notebook" + (focused ? " focus" : "") + (wrong ? " wrong" : "")} onClick={() => inputRef.current?.focus()}>
-      <input ref={inputRef} type="text" inputMode="decimal" value={value} placeholder="Type your answer" onChange={(e) => edit(e.target.value)} onFocus={() => setFocused(true)} onBlur={() => setFocused(false)} onKeyDown={(e) => { if (e.key === "Enter")
-        check(); }} spellCheck={false} autoComplete="off"/>
+      <input ref={inputRef} type="text" inputMode="decimal" value={value} placeholder="Type your answer" onChange={(e) => edit(e.target.value)} onFocus={() => setFocused(true)} onBlur={() => setFocused(false)} onKeyDown={(e) => {
+            if (e.key === "Enter")
+                check();
+        }} spellCheck={false} autoComplete="off"/>
       <span className="kc-notebook-rule"/>
     </div>);
     return (<KnowledgeCard eyebrow={eyebrow} step={step} total={total} question={ex.prompt} tone={wrong ? "wrong" : "neutral"} feedback={<>

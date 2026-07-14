@@ -39,8 +39,10 @@ export function AuthButton() {
                 return;
             setOpen(false);
         };
-        const onKey = (e: KeyboardEvent) => { if (e.key === "Escape")
-            setOpen(false); };
+        const onKey = (e: KeyboardEvent) => {
+            if (e.key === "Escape")
+                setOpen(false);
+        };
         document.addEventListener("mousedown", onDown);
         document.addEventListener("keydown", onKey);
         return () => {

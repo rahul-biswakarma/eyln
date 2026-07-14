@@ -1,8 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { MagicWandIcon, QuotesIcon, TranslateIcon, SigmaIcon, CodeIcon, WarningOctagonIcon, NotePencilIcon, XIcon } from "@phosphor-icons/react";
-import { CAPTURE_SHORTCUTS, detectCaptureKind, buildCapture, CAPTURE_KIND_TEMPLATE, type CaptureKind, } from "../lib/capture";
+import { CAPTURE_SHORTCUTS, detectCaptureKind, buildCapture, CAPTURE_KIND_TEMPLATE, captureNoteType, type CaptureKind, } from "../lib/capture";
 import { FormulaBuilder } from "./formula-builder";
+import { BookSearch } from "./book-search";
+import { useBooks } from "../lib/books";
+import type { NoteType } from "../lib/notes";
 const SHORTCUT_ICON: Record<string, React.ReactNode> = {
     quote: <QuotesIcon size={17} weight="bold"/>,
     vocab: <TranslateIcon size={17} weight="bold"/>,
@@ -29,12 +32,21 @@ const GROUPS: {
 ];
 export function CaptureWorkspace({ onClose, onSave, }: {
     onClose: () => void;
-    onSave: (body: string, tags: string[]) => void;
+    onSave: (note: {
+        body: string;
+        tags: string[];
+        type: NoteType;
+        bookId?: string;
+    }) => void;
 }) {
     const [kind, setKind] = useState<CaptureKind | null>(null);
     const [text, setText] = useState("");
     const [source, setSource] = useState("");
     const [formula, setFormula] = useState("");
+    const [bookId, setBookId] = useState<string>("");
+    const [newBookTitle, setNewBookTitle] = useState("");
+    const books = useBooks((s) => s.books);
+    const addBook = useBooks((s) => s.addBook);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const detected = kind ?? (text.trim() ? detectCaptureKind(text) : null);
     useEffect(() => {
@@ -61,7 +73,19 @@ export function CaptureWorkspace({ onClose, onSave, }: {
         const result = buildCapture(effectiveKind, { text, source, formula });
         if (!result)
             return;
-        onSave(result.body, result.tags);
+        let linkedBookId = effectiveKind === "quote" || effectiveKind === "vocab" ? bookId : "";
+        if (linkedBookId === "__new" && newBookTitle.trim()) {
+            linkedBookId = addBook({ title: newBookTitle.trim(), status: "reading" });
+        }
+        else if (linkedBookId === "__new") {
+            linkedBookId = "";
+        }
+        onSave({
+            body: result.body,
+            tags: result.tags,
+            type: captureNoteType(effectiveKind),
+            bookId: linkedBookId || undefined,
+        });
     };
     return createPortal(<div className="capture-overlay" onClick={onClose}>
       <div className="capture-workspace" onClick={(e) => e.stopPropagation()}>
@@ -77,6 +101,22 @@ export function CaptureWorkspace({ onClose, onSave, }: {
           {kind === "formula" ? (<FormulaBuilder value={formula} onChange={setFormula}/>) : (<textarea ref={textareaRef} className="capture-input" placeholder="Type, paste, or drag content here..." value={text} onChange={(e) => setText(e.target.value)} rows={4}/>)}
 
           {(kind === "quote" || kind === "vocab") && (<input type="text" className="capture-source" placeholder={kind === "quote" ? "Source — book, page (optional)" : "Source (optional)"} value={source} onChange={(e) => setSource(e.target.value)}/>)}
+
+          {(detected === "quote" || detected === "vocab") && (<div className="capture-book-picker">
+              <select className="capture-book-select" value={bookId} onChange={(e) => setBookId(e.target.value)}>
+                <option value="">No book</option>
+                {books.map((b) => (<option key={b.id} value={b.id}>{b.title}</option>))}
+                <option value="__new">+ New book…</option>
+              </select>
+              {bookId === "__new" && (<div className="capture-newbook">
+                  <BookSearch placeholder="Search a book to attach…" onPick={(meta) => {
+                    const id = addBook({ title: meta.title, author: meta.author, year: meta.year, coverUrl: meta.coverUrl, olKey: meta.key, status: "reading" });
+                    setBookId(id);
+                    setNewBookTitle("");
+                  }}/>
+                  <input type="text" className="capture-source" placeholder="…or type a title manually" value={newBookTitle} onChange={(e) => setNewBookTitle(e.target.value)}/>
+                </div>)}
+            </div>)}
         </div>
 
         <div className="capture-footer-row">

@@ -13,23 +13,23 @@ const PALETTE: {
     label: string;
     insert: string;
 }[] = [
-        { label: "a/b", insert: "\\frac{#@}{#?}" },
-        { label: "√", insert: "\\sqrt{#@}" },
-        { label: "xⁿ", insert: "#@^{#?}" },
-        { label: "x₂", insert: "#@_{#?}" },
-        { label: "∑", insert: "\\sum_{#?}^{#?}" },
-        { label: "∫", insert: "\\int_{#?}^{#?}" },
-        { label: "lim", insert: "\\lim_{#? \\to #?}" },
-        { label: "→", insert: "\\vec{#@}" },
-        { label: "·", insert: "\\cdot" },
-        { label: "×", insert: "\\times" },
-        { label: "∂", insert: "\\partial" },
-        { label: "π", insert: "\\pi" },
-        { label: "θ", insert: "\\theta" },
-        { label: "∞", insert: "\\infty" },
-        { label: "≤", insert: "\\leq" },
-        { label: "≥", insert: "\\geq" },
-    ];
+    { label: "a/b", insert: "\\frac{#@}{#?}" },
+    { label: "√", insert: "\\sqrt{#@}" },
+    { label: "xⁿ", insert: "#@^{#?}" },
+    { label: "x₂", insert: "#@_{#?}" },
+    { label: "∑", insert: "\\sum_{#?}^{#?}" },
+    { label: "∫", insert: "\\int_{#?}^{#?}" },
+    { label: "lim", insert: "\\lim_{#? \\to #?}" },
+    { label: "→", insert: "\\vec{#@}" },
+    { label: "·", insert: "\\cdot" },
+    { label: "×", insert: "\\times" },
+    { label: "∂", insert: "\\partial" },
+    { label: "π", insert: "\\pi" },
+    { label: "θ", insert: "\\theta" },
+    { label: "∞", insert: "\\infty" },
+    { label: "≤", insert: "\\leq" },
+    { label: "≥", insert: "\\geq" },
+];
 export function FormulaBuilder({ value, onChange, }: {
     value: string;
     onChange: (latex: string) => void;
@@ -44,13 +44,13 @@ export function FormulaBuilder({ value, onChange, }: {
     return (<div className={`formula-builder ${focused ? "focused" : ""}`}>
         <div className="fb-field-wrap">
             <math-field ref={(el) => {
-                fieldRef.current = el;
-                if (el) {
-                    el.classList.add("fb-field");
-                    (el as any).menuItems = [];
-                    el.addEventListener("contextmenu", (e) => e.preventDefault());
-                }
-            }} math-virtual-keyboard-policy="manual" smart-fence="true" onInput={(e) => onChange((e.target as MathfieldElement).value)} onFocus={() => setFocused(true)} onBlur={() => setFocused(false)} />
+            fieldRef.current = el;
+            if (el) {
+                el.classList.add("fb-field");
+                (el as any).menuItems = [];
+                el.addEventListener("contextmenu", (e) => e.preventDefault());
+            }
+        }} math-virtual-keyboard-policy="manual" smart-fence="true" onInput={(e) => onChange((e.target as MathfieldElement).value)} onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}/>
         </div>
 
         <div className="fb-palette">

@@ -1,4 +1,8 @@
+import type { NoteType } from "./notes";
 export type CaptureKind = "note" | "formula" | "code" | "quote" | "vocab" | "mistake";
+export function captureNoteType(kind: CaptureKind): NoteType {
+    return kind;
+}
 export function detectCaptureKind(text: string): CaptureKind {
     const t = text.trim();
     if (!t)

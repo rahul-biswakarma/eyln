@@ -1,9 +1,12 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { NotebookIcon, PushPinIcon, PencilSimpleLineIcon, SigmaIcon, CodeIcon, MicrophoneIcon, PlusIcon, TrashIcon, MagnifyingGlassIcon, SparkleIcon, ClockIcon, BookmarkSimpleIcon, CheckIcon, XIcon, CheckSquareIcon, WarningOctagonIcon, DotsThreeIcon, QuotesIcon, TranslateIcon, LightbulbIcon, BookOpenIcon } from "@phosphor-icons/react";
-import { useNotes, type Note } from "../../lib/notes";
+import { NotebookIcon, PushPinIcon, PencilSimpleLineIcon, SigmaIcon, CodeIcon, MicrophoneIcon, PlusIcon, TrashIcon, MagnifyingGlassIcon, SparkleIcon, ClockIcon, BookmarkSimpleIcon, CheckIcon, XIcon, CheckSquareIcon, WarningOctagonIcon, DotsThreeIcon, QuotesIcon, TranslateIcon, LightbulbIcon, BookOpenIcon, GraphIcon } from "@phosphor-icons/react";
+import { useNotes, type Note, type NoteType } from "../../lib/notes";
 import { useProgress } from "../../lib/progress";
 import { useScratchpad } from "../../lib/scratchpad";
+import { useBooks } from "../../lib/books";
+import { BooksView } from "./books-view";
+import { GraphView } from "./graph-view";
 import { allLessons, lessonPath } from "../../content/registry";
 import { relativeTime } from "../../lib/stats";
 import { groupByTimeline } from "../../lib/timeline";
@@ -90,6 +93,7 @@ export function Knowledge() {
     const completeReminder = useNotes((s) => s.completeReminder);
     const deleteReminder = useNotes((s) => s.deleteReminder);
     const lastVisited = useProgress((s) => s.lastVisited);
+    const books = useBooks((s) => s.books);
     const streak = useMemo(() => computeStreak(lastVisited), [lastVisited]);
     const [activeTab, setActiveTab] = useState<string>("all");
     const [searchQuery, setSearchQuery] = useState("");
@@ -150,8 +154,13 @@ export function Knowledge() {
         });
     }, [tabFilteredNotes, selectedTag, searchQuery]);
     const timelineGroups = useMemo(() => groupByTimeline(filteredNotes, (n) => n.createdAt, now), [filteredNotes, now]);
-    const handleSaveCapture = (body: string, tags: string[]) => {
-        addNote({ body, tags });
+    const handleSaveCapture = (note: {
+        body: string;
+        tags: string[];
+        type: NoteType;
+        bookId?: string;
+    }) => {
+        addNote(note);
         setIsCapturing(false);
     };
     const handleSaveEdit = (noteId: string) => {
@@ -190,8 +199,14 @@ export function Knowledge() {
 
           <span className="sidebar-group-title">Collections</span>
           <nav className="sidebar-links">
+            <button className={`sidebar-link ${activeTab === "graph" ? "active" : ""}`} onClick={() => setActiveTab("graph")}>
+              <GraphIcon size={16}/> Knowledge Graph
+            </button>
+            <button className={`sidebar-link ${activeTab === "books" ? "active" : ""}`} onClick={() => setActiveTab("books")}>
+              <BookOpenIcon size={16}/> Books <span className="badge">{books.length}</span>
+            </button>
             <button className={`sidebar-link ${activeTab === "bookmarks" ? "active" : ""}`} onClick={() => setActiveTab("bookmarks")}>
-              <BookOpenIcon size={16}/> Bookmarked Lessons <span className="badge">{bookmarkList.length}</span>
+              <BookmarkSimpleIcon size={16}/> Bookmarked Lessons <span className="badge">{bookmarkList.length}</span>
             </button>
             <button className={`sidebar-link ${activeTab === "scratchpad" ? "active" : ""}`} onClick={() => setActiveTab("scratchpad")}>
               <CodeIcon size={16}/> Scratchpad
@@ -201,7 +216,7 @@ export function Knowledge() {
 
         
         <main className="nb-content">
-          {activeTab === "scratchpad" ? (<div className="nb-scratchpad">
+          {activeTab === "graph" ? (<GraphView now={now}/>) : activeTab === "books" ? (<BooksView now={now}/>) : activeTab === "scratchpad" ? (<div className="nb-scratchpad">
               <div className="scratchpad-header">
                 <h3>Scratchpad</h3>
                 <span className="desc">A sandboxed scratchpad for code snippets and math scratchwork. Auto-saved.</span>
