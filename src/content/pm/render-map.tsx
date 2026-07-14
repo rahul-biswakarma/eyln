@@ -62,6 +62,11 @@ export const nodeMapping = {
         );
     },
 
+    htmlBlock: ({ node }: NodeCtx) => {
+        const html = (node.attrs as { html?: string }).html ?? "";
+        return <div dangerouslySetInnerHTML={{ __html: html }} />;
+    },
+
     widget: ({ node }: NodeCtx) => {
         const a = node.attrs as unknown as WidgetAttrs;
         const W = getWidget(a.ref);

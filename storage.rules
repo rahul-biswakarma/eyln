@@ -1,0 +1,15 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Course content bodies (PM JSON) and challenges: readable by any signed-in
+    // user; writes only via the admin SDK (upload scripts), never from clients.
+    match /content/{allPaths=**} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+    match /challenges/{allPaths=**} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+  }
+}

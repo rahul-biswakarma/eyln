@@ -1,5 +1,6 @@
 node_modules
 dist
+dist-content
 *.tsbuildinfo
 .playwright-mcp
 .DS_Store

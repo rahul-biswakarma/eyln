@@ -124,6 +124,23 @@ export const ExerciseNode = Node.create({
     },
 });
 
+/** Fallback for rare raw-HTML structures (tables, <kbd>, <a>) that don't have a
+ *  first-class node. Carries a sanitized HTML string. Guarantees no content loss. */
+export const HtmlBlock = Node.create({
+    name: "htmlBlock",
+    group: "block",
+    atom: true,
+    addAttributes() {
+        return { html: { default: "" } };
+    },
+    parseHTML() {
+        return [{ tag: "div[data-html-block]" }];
+    },
+    renderHTML({ HTMLAttributes }) {
+        return ["div", mergeAttributes({ "data-html-block": "" }, HTMLAttributes)];
+    },
+});
+
 export const QuizNode = Node.create({
     name: "quiz",
     group: "block",
@@ -149,6 +166,7 @@ export const customNodes = [
     CodeSample,
     Notice,
     Widget,
+    HtmlBlock,
     ExerciseNode,
     QuizNode,
 ];

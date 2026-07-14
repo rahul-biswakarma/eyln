@@ -9,6 +9,8 @@ import { NotePanel } from "./note-panel";
 import { ModuleIcon } from "./module-icon";
 import { useUI } from "../lib/ui";
 import { Tooltip } from "./ui";
+import { CONTENT_FROM_CLOUD } from "../content/pm/config";
+import { CloudLessonBody } from "../content/pm/cloud-lesson-body";
 export function LessonLayout({ data }: {
     data: LessonRef;
 }) {
@@ -31,7 +33,9 @@ export function LessonLayout({ data }: {
     const bodyRef = useRef<HTMLDivElement>(null);
     const lessonNumInModule = module.lessons.findIndex((l) => l.id === lesson.id) + 1;
     const diff = moduleDifficulty(module);
-    const isInteractive = /widget|playground|canvas|demo|editor/i.test(String(Body));
+    // In cloud mode Body is absent; the widget-based "interactive" hint is
+    // derived from the rendered DOM instead (harmless if it stays false).
+    const isInteractive = !CONTENT_FROM_CLOUD && /widget|playground|canvas|demo|editor/i.test(String(Body));
     const hasQuestions = (lesson.quiz?.questions.length ?? 0) > 0 || (lesson.exercises?.length ?? 0) > 0;
     useEffect(() => { visit(key); }, [key, visit]);
     useEffect(() => {
@@ -186,7 +190,9 @@ export function LessonLayout({ data }: {
         </header>
 
         <div className="prose max-w-full lesson-body [&>p]:max-w-[74ch] [&>ul]:max-w-[74ch] [&>ol]:max-w-[74ch]" ref={bodyRef}>
-          <Body />
+          {CONTENT_FROM_CLOUD
+            ? <CloudLessonBody moduleId={module.id} lessonId={lesson.id} />
+            : <Body />}
         </div>
 
         {hasQuestions && (<div className="prose max-w-full mt-[2.6rem]">
