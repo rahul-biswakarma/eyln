@@ -225,7 +225,7 @@ function LibraryCard({ book, stats, now, onOpen }: { book: Book; stats: BookStat
     <button className={rw.card} onClick={onOpen}>
       <CoverArt book={book} size="md" />
       <div className={rw.cardBody}>
-        <div className="rw-card-head">
+        <div className={CARD_HEAD}>
           <h3 className={rw.cardHeadH3}>{book.title}</h3>
           {book.author && <span className={rw.cardAuthor}>{book.author}</span>}
         </div>
@@ -304,7 +304,7 @@ function BookDetail({ book, now, onBack }: { book: Book; now: number; onBack: ()
       <button className={rw.back} onClick={onBack}><CaretLeftIcon size={14} /> Library</button>
 
       <header className={rw.hero}>
-        <div className="rw-hero-left">
+        <div className="flex justify-center">
           <CoverArt book={book} size="lg" />
         </div>
         <div className={rw.heroMain}>
@@ -319,7 +319,7 @@ function BookDetail({ book, now, onBack }: { book: Book; now: number; onBack: ()
             <Stars value={book.rating ?? 0} onSet={(r) => updateBook(book.id, { rating: r })} />
             <Popover>
               <PopoverTrigger asChild>
-                <button className={`rw-hero-status-badge status-${book.status} clickable`}>
+                <button className={HERO_STATUS_BADGE(book.status)}>
                   {STATUS_LABEL[book.status]}
                 </button>
               </PopoverTrigger>
@@ -340,7 +340,7 @@ function BookDetail({ book, now, onBack }: { book: Book; now: number; onBack: ()
                       {STATUS_LABEL[s]}
                     </button>
                   ))}
-                  <div className="rw-menu-divider" />
+                  <div className={MENU_DIVIDER} />
                   <button className={rw.menuBtn(true)} onClick={() => { deleteBook(book.id); onBack(); }}>
                     <TrashIcon size={12} /> Delete book
                   </button>
@@ -352,7 +352,7 @@ function BookDetail({ book, now, onBack }: { book: Book; now: number; onBack: ()
           {/* Progress / finished journey (24px below rating) */}
           <div className="mt-6">
             {book.status === "finished" ? (
-              <div className="rw-hero-finished-summary">
+              <div className={FINISHED_SUMMARY}>
                 <span className="journey-tag">Finished</span>
                 {book.startedAt && <span className="journey-date">Started {formatDate(book.startedAt)}</span>}
                 {book.finishedAt && <span className="journey-date">Finished {formatDate(book.finishedAt)}</span>}
@@ -365,38 +365,38 @@ function BookDetail({ book, now, onBack }: { book: Book; now: number; onBack: ()
         </div>
 
         {/* Right panel — contextual metrics only (no status/rating duplication) */}
-        <div className="rw-hero-panel">
+        <div className={HERO_PANEL}>
           {book.startedAt && (
-            <div className="rw-hero-panel-row">
+            <div className={HERO_PANEL_ROW}>
               <span className="lbl">Started</span>
               <span className="val">{formatDate(book.startedAt)}</span>
             </div>
           )}
 
           {book.status === "finished" && book.finishedAt ? (
-            <div className="rw-hero-panel-row">
+            <div className={HERO_PANEL_ROW}>
               <span className="lbl">Finished</span>
               <span className="val">{formatDate(book.finishedAt)}</span>
             </div>
           ) : (
-            <div className="rw-hero-panel-row">
+            <div className={HERO_PANEL_ROW}>
               <span className="lbl">Last read</span>
               <span className="val">{relativeDay(book.updatedAt, now)}</span>
             </div>
           )}
 
-          <div className="rw-hero-panel-row">
+          <div className={HERO_PANEL_ROW}>
             <span className="lbl">Pages</span>
             <span className="val">{book.currentPage ?? 0} / {book.totalPages ?? 0}</span>
           </div>
 
-          <div className="rw-hero-panel-row">
+          <div className={HERO_PANEL_ROW}>
             <span className="lbl">Sessions</span>
             <span className="val">{readingSessions}</span>
           </div>
 
           {stats.streak > 0 && (
-            <div className="rw-hero-panel-row">
+            <div className={HERO_PANEL_ROW}>
               <span className="lbl">Streak</span>
               <span className="val">{stats.streak} days</span>
             </div>
@@ -415,7 +415,7 @@ function BookDetail({ book, now, onBack }: { book: Book; now: number; onBack: ()
         <span><b className="font-semibold text-text">{readingSessions}</b> Sessions</span>
       </div>
 
-      <Tabs value={activeSubTab} onValueChange={setActiveSubTab} className="rw-tabs">
+      <Tabs value={activeSubTab} onValueChange={setActiveSubTab}>
         <div className={rw.tabsRow}>
           <TabsList unstyled className={rw.tabsList}>
             <TabsTrigger unstyled className={rw.tabsTrigger} value="overview">Overview</TabsTrigger>
@@ -457,8 +457,8 @@ function ProgressEditor({ book, stats, onSet }: { book: Book; stats: BookStats; 
 
   if (editing) {
     return (
-      <div className="rw-progress-edit">
-        <div className="rw-progress-edit-fields">
+      <div className={PROGRESS_EDIT}>
+        <div className={PROGRESS_EDIT_FIELDS}>
           <div className="field">
             <span className="lbl">Page</span>
             <input className={rw.input} type="number" placeholder="Current" value={cur} onChange={(e) => setCur(e.target.value)} />
@@ -469,28 +469,28 @@ function ProgressEditor({ book, stats, onSet }: { book: Book; stats: BookStats; 
             <input className={rw.input} type="number" placeholder="Total" value={tot} onChange={(e) => setTot(e.target.value)} />
           </div>
         </div>
-        <div className="rw-progress-edit-actions">
-          <button className="rw-progress-save-btn" onClick={() => { onSet(parseInt(cur, 10) || 0, parseInt(tot, 10) || 0); setEditing(false); }}>Save</button>
-          <button className="rw-progress-cancel-btn" onClick={() => { setCur(String(book.currentPage ?? "")); setTot(String(book.totalPages ?? "")); setEditing(false); }}>Cancel</button>
+        <div className={PROGRESS_EDIT_ACTIONS}>
+          <button className={PROGRESS_SAVE_BTN} onClick={() => { onSet(parseInt(cur, 10) || 0, parseInt(tot, 10) || 0); setEditing(false); }}>Save</button>
+          <button className={PROGRESS_CANCEL_BTN} onClick={() => { setCur(String(book.currentPage ?? "")); setTot(String(book.totalPages ?? "")); setEditing(false); }}>Cancel</button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="rw-progress-display">
-      <div className="rw-progress-display-header">
+    <div className={PROGRESS_DISPLAY}>
+      <div className={PROGRESS_DISPLAY_HEADER}>
         <span className="lbl">Progress</span>
         <span className="pct">{stats.progress != null ? `${Math.round(stats.progress * 100)}%` : "0%"}</span>
       </div>
-      <div className="rw-progress-bar-wrapper">
-        <div className="rw-progress-bar-bg">
-          <div className="rw-progress-bar-fill" style={{ width: `${stats.progress != null ? Math.round(stats.progress * 100) : 0}%` }} />
+      <div className="w-full">
+        <div className={PROGRESS_BAR_BG}>
+          <div className={PROGRESS_BAR_FILL} style={{ width: `${stats.progress != null ? Math.round(stats.progress * 100) : 0}%` }} />
         </div>
       </div>
-      <div className="rw-progress-display-footer">
+      <div className={PROGRESS_DISPLAY_FOOTER}>
         <span className="pages">{book.currentPage ?? 0} / {book.totalPages ?? 0} pages</span>
-        <button className="rw-progress-update-btn" onClick={() => setEditing(true)}>Update</button>
+        <button className={PROGRESS_UPDATE_BTN} onClick={() => setEditing(true)}>Update</button>
       </div>
     </div>
   );
@@ -514,22 +514,22 @@ function OverviewTab({ book, captures, stats, onSwitchTab }: { book: Book; captu
     <div className={rw.overview}>
       <div className={rw.overviewGrid}>
         {/* Left Column: Reading Summary */}
-        <section className="rw-overview-section reading-summary">
+        <section className={OVERVIEW_SECTION_H4}>
           <h4>Reading Summary</h4>
-          <div className="summary-list">
-            <div className="summary-row">
+          <div className={SUMMARY_LIST}>
+            <div className={SUMMARY_ROW}>
               <span className="lbl">Status</span>
               <span className={`val status-${book.status}`}>{STATUS_LABEL[book.status]}</span>
             </div>
-            <div className="summary-row">
+            <div className={SUMMARY_ROW}>
               <span className="lbl">Started</span>
               <span className="val">{book.startedAt ? formatDate(book.startedAt) : "—"}</span>
             </div>
-            <div className="summary-row">
+            <div className={SUMMARY_ROW}>
               <span className="lbl">Finished</span>
               <span className="val">{book.finishedAt ? formatDate(book.finishedAt) : "—"}</span>
             </div>
-            <div className="summary-row">
+            <div className={SUMMARY_ROW}>
               <span className="lbl">Pages</span>
               <span className="val">
                 {book.currentPage != null && book.totalPages
@@ -537,21 +537,21 @@ function OverviewTab({ book, captures, stats, onSwitchTab }: { book: Book; captu
                   : "—"}
               </span>
             </div>
-            <div className="summary-row">
+            <div className={SUMMARY_ROW}>
               <span className="lbl">Reading Sessions</span>
               <span className="val">{readingSessions}</span>
             </div>
-            <div className="summary-row">
+            <div className={SUMMARY_ROW}>
               <span className="lbl">Streak</span>
               <span className="val">{stats.streak} days</span>
             </div>
-            <div className="summary-row">
+            <div className={SUMMARY_ROW}>
               <span className="lbl">Rating</span>
               <span className="val">{book.rating ? `${book.rating} / 5` : "—"}</span>
             </div>
           </div>
           {stats.progress != null && (
-            <div className="summary-progress-container">
+            <div className={SUMMARY_PROGRESS}>
               <div className={rw.progressBarLg}><span className={rw.progressBarFill} style={{ width: `${Math.round(stats.progress * 100)}%` }} /></div>
               <span className="progress-percentage">{Math.round(stats.progress * 100)}% completed</span>
             </div>
@@ -560,7 +560,7 @@ function OverviewTab({ book, captures, stats, onSwitchTab }: { book: Book; captu
 
         {/* Right Column: Favorite Quote */}
         {fav && (
-          <section className="rw-overview-section favorite-quote-panel">
+          <section className={`${OVERVIEW_SECTION_H4} ${FAVORITE_QUOTE_PANEL}`}>
             <h4>Favorite Quote</h4>
             <div className="editorial-quote-container">
               <StarIcon size={14} weight="fill" className="fav-star-icon" />
@@ -574,39 +574,39 @@ function OverviewTab({ book, captures, stats, onSwitchTab }: { book: Book; captu
         )}
       </div>
 
-      <hr className="section-divider" />
+      <hr className={SECTION_DIVIDER} />
 
       {/* Previews Row */}
       <div className={rw.overviewGrid}>
         {/* Vocabulary Preview */}
-        <section className="rw-preview-section">
+        <section className={PREVIEW_SECTION}>
           <div className="section-header-row">
             <h4>Vocabulary Preview</h4>
-            <button className="view-all-link" onClick={() => onSwitchTab("vocab")}>View all →</button>
+            <button className={VIEW_ALL_LINK} onClick={() => onSwitchTab("vocab")}>View all →</button>
           </div>
-          <div className="preview-list">
+          <div className={PREVIEW_LIST}>
             {recentWords.length ? recentWords.map((w) => (
-              <div key={w.id} className="vocab-preview-item">
+              <div key={w.id} className={VOCAB_PREVIEW_ITEM}>
                 <span className="word">{w.word ?? w.body}</span>
                 {w.meaning && <span className="meaning">{w.meaning}</span>}
               </div>
-            )) : <p className="muted-text">No words learned yet.</p>}
+            )) : <p className={MUTED_TEXT}>No words learned yet.</p>}
           </div>
         </section>
 
         {/* Notes Preview */}
-        <section className="rw-preview-section">
+        <section className={PREVIEW_SECTION}>
           <div className="section-header-row">
             <h4>Recent Reflections</h4>
-            <button className="view-all-link" onClick={() => onSwitchTab("notes")}>View all →</button>
+            <button className={VIEW_ALL_LINK} onClick={() => onSwitchTab("notes")}>View all →</button>
           </div>
-          <div className="preview-list">
+          <div className={PREVIEW_LIST}>
             {recentNotes.length ? recentNotes.map((n) => (
-              <div key={n.id} className="note-preview-item">
+              <div key={n.id} className={NOTE_PREVIEW_ITEM}>
                 {n.title && <span className="title">{n.title}</span>}
                 <span className="snippet">{n.body.slice(0, 90)}...</span>
               </div>
-            )) : <p className="muted-text">No notes captured yet.</p>}
+            )) : <p className={MUTED_TEXT}>No notes captured yet.</p>}
           </div>
         </section>
       </div>
@@ -619,7 +619,7 @@ function OverviewTab({ book, captures, stats, onSwitchTab }: { book: Book; captu
 function QuotesTab({ book, captures, now }: { book: Book; captures: BookCaptures; now: number }) {
   if (captures.quotes.length === 0) return <EmptyTab icon={<QuotesIcon size={24} weight="duotone" />} title="No quotes yet" hint="Capture a passage worth keeping." bookId={book.id} mode="quote" />;
   return (
-    <div className="rw-kindle-quotes-list">
+    <div className={KINDLE_LIST}>
       {captures.quotes.map((q) => <QuoteRow key={q.id} note={q} now={now} allQuotes={captures.quotes} />)}
     </div>
   );
@@ -642,16 +642,16 @@ function QuoteRow({ note, now, allQuotes }: { note: Note; now: number; allQuotes
   };
 
   return (
-    <article className={`rw-kindle-row ${note.favorite ? "fav" : ""}`}>
-      <div className="rw-kindle-meta">
+    <article className={`${KINDLE_ROW} ${note.favorite ? KINDLE_ROW_FAV : ""}`}>
+      <div className={KINDLE_META}>
         <span className="location">
           {note.chapter ? note.chapter : ""}
           {note.page != null ? (note.chapter ? ` · Page ${note.page}` : `Page ${note.page}`) : ""}
         </span>
         <span className="date">{relativeDay(note.createdAt, now)}</span>
       </div>
-      <p className="rw-kindle-text">"{cleanQuote(note.body)}"</p>
-      <div className="rw-kindle-foot">
+      <p className={KINDLE_TEXT}>"{cleanQuote(note.body)}"</p>
+      <div className={KINDLE_FOOT}>
         <div className="tags">
           {(note.tags ?? []).filter((t) => t !== "quote").map((t) => <span key={t} className={rw.tag}>#{t}</span>)}
         </div>
@@ -679,8 +679,8 @@ function QuoteRow({ note, now, allQuotes }: { note: Note; now: number; allQuotes
           </Popover>
         </div>
       </div>
-      {loading && <div className="rw-ai-out"><CircleNotchIcon size={13} className="spin animate-spin" /> Thinking…</div>}
-      {ai && <div className="rw-ai-out"><SparkleIcon size={12} weight="fill" /> {ai}</div>}
+      {loading && <div className={AI_OUT}><CircleNotchIcon size={13} className="spin animate-spin" /> Thinking…</div>}
+      {ai && <div className={AI_OUT}><SparkleIcon size={12} weight="fill" /> {ai}</div>}
     </article>
   );
 }
@@ -693,8 +693,8 @@ const VOCAB_ORDER: VocabStatus[] = ["learning", "review", "mastered"];
 function VocabTab({ book, captures }: { book: Book; captures: BookCaptures }) {
   if (captures.vocab.length === 0) return <EmptyTab icon={<TranslateIcon size={24} weight="duotone" />} title="No words yet" hint="Add a word you learned from this book." bookId={book.id} mode="vocab" />;
   return (
-    <div className="rw-vocab-table-container">
-      <table className="rw-vocab-table">
+    <div className={VOCAB_TABLE_CONTAINER}>
+      <table className={VOCAB_TABLE}>
         <thead>
           <tr>
             <th>Word</th>
@@ -718,7 +718,7 @@ function VocabTableRow({ note }: { note: Note }) {
   const status = note.vocabStatus ?? "learning";
 
   return (
-    <tr className="rw-vocab-row">
+    <tr className={VOCAB_ROW}>
       <td className="vocab-word-cell">
         <strong>{note.word ?? note.body}</strong>
       </td>
@@ -733,7 +733,7 @@ function VocabTableRow({ note }: { note: Note }) {
         <span className={rw.vocabStatus(status)}>{VOCAB_LABEL[status]}</span>
       </td>
       <td className="vocab-actions-cell">
-        <div className="vocab-row-actions">
+        <div className={VOCAB_ROW_ACTIONS}>
           <Popover>
             <PopoverTrigger asChild>
               <button className={rw.iconBtn()} aria-label="Review status"><ClockIcon size={13} /></button>
@@ -760,13 +760,13 @@ function NotesTab({ captures, now }: { captures: BookCaptures; now: number }) {
   const groups = useMemo(() => groupNotesByPage(captures.notes), [captures.notes]);
   if (captures.notes.length === 0) return <EmptyTab icon={<NotePencilIcon size={24} weight="duotone" />} title="No notes yet" hint="Reflections and ideas grouped by page appear here." bookId={captures.all[0]?.bookId ?? ""} mode="note" />;
   return (
-    <div className="rw-notes-notebook">
+    <div className={NOTES_NOTEBOOK}>
       {groups.map((g) => (
-        <section key={g.label} className="rw-notebook-group">
-          <h5 className="rw-notebook-group-label">{g.label}</h5>
-          <div className="rw-notebook-entries">
+        <section key={g.label} className={NOTEBOOK_GROUP}>
+          <h5 className={NOTEBOOK_GROUP_LABEL}>{g.label}</h5>
+          <div className={NOTEBOOK_ENTRIES}>
             {g.notes.map((n) => (
-              <div key={n.id} className="rw-notebook-entry">
+              <div key={n.id} className={NOTEBOOK_ENTRY}>
                 {n.title && <h4 className="entry-title">{n.title}</h4>}
                 <p className="entry-body">{n.body}</p>
                 <div className="entry-foot">
@@ -788,10 +788,10 @@ function TimelineTab({ book, captures, now }: { book: Book; captures: BookCaptur
   const events = useMemo(() => readingTimeline(book, captures), [book, captures]);
   if (events.length === 0) return <EmptyTab icon={<ClockIcon size={24} weight="duotone" />} title="No history yet" hint="Your reading journey will replay here." bookId={book.id} mode="quote" />;
   return (
-    <div className="rw-github-timeline">
+    <div className={GITHUB_TIMELINE}>
       <div className="timeline-line"></div>
       {events.map((e, i) => (
-        <div key={i} className={`rw-timeline-node k-${e.kind}`}>
+        <div key={i} className={`${TIMELINE_NODE} ${(e.kind === "started" || e.kind === "finished") ? TIMELINE_NODE_STARTED : ""}`}>
           <div className="timeline-dot-wrapper">
             <span className="timeline-dot"></span>
           </div>

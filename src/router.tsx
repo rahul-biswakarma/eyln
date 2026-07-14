@@ -7,6 +7,7 @@ import { Questionary } from "./pages/questionary/questionary";
 import { Knowledge } from "./pages/knowledge/knowledge";
 import { Profile } from "./pages/profile/profile";
 import { Practice } from "./pages/practice/practice";
+import { PMPreview } from "./content/pm/preview";
 export const router = createBrowserRouter([
     {
         path: "/",
@@ -22,4 +23,6 @@ export const router = createBrowserRouter([
             { path: "practice", element: <Practice /> },
         ],
     },
+    // Dev-only, outside the auth guard, for verifying the PM content pipeline.
+    ...(import.meta.env.DEV ? [{ path: "/dev/pm-preview", element: <PMPreview /> }] : []),
 ]);
