@@ -1,6 +1,7 @@
 import type { Module } from "../../content/types";
 import { M, MBlock } from "../../components/math";
 import { Code } from "../../components/code-block";
+import { Notice } from "../../components/ui";
 function WhatIsAFunction() {
     return (<div className="prose">
       <p>
@@ -48,13 +49,13 @@ function WhatIsAFunction() {
         </li>
       </ul>
 
-      <div className="notice">
+      <Notice>
         <span className="lbl">Injective / surjective</span>
         A function is <strong>injective</strong> (one-to-one) if distinct inputs give distinct outputs —
         the horizontal line test. It is <strong>surjective</strong> (onto) if every codomain value is
         hit. Both at once means <strong>bijective</strong>, and only bijections have a true inverse. We
         will need this the moment we invert exponentials into logarithms.
-      </div>
+      </Notice>
       <Code lang="ts" code={`// A function in code is the same idea: one input, one deterministic output.
 const f = (x: number): number => x * x - 3 * x + 2;
 f(0); //  2
@@ -100,12 +101,12 @@ function LinearAndPolynomial() {
           valley.
         </li>
       </ul>
-      <div className="notice">
+      <Notice>
         <span className="lbl">Turning points</span>
         A degree-<M>{`n`}</M> polynomial has at most <M>{`n-1`}</M> turning points (local peaks and
         valleys). A parabola (<M>{`n=2`}</M>) has one; a cubic has at most two. When we reach
         derivatives, "turning point" becomes "the slope is zero here."
-      </div>
+      </Notice>
     </div>);
 }
 function ExpAndLog() {
@@ -134,17 +135,17 @@ function ExpAndLog() {
         the <strong>log rules</strong>, which convert products into sums:
       </p>
       <MBlock>{`\\log(xy) = \\log x + \\log y, \\quad \\log\\!\\frac{x}{y} = \\log x - \\log y, \\quad \\log(x^p) = p \\log x`}</MBlock>
-      <div className="notice">
+      <Notice>
         <span className="lbl">Change of base</span>
         Any log can be rewritten with any base:{" "}
         <M>{`\\log_b(x) = \\dfrac{\\ln x}{\\ln b}`}</M>. So a calculator with only <M>{`\\ln`}</M>{" "}
         computes every logarithm.
-      </div>
-      <div className="notice warn">
+      </Notice>
+      <Notice warn>
         <span className="lbl">Common trap</span>
         <M>{`\\log(x + y)`}</M> does <strong>not</strong> simplify. The sum rule is for{" "}
         <M>{`\\log(xy)`}</M> — products, not sums. There is no rule for the log of a sum.
-      </div>
+      </Notice>
     </div>);
 }
 function Trigonometry() {
@@ -203,14 +204,14 @@ function Trigonometry() {
         <M>{`A`}</M> is amplitude (height), <M>{`\\tfrac{2\\pi}{B}`}</M> is the period, <M>{`C`}</M> is
         the horizontal phase shift, and <M>{`D`}</M> is the vertical midline.
       </p>
-      <div className="notice">
+      <Notice>
         <span className="lbl">Memorize the anchors</span>
         <M>{`\\sin 0 = 0`}</M>, <M>{`\\sin\\tfrac{\\pi}{6} = \\tfrac12`}</M>,{" "}
         <M>{`\\sin\\tfrac{\\pi}{4} = \\tfrac{\\sqrt2}{2}`}</M>,{" "}
         <M>{`\\sin\\tfrac{\\pi}{3} = \\tfrac{\\sqrt3}{2}`}</M>, <M>{`\\sin\\tfrac{\\pi}{2} = 1`}</M>.
         Cosine is the same list read backwards. These five angles cover most of what you will ever
         evaluate by hand.
-      </div>
+      </Notice>
     </div>);
 }
 function Transformations() {
@@ -249,13 +250,13 @@ function Transformations() {
         <M>{`(f \\circ g)(x) = \\sqrt{x^2 + 1}`}</M>. The domain of a composite is restricted by both
         stages: <M>{`g`}</M> must be defined, and its output must be a legal input for <M>{`f`}</M>.
       </p>
-      <div className="notice">
+      <Notice>
         <span className="lbl">Why this matters next</span>
         Composition is the setup for the <strong>chain rule</strong> — differentiating{" "}
         <M>{`f(g(x))`}</M>. Every "shift" and "scale" you internalize here becomes a factor that
         appears when you take the derivative later. Recognizing the outer and inner function now is the
         skill you will lean on constantly.
-      </div>
+      </Notice>
     </div>);
 }
 export const mathFunctions: Module = {

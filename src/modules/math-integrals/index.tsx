@@ -1,6 +1,7 @@
 import type { Module } from "../../content/types";
 import { M, MBlock } from "../../components/math";
 import { Code } from "../../components/code-block";
+import { Notice } from "../../components/ui";
 function Accumulation() {
     return (<div className="prose">
       <p>
@@ -26,21 +27,21 @@ function Accumulation() {
         curve ever more tightly. The limit — if it exists — is the <strong>definite integral</strong>:
       </p>
       <MBlock>{`\\int_a^b f(x)\\, dx = \\lim_{n \\to \\infty} \\sum_{i=1}^{n} f(x_i)\\, \\Delta x`}</MBlock>
-      <div className="notice">
+      <Notice>
         <span className="lbl">Read the symbols</span> The <M>{`\\int`}</M> is a stretched "S" for
         "sum". The <M>{`dx`}</M> is the width of an infinitely thin slice. The whole expression is a
         sum of infinitely many infinitely thin rectangles — the sum <em>became</em> an integral.
-      </div>
+      </Notice>
       <p>
         Accumulation shows up everywhere: distance is the integral of speed, work is the integral of
         force over distance, charge is the integral of current over time. Whenever you know a rate and
         want a total, you integrate.
       </p>
-      <div className="notice warn">
+      <Notice warn>
         <span className="lbl">Signed area</span> If <M>{`f`}</M> dips below the axis, those slices
         contribute negative area. So <M>{`\\int_0^{2\\pi} \\sin x\\, dx = 0`}</M>: the hump above and
         the trough below cancel exactly.
-      </div>
+      </Notice>
     </div>);
 }
 function FTC() {
@@ -70,11 +71,11 @@ function FTC() {
         No sums, no limits. Find a function whose derivative is <M>{`f`}</M>, evaluate it at the two
         endpoints, subtract. The area is the <em>net change</em> in the antiderivative.
       </p>
-      <div className="notice">
+      <Notice>
         <span className="lbl">Example</span> To integrate <M>{`x^2`}</M> from 0 to 3: an
         antiderivative is <M>{`\\tfrac{1}{3}x^3`}</M>, so the area is{" "}
         <M>{`\\tfrac{1}{3}(27) - \\tfrac{1}{3}(0) = 9`}</M>.
-      </div>
+      </Notice>
       <p>The workhorse antiderivative — the reverse power rule — is:</p>
       <MBlock>{`\\int x^n \\, dx = \\frac{x^{n+1}}{n+1} + C \\quad (n \\neq -1)`}</MBlock>
       <p>
@@ -127,16 +128,16 @@ function Techniques() {
         <M>{`x e^x - \\int e^x\\, dx = x e^x - e^x + C`}</M>.
       </p>
 
-      <div className="notice">
+      <Notice>
         <span className="lbl">Choosing u</span> A handy mnemonic for by-parts is <strong>LIATE</strong>:
         prefer <M>{`u`}</M> to be the Logarithmic, then Inverse-trig, Algebraic, Trig, then
         Exponential factor — whichever comes first makes a simpler <M>{`du`}</M>.
-      </div>
-      <div className="notice warn">
+      </Notice>
+      <Notice warn>
         <span className="lbl">Not everything integrates</span> Some functions, like{" "}
         <M>{`e^{-x^2}`}</M>, have no antiderivative in elementary terms. That is exactly why the next
         lesson on numerical integration exists.
-      </div>
+      </Notice>
     </div>);
 }
 function Applications() {
@@ -167,12 +168,12 @@ function Applications() {
         same area as the region under <M>{`f`}</M>. This is how you get the average temperature over a
         day, or the RMS value of a signal.
       </p>
-      <div className="notice">
+      <Notice>
         <span className="lbl">Solids of revolution</span> Spin a curve around an axis and each slice
         becomes a disk of radius <M>{`f(x)`}</M> and thickness <M>{`dx`}</M>. Its volume is{" "}
         <M>{`\\pi f(x)^2\\, dx`}</M>, so the whole solid is{" "}
         <M>{`V = \\pi \\int_a^b f(x)^2\\, dx`}</M>. Same ritual — slice, size, sum.
-      </div>
+      </Notice>
     </div>);
 }
 function Numerical() {
@@ -210,10 +211,10 @@ function Numerical() {
         The error for Simpson's rule scales as <M>{`h^4`}</M> — meaning doubling the resolution reduces error by a factor of 16, which is highly efficient.
       </p>
 
-      <div className="notice warn">
+      <Notice warn>
         <span className="lbl">Precision and Step Size</span>
         Because Simpson's rule assumes local regions look like quadratic parabolas, it handles smooth curves with very high precision. For discontinuous rates, stick to the simpler trapezoid rule to avoid oscillations.
-      </div>
+      </Notice>
       <Code lang="ts" code={`// Numerical integration of f over [a, b] with n slices.
 function trapezoid(f: (x: number) => number, a: number, b: number, n: number): number {
   const h = (b - a) / n;
@@ -233,11 +234,11 @@ function simpson(f: (x: number) => number, a: number, b: number, n: number): num
 // Both approximate ∫₀¹ x² dx = 1/3 ≈ 0.3333
 console.log(trapezoid((x) => x * x, 0, 1, 100));
 console.log(simpson((x) => x * x, 0, 1, 100));`}/>
-      <div className="notice">
+      <Notice>
         <span className="lbl">Where you meet this</span> Monte Carlo integration in a path tracer,
         Verlet stepping in a physics loop, and ODE solvers like Runge–Kutta are all quadrature in
         disguise — accumulating a rate over tiny steps, exactly like a Riemann sum.
-      </div>
+      </Notice>
     </div>);
 }
 export const mathIntegrals: Module = {

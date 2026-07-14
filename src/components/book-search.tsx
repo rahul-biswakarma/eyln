@@ -52,7 +52,7 @@ export function BookSearch({
   };
 
   return (
-    <div className="book-search relative">
+    <div className="book-search relative my-4">
       <div className="flex items-center gap-2 bg-surface-inset border border-border rounded-sm px-[0.7rem] text-text-dim focus-within:border-accent">
         {loading ? <CircleNotchIcon size={14} className="spin animate-spin" /> : <MagnifyingGlassIcon size={14} />}
         <input

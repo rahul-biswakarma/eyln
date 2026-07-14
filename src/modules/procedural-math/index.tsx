@@ -3,6 +3,7 @@ import { M, MBlock } from "../../components/math";
 import { CodeTabs, Code } from "../../components/code-block";
 import { NoiseExplorer } from "../../widgets/NoiseExplorer";
 import { SplineEditor } from "../../widgets/SplineEditor";
+import { Notice } from "../../components/ui";
 function Noise() {
     return (<div className="prose">
       <p>
@@ -57,13 +58,13 @@ function Noise() {
         grid-locked; Perlin and Simplex feel more natural. The right panel shades the same data as
         terrain.
       </p>
-      <div className="notice">
+      <Notice>
         <span className="lbl">North star</span>
         <a href="https://iquilezles.org/articles/" target="_blank" rel="noreferrer">Inigo Quilez</a>{" "}
         has the clearest write-ups of noise anywhere — start with his "value noise" and "gradient
         noise" articles. <strong>Anastasia Opara</strong> (Tiny Glade) shows how to turn noise into{" "}
         <em>believable</em> art rather than just terrain.
-      </div>
+      </Notice>
     </div>);
 }
 function Fbm() {
@@ -142,12 +143,12 @@ fn voronoi(p: vec2<f32>) -> f32 {
   }
   return d;   // F1. Use a second 'd2' for F2-F1 edges.
 }`}/>
-      <div className="notice">
+      <Notice>
         <span className="lbl">Tiny Glade connection</span>
         Blocky cliff-sides come from Voronoi cells: each cell becomes a chunk of rock, and the
         cell boundaries become the fracture lines. Deforming the ground just moves the feature
         points, and the cracks re-stitch naturally.
-      </div>
+      </Notice>
     </div>);
 }
 function Splines() {
@@ -258,13 +259,13 @@ extrude_ribbon :: proc(center: [][2]f32, half_w: f32) -> (left, right: [dynamic]
     }
     return
 }`}/>
-      <div className="notice">
+      <Notice>
         <span className="lbl">The Tiny Glade secret</span>
         When two walls meet, you don't let them intersect like ghosts. You detect where the two
         ribbons overlap, recompute the vertices at the junction, cut away the hidden interior, and
         stitch a seamless corner — <strong>dynamic vertex generation / CSG</strong>. The capstone's
         final lesson builds the extrusion; the corner-stitching is the boss level.
-      </div>
+      </Notice>
     </div>);
 }
 export const proceduralMath: Module = {

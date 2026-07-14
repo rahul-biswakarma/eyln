@@ -1,6 +1,7 @@
 import type { Module } from "../../content/types";
 import { M, MBlock } from "../../components/math";
 import { Code } from "../../components/code-block";
+import { Notice } from "../../components/ui";
 function ContiguousMemory() {
     return (<div className="prose">
       <p>
@@ -60,13 +61,13 @@ const last = a[a.length - 1];  // O(1)  — length is stored, not counted
 a.push(50);               // O(1)  amortized (see dynamic arrays)
 a.unshift(5);             // O(n)  — every element shifts right one slot!
 a.splice(1, 1);           // O(n)  — delete-in-middle shifts the tail left`}/>
-      <div className="notice warn">
+      <Notice warn>
         <span className="lbl">The insert/delete tax</span>
         Fast indexing has a price: inserting or deleting anywhere but the end forces every later
         element to shift, which is <M>{`O(n)`}</M>. <code>unshift</code>, <code>shift</code>, and
         mid-array <code>splice</code> are linear. If you find yourself doing those in a loop, you
         probably want a different structure — or a different algorithm.
-      </div>
+      </Notice>
     </div>);
 }
 function DynamicArrays() {
@@ -129,12 +130,12 @@ function DynamicArrays() {
   }
   pop(): T | undefined { return this.len ? this.buf[--this.len] : undefined; } // O(1)
 }`}/>
-      <div className="notice">
+      <Notice>
         <span className="lbl">Preallocate when you can</span>
         If you know you'll push <M>{`n`}</M> items, size the buffer once up front
         (<code>new Array(n)</code> and fill by index). You skip every intermediate reallocation and
         copy — same Big-O, but a real constant-factor win and steadier latency.
-      </div>
+      </Notice>
     </div>);
 }
 function TwoPointer() {
@@ -201,13 +202,13 @@ function dedupSorted(a: number[]): number {
     if (a[r] !== a[w - 1]) a[w++] = a[r];
   return w;                        // new logical length
 }`}/>
-      <div className="notice warn">
+      <Notice warn>
         <span className="lbl">Two-pointer needs a reason</span>
         The end-to-end pair-sum trick is <em>only correct on a sorted array</em> — the ordering is
         what lets you discard a candidate safely. On unsorted data, either sort first
         (<M>{`O(n \\log n)`}</M>) or reach for a hash set (<M>{`O(n)`}</M>, covered in the hashing
         module). Don't apply the pattern where the invariant doesn't hold.
-      </div>
+      </Notice>
     </div>);
 }
 function SlidingWindow() {
@@ -251,12 +252,12 @@ function longestDistinct(s: string): number {
   return best;
 }`}/>
       <MBlock>{`\\text{brute force } \\sum_{\\text{all windows}} O(k) = O(nk) \\;\\longrightarrow\\; \\text{sliding window } O(n)`}</MBlock>
-      <div className="notice">
+      <Notice>
         <span className="lbl">The amortization insight</span>
         The left pointer only ever moves <em>right</em>, and never past the right pointer. So even
         though the inner "shrink" step looks like a loop, across the whole run it advances at most{" "}
         <M>{`n`}</M> times total. That's why a nested-looking algorithm is genuinely linear.
-      </div>
+      </Notice>
     </div>);
 }
 function PrefixSums() {
@@ -320,14 +321,14 @@ function rangeSum(P: number[], i: number, j: number): number {
 const a = [3, 1, 4, 1, 5, 9];
 const P = buildPrefix(a);          // [0, 3, 4, 8, 9, 14, 23]
 console.log(rangeSum(P, 1, 4));    // a[1]+a[2]+a[3] = 1+4+1 = 6`}/>
-      <div className="notice warn">
+      <Notice warn>
         <span className="lbl">Off-by-one and staleness</span>
         Keep the range half-open (<M>{`[i, j)`}</M>) and size <M>{`P`}</M> as <M>{`n+1`}</M> — it
         eliminates the most common indexing bugs. And remember prefix sums assume the array is{" "}
         <strong>static</strong>: any update to <code>a</code> invalidates <M>{`P`}</M> from that point
         on. If you need updates <em>and</em> range queries, you want a Fenwick/segment tree
         (<M>{`O(\\log n)`}</M> each), not a flat prefix array.
-      </div>
+      </Notice>
     </div>);
 }
 export const dsaArrays: Module = {

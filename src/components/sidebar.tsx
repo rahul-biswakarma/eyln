@@ -12,27 +12,31 @@ export function Sidebar() {
     const collapsed = useUI((s) => s.sidebarCollapsed);
     const toggleSidebar = useUI((s) => s.toggleSidebar);
     const current = moduleId ? getModule(moduleId) : undefined;
+    const sidebarBase = "w-[292px] flex-none h-full min-h-0 flex flex-col overflow-hidden border-r border-border";
     if (!current)
-        return <aside className="sidebar"/>;
+        return <aside className={sidebarBase}/>;
     const onQuestionary = loc.pathname.endsWith("/questionary");
     const track = getTrack(trackIdOf(current));
     const siblings = modulesForTrack(trackIdOf(current));
     const accent = track?.accent ?? "var(--accent)";
     const firstUndone = current.lessons.find((l) => !done[lessonKey(current.id, l.id)]);
     const collapseBtn = "flex-none grid place-items-center w-[28px] h-[28px] cursor-pointer rounded-[8px] border border-border bg-transparent text-text-faint transition-colors duration-200 ease-brand hover:text-text hover:border-border-bright";
+    const stIc = "w-[36px] h-[36px] flex-none grid place-items-center rounded-[11px] text-[var(--track-accent)] border [background:radial-gradient(120%_120%_at_30%_20%,color-mix(in_srgb,var(--track-accent)_24%,transparent),transparent_70%),var(--surface-inset)] border-[color-mix(in_srgb,var(--track-accent)_30%,var(--border))]";
     if (collapsed) {
-        return (<aside className="sidebar collapsed" style={{ "--track-accent": accent } as React.CSSProperties}>
+        return (<aside className="w-[56px] flex-none h-full min-h-0 overflow-hidden border-r border-border py-[1.1rem] items-center flex flex-col gap-4" style={{ "--track-accent": accent } as React.CSSProperties}>
         <button className={collapseBtn} onClick={toggleSidebar} aria-label="Expand sidebar" title="Expand">
           <CaretDoubleRightIcon size={16} weight="bold"/>
         </button>
-        <span className="st-ic rail" title={current.title}><ModuleIcon id={current.id} size={18}/></span>
+        <span className={`${stIc} rail`} title={current.title}><ModuleIcon id={current.id} size={18}/></span>
       </aside>);
     }
-    const nodeBase = "st-node relative flex items-center gap-[0.7rem] pr-[0.6rem] py-[0.5rem] text-[0.86rem] transition-colors duration-200 ease-brand";
+    const connector = "[&:not(:last-child)_.st-marker]:after:content-[''] [&:not(:last-child)_.st-marker]:after:absolute [&:not(:last-child)_.st-marker]:after:left-1/2 [&:not(:last-child)_.st-marker]:after:top-full [&:not(:last-child)_.st-marker]:after:[transform:translateX(-50%)] [&:not(:last-child)_.st-marker]:after:w-[2px] [&:not(:last-child)_.st-marker]:after:h-[calc(100%-17px)] [&:not(:last-child)_.st-marker]:after:bg-border [&:not(:last-child)_.st-marker]:after:z-0";
+    const connectorDone = "[&:not(:last-child)_.st-marker]:after:bg-[color-mix(in_srgb,var(--good)_40%,var(--border))]";
+    const nodeBase = `st-node relative flex items-center gap-[0.7rem] pr-[0.6rem] py-[0.5rem] text-[0.86rem] transition-colors duration-200 ease-brand ${connector}`;
     const markerBase = "st-marker relative w-[20px] flex-none grid place-items-center z-[1]";
-    return (<aside className="sidebar" style={{ "--track-accent": accent } as React.CSSProperties}>
+    return (<aside className={sidebarBase} style={{ "--track-accent": accent } as React.CSSProperties}>
       <div className="flex items-center gap-[0.7rem] pt-[1.6rem] px-[1.1rem] pb-[1rem] shrink-0">
-        <span className="st-ic"><ModuleIcon id={current.id} size={18}/></span>
+        <span className={stIc}><ModuleIcon id={current.id} size={18}/></span>
         <div className="flex-1 min-w-0">
           <div className="font-mono text-[0.6rem] tracking-[0.14em] uppercase text-text-faint">{track?.title}</div>
           <div className="font-display font-semibold text-[0.98rem] text-text mt-[0.1rem]">{current.title}</div>
@@ -42,14 +46,14 @@ export function Sidebar() {
         </button>
       </div>
 
-      <div className="st-body">
+      <div className="flex-1 overflow-y-auto pt-0 px-[1.1rem] pb-16 flex flex-col gap-6">
         <div className="relative pl-[0.4rem]">
           {current.lessons.map((l) => {
             const active = l.id === lessonId;
             const isDone = !!done[lessonKey(current.id, l.id)];
             const isNext = !isDone && firstUndone?.id === l.id;
             const nodeState = isDone
-                ? "done text-text-dim hover:text-text"
+                ? `text-text-dim hover:text-text ${connectorDone}`
                 : active
                     ? "text-highlight font-medium"
                     : isNext

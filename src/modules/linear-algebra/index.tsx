@@ -4,6 +4,7 @@ import { CodeTabs } from "../../components/code-block";
 import { VectorPlayground } from "../../widgets/VectorPlayground";
 import { MatrixTransform2D } from "../../widgets/MatrixTransform2D";
 import { TransformPipeline3D } from "../../widgets/TransformPipeline3D";
+import { Notice } from "../../components/ui";
 function Vectors() {
     return (<div className="prose">
       <p>
@@ -129,13 +130,13 @@ let len_a  = length(a);
 let dir_a  = normalize(a);`,
             },
         ]}/>
-      <div className="notice">
+      <Notice>
         <span className="lbl">The shift from web</span>
         There is no <code>Vector</code> class with methods. A vector is raw numbers laid out in
         memory. Odin's <code>[3]f32</code>, Metal's <code>float3</code>, and WGSL's{" "}
         <code>vec3&lt;f32&gt;</code> are the same 12 bytes — which is exactly why you can hand them
         straight to the GPU.
-      </div>
+      </Notice>
     </div>);
 }
 function DotProduct() {
@@ -192,11 +193,11 @@ function DotProduct() {
         </li>
       </ul>
       <VectorPlayground />
-      <div className="notice">
+      <Notice>
         <span className="lbl">Try it</span>
         Rotate <code>b</code> until <code>a · b</code> hits 0 in the readout — that's the moment the
         two arrows form a right angle.
-      </div>
+      </Notice>
     </div>);
 }
 function CrossProduct() {
@@ -256,11 +257,11 @@ let e2 = p2 - p0;
 let normal = normalize(cross(e1, e2));`,
             },
         ]}/>
-      <div className="notice warn">
+      <Notice warn>
         <span className="lbl">Watch the order</span>
         <M>{`a \\times b = -(b \\times a)`}</M>. Swapping the arguments flips the normal to point the
         other way — which flips whether a face is lit or in shadow. Winding order matters.
-      </div>
+      </Notice>
     </div>);
 }
 function Matrices() {
@@ -312,12 +313,12 @@ function Matrices() {
         </li>
       </ul>
 
-      <div className="notice">
+      <Notice>
         <span className="lbl">Column-major Storage</span>
         Odin's <code>linalg</code>, Metal, and WGSL all store matrices <strong>column-major</strong>
         {" "}— the first four numbers in memory are the first column. This course's math library uses
         the same convention so the browser demos and the Odin code agree byte-for-byte.
-      </div>
+      </Notice>
     </div>);
 }
 function MVP() {
@@ -445,12 +446,12 @@ fn rotate(q : vec4<f32>, v : vec3<f32>) -> vec3<f32> {
 }`,
             },
         ]}/>
-      <div className="notice warn">
+      <Notice warn>
         <span className="lbl">Renormalize</span>
         Repeated multiplication accumulates floating-point error and the quaternion drifts off the unit
         sphere, shearing your model. Renormalize (<code>q / |q|</code>) periodically — it's far cheaper
         than re-orthonormalizing a 3×3 matrix.
-      </div>
+      </Notice>
     </div>);
 }
 function ClipSpace() {

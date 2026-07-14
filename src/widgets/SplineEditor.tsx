@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { P2 } from "../engine/spline";
 import { catmullRomChain, extrudeRibbon, arcLength } from "../engine/spline";
+import { Button } from "../components/ui";
 export function SplineEditor() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [pts, setPts] = useState<P2[]>([
@@ -106,8 +107,8 @@ export function SplineEditor() {
           </div>
         </div>
         <div className="row" style={{ marginTop: 8 }}>
-          <button className="btn" onClick={() => setPts(pts.slice(0, -1))} disabled={pts.length <= 2}>undo point</button>
-          <button className="btn" onClick={() => setPts([[80, 220], [200, 120], [340, 200], [460, 110]])}>reset</button>
+          <Button size="sm" onClick={() => setPts(pts.slice(0, -1))} disabled={pts.length <= 2}>undo point</Button>
+          <Button size="sm" onClick={() => setPts([[80, 220], [200, 120], [340, 200], [460, 110]])}>reset</Button>
         </div>
         <div className="readout">
           <div>control points: <b>{pts.length}</b> &nbsp; curve length: <b>{curveLen.toFixed(0)}px</b></div>

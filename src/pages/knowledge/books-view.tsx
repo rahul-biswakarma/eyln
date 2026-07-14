@@ -18,6 +18,91 @@ import { generate, isLLMEnabled } from "../../lib/llm";
 import type { BookMetadata } from "../../lib/book-metadata";
 import * as rw from "./rw-styles";
 
+// ── Local Tailwind class strings (former .rw-* rules from knowledge.css) ──────
+const COVER_BASE = "grid place-items-center rounded-[5px] text-[rgba(255,255,255,0.92)] shrink-0 shadow-card overflow-hidden [&_img]:w-full [&_img]:h-full [&_img]:object-cover [&_img]:block";
+const COVER_SIZE: Record<"sm" | "md" | "lg", string> = {
+  sm: "w-[34px] h-[48px]",
+  md: "w-[52px] h-[74px]",
+  lg: "w-[150px] h-[215px] rounded shadow-[0_12px_36px_rgba(0,0,0,0.45)]",
+};
+const LIB_TITLE = "[&_h1]:font-display [&_h1]:text-[2.1rem] [&_h1]:font-semibold [&_h1]:tracking-[-0.02em] [&_h1]:m-0";
+const CARD_HEAD = "[&_h3]:m-0 [&_h3]:font-display [&_h3]:text-base [&_h3]:font-semibold [&_h3]:leading-[1.25] [&_h3]:whitespace-nowrap [&_h3]:overflow-hidden [&_h3]:text-ellipsis";
+
+const HERO_PANEL = "flex flex-col gap-[0.8rem] pl-6 border-l border-border text-[0.82rem] w-full max-[720px]:border-l-0 max-[720px]:border-t max-[720px]:border-border max-[720px]:pl-0 max-[720px]:pt-[1.2rem]";
+const HERO_PANEL_ROW = "flex justify-between items-center [&_.lbl]:text-text-faint [&_.lbl]:text-[0.74rem] [&_.lbl]:uppercase [&_.lbl]:tracking-[0.05em] [&_.val]:text-text [&_.val]:font-medium";
+const STATUS_BADGE_COLOR: Record<ReadingStatus, string> = {
+  reading: "text-accent border-accent", finished: "text-good border-good",
+  paused: "text-warn border-warn", want: "text-text-dim border-border",
+};
+const HERO_STATUS_BADGE = (status: ReadingStatus) =>
+  "font-mono text-[0.68rem] uppercase tracking-[0.05em] px-[0.6rem] py-[0.22rem] rounded-pill border bg-surface-inset leading-none cursor-pointer transition-all duration-200 ease-brand hover:!border-accent hover:!text-text hover:bg-surface-2 " +
+  (STATUS_BADGE_COLOR[status] ?? "text-text-dim border-border");
+const FINISHED_SUMMARY = "flex flex-col gap-[0.35rem] max-w-[320px] bg-surface border border-border rounded p-[0.9rem_1.1rem] [&_.journey-tag]:text-[0.64rem] [&_.journey-tag]:uppercase [&_.journey-tag]:tracking-[0.06em] [&_.journey-tag]:text-good [&_.journey-tag]:font-bold [&_.journey-date]:text-[0.8rem] [&_.journey-date]:text-text-dim [&_.journey-days]:text-[0.78rem] [&_.journey-days]:text-text-faint [&_.journey-days]:italic";
+const MENU_DIVIDER = "h-px bg-border my-[0.3rem]";
+
+const PROGRESS_DISPLAY = "flex flex-col gap-2 max-w-[360px]";
+const PROGRESS_DISPLAY_HEADER = "flex justify-between items-baseline [&_.lbl]:text-[0.74rem] [&_.lbl]:uppercase [&_.lbl]:tracking-[0.05em] [&_.lbl]:text-text-faint [&_.pct]:font-display [&_.pct]:text-base [&_.pct]:font-bold [&_.pct]:text-text";
+const PROGRESS_BAR_BG = "bg-surface-inset h-[6px] rounded-pill overflow-hidden border border-border";
+const PROGRESS_BAR_FILL = "bg-accent h-full rounded-pill transition-[width] duration-300 ease-linear";
+const PROGRESS_DISPLAY_FOOTER = "flex justify-between items-center mt-[0.15rem] [&_.pages]:text-[0.8rem] [&_.pages]:text-text-dim";
+const PROGRESS_UPDATE_BTN = "bg-none border-none text-accent text-[0.78rem] font-semibold cursor-pointer p-0 transition-opacity duration-200 ease-brand hover:opacity-80";
+const PROGRESS_EDIT = "flex flex-col gap-3 max-w-[320px] bg-surface border border-border rounded p-[1rem_1.1rem]";
+const PROGRESS_EDIT_FIELDS = "flex items-center gap-2 [&_.field]:flex-1 [&_.field]:flex [&_.field]:flex-col [&_.field]:gap-[0.2rem] [&_.field_.lbl]:text-[0.66rem] [&_.field_.lbl]:uppercase [&_.field_.lbl]:tracking-[0.05em] [&_.field_.lbl]:text-text-faint [&_.field-sep]:text-text-faint [&_.field-sep]:mt-[0.9rem]";
+const PROGRESS_EDIT_ACTIONS = "flex gap-2";
+const PROGRESS_SAVE_BTN = "flex-1 p-[0.45rem] text-[0.78rem] font-semibold rounded-sm cursor-pointer text-center bg-accent text-on-accent border-none";
+const PROGRESS_CANCEL_BTN = "flex-1 p-[0.45rem] text-[0.78rem] font-semibold rounded-sm cursor-pointer text-center bg-none border border-border text-text-dim hover:text-text hover:border-border-bright";
+
+const OVERVIEW_SECTION_H4 = "[&_h4]:font-display [&_h4]:text-base [&_h4]:font-semibold [&_h4]:text-text [&_h4]:m-0 [&_h4]:mb-4";
+const SUMMARY_LIST = "flex flex-col gap-[0.65rem]";
+const SUMMARY_ROW = "flex justify-between items-center text-[0.86rem] pb-[0.4rem] border-b border-[rgba(255,255,255,0.03)] [&_.lbl]:text-text-dim [&_.val]:text-text [&_.val]:font-medium [&_.val.status-reading]:!text-accent [&_.val.status-finished]:!text-good [&_.val.status-paused]:!text-warn";
+const SUMMARY_PROGRESS = "mt-[1.2rem] flex flex-col gap-[0.35rem] [&_.progress-percentage]:text-[0.74rem] [&_.progress-percentage]:text-text-faint [&_.progress-percentage]:text-right";
+const FAVORITE_QUOTE_PANEL = "[&_.editorial-quote-container]:relative [&_.editorial-quote-container]:p-[1.8rem_1.8rem_1.5rem] [&_.editorial-quote-container]:bg-[radial-gradient(circle_at_10%_10%,rgba(255,176,0,0.04)_0%,transparent_60%)] [&_.editorial-quote-container]:border-l-2 [&_.editorial-quote-container]:border-accent [&_.editorial-quote-container]:flex [&_.editorial-quote-container]:flex-col [&_.editorial-quote-container]:gap-[0.8rem] [&_.editorial-quote-container]:rounded-[0_8px_8px_0] [&_.fav-star-icon]:text-accent [&_.fav-star-icon]:opacity-80 [&_.editorial-quote]:[font-family:Georgia,serif] [&_.editorial-quote]:italic [&_.editorial-quote]:text-[1.1rem] [&_.editorial-quote]:leading-[1.65] [&_.editorial-quote]:text-text [&_.editorial-quote]:m-0 [&_.editorial-quote-source]:font-mono [&_.editorial-quote-source]:text-[0.74rem] [&_.editorial-quote-source]:text-text-faint [&_.editorial-quote-source]:uppercase [&_.editorial-quote-source]:tracking-[0.04em]";
+const SECTION_DIVIDER = "border-none border-b border-border my-10";
+const PREVIEW_SECTION = "[&_.section-header-row]:flex [&_.section-header-row]:justify-between [&_.section-header-row]:items-baseline [&_.section-header-row]:mb-4 [&_h4]:font-display [&_h4]:text-base [&_h4]:font-semibold [&_h4]:text-text [&_h4]:m-0";
+const VIEW_ALL_LINK = "bg-none border-none text-[0.78rem] font-medium text-accent cursor-pointer transition-opacity duration-200 ease-brand hover:underline hover:opacity-80";
+const PREVIEW_LIST = "flex flex-col gap-[0.8rem]";
+const VOCAB_PREVIEW_ITEM = "flex flex-col gap-[0.15rem] pb-[0.6rem] border-b border-[rgba(255,255,255,0.03)] [&_.word]:font-semibold [&_.word]:text-[0.9rem] [&_.word]:text-text [&_.meaning]:text-[0.82rem] [&_.meaning]:text-text-dim";
+const NOTE_PREVIEW_ITEM = "flex flex-col gap-[0.15rem] pb-[0.6rem] border-b border-[rgba(255,255,255,0.03)] [&_.title]:font-semibold [&_.title]:text-[0.88rem] [&_.title]:text-text [&_.snippet]:text-[0.82rem] [&_.snippet]:text-text-dim [&_.snippet]:whitespace-nowrap [&_.snippet]:overflow-hidden [&_.snippet]:text-ellipsis";
+const MUTED_TEXT = "text-[0.82rem] text-text-faint m-0";
+
+const KINDLE_LIST = "flex flex-col";
+const KINDLE_ROW = "flex flex-col gap-[0.6rem] py-[1.2rem] border-b border-border transition-opacity duration-200 ease-brand first:pt-0";
+const KINDLE_ROW_FAV = "border-l-2 border-l-accent pl-[1.2rem]";
+const KINDLE_META = "flex justify-between items-center font-mono text-[0.7rem] text-text-faint uppercase tracking-[0.05em]";
+const KINDLE_TEXT = "[font-family:Georgia,serif] italic text-[1.05rem] leading-[1.6] text-text m-0";
+const KINDLE_FOOT = "flex justify-between items-center gap-4 [&_.tags]:flex [&_.tags]:gap-[0.4rem] [&_.tags]:flex-wrap [&_.actions]:flex [&_.actions]:items-center [&_.actions]:gap-[0.4rem]";
+const AI_OUT = "mt-[0.6rem] flex items-center gap-[0.4rem] text-[0.82rem] text-text-dim";
+
+const VOCAB_TABLE_CONTAINER = "w-full overflow-x-auto";
+const VOCAB_TABLE =
+  "w-full border-collapse text-left " +
+  "[&_th]:font-mono [&_th]:text-[0.68rem] [&_th]:uppercase [&_th]:tracking-[0.06em] [&_th]:text-text-faint [&_th]:p-[0.8rem_1rem] [&_th]:border-b [&_th]:border-border [&_th:first-child]:pl-0 [&_th.actions-header]:w-[80px] " +
+  "max-[720px]:[&_th]:hidden max-[720px]:[&_td]:block max-[720px]:[&_td]:p-[0.5rem_0] max-[720px]:[&_td]:border-none max-[720px]:[&_td:first-child]:pt-4 max-[720px]:[&_td:last-child]:border-b max-[720px]:[&_td:last-child]:border-border max-[720px]:[&_td:last-child]:pb-4";
+const VOCAB_ROW =
+  "border-b border-[rgba(255,255,255,0.04)] hover:bg-[rgba(255,255,255,0.01)] max-[720px]:border-none " +
+  "[&_td]:p-4 [&_td]:align-top [&_td]:text-[0.88rem] [&_td:first-child]:pl-0 " +
+  "[&_.vocab-word-cell_strong]:text-[0.95rem] [&_.vocab-word-cell_strong]:text-text " +
+  "[&_.vocab-def-cell_.meaning]:m-0 [&_.vocab-def-cell_.meaning]:text-text-dim [&_.vocab-def-cell_.meaning]:leading-[1.5] [&_.vocab-def-cell_.example]:m-0 [&_.vocab-def-cell_.example]:mt-[0.25rem] [&_.vocab-def-cell_.example]:italic [&_.vocab-def-cell_.example]:text-[0.8rem] [&_.vocab-def-cell_.example]:text-text-faint " +
+  "[&_.vocab-page-cell]:text-text-faint [&_.vocab-page-cell]:font-mono [&_.vocab-page-cell]:text-[0.78rem] [&_.vocab-status-cell]:!align-middle [&_.vocab-actions-cell]:!align-middle";
+const VOCAB_ROW_ACTIONS = "flex items-center gap-[0.35rem] [&_button.danger:hover]:!text-bad";
+
+const NOTES_NOTEBOOK = "flex flex-col gap-8";
+const NOTEBOOK_GROUP = "flex flex-col gap-[0.8rem]";
+const NOTEBOOK_GROUP_LABEL = "font-mono text-[0.68rem] uppercase tracking-[0.08em] text-text-faint m-0 pb-[0.4rem] border-b border-border";
+const NOTEBOOK_ENTRIES = "flex flex-col";
+const NOTEBOOK_ENTRY = "flex flex-col gap-2 py-[1.2rem] border-b border-[rgba(255,255,255,0.03)] last:border-b-0 [&_.entry-title]:font-display [&_.entry-title]:text-[0.95rem] [&_.entry-title]:font-semibold [&_.entry-title]:text-text [&_.entry-title]:m-0 [&_.entry-body]:text-[0.88rem] [&_.entry-body]:leading-[1.6] [&_.entry-body]:text-text-dim [&_.entry-body]:m-0 [&_.entry-body]:whitespace-pre-wrap [&_.entry-foot]:flex [&_.entry-foot]:justify-between [&_.entry-foot]:items-center [&_.entry-foot]:mt-[0.3rem] [&_.entry-date]:text-[0.72rem] [&_.entry-date]:text-text-faint";
+
+const GITHUB_TIMELINE = "relative pl-[1.8rem] [&_.timeline-line]:absolute [&_.timeline-line]:left-[7px] [&_.timeline-line]:top-[6px] [&_.timeline-line]:bottom-[6px] [&_.timeline-line]:w-[2px] [&_.timeline-line]:bg-border";
+const TIMELINE_NODE =
+  "group relative flex gap-4 pb-8 last:pb-0 " +
+  "[&_.timeline-dot-wrapper]:absolute [&_.timeline-dot-wrapper]:-left-[1.8rem] [&_.timeline-dot-wrapper]:top-[4px] [&_.timeline-dot-wrapper]:w-4 [&_.timeline-dot-wrapper]:h-4 [&_.timeline-dot-wrapper]:flex [&_.timeline-dot-wrapper]:items-center [&_.timeline-dot-wrapper]:justify-center " +
+  "[&_.timeline-dot]:w-2 [&_.timeline-dot]:h-2 [&_.timeline-dot]:rounded-full [&_.timeline-dot]:bg-border-bright [&_.timeline-dot]:border-2 [&_.timeline-dot]:border-[var(--background)] [&_.timeline-dot]:z-[2] [&_.timeline-dot]:transition-all [&_.timeline-dot]:duration-200 [&_.timeline-dot]:ease-brand " +
+  "group-hover:[&_.timeline-dot]:bg-accent group-hover:[&_.timeline-dot]:scale-[1.2] " +
+  "[&_.timeline-content]:flex [&_.timeline-content]:flex-col [&_.timeline-content]:gap-[0.25rem] [&_.timeline-content]:flex-1 " +
+  "[&_.timeline-header]:flex [&_.timeline-header]:justify-between [&_.timeline-header]:items-baseline [&_.timeline-header]:text-[0.86rem] [&_.timeline-header_.label]:font-semibold [&_.timeline-header_.label]:text-text [&_.timeline-header_.time]:text-[0.72rem] [&_.timeline-header_.time]:text-text-faint " +
+  "[&_.detail]:text-[0.82rem] [&_.detail]:text-text-dim [&_.detail]:m-0 [&_.location]:font-mono [&_.location]:text-[0.72rem] [&_.location]:text-text-faint [&_.location]:uppercase";
+const TIMELINE_NODE_STARTED = "[&_.timeline-dot]:!bg-accent [&_.timeline-dot]:shadow-[0_0_0_2px_var(--accent-soft)]";
+
 const STATUS_LABEL: Record<ReadingStatus, string> = {
   reading: "Reading", finished: "Finished", want: "Want to Read", paused: "Paused",
 };
@@ -37,7 +122,7 @@ function coverColor(book: Book): string {
   return SWATCHES[h % SWATCHES.length];
 }
 function CoverArt({ book, size = "sm" }: { book: Book; size?: "sm" | "md" | "lg" }) {
-  const cls = `rw-cover rw-cover-${size}`;
+  const cls = `${COVER_BASE} ${COVER_SIZE[size]}`;
   if (book.coverUrl) return <span className={cls}><img src={book.coverUrl} alt="" loading="lazy" /></span>;
   return (
     <span className={cls} style={{ background: coverColor(book) }}>
@@ -89,7 +174,7 @@ export function BooksView({ now, focusId, onConsumeFocus }: { now: number; focus
   return (
     <div className={rw.library}>
       <header className={rw.libHeader}>
-        <div className="rw-lib-title">
+        <div className={LIB_TITLE}>
           <h1 className={rw.libTitleH1}>Books</h1>
           <span className={rw.libSub}>{books.length} {books.length === 1 ? "book" : "books"} in your library</span>
         </div>
@@ -223,12 +308,15 @@ function BookDetail({ book, now, onBack }: { book: Book; now: number; onBack: ()
           <CoverArt book={book} size="lg" />
         </div>
         <div className={rw.heroMain}>
-          <h1 className={rw.heroMainH1}>{book.title}</h1>
-          <span className={rw.heroSub}>{[book.author, book.year].filter(Boolean).join(" · ")}</span>
+          {/* Title block */}
+          <div className="flex flex-col gap-[0.3rem]">
+            <h1 className={rw.heroMainH1}>{book.title}</h1>
+            <span className={rw.heroSub}>{[book.author, book.year].filter(Boolean).join(" · ")}</span>
+          </div>
 
-          <div className="rw-hero-meta-row">
+          {/* Rating + status — the single source of truth for both (24px below title) */}
+          <div className="mt-6 flex items-center gap-3">
             <Stars value={book.rating ?? 0} onSet={(r) => updateBook(book.id, { rating: r })} />
-            <span className="dot">•</span>
             <Popover>
               <PopoverTrigger asChild>
                 <button className={`rw-hero-status-badge status-${book.status} clickable`}>
@@ -261,47 +349,23 @@ function BookDetail({ book, now, onBack }: { book: Book; now: number; onBack: ()
             </Popover>
           </div>
 
-          <div className="rw-hero-stats-horizontal">
-            <span>📖 {stats.quoteCount} Quotes</span>
-            <span className="dot">•</span>
-            <span>📝 {stats.noteCount} Notes</span>
-            <span className="dot">•</span>
-            <span>🔤 {stats.vocabCount} Words</span>
-            <span className="dot">•</span>
-            <span>🔥 {readingSessions} Sessions</span>
-          </div>
-
-          <div className="rw-hero-last-read">
-            Last read · {relativeDay(book.updatedAt, now)}
-          </div>
-
-          {book.status === "finished" ? (
-            <div className="rw-hero-finished-summary">
-              <span className="journey-tag">Finished</span>
-              {book.startedAt && <span className="journey-date">Started {formatDate(book.startedAt)}</span>}
-              {book.finishedAt && <span className="journey-date">Finished {formatDate(book.finishedAt)}</span>}
-              {journeyDays && <span className="journey-days">{journeyDays} day reading journey</span>}
-            </div>
-          ) : (
-            <div className="rw-hero-progress-section">
+          {/* Progress / finished journey (24px below rating) */}
+          <div className="mt-6">
+            {book.status === "finished" ? (
+              <div className="rw-hero-finished-summary">
+                <span className="journey-tag">Finished</span>
+                {book.startedAt && <span className="journey-date">Started {formatDate(book.startedAt)}</span>}
+                {book.finishedAt && <span className="journey-date">Finished {formatDate(book.finishedAt)}</span>}
+                {journeyDays && <span className="journey-days">{journeyDays} day reading journey</span>}
+              </div>
+            ) : (
               <ProgressEditor book={book} stats={stats} onSet={(currentPage, totalPages) => updateBook(book.id, { currentPage, totalPages })} />
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
+        {/* Right panel — contextual metrics only (no status/rating duplication) */}
         <div className="rw-hero-panel">
-          <div className="rw-hero-panel-row">
-            <span className="lbl">Status</span>
-            <span className="val">{STATUS_LABEL[book.status]}</span>
-          </div>
-
-          <div className="rw-hero-panel-row">
-            <span className="lbl">Rating</span>
-            <span className="val">
-              <Stars value={book.rating ?? 0} onSet={(r) => updateBook(book.id, { rating: r })} />
-            </span>
-          </div>
-
           {book.startedAt && (
             <div className="rw-hero-panel-row">
               <span className="lbl">Started</span>
@@ -309,16 +373,26 @@ function BookDetail({ book, now, onBack }: { book: Book; now: number; onBack: ()
             </div>
           )}
 
-          {book.status === "finished" && book.finishedAt && (
+          {book.status === "finished" && book.finishedAt ? (
             <div className="rw-hero-panel-row">
               <span className="lbl">Finished</span>
               <span className="val">{formatDate(book.finishedAt)}</span>
+            </div>
+          ) : (
+            <div className="rw-hero-panel-row">
+              <span className="lbl">Last read</span>
+              <span className="val">{relativeDay(book.updatedAt, now)}</span>
             </div>
           )}
 
           <div className="rw-hero-panel-row">
             <span className="lbl">Pages</span>
             <span className="val">{book.currentPage ?? 0} / {book.totalPages ?? 0}</span>
+          </div>
+
+          <div className="rw-hero-panel-row">
+            <span className="lbl">Sessions</span>
+            <span className="val">{readingSessions}</span>
           </div>
 
           {stats.streak > 0 && (
@@ -330,14 +404,25 @@ function BookDetail({ book, now, onBack }: { book: Book; now: number; onBack: ()
         </div>
       </header>
 
+      {/* Knowledge stats — readable line, below the hero */}
+      <div className="mb-8 flex items-center gap-3 text-[0.86rem] text-text-dim">
+        <span><b className="font-semibold text-text">{stats.quoteCount}</b> Quotes</span>
+        <span className="text-[rgba(255,255,255,0.15)]">•</span>
+        <span><b className="font-semibold text-text">{stats.vocabCount}</b> Words</span>
+        <span className="text-[rgba(255,255,255,0.15)]">•</span>
+        <span><b className="font-semibold text-text">{stats.noteCount}</b> Notes</span>
+        <span className="text-[rgba(255,255,255,0.15)]">•</span>
+        <span><b className="font-semibold text-text">{readingSessions}</b> Sessions</span>
+      </div>
+
       <Tabs value={activeSubTab} onValueChange={setActiveSubTab} className="rw-tabs">
         <div className={rw.tabsRow}>
-          <TabsList className={rw.tabsList}>
-            <TabsTrigger className={rw.tabsTrigger} value="overview">Overview</TabsTrigger>
-            <TabsTrigger className={rw.tabsTrigger} value="quotes">Quotes ({stats.quoteCount})</TabsTrigger>
-            <TabsTrigger className={rw.tabsTrigger} value="vocab">Words ({stats.vocabCount})</TabsTrigger>
-            <TabsTrigger className={rw.tabsTrigger} value="notes">Notes ({stats.noteCount})</TabsTrigger>
-            <TabsTrigger className={rw.tabsTrigger} value="timeline">Timeline</TabsTrigger>
+          <TabsList unstyled className={rw.tabsList}>
+            <TabsTrigger unstyled className={rw.tabsTrigger} value="overview">Overview</TabsTrigger>
+            <TabsTrigger unstyled className={rw.tabsTrigger} value="quotes">Quotes ({stats.quoteCount})</TabsTrigger>
+            <TabsTrigger unstyled className={rw.tabsTrigger} value="vocab">Words ({stats.vocabCount})</TabsTrigger>
+            <TabsTrigger unstyled className={rw.tabsTrigger} value="notes">Notes ({stats.noteCount})</TabsTrigger>
+            <TabsTrigger unstyled className={rw.tabsTrigger} value="timeline">Timeline</TabsTrigger>
           </TabsList>
           {activeSubTab === "overview" && <BookCapture bookId={book.id} />}
           {activeSubTab === "quotes" && <BookCapture bookId={book.id} initialMode="quote" triggerLabel="Add Quote" />}

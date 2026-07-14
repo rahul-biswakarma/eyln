@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { useNotes } from "../lib/notes";
 import { REMINDER_PRESETS, ensureNotifyPermission } from "../lib/reminders";
-import { Dialog, DialogContent, DialogTitle } from "./ui";
+import { Dialog, DialogContent, DialogTitle, Chip, Button } from "./ui";
+
+const FIELD = "w-full mb-4 bg-surface-inset text-text border border-border rounded-sm px-[0.75rem] py-[0.6rem] text-[0.86rem] font-sans resize-vertical outline-none focus:border-border-glow";
+const FIELD_LABEL = "block font-mono text-[0.68rem] uppercase tracking-[0.12em] text-text-faint mb-[0.4rem]";
 export function NotePanel({ lessonKey, moduleId, lessonTitle, selection, onClose, }: {
     lessonKey: string;
     moduleId: string;
@@ -35,30 +38,28 @@ export function NotePanel({ lessonKey, moduleId, lessonTitle, selection, onClose
         }}>
       <DialogContent showCloseButton={true}>
         <DialogTitle>Add a note</DialogTitle>
-        <div className="empty-note" style={{ padding: 0, marginBottom: "0.8rem", background: "none", border: 0 }}>{lessonTitle}</div>
+        <div className="text-text-faint text-[0.86rem] mb-[0.8rem]">{lessonTitle}</div>
 
-        {selection && (<div className="notice" style={{ margin: "0 0 0.9rem" }}>
-            <span className="lbl">Highlighted</span>
-            <span style={{ fontStyle: "italic" }}>“{selection}”</span>
+        {selection && (<div className="mb-[0.9rem] border-l-2 border-accent bg-surface rounded-r-sm px-[1.1rem] py-[0.9rem] text-[0.9rem] text-text-dim">
+            <span className={FIELD_LABEL}>Highlighted</span>
+            <span className="italic">“{selection}”</span>
           </div>)}
 
-        <label className="block font-mono text-[0.68rem] uppercase tracking-[0.12em] text-text-faint mb-[0.4rem]">Note</label>
-        <textarea rows={5} value={body} autoFocus placeholder="Why is this interesting / what do you want to remember?" onChange={(e) => setBody(e.target.value)} style={{ width: "100%", marginBottom: "1rem" }}/>
+        <label className={FIELD_LABEL}>Note</label>
+        <textarea rows={5} value={body} autoFocus placeholder="Why is this interesting / what do you want to remember?" onChange={(e) => setBody(e.target.value)} className={FIELD}/>
 
-        <label className="block font-mono text-[0.68rem] uppercase tracking-[0.12em] text-text-faint mb-[0.4rem]">Tags (comma-separated)</label>
-        <input type="text" value={tagsRaw} placeholder="matrices, gotcha" onChange={(e) => setTagsRaw(e.target.value)} style={{ width: "100%", marginBottom: "1rem" }}/>
+        <label className={FIELD_LABEL}>Tags (comma-separated)</label>
+        <input type="text" value={tagsRaw} placeholder="matrices, gotcha" onChange={(e) => setTagsRaw(e.target.value)} className={FIELD}/>
 
-        <label className="block font-mono text-[0.68rem] uppercase tracking-[0.12em] text-text-faint mb-[0.4rem]">Remind me to review</label>
-        <div className="chip-row" style={{ marginBottom: "1.2rem" }}>
-          <span className={"chip" + (remindMs === null ? " active" : "")} onClick={() => setRemindMs(null)}>
-            No reminder
-          </span>
-          {REMINDER_PRESETS.map((p) => (<span key={p.label} className={"chip" + (remindMs === p.ms ? " active" : "")} onClick={() => setRemindMs(p.ms)}>
+        <label className={FIELD_LABEL}>Remind me to review</label>
+        <div className="flex items-center gap-[0.6rem] flex-wrap mb-[1.2rem]">
+          <Chip active={remindMs === null} onClick={() => setRemindMs(null)}>No reminder</Chip>
+          {REMINDER_PRESETS.map((p) => (<Chip key={p.label} active={remindMs === p.ms} onClick={() => setRemindMs(p.ms)}>
               {p.label}
-            </span>))}
+            </Chip>))}
         </div>
 
-        <button className="btn primary" onClick={save} style={{ width: "100%" }}>Save</button>
+        <Button variant="primary" onClick={save} className="w-full justify-center">Save</Button>
       </DialogContent>
     </Dialog>);
 }

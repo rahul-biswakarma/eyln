@@ -1,6 +1,7 @@
 import type { Module } from "../../content/types";
 import { M, MBlock } from "../../components/math";
 import { Code, CodeTabs } from "../../components/code-block";
+import { Notice } from "../../components/ui";
 function BinarySearch() {
     return (<div className="prose">
       <p>
@@ -72,12 +73,12 @@ function binarySearch(a: number[], target: number): number {
         you can binary-search for the boundary. "What is the smallest ship capacity that ships all packages in
         D days?" is monotonic in capacity, so you binary-search the <em>answer</em>, not an array.
       </p>
-      <div className="notice warn">
+      <Notice warn>
         <span className="lbl">Gotcha: it requires sorted data</span>
         Binary search is only valid on sorted (or otherwise monotonic) input. On unsorted data it silently
         returns wrong answers. If you search once, a linear scan at <M>{`O(n)`}</M> may beat sorting first at
         <M>{` O(n \\log n)`}</M>.
-      </div>
+      </Notice>
     </div>);
 }
 function QuadraticSorts() {
@@ -114,11 +115,11 @@ function QuadraticSorts() {
         threshold (often ~16 elements), Timsort and introsort switch to insertion sort because its low
         overhead beats the recursion of asymptotically faster algorithms on small arrays.
       </p>
-      <div className="notice">
+      <Notice>
         <span className="lbl">Stability</span>
         Insertion sort is <strong>stable</strong> — equal elements keep their original relative order — because
         it never swaps past an equal key. Selection sort, as usually written, is not.
-      </div>
+      </Notice>
 
       <h3>Stability: Formal Definition &amp; Which Sorts Have It</h3>
       <p>
@@ -233,11 +234,11 @@ function MergeSort() {
         the data — which is why merge sort's <M>{`O(n \\log n)`}</M> is a worst-case guarantee, not an average.
       </p>
 
-      <div className="notice">
+      <Notice>
         <span className="lbl">The two-pointer merge</span>
         The whole engine is the merge: walk both sorted inputs with a pointer each, always emitting the smaller
         front element. Because inputs are already sorted, one linear pass suffices.
-      </div>
+      </Notice>
     </div>);
 }
 function QuickSort() {
@@ -362,11 +363,11 @@ function partitionHoare(a: number[], lo: number, hi: number): number {
         probability decays exponentially. Combined with quicksort's tiny constant factors and cache-friendly
         sequential access, this is why it usually outruns the worst-case-optimal merge sort in practice.
       </p>
-      <div className="notice warn">
+      <Notice warn>
         <span className="lbl">Gotcha: not stable, and beware the naive pivot</span>
         Standard in-place quicksort is <strong>not stable</strong>. And a fixed first/last-element pivot turns
         sorted data — a very common input — into the <M>{`O(n^2)`}</M> disaster. Randomize the pivot.
-      </div>
+      </Notice>
     </div>);
 }
 function LowerBound() {
@@ -426,12 +427,12 @@ function LowerBound() {
   }
   return out;                                  // O(n + k)
 }`}/>
-      <div className="notice warn">
+      <Notice warn>
         <span className="lbl">Gotcha: the range k matters</span>
         Counting/radix sorts are only linear when the key range <M>{`k`}</M> (or digit count) is small relative
         to <M>{`n`}</M>. Counting-sort of 32-bit integers with <M>{`k = 2^{32}`}</M> is a memory catastrophe;
         that is what radix's digit-by-digit approach fixes.
-      </div>
+      </Notice>
     </div>);
 }
 export const dsaSorting: Module = {

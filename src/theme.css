@@ -1,31 +1,6 @@
 
 
-@import "./styles/tokens.css";
-@import "./styles/primitives.css";
-@import "./styles/radix.css";
-@import "./styles/forms.css";
-@import "./styles/widgets.css";
 
-@import "./App.css";
-
-@import "./components/top-nav.css";
-@import "./components/sign-in-screen.css";
-@import "./components/auth-button.css";
-@import "./components/sidebar.css";
 @import "./components/lesson-layout.css";
-@import "./components/code-block.css";
-@import "./components/knowledge-card.css";
-@import "./components/note-panel.css";
-@import "./components/tutor-panel.css";
-@import "./components/capture-workspace.css";
-@import "./components/formula-builder.css";
-@import "./components/module-card.css";
-@import "./components/track-card.css";
-@import "./components/stat-card.css";
 
-@import "./pages/dashboard/dashboard.css";
-@import "./pages/curriculum/curriculum.css";
-@import "./pages/profile/profile.css";
-@import "./pages/practice/practice.css";
-@import "./pages/questionary/questionary.css";
 @import "./pages/knowledge/knowledge.css";

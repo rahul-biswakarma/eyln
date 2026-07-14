@@ -1,5 +1,6 @@
 import type { Module } from "../../content/types";
 import { M, MBlock } from "../../components/math";
+import { Notice } from "../../components/ui";
 function VectorsRecap() {
     return (<div className="prose">
       <p>
@@ -29,11 +30,11 @@ function VectorsRecap() {
         follows the right-hand rule. This is how you compute a triangle's surface <strong>normal</strong>{" "}
         from two of its edges — the foundation of shading and back-face culling.
       </p>
-      <div className="notice">
+      <Notice>
         <span className="lbl">One returns a scalar, one a vector</span> Dot → a single number about
         angle. Cross → a whole vector about the perpendicular direction and the spanned area. Keeping
         that straight is half of vector calculus.
-      </div>
+      </Notice>
     </div>);
 }
 function Gradient() {
@@ -75,17 +76,17 @@ function Gradient() {
         uphill. It is also always <em>perpendicular to the level sets</em> (contour lines) of{" "}
         <M>{`f`}</M>.
       </p>
-      <div className="notice">
+      <Notice>
         <span className="lbl">Why everyone cares</span> Optimization and machine learning are built on
         this: <strong>gradient descent</strong> repeatedly steps in the direction{" "}
         <M>{`-\\nabla f`}</M> — steepest <em>descent</em> — to minimize a loss. In graphics, the
         gradient of a height or distance field gives surface normals and drives bump/normal mapping.
-      </div>
-      <div className="notice warn">
+      </Notice>
+      <Notice warn>
         <span className="lbl">Gradient vs. derivative</span> For a one-variable function the gradient
         is just the ordinary derivative. The gradient is the honest multivariable generalization of
         "slope" — a direction, not a scalar.
-      </div>
+      </Notice>
     </div>);
 }
 function DivCurl() {
@@ -117,12 +118,12 @@ function DivCurl() {
         with zero curl everywhere is called <strong>irrotational</strong> — and such fields are
         exactly the gradients of some scalar potential.
       </p>
-      <div className="notice">
+      <Notice>
         <span className="lbl">Divergence ↔ dot, curl ↔ cross</span> The pattern mirrors the last-but-one
         lesson: divergence uses the <em>dot</em> (giving a scalar about spreading), curl uses the{" "}
         <em>cross</em> (giving a vector about rotation). <strong>Curl-noise</strong> in graphics uses
         exactly this to make divergence-free, swirling velocity fields for smoke and magic effects.
-      </div>
+      </Notice>
     </div>);
 }
 function Directional() {
@@ -145,11 +146,11 @@ function Directional() {
         are walking along a contour, staying at the same height. And it is most negative straight
         opposite the gradient — steepest descent.
       </p>
-      <div className="notice">
+      <Notice>
         <span className="lbl">Reading it back</span> The three facts about the gradient — points
         uphill, perpendicular to level sets, length = max slope — all fall out of{" "}
         <M>{`D_{\\mathbf{u}} f = \\|\\nabla f\\|\\cos\\theta`}</M>. One dot product, three consequences.
-      </div>
+      </Notice>
       <p>
         In practice this is how you evaluate "how does my loss change if I step <em>this</em> way?" or,
         in shading, "how does brightness vary along the view direction?" — project the gradient onto
@@ -203,14 +204,14 @@ function Integrals() {
         </li>
       </ul>
 
-      <div className="notice">
+      <Notice>
         <span className="lbl">The grand finale</span> The big theorems — Green's, Stokes', and the
         Divergence theorem — say these integrals tie together beautifully: the flux of a field's{" "}
         <em>divergence</em> through a closed surface equals the total outflow across it, and the line
         integral of a field around a loop equals the flux of its <em>curl</em> through the enclosed
         surface. Divergence and curl are the local densities whose totals these integrals accumulate —
         integration and differentiation, reunited in higher dimensions.
-      </div>
+      </Notice>
     </div>);
 }
 export const mathVectorCalc: Module = {

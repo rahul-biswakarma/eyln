@@ -3,6 +3,7 @@ import { Code, CodeTabs } from "../../components/code-block";
 import { MBlock } from "../../components/math";
 import { ShaderEditor } from "../../widgets/ShaderEditor";
 import { TriangleDemo } from "../../widgets/TriangleDemo";
+import { Notice } from "../../components/ui";
 function GpuModel() {
     return (<div className="prose">
       <p>
@@ -30,13 +31,13 @@ function GpuModel() {
         To keep the GPU running at peak efficiency, shader authors write <strong>branch-free</strong> code (using mathematical operations like <code>step()</code>, <code>clamp()</code>, and <code>mix()</code>) to avoid conditional branching.
       </p>
 
-      <div className="notice">
+      <Notice>
         <span className="lbl">Metal vs WebGPU</span>
         The live demos here use <strong>WebGPU</strong> because Metal can't run in a browser. The
         two are conceptually the same API — device, queue, pipeline, buffers, encoder — so every
         idea transfers. Where it helps, code samples show all three of{" "}
         <strong>WGSL</strong>, <strong>Metal (MSL)</strong>, and <strong>Odin</strong>.
-      </div>
+      </Notice>
     </div>);
 }
 function Pipeline() {
@@ -148,11 +149,11 @@ if library == nil {
 }
 vfn := library->newFunctionWithName(NS.AT("vs"))
 ffn := library->newFunctionWithName(NS.AT("fs"))`}/>
-      <div className="notice">
+      <Notice>
         <span className="lbl">Bonus</span>
         Runtime compilation means you can hot-reload shaders while your engine runs — edit the
         string, recompile, see the change. That's exactly what the live editor below does with WGSL.
-      </div>
+      </Notice>
     </div>);
 }
 function Shaders() {
@@ -271,11 +272,11 @@ function LiveShader() {
           <code>step()</code>.
         </li>
       </ul>
-      <div className="notice warn">
+      <Notice warn>
         <span className="lbl">Errors are your friend</span>
         Break the syntax on purpose — the status line shows the compiler error with a line number,
         just like Metal's <code>newLibraryWithSource</code> returns an <code>NSError</code>.
-      </div>
+      </Notice>
     </div>);
 }
 export const metal: Module = {

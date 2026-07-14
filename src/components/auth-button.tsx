@@ -3,6 +3,11 @@ import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import { useAuth } from "../lib/auth";
 import { isFirebaseEnabled } from "../lib/firebase";
+import { buttonClass } from "./ui";
+
+const CARD_BASE =
+  "relative overflow-hidden rounded bg-[linear-gradient(180deg,rgba(255,255,255,0.028),transparent_42%),var(--surface)] " +
+  "shadow-[0_1px_0_rgba(255,255,255,0.03),0_8px_30px_rgba(0,0,0,0.35)]";
 export function AuthButton() {
     const user = useAuth((s) => s.user);
     const ready = useAuth((s) => s.ready);
@@ -55,7 +60,7 @@ export function AuthButton() {
     if (!ready)
         return <div className="w-[38px] h-[38px] flex-none p-0 grid place-items-center rounded-full overflow-hidden bg-surface-2 border border-border" aria-hidden/>;
     if (!user) {
-        return (<button className="btn py-2 px-[1.05rem]" onClick={signIn} title="Sign in to sync your progress">
+        return (<button className={buttonClass("default", "default", "py-2 px-[1.05rem]")} onClick={signIn} title="Sign in to sync your progress">
         Sign in
       </button>);
     }
@@ -66,16 +71,16 @@ export function AuthButton() {
       </button>
 
       {open &&
-            createPortal(<div ref={menuRef} className="auth-menu card fixed z-[80] w-[248px] p-[1.1rem] grid gap-[0.7rem] border border-border-bright shadow-[var(--shadow-lg),0_0_0_1px_rgba(255,176,0,0.08)]" role="menu" style={{ top: pos.top, right: pos.right }}>
+            createPortal(<div ref={menuRef} className={`${CARD_BASE} fixed z-[80] w-[248px] p-[1.1rem] grid gap-[0.7rem] border border-border-bright shadow-[var(--shadow-lg),0_0_0_1px_rgba(255,176,0,0.08)] origin-top-right animate-[menu-pop_0.16s_var(--ease)_both] before:content-[''] before:absolute before:top-[-6px] before:right-[14px] before:w-[12px] before:h-[12px] before:bg-surface before:border-l before:border-t before:border-border-bright before:rotate-45`} role="menu" style={{ top: pos.top, right: pos.right }}>
             <div className="leading-[1.35]">
               <div className="font-display font-semibold text-text">{user.name ?? "Signed in"}</div>
               {user.email && <div className="text-[0.76rem] text-text-faint font-mono break-all">{user.email}</div>}
             </div>
             <div className="text-[0.76rem] text-good font-mono">✓ Progress synced to the cloud</div>
-            <Link className="btn primary w-full justify-center" to="/profile" onClick={() => setOpen(false)}>
+            <Link className={buttonClass("primary", "default", "w-full justify-center")} to="/profile" onClick={() => setOpen(false)}>
               View profile
             </Link>
-            <button className="btn w-full justify-center" onClick={() => { setOpen(false); void signOut(); }}>
+            <button className={buttonClass("default", "default", "w-full justify-center")} onClick={() => { setOpen(false); void signOut(); }}>
               Sign out
             </button>
           </div>, document.body)}

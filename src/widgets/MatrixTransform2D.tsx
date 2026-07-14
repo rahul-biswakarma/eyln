@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Button } from "../components/ui";
 export function MatrixTransform2D() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [m, setM] = useState({ a: 1, b: 0, c: 0, d: 1 });
@@ -93,7 +94,7 @@ export function MatrixTransform2D() {
           {slider("d", "d (ĵ.y)")}
         </div>
         <div className="row" style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 10 }}>
-          {Object.entries(presets).map(([k, v]) => (<button key={k} className="btn" onClick={() => setM(v)}>{k}</button>))}
+          {Object.entries(presets).map(([k, v]) => (<Button key={k} size="sm" onClick={() => setM(v)}>{k}</Button>))}
         </div>
         <div className="readout">
           <div>M = [ <b>{m.a.toFixed(2)} {m.c.toFixed(2)}</b> ; <b>{m.b.toFixed(2)} {m.d.toFixed(2)}</b> ]</div>

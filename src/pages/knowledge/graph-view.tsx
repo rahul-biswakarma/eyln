@@ -11,6 +11,9 @@ import { allLessons, lessonPath, getModule } from "../../content/registry";
 import { relativeTime } from "../../lib/stats";
 import { analyzeKnowledgeGraph } from "../../lib/insights";
 import { useTutor } from "../../lib/tutor";
+const NODE_COLOR: Record<string, string> = {
+    module: "#6366f1", lesson: "#0ea5e9", concept: "#a855f7", note: "#64748b", book: "#f59e0b",
+};
 const LEGEND = [
     { cls: "module", label: "Module" },
     { cls: "lesson", label: "Lesson" },
@@ -81,7 +84,7 @@ export function GraphView({ now }: {
 
       <div className="my-[0.9rem] flex flex-wrap gap-4 text-[0.72rem] text-text-dim">
         {LEGEND.map((l) => (<span key={l.cls} className="inline-flex items-center gap-[0.35rem]">
-            <span className={`kg-legend-dot inline-block h-[10px] w-[10px] rounded-full kg-node-${l.cls}`}/> {l.label}
+            <span className="inline-block h-[10px] w-[10px] rounded-full" style={{ background: NODE_COLOR[l.cls] }}/> {l.label}
           </span>))}
         <span className="inline-flex items-center gap-[0.35rem]"><WarningOctagonIcon size={12}/> ring = weak</span>
       </div>

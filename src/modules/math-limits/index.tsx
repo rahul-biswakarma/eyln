@@ -1,6 +1,7 @@
 import type { Module } from "../../content/types";
 import { M, MBlock } from "../../components/math";
 import { Code } from "../../components/code-block";
+import { Notice } from "../../components/ui";
 function IdeaOfALimit() {
     return (<div className="prose">
       <p>
@@ -46,12 +47,12 @@ f(1);      // NaN  <- the hole; the limit doesn't care`}/>
         definition — pins down "arbitrarily close" with inequalities, but the intuition of a converging
         target is what you will use daily.
       </p>
-      <div className="notice">
+      <Notice>
         <span className="lbl">The mantra</span>
         A limit describes the <strong>journey</strong>, not the <strong>destination stamped on the
         map</strong>. What the function does at <M>{`a`}</M> is a separate fact from what it approaches
         near <M>{`a`}</M>.
-      </div>
+      </Notice>
     </div>);
 }
 function ComputingLimits() {
@@ -85,12 +86,12 @@ function ComputingLimits() {
         <M>{`x`}</M> (or <M>{`x - a`}</M>) present on both levels. Algebra removes it, and then plain
         substitution finishes the problem.
       </p>
-      <div className="notice warn">
+      <Notice warn>
         <span className="lbl">Not every ratio cancels</span>
         Some <M>{`\\tfrac00`}</M> limits, like <M>{`\\lim_{x\\to0}\\tfrac{\\sin x}{x}`}</M>, have no
         algebraic factor to cancel. Those need the squeeze theorem — the final lesson — or, later,
         L'Hôpital's rule.
-      </div>
+      </Notice>
     </div>);
 }
 function OneSidedAndInfinity() {
@@ -132,12 +133,12 @@ function OneSidedAndInfinity() {
         contrast, occurs where the function itself blows up — a denominator hitting zero with a
         surviving nonzero numerator, sending the limit to <M>{`\\pm\\infty`}</M>.
       </p>
-      <div className="notice">
+      <Notice>
         <span className="lbl">Two kinds of asymptote</span>
         <strong>Horizontal</strong> asymptotes come from limits at infinity (the input runs away).{" "}
         <strong>Vertical</strong> asymptotes come from the output running away at a finite input. Don't
         confuse the two — they answer opposite questions.
-      </div>
+      </Notice>
     </div>);
 }
 function Continuity() {
@@ -196,13 +197,13 @@ function Continuity() {
         works</strong> for computing limits: substitution is literally the definition of continuity
         read in reverse.
       </p>
-      <div className="notice">
+      <Notice>
         <span className="lbl">Building block</span>
         Polynomials, exponentials, sines and cosines are continuous everywhere. Sums, products,
         compositions, and quotients (away from zero denominators) of continuous functions are
         continuous. So the only places to hunt for trouble are denominators, piece boundaries, and
         domain edges.
-      </div>
+      </Notice>
     </div>);
 }
 function SqueezeTheorem() {
@@ -237,12 +238,12 @@ function SqueezeTheorem() {
         <M>{`\\sin x \\approx x`}</M> for small angles — and it is the exact fact that makes{" "}
         <M>{`\\frac{d}{dx}\\sin x = \\cos x`}</M> come out clean in the next module.
       </p>
-      <div className="notice">
+      <Notice>
         <span className="lbl">When to reach for it</span>
         Squeeze is the tool for a bounded-times-vanishing product, or any limit where you can't
         evaluate the function directly but you <em>can</em> bound it above and below by things you can
         evaluate.
-      </div>
+      </Notice>
     </div>);
 }
 export const mathLimits: Module = {

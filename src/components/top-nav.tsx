@@ -31,7 +31,7 @@ export function TopNav() {
       </nav>
 
       <div className="flex items-center gap-[10px]">
-        <button className="icon-btn" title={due ? `${due} reminder(s) due` : "Reminders"} onClick={() => navigate("/knowledge")} style={{ position: "relative" }}>
+        <button className="relative w-[38px] h-[38px] flex-none grid place-items-center cursor-pointer rounded-[10px] bg-surface border border-border text-text-dim text-[1rem] transition-[color,border-color,background,box-shadow] duration-200 ease-brand hover:text-accent hover:border-border-glow hover:bg-surface-2 hover:shadow-[0_0_0_1px_rgba(255,176,0,0.16),0_6px_20px_rgba(255,138,0,0.18)]" title={due ? `${due} reminder(s) due` : "Reminders"} onClick={() => navigate("/knowledge")}>
           <BellIcon size={19} weight="duotone"/>
           {due > 0 && <span className="absolute top-[-4px] right-[-4px] grid place-items-center min-w-[16px] h-[16px] px-[4px] rounded-[8px] bg-bad text-white text-[0.62rem] font-mono">{due}</span>}
         </button>

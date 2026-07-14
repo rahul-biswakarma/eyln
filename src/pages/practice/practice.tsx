@@ -26,20 +26,20 @@ export function Practice() {
     return (<div className="grid grid-cols-[264px_1fr] h-[calc(100vh-70px)] max-[860px]:grid-cols-1 max-[860px]:h-auto">
       <aside className="border-r border-border p-[1.4rem_1rem] overflow-y-auto flex flex-col gap-[1.4rem] max-[860px]:hidden">
         <Tabs value={trackId} onValueChange={(v) => switchTrack(v as PracticeTrackId)}>
-          <TabsList className="track-switch">
-            {PRACTICE_TRACKS.map((t) => (<TabsTrigger key={t.id} value={t.id} className="track-tab">
+          <TabsList unstyled className="flex gap-[0.3rem] mb-4 p-1 bg-surface-inset border border-border rounded-[12px]">
+            {PRACTICE_TRACKS.map((t) => (<TabsTrigger key={t.id} value={t.id} unstyled className="flex-1 cursor-pointer py-[0.45rem] px-[0.4rem] rounded-[9px] border-0 bg-transparent font-mono text-[0.72rem] tracking-[0.04em] text-text-faint flex items-center justify-center transition-[background,color] duration-200 ease-brand hover:text-text hover:bg-transparent data-[state=active]:bg-accent-soft data-[state=active]:text-highlight">
                 {t.id === "dsa" ? "DSA" : t.id === "engine" ? "Engine" : "Math"}
               </TabsTrigger>))}
           </TabsList>
         </Tabs>
 
-        <div className="track-panel relative overflow-hidden isolate flex-none p-[1.4rem_1.3rem] rounded-[18px] border border-border bg-surface bg-[linear-gradient(180deg,rgba(255,176,0,0.05),transparent_42%)] shadow-[0_6px_24px_rgba(0,0,0,0.28)] transition-[transform,border-color,box-shadow] duration-200 ease-brand">
+        <div className="relative overflow-hidden isolate flex-none p-[1.4rem_1.3rem] rounded-[18px] border border-border bg-surface bg-[linear-gradient(180deg,rgba(255,176,0,0.05),transparent_42%)] shadow-[0_6px_24px_rgba(0,0,0,0.28)] transition-[transform,border-color,box-shadow] duration-200 ease-brand hover:-translate-y-0.5 hover:[border-color:color-mix(in_srgb,var(--accent)_30%,var(--border-bright))] hover:shadow-[0_12px_36px_rgba(0,0,0,0.4),0_0_30px_rgba(255,138,0,0.14)]">
           <div aria-hidden className="absolute inset-0 -z-10 pointer-events-none opacity-50 [background-image:linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] [background-size:22px_22px] [mask-image:radial-gradient(circle_at_80%_0%,#000,transparent_70%)]"/>
           <div className="font-mono text-[0.64rem] tracking-[0.18em] uppercase text-accent">Practice Track</div>
           <div className="font-display text-[1.5rem] font-semibold tracking-[-0.01em] mt-1 mb-[1.2rem]">{track.title}</div>
 
           <div className="flex gap-[3px]">
-            {trackList.map((c, i) => (<span key={c.id} className={"tp-seg flex-1 h-[6px] rounded-[2px] bg-surface-inset transition-[background,box-shadow] duration-[400ms] ease-brand" + (solved[c.id] ? " [background:var(--accent-grad)] shadow-[0_0_8px_rgba(255,176,0,0.45)]" : "") + (i === activeIdx ? " current" : "")}/>))}
+            {trackList.map((c, i) => (<span key={c.id} className={"flex-1 h-[6px] rounded-[2px] bg-surface-inset transition-[background,box-shadow] duration-[400ms] ease-brand" + (solved[c.id] ? " [background:var(--accent-grad)] shadow-[0_0_8px_rgba(255,176,0,0.45)]" : "") + (i === activeIdx ? " [background:color-mix(in_srgb,var(--accent)_45%,var(--surface-inset))]" : "")}/>))}
           </div>
           <div className="flex items-baseline justify-between mt-[0.6rem]">
             <span className="font-display text-[1.15rem] font-semibold text-text">{Math.round(pct * 100)}%</span>

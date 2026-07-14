@@ -1,6 +1,7 @@
 import type { Module } from "../../content/types";
 import { M, MBlock } from "../../components/math";
 import { Code, CodeTabs } from "../../components/code-block";
+import { Notice } from "../../components/ui";
 function UVs() {
     return (<div className="prose">
       <p>
@@ -111,11 +112,11 @@ desc->setMagFilter(.Linear)
 desc->setSAddressMode(.Repeat)   // tile horizontally
 desc->setTAddressMode(.Repeat)   // tile vertically
 sampler := device->newSamplerState(desc)`}/>
-      <div className="notice">
+      <Notice>
         <span className="lbl">Samplers are cheap, textures are not</span>
         A sampler is just a few bytes of state; you can reuse one across many textures. Bind the sampler
         and the texture separately so the same filtering rules apply everywhere.
-      </div>
+      </Notice>
     </div>);
 }
 function Mipmaps() {
@@ -160,12 +161,12 @@ let color = textureSample(tex, samp, uv);
 
 // Force a specific level of detail when you need control:
 let far = textureSampleLevel(tex, samp, uv, 4.0);`}/>
-      <div className="notice warn">
+      <Notice warn>
         <span className="lbl">A texture atlas fights mipmaps</span>
         Packing many small images into one big <strong>atlas</strong> saves bind/draw calls, but at
         higher mip levels neighboring sub-images bleed into each other. Leave padding (a gutter) around
         each sub-image, or cap the mip level, to avoid seams.
-      </div>
+      </Notice>
     </div>);
 }
 export const textures: Module = {

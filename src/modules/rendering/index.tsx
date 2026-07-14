@@ -5,6 +5,7 @@ import { TriangleDemo } from "../../widgets/TriangleDemo";
 import { TransformPipeline3D } from "../../widgets/TransformPipeline3D";
 import { TerrainField } from "../../widgets/TerrainField";
 import { SplineEditor } from "../../widgets/SplineEditor";
+import { Notice } from "../../components/ui";
 function Step1() {
     return (<div className="prose">
       <p>
@@ -68,11 +69,11 @@ main :: proc() {
         // acquire drawable, encode a render pass, draw 3 vertices, commit
     }
 }`}/>
-      <div className="notice">
+      <Notice>
         <span className="lbl">Milestone</span>
         Run <code>odin run odin-examples/01-triangle</code>. A window opens with a colored triangle.
         You now own a working GPU pipeline — the hardest 100 lines you'll write.
-      </div>
+      </Notice>
     </div>);
 }
 function Step2() {
@@ -134,12 +135,12 @@ update_camera :: proc(c: ^Camera, dt: f32, input: Input) {
     c.yaw   += input.mouse_dx * 0.002
     c.pitch  = clamp(c.pitch - input.mouse_dy * 0.002, -1.5, 1.5)
 }`}/>
-      <div className="notice warn">
+      <Notice warn>
         <span className="lbl">Don't forget the depth buffer</span>
         Without a depth attachment, triangles draw in submission order and the cube looks
         inside-out. Add a <code>depth24plus</code> texture and set{" "}
         <code>depthCompare = .Less</code> in the pipeline.
-      </div>
+      </Notice>
     </div>);
 }
 function Step3() {
@@ -181,11 +182,11 @@ generate_terrain :: proc() -> [dynamic]Vertex {
     }
     return verts   // upload as one big vertex buffer
 }`}/>
-      <div className="notice">
+      <Notice>
         <span className="lbl">Performance note</span>
         This is where Data-Oriented Design pays off: the terrain is one contiguous vertex buffer,
         uploaded once, drawn in a single call. No per-object overhead.
-      </div>
+      </Notice>
     </div>);
 }
 function Step4() {
@@ -239,14 +240,14 @@ function Step4() {
     }
     return verts
 }`}/>
-      <div className="notice warn">
+      <Notice warn>
         <span className="lbl">Boss level: seamless corners (the Tiny Glade secret)</span>
         When two walls meet, don't let them interpenetrate. Detect the intersection, recompute the
         vertices at the junction, cut the hidden interior, and stitch a clean corner —{" "}
         <strong>dynamic vertex generation / CSG</strong>. This is the frontier that separates a demo
         from Tiny Glade. Study Anastasia Opara's talks for how to make it feel <em>believable</em>,
         not just correct.
-      </div>
+      </Notice>
       <p>
         If you've reached here with all four examples running, you have — from scratch, in Odin and
         Metal — a windowing layer, a GPU pipeline, a 3D camera, procedural terrain, and a

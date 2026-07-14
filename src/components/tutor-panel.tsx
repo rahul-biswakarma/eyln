@@ -306,7 +306,7 @@ export function TutorPanel() {
               <span className="block font-mono text-[0.64rem] uppercase text-text-faint tracking-[0.08em] mt-[0.6rem]">Timeline & Learning Journey</span>
 
 
-              <div className="kb-timeline-milestone relative flex gap-[0.8rem] pl-[0.4rem]">
+              <div className="relative flex gap-[0.8rem] pl-[0.4rem] before:content-[''] before:absolute before:left-[3.25rem] before:top-[1.1rem] before:bottom-[-0.8rem] before:w-px before:bg-border">
                 <span className="font-mono text-[0.68rem] text-text-faint w-[2.4rem] text-right shrink-0 pt-[0.15rem]">Today</span>
                 <div className="flex-1 flex flex-col gap-[0.1rem] relative pl-4">
                   <div className="absolute left-[-3px] top-[0.35rem] w-[7px] h-[7px] rounded-full bg-accent shadow-[0_0_8px_var(--accent)]"/>
@@ -326,7 +326,7 @@ export function TutorPanel() {
 
 
               <span className="block font-mono text-[0.64rem] uppercase text-text-faint tracking-[0.08em] mt-[0.6rem]">Past Milestones</span>
-              <div className="kb-timeline-milestone historical relative flex gap-[0.8rem] pl-[0.4rem]">
+              <div className="relative flex gap-[0.8rem] pl-[0.4rem] before:content-[''] before:absolute before:left-[3.25rem] before:top-[1.1rem] before:bottom-[-0.8rem] before:w-px before:border-l before:border-dashed before:border-border">
                 <span className="font-mono text-[0.68rem] text-text-faint w-[2.4rem] text-right shrink-0 pt-[0.15rem]">Yesterday</span>
                 <div className="flex-1 flex flex-col gap-[0.1rem] relative pl-4">
                   <div className="absolute left-[-3px] top-[0.35rem] w-[7px] h-[7px] rounded-full bg-text-faint"/>
@@ -334,7 +334,7 @@ export function TutorPanel() {
                   <span className="text-[0.74rem] text-text-faint">Saved "{ctx.title}" to favorites</span>
                 </div>
               </div>
-              <div className="kb-timeline-milestone historical relative flex gap-[0.8rem] pl-[0.4rem]">
+              <div className="relative flex gap-[0.8rem] pl-[0.4rem]">
                 <span className="font-mono text-[0.68rem] text-text-faint w-[2.4rem] text-right shrink-0 pt-[0.15rem]">2 days ago</span>
                 <div className="flex-1 flex flex-col gap-[0.1rem] relative pl-4">
                   <div className="absolute left-[-3px] top-[0.35rem] w-[7px] h-[7px] rounded-full bg-text-faint"/>

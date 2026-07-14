@@ -1,6 +1,7 @@
 import type { Module } from "../../content/types";
 import { M, MBlock } from "../../components/math";
 import { Code } from "../../components/code-block";
+import { Notice } from "../../components/ui";
 function LinkedLists() {
     return (<div className="prose">
       <p>
@@ -100,12 +101,12 @@ function reverse<T>(head: ListNode<T> | null): ListNode<T> | null {
   }
   return prev;             // new head
 }`}/>
-      <div className="notice warn">
+      <Notice warn>
         <span className="lbl">Save 'next' before you overwrite it</span>
         The single most common linked-list bug is reassigning <code>cur.next</code> before stashing
         the old value, which severs the rest of the list. Whenever you rewire pointers, capture what
         you'll need next <em>first</em>.
-      </div>
+      </Notice>
     </div>);
 }
 function Stacks() {
@@ -171,13 +172,13 @@ function isBalanced(s: string): boolean {
   return stack.length === 0;               // nothing left unclosed
 }
 console.log(isBalanced("([]{})"), isBalanced("([)]")); // true false`}/>
-      <div className="notice">
+      <Notice>
         <span className="lbl">Why the most-recent opener?</span>
         Brackets nest, and nesting is inherently LIFO: the bracket you must close next is always the
         one you opened most recently. That's exactly a stack's <code>pop</code>. <code>"([)]"</code>{" "}
         fails because the <code>)</code> tries to close a <code>(</code> while a <code>[</code> is
         still the most recent opener.
-      </div>
+      </Notice>
     </div>);
 }
 function QueuesDeques() {
@@ -269,12 +270,12 @@ function QueuesDeques() {
   }
 }
 // Each element is moved at most once from in→out, so n ops cost O(n) total.`}/>
-      <div className="notice">
+      <Notice>
         <span className="lbl">Why the reversal yields FIFO</span>
         Pushing <code>1,2,3</code> onto <M>{`\\text{in}`}</M> leaves 3 on top. Popping them one by one
         and pushing onto <M>{`\\text{out}`}</M> lands 1 on top — so the next <code>dequeue</code>{" "}
         returns 1, the oldest element. One reversal of a LIFO stack is exactly a FIFO queue.
-      </div>
+      </Notice>
       <Code lang="ts" filename="ringbuffer.ts" code={`class RingQueue<T> {
   private buf: (T | undefined)[];
   private head = 0;   // index of the front element
@@ -297,12 +298,12 @@ function QueuesDeques() {
     return x;
   }
 }`}/>
-      <div className="notice warn">
+      <Notice warn>
         <span className="lbl">Distinguish full from empty</span>
         In a ring buffer, <code>head === tail</code> is ambiguous — it can mean empty <em>or</em>
         full. Track an explicit <code>count</code> (as above) or leave one slot always unused. Getting
         this wrong silently drops or overwrites elements.
-      </div>
+      </Notice>
     </div>);
 }
 function FastSlow() {
@@ -345,12 +346,12 @@ function middle(head: Node | null): Node | null {
   while (fast && fast.next) { slow = slow!.next; fast = fast.next.next; }
   return slow;                // slow is at the midpoint
 }`}/>
-      <div className="notice">
+      <Notice>
         <span className="lbl">Why not just a visited set?</span>
         A hash set of visited nodes also detects cycles in <M>{`O(n)`}</M> — but at <M>{`O(n)`}</M>{" "}
         space. Floyd's trick gets the same answer in <M>{`O(1)`}</M> space, which matters when the
         structure is huge or memory is tight. It's the classic space-optimization win.
-      </div>
+      </Notice>
     </div>);
 }
 function MonotonicStack() {
@@ -388,13 +389,13 @@ function nextGreater(a: number[]): number[] {
   return next;                                // leftover indices keep -1
 }
 console.log(nextGreater([2, 1, 3, 1])); // [3, 3, -1, -1]`}/>
-      <div className="notice warn">
+      <Notice warn>
         <span className="lbl">Store indices, not just values</span>
         Pushing indices (not raw values) lets you also recover <em>distance</em> to the next greater
         element (e.g. "days until a warmer temperature") and index back into the array. Decide up
         front whether you want the next <em>greater</em> or <em>smaller</em> element — it only flips
         the comparison in the while-condition.
-      </div>
+      </Notice>
 
       <h3>Monotonic Deque: Sliding-Window Maximum</h3>
       <p>
@@ -443,13 +444,13 @@ function maxSlidingWindow(a: number[], k: number): number[] {
   return out;
 }
 console.log(maxSlidingWindow([1, 3, -1, -3, 5, 3, 6, 7], 3)); // [3,3,5,5,6,7]`}/>
-      <div className="notice">
+      <Notice>
         <span className="lbl">Why a deque, not a stack</span>
         You prune stale-by-<em>value</em> indices from the back but stale-by-<em>position</em> indices
         from the front, so you need both ends — exactly what a deque gives in <M>{`O(1)`}</M>. A plain
         stack can't evict the oldest element cheaply, which is why "next greater" needs only a stack but
         "window maximum" needs a deque.
-      </div>
+      </Notice>
     </div>);
 }
 export const dsaLinear: Module = {

@@ -147,22 +147,23 @@ export function LessonLayout({ data }: {
         setSelection(sel && sel.length > 0 ? sel : undefined);
         setNoteOpen(true);
     }
-    return (<div className="content lesson">
+    const iconBtn = "w-[38px] h-[38px] flex-none grid place-items-center cursor-pointer rounded-[10px] bg-surface border border-border text-text-dim text-[1rem] transition-[color,border-color,background,box-shadow] duration-200 ease-brand hover:text-accent hover:border-border-glow hover:bg-surface-2 hover:shadow-[0_0_0_1px_rgba(255,176,0,0.16),0_6px_20px_rgba(255,138,0,0.18)]";
+    return (<div className="flex-1 min-w-0 h-full min-h-0 flex flex-col overflow-hidden max-w-[1180px] w-full mx-auto">
       <div className="sticky top-[70px] z-20 h-[2px] bg-transparent"><i className="block h-full [background-image:var(--accent-line)] w-0 shadow-[0_0_12px_rgba(255,176,0,0.7)] transition-[width] duration-100 ease-linear" style={{ width: `${readPct * 100}%` }}/></div>
 
       <div className="flex-1 overflow-y-auto pt-[2rem] px-[clamp(1.2rem,4vw,3rem)] pb-[6rem] w-full">
-        <header className="lesson-hero prose relative mb-[2.6rem] pt-[0.5rem] pb-[2rem] border-b border-border">
-          <div className="crumbs">
-            <Link to="/">Dashboard</Link>
+        <header className="prose max-w-full relative mb-[2.6rem] pt-[0.5rem] pb-[2rem] border-b border-border after:content-[''] after:absolute after:top-[-160px] after:right-0 after:left-[20%] after:h-[420px] after:z-[-1] after:pointer-events-none">
+          <div className="crumbs flex items-center gap-[0.5rem] text-[0.74rem] text-text-faint mb-4 flex-wrap font-mono">
+            <Link className="text-text-dim hover:text-accent" to="/">Dashboard</Link>
             <span>/</span>
-            <Link className="seg" to={lessonPath(module.id, module.lessons[0].id)}>
+            <Link className="seg text-text-faint hover:text-accent" to={lessonPath(module.id, module.lessons[0].id)}>
               <ModuleIcon id={module.id} size={14}/> {module.title}
             </Link>
           </div>
 
           <div className="font-mono text-[0.72rem] tracking-[0.2em] uppercase text-accent mt-[0.4rem] mb-[0.6rem]">Mission {lessonNumInModule} / {module.lessons.length}</div>
           <h1 className="mt-0 mb-[0.7rem] text-[clamp(2rem,4vw,2.9rem)]">{lesson.title}</h1>
-          <p className="lh-objective text-text-dim text-[1.05rem] leading-[1.6] max-w-[60ch] mt-0 mb-[1.4rem]">{lesson.summary}</p>
+          <p className="text-text-dim text-[1.05rem] leading-[1.6] max-w-[74ch] mt-0 mb-[1.4rem]">{lesson.summary}</p>
 
           <div className="flex items-center gap-[0.6rem] flex-wrap">
             <span className="inline-flex items-center gap-[0.4rem] font-mono text-[0.74rem] text-text-dim bg-surface border border-border rounded-pill px-[0.75rem] py-[0.35rem] [&_svg]:text-text-faint"><ClockIcon size={14} weight="duotone"/> {lesson.minutes} min</span>
@@ -171,12 +172,12 @@ export function LessonLayout({ data }: {
             {isDone && <span className="inline-flex items-center gap-[0.4rem] font-mono text-[0.74rem] text-good bg-surface border border-[color-mix(in_srgb,var(--good)_40%,var(--border))] rounded-pill px-[0.75rem] py-[0.35rem] [&_svg]:text-good"><CheckCircleIcon size={14} weight="fill"/> Completed</span>}
             <span className="ml-auto flex gap-[0.5rem]">
               <Tooltip content={isBookmarked ? "Remove bookmark" : "Bookmark this lesson"}>
-                <button className={"icon-btn" + (isBookmarked ? " text-accent! border-border-glow!" : "")} onClick={() => toggleBookmark(key)} aria-label="Bookmark lesson">
+                <button className={iconBtn + (isBookmarked ? " text-accent! border-border-glow!" : "")} onClick={() => toggleBookmark(key)} aria-label="Bookmark lesson">
                   <BookmarkSimpleIcon size={16} weight={isBookmarked ? "fill" : "regular"}/>
                 </button>
               </Tooltip>
               <Tooltip content="Add a note (select text first to quote it)">
-                <button className="icon-btn" onClick={openNote} aria-label="Add note">
+                <button className={iconBtn} onClick={openNote} aria-label="Add note">
                   <PencilSimpleLineIcon size={16} weight="regular"/>
                 </button>
               </Tooltip>
@@ -184,11 +185,11 @@ export function LessonLayout({ data }: {
           </div>
         </header>
 
-        <div className="prose lesson-body" ref={bodyRef}>
+        <div className="prose max-w-full lesson-body [&>p]:max-w-[74ch] [&>ul]:max-w-[74ch] [&>ol]:max-w-[74ch]" ref={bodyRef}>
           <Body />
         </div>
 
-        {hasQuestions && (<div className="prose mt-[2.6rem]">
+        {hasQuestions && (<div className="prose max-w-full mt-[2.6rem]">
             <Link className="group flex items-center gap-[1rem] px-[1.3rem] py-[1.1rem] rounded-[16px] border border-border [background:radial-gradient(120%_160%_at_0%_0%,color-mix(in_srgb,var(--accent)_9%,transparent),transparent_55%),var(--surface)] transition-[border-color,transform] duration-200 ease-brand hover:border-[color-mix(in_srgb,var(--accent)_45%,var(--border))] hover:-translate-y-px" to={questionaryPath(module.id)}>
               <span className="flex-none grid place-items-center w-[42px] h-[42px] rounded-[12px] bg-[color-mix(in_srgb,var(--accent)_14%,transparent)] text-accent"><ListChecksIcon size={22} weight="duotone"/></span>
               <span className="flex-1 min-w-0 flex flex-col gap-[0.15rem]">
@@ -202,7 +203,7 @@ export function LessonLayout({ data }: {
             </Link>
           </div>)}
 
-        <div className="prose mt-[3rem]">
+        <div className="prose max-w-full mt-[3rem]">
           <div className={"flex items-center gap-[1.2rem] px-[1.6rem] py-[1.5rem] rounded-[18px] border " + (isDone ? "border-[color-mix(in_srgb,var(--good)_34%,var(--border))] [background:radial-gradient(120%_160%_at_100%_0%,rgba(70,217,138,0.12),transparent_55%),var(--surface)]" : "border-border [background:radial-gradient(120%_160%_at_100%_0%,rgba(255,138,0,0.10),transparent_55%),var(--surface)]")}>
             <div className={"flex-none " + (isDone ? "text-good" : "text-accent")}><CheckCircleIcon size={28} weight={isDone ? "fill" : "duotone"}/></div>
             <div className="flex-1 min-w-0">

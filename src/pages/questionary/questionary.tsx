@@ -10,6 +10,7 @@ import { Exercise } from "../../components/exercise";
 import { ModuleIcon } from "../../components/module-icon";
 import { useProgress } from "../../lib/progress";
 import { useUI } from "../../lib/ui";
+import { buttonClass } from "../../components/ui";
 const exKey = (moduleId: string, lessonId: string, exId: string) => `${moduleId}/${lessonId}/${exId}`;
 interface LessonStat {
     lesson: Lesson;
@@ -43,8 +44,8 @@ export function Questionary() {
     }, [module, lessonsWithWork, setTutorContext]);
     useEffect(() => () => setTutorContext(null), [setTutorContext]);
     if (!module) {
-        return (<div className="content">
-        <div className="prose">
+        return (<div className="flex-1 min-w-0 h-full min-h-0 flex flex-col overflow-hidden">
+        <div className="prose animate-[rise_0.4s_var(--ease)_both]">
           <h1>Chapter Review not found</h1>
           <p>That module doesn’t exist. Head back to the curriculum.</p>
         </div>
@@ -88,13 +89,13 @@ export function Questionary() {
     const keyConcepts = lessonsWithWork.slice(0, 6);
     const diff = moduleDifficulty(module);
     const minutes = moduleMinutes(module);
-    return (<div className="content mx-auto max-w-[780px] px-[clamp(1.2rem,4vw,2rem)] pt-[clamp(1.6rem,4vw,3.2rem)] pb-24" style={{ "--cr-accent": "var(--track-accent, var(--accent))" } as React.CSSProperties}>
+    return (<div className="flex-1 min-w-0 h-full min-h-0 flex flex-col overflow-hidden mx-auto max-w-[780px] px-[clamp(1.2rem,4vw,2rem)] pt-[clamp(1.6rem,4vw,3.2rem)] pb-24" style={{ "--cr-accent": "var(--track-accent, var(--accent))" } as React.CSSProperties}>
 
       <header className="pb-[2.4rem] border-b border-border">
-        <div className="crumbs">
-          <Link to="/">Dashboard</Link>
+        <div className="crumbs flex items-center gap-[0.5rem] text-[0.74rem] text-text-faint mb-4 flex-wrap font-mono">
+          <Link className="text-text-dim hover:text-accent" to="/">Dashboard</Link>
           <span>/</span>
-          <Link className="seg" to={lessonPath(module.id, module.lessons[0].id)}>
+          <Link className="seg text-text-faint hover:text-accent" to={lessonPath(module.id, module.lessons[0].id)}>
             <ModuleIcon id={module.id} size={14}/> {module.title}
           </Link>
         </div>
@@ -157,7 +158,7 @@ export function Questionary() {
                 <SparkleIcon size={18} weight="duotone"/>
                 Keep going — finish the exercises and knowledge checks to complete this chapter.
               </div>
-              <Link className="btn ghost" to={lessonPath(module.id, module.lessons[0].id)}>
+              <Link className={buttonClass("ghost")} to={lessonPath(module.id, module.lessons[0].id)}>
                 <ArrowLeftIcon size={15} weight="bold"/> Back to chapter
               </Link>
             </section>)}
@@ -282,7 +283,7 @@ function ChallengeCard({ challenge, solved }: {
     };
     return (<section className="pt-12 pb-4">
       <div className="font-mono text-[0.7rem] tracking-[0.18em] uppercase text-text-faint mb-[1.1rem]">Challenge problem</div>
-      <div className={"cr-boss relative overflow-hidden rounded-lg border py-[1.8rem] px-[1.9rem]" + (solved ? " border-[color-mix(in_srgb,var(--good)_30%,var(--border))]" : " border-[color-mix(in_srgb,var(--accent)_24%,var(--border))]")}>
+      <div className={"relative overflow-hidden rounded-lg border py-[1.8rem] px-[1.9rem] bg-[radial-gradient(120%_140%_at_100%_0%,color-mix(in_srgb,var(--accent)_12%,transparent),transparent_55%),var(--surface)]" + (solved ? " border-[color-mix(in_srgb,var(--good)_30%,var(--border))]" : " border-[color-mix(in_srgb,var(--accent)_24%,var(--border))]")}>
         <div className="absolute -top-[40%] right-[40%] bottom-auto -left-[10%] h-[260px] bg-[radial-gradient(closest-side,color-mix(in_srgb,var(--accent)_22%,transparent),transparent)] blur-[20px] pointer-events-none" aria-hidden/>
         <div className="relative flex items-center gap-[0.9rem]">
           <span className={"flex-none grid place-items-center w-[46px] h-[46px] rounded-[14px]" + (solved ? " bg-[color-mix(in_srgb,var(--good)_16%,transparent)] text-good" : " bg-[color-mix(in_srgb,var(--accent)_16%,transparent)] text-accent")}>
@@ -305,7 +306,7 @@ function ChallengeCard({ challenge, solved }: {
 
         <div className="relative text-text-dim leading-[1.6] mb-[1.4rem] [&_code]:font-mono [&_code]:text-[0.9em] [&_code]:text-text" dangerouslySetInnerHTML={{ __html: challenge.prompt }}/>
 
-        <Link className="btn primary" to={`/practice?c=${challenge.id}`}>
+        <Link className={buttonClass("primary")} to={`/practice?c=${challenge.id}`}>
           {solved ? "Revisit challenge" : "Take on the challenge"} <ArrowRightIcon size={15} weight="bold"/>
         </Link>
       </div>
@@ -316,7 +317,7 @@ function CompletionBanner({ module, scorePct, xp, }: {
     scorePct: number;
     xp: number;
 }) {
-    return (<section className="cr-complete relative overflow-hidden mt-12 py-12 px-8 text-center rounded-lg border border-[color-mix(in_srgb,var(--accent)_24%,var(--border))] animate-[cr-rise_500ms_var(--ease)]" role="status">
+    return (<section className="relative overflow-hidden mt-12 py-12 px-8 text-center rounded-lg border border-[color-mix(in_srgb,var(--accent)_24%,var(--border))] animate-[cr-rise_500ms_var(--ease)] bg-[radial-gradient(120%_120%_at_50%_-10%,color-mix(in_srgb,var(--accent)_14%,transparent),transparent_60%),var(--surface)]" role="status">
       <div className="absolute -top-[60%] right-[20%] bottom-auto left-[20%] h-[320px] bg-[radial-gradient(closest-side,color-mix(in_srgb,var(--accent)_24%,transparent),transparent)] blur-[30px] pointer-events-none" aria-hidden/>
       <div className="relative text-accent"><TrophyIcon size={40} weight="duotone"/></div>
       <div className="relative font-mono text-[0.72rem] tracking-[0.22em] uppercase text-accent mt-[0.6rem] mb-[0.3rem]">Chapter complete</div>
@@ -353,7 +354,7 @@ function NextChapterLink({ module }: {
         <ListChecksIcon size={16} weight="duotone"/> You’ve reached the end of this track — outstanding work.
       </div>);
     }
-    return (<Link className="btn primary lg" to={questionaryPath(next.id)}>
+    return (<Link className={buttonClass("primary", "lg")} to={questionaryPath(next.id)}>
       Next chapter: {next.title} <ArrowRightIcon size={16} weight="bold"/>
     </Link>);
 }

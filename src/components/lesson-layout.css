@@ -6,21 +6,6 @@
   vertical-align: -0.15em;
 }
 
-/* Retained: decorative ::after pseudo-element on the hero. `.lesson-hero`
-   itself is now styled via Tailwind on the element (it provides `position:
-   relative` for this absolute child); the class name is kept only as the
-   anchor for this pseudo-element. */
-.lesson-hero::after {
-  content: "";
-  position: absolute;
-  top: -160px;
-  right: 0;
-  left: 20%;
-  height: 420px;
-  z-index: -1;
-  pointer-events: none;
-}
-
 /* Retained: `.reveal` / `.revealed` are toggled at runtime via JS
    (bodyRef children get `classList.add("reveal")` then `"revealed"` on
    intersection). Not present in JSX, so they can't be Tailwind utilities. */
@@ -33,30 +18,4 @@
 .reveal.revealed {
   opacity: 1;
   transform: none;
-}
-
-/* Retained: `.crumbs` / `.seg` are shared — questionary.tsx renders the same
-   markup but is out of scope for this migration, so its styling must stay. */
-.crumbs {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.74rem;
-  color: var(--text-faint);
-  margin-bottom: 1rem;
-  flex-wrap: wrap;
-  font-family: var(--mono);
-}
-
-.crumbs a,
-.crumbs .seg {
-  color: var(--text-dim);
-}
-
-.crumbs .seg {
-  color: var(--text-faint);
-}
-
-.crumbs a:hover {
-  color: var(--accent);
 }

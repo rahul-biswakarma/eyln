@@ -102,13 +102,13 @@ export function CaptureWorkspace({ onClose, onSave, }: {
 
           {(kind === "quote" || kind === "vocab") && (<input type="text" className="w-full bg-surface-inset border border-border rounded-sm py-[0.55rem] px-[0.8rem] font-sans text-[0.84rem] text-text outline-none focus:border-border-glow" placeholder={kind === "quote" ? "Source — book, page (optional)" : "Source (optional)"} value={source} onChange={(e) => setSource(e.target.value)}/>)}
 
-          {(detected === "quote" || detected === "vocab") && (<div className="capture-book-picker">
-              <select className="capture-book-select" value={bookId} onChange={(e) => setBookId(e.target.value)}>
+          {(detected === "quote" || detected === "vocab") && (<div className="flex gap-2 mt-2">
+              <select className="flex-1 bg-surface-inset border border-border rounded-sm text-text px-[0.6rem] py-2 text-[0.82rem] font-sans focus:outline-none focus:border-accent" value={bookId} onChange={(e) => setBookId(e.target.value)}>
                 <option value="">No book</option>
                 {books.map((b) => (<option key={b.id} value={b.id}>{b.title}</option>))}
                 <option value="__new">+ New book…</option>
               </select>
-              {bookId === "__new" && (<div className="capture-newbook">
+              {bookId === "__new" && (<div className="mt-2 [&_.book-search]:m-0 [&_.book-search]:mb-[0.4rem]">
                   <BookSearch placeholder="Search a book to attach…" onPick={(meta) => {
                     const id = addBook({ title: meta.title, author: meta.author, year: meta.year, coverUrl: meta.coverUrl, olKey: meta.key, status: "reading" });
                     setBookId(id);

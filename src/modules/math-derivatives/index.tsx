@@ -1,6 +1,7 @@
 import type { Module } from "../../content/types";
 import { M, MBlock } from "../../components/math";
 import { Code } from "../../components/code-block";
+import { Notice } from "../../components/ui";
 function DerivativeAsLimit() {
     return (<div className="prose">
       <p>
@@ -46,12 +47,12 @@ function DerivativeAsLimit() {
         clean answer. Notation varies — <M>{`f'(x)`}</M>, <M>{`\\tfrac{dy}{dx}`}</M>, and{" "}
         <M>{`\\tfrac{d}{dx}f`}</M> all mean the same thing.
       </p>
-      <div className="notice">
+      <Notice>
         <span className="lbl">Differentiable ⟹ continuous</span>
         If the tangent slope exists, the curve can't jump or break there — differentiability implies
         continuity. The converse fails: <M>{`|x|`}</M> is continuous at <M>{`0`}</M> but has a corner,
         so no single tangent slope exists. Smoothness is stronger than mere connectedness.
-      </div>
+      </Notice>
       <Code lang="ts" code={`// Numerically approach the derivative of x² at x = 3 (true answer: 6).
 const f = (x: number) => x * x;
 const slope = (x: number, h: number) => (f(x + h) - f(x)) / h;
@@ -109,11 +110,11 @@ function Rules() {
         <M>{`(3x^2 + 1)^5`}</M>, the outer is <M>{`(\\cdot)^5`}</M> and the inner is{" "}
         <M>{`3x^2 + 1`}</M>, so the derivative is <M>{`5(3x^2+1)^4 \\cdot 6x`}</M>.
       </p>
-      <div className="notice warn">
+      <Notice warn>
         <span className="lbl">The classic mistake</span>
         <M>{`(fg)' \\neq f' g'`}</M>. Test it: <M>{`\\tfrac{d}{dx}(x \\cdot x) = 2x`}</M>, but{" "}
         <M>{`(1)(1) = 1`}</M>. The product rule's cross terms are not optional.
-      </div>
+      </Notice>
     </div>);
 }
 function TranscendentalDerivatives() {
@@ -150,13 +151,13 @@ function TranscendentalDerivatives() {
         <M>{`\\tfrac{d}{dx}\\sin(kx) = k\\cos(kx)`}</M>, <M>{`\\tfrac{d}{dx} e^{kx} = k e^{kx}`}</M>. That
         stray factor <M>{`k`}</M> is the chain rule earning its keep.
       </p>
-      <div className="notice">
+      <Notice>
         <span className="lbl">Engine relevance</span>
         Smooth camera moves, spring physics, and eased animation all lean on these. A critically-damped
         follow camera is literally an exponential decay <M>{`e^{-kt}`}</M> toward its target, and its
         velocity is the derivative <M>{`-k e^{-kt}`}</M>. This module is a prerequisite for the 3D
         engine track for exactly this reason.
-      </div>
+      </Notice>
     </div>);
 }
 function HigherDerivativesConcavity() {
@@ -196,12 +197,12 @@ function HigherDerivativesConcavity() {
         which we use in the next lesson: at a point where the slope is zero, concave up means a
         <em> valley</em> (local min) and concave down means a <em>peak</em> (local max).
       </p>
-      <div className="notice">
+      <Notice>
         <span className="lbl">Higher still</span>
         You can keep going: <M>{`f'''`}</M>, <M>{`f^{(4)}`}</M>, and so on. These power the Taylor
         series that lets a machine approximate <M>{`\\sin`}</M>, <M>{`e^x`}</M>, and friends from
         polynomials alone — the numerical bedrock under every graphics library.
-      </div>
+      </Notice>
     </div>);
 }
 function OptimizationRelatedRates() {
@@ -244,13 +245,13 @@ function OptimizationRelatedRates() {
         size. The <M>{`\\tfrac{dr}{dt}`}</M> falling out is the chain rule applied to <M>{`r(t)`}</M>{" "}
         buried inside <M>{`V`}</M>.
       </p>
-      <div className="notice">
+      <Notice>
         <span className="lbl">The workflow</span>
         Optimization: build the quantity as a function of one variable, differentiate, solve{" "}
         <M>{`f' = 0`}</M>, classify, check endpoints. Related rates: write the geometric relation,
         differentiate with respect to <M>{`t`}</M>, plug in the instant's known values, solve for the
         unknown rate.
-      </div>
+      </Notice>
     </div>);
 }
 export const mathDerivatives: Module = {

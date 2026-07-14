@@ -1,6 +1,7 @@
 import type { Module } from "../../content/types";
 import { M, MBlock } from "../../components/math";
 import { Code, CodeTabs } from "../../components/code-block";
+import { Notice } from "../../components/ui";
 function Normals() {
     return (<div className="prose">
       <p>
@@ -115,12 +116,12 @@ fn fs(in : VSOut) -> @location(0) vec4<f32> {
   let color = ambient + diff * base_color + spec * vec3<f32>(1.0);
   return vec4<f32>(color, 1.0);
 }`}/>
-      <div className="notice">
+      <Notice>
         <span className="lbl">Why Blinn over Phong</span>
         Phong reflects the view around the normal (<code>reflect(-l, n)</code>); Blinn's half-vector is
         cheaper and avoids the highlight cutting off abruptly at grazing angles. Both are approximations —
         the next lesson replaces the guesswork with physics.
-      </div>
+      </Notice>
     </div>);
 }
 function PBRIntro() {
@@ -159,12 +160,12 @@ function PBRIntro() {
         Since metals only reflect light specularly, a metalness parameter of 1 sets the diffuse component <M>{`k_d`}</M> to zero and uses the albedo color directly as the specular base reflectivity <M>{`F_0`}</M>.
       </p>
 
-      <div className="notice warn">
+      <Notice warn>
         <span className="lbl">Work in linear space</span>
         Textures are usually stored gamma-encoded (sRGB). Do all lighting math in <strong>linear</strong>
         space, then convert to sRGB at the very end. Lighting in gamma space is the most common reason
         PBR looks muddy or washed out.
-      </div>
+      </Notice>
     </div>);
 }
 export const lighting: Module = {

@@ -1,6 +1,7 @@
 import type { Module } from "../../content/types";
 import { M, MBlock } from "../../components/math";
 import { Code, CodeTabs } from "../../components/code-block";
+import { Notice } from "../../components/ui";
 function Recursion() {
     return (<div className="prose">
       <p>
@@ -102,12 +103,12 @@ function factTail(n: number, acc = 1): number {
         loop would not.
       </p>
 
-      <div className="notice warn">
+      <Notice warn>
         <span className="lbl">Gotcha: the missing base case</span>
         The most common recursion bug is a base case that is never reached — e.g. recursing on <code>n</code>{" "}
         instead of <code>n - 1</code>, or forgetting negative inputs. Always check that every recursive call
         strictly moves toward a base case.
-      </div>
+      </Notice>
     </div>);
 }
 function DivideConquer() {
@@ -196,12 +197,12 @@ function maxOf(a: number[], lo: number, hi: number): number {
         (Case 3). Drawing the tree tells you which before you reach for any formula.
       </p>
 
-      <div className="notice">
+      <Notice>
         <span className="lbl">Reading the recurrence</span>
         The three numbers you need are <M>{`a`}</M> (how many subproblems), <M>{`b`}</M> (the shrink factor),
         and <M>{`f(n)`}</M> (combine cost). Compare <M>{`f(n)`}</M> to <M>{`n^{\\log_b a}`}</M> and pick the
         case — that is the whole method.
-      </div>
+      </Notice>
     </div>);
 }
 function Memoization() {
@@ -237,12 +238,12 @@ function Memoization() {
         (here, just <M>{`n`}</M>), (3) cache on those parameters. The number of distinct parameter combinations
         times the work per subproblem is your runtime.
       </p>
-      <div className="notice warn">
+      <Notice warn>
         <span className="lbl">Gotcha: cache key must capture the full state</span>
         Memoization is only correct if the cache key includes <em>every</em> parameter that affects the result.
         Cache on <code>n</code> alone when the answer also depends on a second index, and you will serve wrong
         cached values.
-      </div>
+      </Notice>
     </div>);
 }
 function Tabulation() {
@@ -298,12 +299,12 @@ function Tabulation() {
         knapsack above keeps a 1-D row instead of a 2-D table). Memoization only computes the subproblems it
         actually needs, which wins when the reachable subproblem set is sparse.
       </p>
-      <div className="notice warn">
+      <Notice warn>
         <span className="lbl">Gotcha: iteration direction encodes the constraint</span>
         In 0/1 knapsack, iterating capacity <em>downward</em> ensures each item is used once; iterating upward
         would allow reusing an item — which is actually the (different) <em>unbounded</em> knapsack. The loop
         direction is not cosmetic; it changes the problem.
-      </div>
+      </Notice>
     </div>);
 }
 function Backtracking() {
@@ -401,12 +402,12 @@ function Backtracking() {
         per-node constant.
       </p>
 
-      <div className="notice">
+      <Notice>
         <span className="lbl">The universal shape</span>
         Every backtracker is: <em>choose</em> → <em>recurse</em> → <em>un-choose</em>. Forgetting the un-choose
         (the <code>pop</code> / resetting <code>used</code>) leaks state between branches and is the number-one
         backtracking bug.
-      </div>
+      </Notice>
     </div>);
 }
 export const dsaRecursion: Module = {

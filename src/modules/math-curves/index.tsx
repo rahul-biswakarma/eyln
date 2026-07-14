@@ -1,6 +1,7 @@
 import type { Module } from "../../content/types";
 import { M, MBlock } from "../../components/math";
 import { Code } from "../../components/code-block";
+import { Notice } from "../../components/ui";
 function Parametric() {
     return (<div className="prose">
       <p>
@@ -27,11 +28,11 @@ function Parametric() {
         position-valued function is a direction — is the backbone of camera paths, particle motion,
         and every "move along this track" animation.
       </p>
-      <div className="notice">
+      <Notice>
         <span className="lbl">Graphics note</span> An object flying along a curve usually needs to{" "}
         <em>face</em> where it is going. You orient it by aligning its forward axis with{" "}
         <M>{`\\mathbf{T}(t)`}</M> — the tangent literally becomes the model's forward vector.
-      </div>
+      </Notice>
     </div>);
 }
 function ArcLength() {
@@ -63,12 +64,12 @@ function ArcLength() {
         2D graph <M>{`y = f(x)`}</M> this specializes to the familiar{" "}
         <M>{`L = \\int_a^b \\sqrt{1 + f'(x)^2}\\; dx`}</M>.
       </p>
-      <div className="notice warn">
+      <Notice warn>
         <span className="lbl">Rarely closed-form</span> That square root usually has no elementary
         antiderivative — even a simple ellipse gives an "elliptic integral" with no formula. In
         practice you evaluate arc length numerically, with the trapezoid or Simpson rule from the
         Integrals module.
-      </div>
+      </Notice>
       <p>
         Arc length also lets you re-walk a curve at constant speed — <strong>arc-length
         parameterization</strong>. Games use it so a character moving along a spline covers real
@@ -116,13 +117,13 @@ function Curvature() {
         tangent, <em>and</em> curvature — and you have the <strong>osculating circle</strong> (from
         Latin <em>osculari</em>, "to kiss"). It is the circular arc the curve momentarily agrees with.
       </p>
-      <div className="notice">
+      <Notice>
         <span className="lbl">Where it matters</span> Racing lines and road design use curvature to
         cap how fast you can take a bend without skidding (centripetal acceleration is{" "}
         <M>{`v^2 \\kappa`}</M>). In graphics, curvature drives adaptive tessellation — subdivide a
         surface more where it bends more, so silhouettes stay smooth without wasting triangles on
         flat regions.
-      </div>
+      </Notice>
     </div>);
 }
 function Bezier() {
@@ -167,11 +168,11 @@ function deCasteljau(points: V2[], t: number): V2 {
   }
   return pts[0];
 }`}/>
-      <div className="notice">
+      <Notice>
         <span className="lbl">Engine link</span> This is exactly the machinery behind the 3D engine's
         spline tooling: control-point handles in the editor, cubic Béziers for camera and path curves,
         and de Casteljau (or its matrix form) to sample points every frame.
-      </div>
+      </Notice>
     </div>);
 }
 function Splines() {
@@ -208,17 +209,17 @@ function Splines() {
         point, which is precisely what you want for a waypoint path. (The classic cubic version is not
         C², so for perfectly smooth acceleration you reach for a natural cubic or B-spline.)
       </p>
-      <div className="notice">
+      <Notice>
         <span className="lbl">Choosing a spline</span> Want the curve to <em>pass through</em> your
         points (a camera dolly, a road)? Catmull–Rom. Want the smoothest possible shape and are happy
         for the curve to only be <em>influenced</em> by the points (a surface, a smooth blend)? A
         B-spline, which is C². Bézier sits underneath both as the evaluation primitive.
-      </div>
-      <div className="notice warn">
+      </Notice>
+      <Notice warn>
         <span className="lbl">Overshoot</span> Catmull–Rom can bulge past its control points on sharp
         turns. Tune it with a tension parameter, or switch to a monotone/centripetal variant, when a
         path must not clip through geometry.
-      </div>
+      </Notice>
     </div>);
 }
 export const mathCurves: Module = {

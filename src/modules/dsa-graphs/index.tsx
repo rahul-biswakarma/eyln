@@ -1,6 +1,7 @@
 import type { Module } from "../../content/types";
 import { M, MBlock } from "../../components/math";
 import { Code, CodeTabs } from "../../components/code-block";
+import { Notice } from "../../components/ui";
 function Representations() {
     return (<div className="prose">
       <p>
@@ -102,12 +103,12 @@ const hasEdge = adj[2][3] === 1;`,
         tests dominate the workload.
       </p>
 
-      <div className="notice warn">
+      <Notice warn>
         <span className="lbl">Gotcha: undirected means two entries</span>
         In an undirected graph, an edge <M>{`\\{u, v\\}`}</M> appears in <em>both</em> <code>graph[u]</code>{" "}
         and <code>graph[v]</code> (and symmetrically in the matrix). Forgetting one direction is the classic
         graph bug.
-      </div>
+      </Notice>
     </div>);
 }
 function BFS() {
@@ -168,17 +169,17 @@ function BFS() {
         Each vertex is enqueued at most once and each edge is examined at most once (twice for undirected),
         giving <M>{`O(n + m)`}</M> time and <M>{`O(n)`}</M> space for the queue and distance array.
       </p>
-      <div className="notice">
+      <Notice>
         <span className="lbl">Why not DFS for shortest paths?</span>
         DFS may reach the target down a long, winding branch before a shorter route is discovered. Only BFS's
         level-by-level order guarantees the <em>fewest edges</em>. For weighted graphs, even BFS is not enough
         — that is Dijkstra's job.
-      </div>
-      <div className="notice warn">
+      </Notice>
+      <Notice warn>
         <span className="lbl">Gotcha: mark on enqueue, not on dequeue</span>
         If you mark a vertex visited only when you dequeue it, it can be enqueued multiple times before it is
         processed, blowing up the queue and the runtime. Mark it the moment you push it.
-      </div>
+      </Notice>
     </div>);
 }
 function DFSTopo() {
@@ -304,12 +305,12 @@ function DFSTopo() {
         topological order exists exactly when the graph is acyclic.
       </p>
 
-      <div className="notice warn">
+      <Notice warn>
         <span className="lbl">Gotcha: cycles break topo sort</span>
         If the graph contains a directed cycle there is no valid ordering — the dependencies are circular.
         Robust topo-sort code detects the cycle (via the gray-node test) and reports it rather than emitting a
         bogus order.
-      </div>
+      </Notice>
     </div>);
 }
 function Dijkstra() {
@@ -388,12 +389,12 @@ function dijkstra(graph: [number, number][][], src: number): number[] {
         above leaves outdated entries in the heap and skips them on pop with the <code>d &gt; dist[u]</code>{" "}
         guard, which is simpler than decrease-key and fast enough in practice.
       </p>
-      <div className="notice warn">
+      <Notice warn>
         <span className="lbl">Gotcha: no negative edges</span>
         Dijkstra assumes non-negative weights. A negative edge can make a longer path cheaper <em>after</em> a
         vertex was already finalized, silently corrupting results. For negative weights use Bellman-Ford,
         which is slower at <M>{`O(nm)`}</M> but correct.
-      </div>
+      </Notice>
     </div>);
 }
 function UnionFind() {
@@ -481,12 +482,12 @@ function UnionFind() {
       </p>
       <MBlock>{`O(m \\log m) = O(m \\log n) \\;\\text{ (sorting)} \\; + \\; O(m\\,\\alpha(n)) \\;\\text{ (union-find)}`}</MBlock>
 
-      <div className="notice">
+      <Notice>
         <span className="lbl">Where it shines</span>
         Kruskal's MST sorts edges and unions endpoints, skipping any edge whose endpoints are already
         connected. Union-find is also the standard tool for "number of connected components" and dynamic
         connectivity as edges arrive.
-      </div>
+      </Notice>
     </div>);
 }
 export const dsaGraphs: Module = {

@@ -1,6 +1,7 @@
 import type { Module } from "../../content/types";
 import { M, MBlock } from "../../components/math";
 import { Code } from "../../components/code-block";
+import { Notice } from "../../components/ui";
 function HashFunctions() {
     return (<div className="prose">
       <p>
@@ -74,13 +75,13 @@ console.log(hashString("cat", 16), hashString("cat", 16)); // deterministic: sam
         range is comparable to the modulus.
       </p>
 
-      <div className="notice warn">
+      <Notice warn>
         <span className="lbl">Hashing is not encryption</span>
         A data-structure hash is built for speed and spread, <em>not</em> security. It's fast to
         compute and often reversible in spirit. And by the pigeonhole principle, mapping infinitely
         many keys into <M>{`m`}</M> buckets <strong>must</strong> produce collisions — which is the
         entire subject of the next lesson.
-      </div>
+      </Notice>
     </div>);
 }
 function Collisions() {
@@ -164,13 +165,13 @@ function insert(slots: (string | symbol)[], key: string, hash: (s: string, m: nu
   }
   slots[i] = key;
 }`}/>
-      <div className="notice">
+      <Notice>
         <span className="lbl">Deletion is the catch with open addressing</span>
         You can't just blank a slot — that would break the probe chain and hide later entries. Real
         implementations use a <strong>tombstone</strong> marker (a "deleted" sentinel) that lookups
         skip over but insertions may reuse. Chaining has no such problem, which is one reason it's a
         common default.
-      </div>
+      </Notice>
     </div>);
 }
 function LoadFactor() {
@@ -255,12 +256,12 @@ function LoadFactor() {
       this.buckets[h(key, this.buckets.length)].push(key);
   }
 }`}/>
-      <div className="notice warn">
+      <Notice warn>
         <span className="lbl">You must rehash — you can't just copy</span>
         Because the bucket is <M>{`h(k) \\bmod m`}</M> and <M>{`m`}</M> just changed, every key can
         move to a different bucket. Copying entries to the same indices in a bigger array would put
         them where lookups will never search. Every entry gets its bucket recomputed.
-      </div>
+      </Notice>
     </div>);
 }
 function MapsInPractice() {
@@ -332,12 +333,12 @@ function hasDuplicate(a: number[]): boolean {   // O(n) expected
 
 // If you ALSO need sorted output or nearest-neighbor / range queries,
 // a hash gives you none of that — sort or use a tree instead.`}/>
-      <div className="notice">
+      <Notice>
         <span className="lbl">Choose hashing when…</span>
         …you need fast membership, counting, or key→value lookup and you <em>don't</em> need sorted
         order, range queries ("all keys between x and y"), or a worst-case guarantee. If you need
         those, reach for a sorted array or a balanced tree (<M>{`O(\\log n)`}</M>).
-      </div>
+      </Notice>
     </div>);
 }
 function HashPatterns() {
@@ -386,12 +387,12 @@ function twoSum(a: number[], t: number): [number, number] | null {
   }
   return null;
 }`}/>
-      <div className="notice warn">
+      <Notice warn>
         <span className="lbl">Insert AFTER you check</span>
         In the complement pattern, look up <M>{`t - x`}</M> <em>before</em> inserting <M>{`x`}</M>.
         Insert first and an element can pair with itself (e.g. target 8 with a lone 4 falsely
         "matching"). Order of check-then-insert is the whole correctness argument.
-      </div>
+      </Notice>
     </div>);
 }
 export const dsaHashing: Module = {

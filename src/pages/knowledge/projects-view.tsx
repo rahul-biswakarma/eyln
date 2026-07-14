@@ -137,13 +137,13 @@ function ProjectDetail({ project, now, onBack }: { project: Project; now: number
 
       <Tabs defaultValue="overview" className="rw-tabs">
         <div className={rw.tabsRow}>
-          <TabsList className={rw.tabsList}>
-            <TabsTrigger className={rw.tabsTrigger} value="overview">Overview</TabsTrigger>
-            <TabsTrigger className={rw.tabsTrigger} value="architecture">Architecture</TabsTrigger>
-            <TabsTrigger className={rw.tabsTrigger} value="code">Code</TabsTrigger>
-            <TabsTrigger className={rw.tabsTrigger} value="ideas">Ideas</TabsTrigger>
-            <TabsTrigger className={rw.tabsTrigger} value="references">References</TabsTrigger>
-            <TabsTrigger className={rw.tabsTrigger} value="timeline">Timeline</TabsTrigger>
+          <TabsList unstyled className={rw.tabsList}>
+            <TabsTrigger unstyled className={rw.tabsTrigger} value="overview">Overview</TabsTrigger>
+            <TabsTrigger unstyled className={rw.tabsTrigger} value="architecture">Architecture</TabsTrigger>
+            <TabsTrigger unstyled className={rw.tabsTrigger} value="code">Code</TabsTrigger>
+            <TabsTrigger unstyled className={rw.tabsTrigger} value="ideas">Ideas</TabsTrigger>
+            <TabsTrigger unstyled className={rw.tabsTrigger} value="references">References</TabsTrigger>
+            <TabsTrigger unstyled className={rw.tabsTrigger} value="timeline">Timeline</TabsTrigger>
           </TabsList>
           <CollectionCapture context={{ view: "project", projectId: project.id, projectTitle: project.title }} />
         </div>

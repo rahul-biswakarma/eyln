@@ -10,6 +10,12 @@ const TYPE_COLOR: Record<GraphNodeType, string> = {
     note: "#64748b",
     book: "#f59e0b",
 };
+const EDGE_STROKE: Record<string, string> = {
+    prereq: "rgba(99, 102, 241, 0.45)",
+    contains: "rgba(255, 255, 255, 0.08)",
+    "from-book": "rgba(245, 158, 11, 0.4)",
+    related: "rgba(168, 85, 247, 0.45)",
+};
 function masteryColor(m: number): string {
     const hue = Math.round(m * 120);
     return `hsl(${hue}, 62%, 48%)`;
@@ -19,6 +25,11 @@ function nodeFill(n: GraphNode): string {
         return masteryColor(n.mastery);
     }
     return TYPE_COLOR[n.type];
+}
+/** Keep node captions short so they don't overlap in the layout. */
+function truncateLabel(label: string): string {
+    const clean = label.replace(/\s+/g, " ").trim();
+    return clean.length > 24 ? clean.slice(0, 23) + "…" : clean;
 }
 export function KnowledgeGraphView({ graph, selectedId, onSelect, }: {
     graph: KnowledgeGraph;
@@ -112,32 +123,42 @@ export function KnowledgeGraphView({ graph, selectedId, onSelect, }: {
                 neighborIds.add(e.source);
         }
     }
-    return (<svg ref={svgRef} className="kg-svg" viewBox={`${view.x} ${view.y} ${view.w} ${view.h}`} onWheel={onWheel} onPointerDown={(e) => onPointerDown(e, null)} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onClick={(e) => { if (e.target === svgRef.current)
-        onSelect(null); }}>
-      <g className="kg-edges">
-        {graph.edges.map((e, i) => {
-            const a = pos.get(e.source);
-            const b = pos.get(e.target);
-            if (!a || !b)
-                return null;
-            const active = selectedId && (e.source === selectedId || e.target === selectedId);
-            return (<line key={i} x1={a.x} y1={a.y} x2={b.x} y2={b.y} className={`kg-edge kg-edge-${e.type} ${active ? "active" : ""} ${selectedId && !active ? "dim" : ""}`}/>);
-        })}
-      </g>
-      <g className="kg-nodes">
-        {graph.nodes.map((n) => {
-            const p = pos.get(n.id);
-            if (!p)
-                return null;
-            const r = nodeRadius(n.degree);
-            const selected = n.id === selectedId;
-            const dim = selectedId && !selected && !neighborIds.has(n.id);
-            return (<g key={n.id} transform={`translate(${p.x},${p.y})`} className={`kg-node kg-node-${n.type} ${selected ? "selected" : ""} ${dim ? "dim" : ""} ${n.weak ? "weak" : ""}`} onPointerDown={(e) => { e.stopPropagation(); onPointerDown(e, n.id); }} onClick={(e) => { e.stopPropagation(); onSelect(n.id); }}>
-              <circle r={r} fill={nodeFill(n)}/>
-              {(selected || r >= 11) && (<text className="kg-label" y={-r - 5}>{n.label}</text>)}
-              <title>{`${n.type}: ${n.label}${typeof n.mastery === "number" ? ` · ${Math.round(n.mastery * 100)}% mastery` : ""}`}</title>
-            </g>);
-        })}
-      </g>
+    return (<svg ref={svgRef} className="block w-full h-full cursor-grab touch-none active:cursor-grabbing" viewBox={`${view.x} ${view.y} ${view.w} ${view.h}`} onWheel={onWheel} onPointerDown={(e) => onPointerDown(e, null)} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onClick={(e) => {
+        if (e.target === svgRef.current)
+            onSelect(null);
+    }}>
+        <g>
+            {graph.edges.map((e, i) => {
+                const a = pos.get(e.source);
+                const b = pos.get(e.target);
+                if (!a || !b)
+                    return null;
+                const active = selectedId && (e.source === selectedId || e.target === selectedId);
+                return (<line key={i} x1={a.x} y1={a.y} x2={b.x} y2={b.y}
+                    stroke={active ? "var(--accent)" : EDGE_STROKE[e.type] ?? "var(--border-bright)"}
+                    strokeWidth={active ? 1.6 : 1}
+                    strokeDasharray={e.type === "related" ? "3 3" : undefined}
+                    opacity={selectedId && !active ? 0.12 : undefined} />);
+            })}
+        </g>
+        <g>
+            {graph.nodes.map((n) => {
+                const p = pos.get(n.id);
+                if (!p)
+                    return null;
+                const r = nodeRadius(n.degree);
+                const selected = n.id === selectedId;
+                const dim = selectedId && !selected && !neighborIds.has(n.id);
+                return (<g key={n.id} transform={`translate(${p.x},${p.y})`} className="cursor-pointer" opacity={dim ? 0.22 : undefined} onPointerDown={(e) => { e.stopPropagation(); onPointerDown(e, n.id); }} onClick={(e) => { e.stopPropagation(); onSelect(n.id); }}>
+                    <circle r={r} fill={nodeFill(n)}
+                        stroke={selected ? "var(--accent)" : n.weak ? "var(--bad)" : "var(--bg)"}
+                        strokeWidth={selected ? 3 : n.weak ? 2.5 : 1.5}
+                        className="[transition:opacity_var(--dur)_var(--ease)]" />
+                    <text y={r + 12} fill={selected ? "var(--text)" : "var(--text-dim)"} fontWeight={selected ? 600 : undefined}
+                        style={{ fontSize: "10px", fontFamily: "var(--sans)", textAnchor: "middle", pointerEvents: "none", paintOrder: "stroke", stroke: "var(--bg)", strokeWidth: "3px", strokeLinejoin: "round" }}>{truncateLabel(n.label)}</text>
+                    <title>{`${n.type}: ${n.label}${typeof n.mastery === "number" ? ` · ${Math.round(n.mastery * 100)}% mastery` : ""}`}</title>
+                </g>);
+            })}
+        </g>
     </svg>);
 }

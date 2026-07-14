@@ -210,14 +210,14 @@ function SpaceDetail({ space, now, onBack }: { space: UnifiedSpace; now: number;
 
       <Tabs defaultValue="overview" className="rw-tabs">
         <div className={rw.tabsRow}>
-          <TabsList className={rw.tabsList}>
-            <TabsTrigger className={rw.tabsTrigger} value="overview">Overview</TabsTrigger>
-            <TabsTrigger className={rw.tabsTrigger} value="notes">Notes</TabsTrigger>
-            <TabsTrigger className={rw.tabsTrigger} value="formulas">Formulas</TabsTrigger>
-            <TabsTrigger className={rw.tabsTrigger} value="mistakes">Mistakes</TabsTrigger>
-            <TabsTrigger className={rw.tabsTrigger} value="ai">AI</TabsTrigger>
-            <TabsTrigger className={rw.tabsTrigger} value="bookmarks">Bookmarks</TabsTrigger>
-            <TabsTrigger className={rw.tabsTrigger} value="timeline">Timeline</TabsTrigger>
+          <TabsList unstyled className={rw.tabsList}>
+            <TabsTrigger unstyled className={rw.tabsTrigger} value="overview">Overview</TabsTrigger>
+            <TabsTrigger unstyled className={rw.tabsTrigger} value="notes">Notes</TabsTrigger>
+            <TabsTrigger unstyled className={rw.tabsTrigger} value="formulas">Formulas</TabsTrigger>
+            <TabsTrigger unstyled className={rw.tabsTrigger} value="mistakes">Mistakes</TabsTrigger>
+            <TabsTrigger unstyled className={rw.tabsTrigger} value="ai">AI</TabsTrigger>
+            <TabsTrigger unstyled className={rw.tabsTrigger} value="bookmarks">Bookmarks</TabsTrigger>
+            <TabsTrigger unstyled className={rw.tabsTrigger} value="timeline">Timeline</TabsTrigger>
           </TabsList>
           <CollectionCapture context={captureContext} />
         </div>

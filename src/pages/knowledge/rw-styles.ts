@@ -68,7 +68,7 @@ export const hitBook = "text-[0.72rem] text-text-dim";
 export const detail = "p-[1.6rem_2.2rem_3rem] max-w-[1080px]";
 export const back =
   "inline-flex items-center gap-[0.35rem] bg-none border-none text-text-dim text-[0.8rem] cursor-pointer mb-4 transition-colors duration-200 ease-brand hover:text-accent";
-export const hero = "grid grid-cols-[150px_1fr_260px] gap-10 items-start mb-10 max-[720px]:grid-cols-1 max-[720px]:gap-8";
+export const hero = "grid grid-cols-[150px_1fr_260px] gap-10 items-start mb-6 max-[720px]:grid-cols-1 max-[720px]:gap-8";
 export const heroMain = "flex flex-col gap-[0.6rem] min-w-0";
 export const heroMainH1 = "font-display text-[1.9rem] font-bold tracking-[-0.02em] m-0 leading-[1.25] text-text";
 export const heroSub = "text-[0.92rem] text-text-dim";

@@ -1,6 +1,7 @@
 import type { Module } from "../../content/types";
 import { M, MBlock } from "../../components/math";
 import { Code, CodeTabs } from "../../components/code-block";
+import { Notice } from "../../components/ui";
 function WhatIsComplexity() {
     return (<div className="prose">
       <p>
@@ -26,13 +27,13 @@ function WhatIsComplexity() {
         (<M>{`\\frac{(2n)^2}{n^2} = 4`}</M>). For a logarithmic one it barely moves. Those growth
         rates decide whether your feature ships or times out at scale.
       </p>
-      <div className="notice">
+      <Notice>
         <span className="lbl">Worst / average / best</span>
         Unless we say otherwise, complexity means the <strong>worst case</strong> — the guarantee
         that holds for <em>any</em> input of size <M>{`n`}</M>. Best case ("it's fast if the array is
         already sorted") is rarely a useful promise. Average case matters too, but needs an
         assumption about how inputs are distributed.
-      </div>
+      </Notice>
     </div>);
 }
 function BigOFormal() {
@@ -75,13 +76,13 @@ function BigOFormal() {
 function T(n: number): number { return 3 * n * n + 5 * n + 100; }
 function witness(n: number): boolean { return T(n) <= 4 * n * n; }
 console.log(witness(14), witness(100)); // true true`}/>
-      <div className="notice warn">
+      <Notice warn>
         <span className="lbl">Common abuse</span>
         People say "O" when they mean "Θ" all the time. Saying an algorithm is{" "}
         <M>{`O(n)`}</M> only claims it is <em>no worse</em> than linear; a constant-time algorithm is
         also <M>{`O(n)`}</M>. When you want to say "exactly this fast, no faster," you mean{" "}
         <M>{`\\Theta`}</M>.
-      </div>
+      </Notice>
     </div>);
 }
 function GrowthClasses() {
@@ -117,13 +118,13 @@ function hasDupLinear(a: number[]): boolean {      // O(n) time, O(n) space
   for (const x of a) { if (seen.has(x)) return true; seen.add(x); }
   return false;
 }`}/>
-      <div className="notice">
+      <Notice>
         <span className="lbl">Log base doesn't matter</span>
         Inside Big-O, <M>{`\\log_2 n`}</M> and <M>{`\\log_{10} n`}</M> differ only by a constant
         factor (<M>{`\\log_2 n = \\log_2 10 \\cdot \\log_{10} n`}</M>), so we just write{" "}
         <M>{`O(\\log n)`}</M> with no base. That's why binary search on a billion items is only ~30
         steps.
-      </div>
+      </Notice>
     </div>);
 }
 function Amortized() {
@@ -205,13 +206,13 @@ if (this.len === this.buf.length) {
 }`,
             },
         ]}/>
-      <div className="notice warn">
+      <Notice warn>
         <span className="lbl">Amortized ≠ average-case</span>
         Amortized is a <em>worst-case</em> statement about a <em>sequence</em>: any <M>{`n`}</M>{" "}
         pushes cost <M>{`O(n)`}</M>, guaranteed, no probability involved. A single individual push can
         still be <M>{`O(n)`}</M> — which matters for latency-sensitive code where one slow frame is
         unacceptable.
-      </div>
+      </Notice>
     </div>);
 }
 function SpaceComplexity() {
@@ -245,12 +246,12 @@ function reverseCopy(a: number[]): number[] {  // O(n) auxiliary space
   for (let i = 0; i < a.length; i++) out[i] = a[a.length - 1 - i];
   return out;
 }`}/>
-      <div className="notice">
+      <Notice>
         <span className="lbl">Watch the hidden allocations</span>
         Slicing, spreading (<code>[...arr]</code>), and mapping all allocate <M>{`O(n)`}</M> memory.
         A function that "looks" in-place but calls <code>arr.slice()</code> inside a loop can quietly
         become <M>{`O(n^2)`}</M> in space and time.
-      </div>
+      </Notice>
     </div>);
 }
 export const dsaComplexity: Module = {

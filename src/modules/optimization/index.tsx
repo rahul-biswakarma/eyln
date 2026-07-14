@@ -1,6 +1,7 @@
 import type { Module } from "../../content/types";
 import { M, MBlock } from "../../components/math";
 import { Code, CodeTabs } from "../../components/code-block";
+import { Notice } from "../../components/ui";
 function Profiling() {
     return (<div className="prose">
       <p>
@@ -46,12 +47,12 @@ start := time.now()
 build_frame()
 dt := time.duration_milliseconds(time.since(start))
 if dt > 4.0 do fmt.printf("frame build slow: %.2f ms\\n", dt)`}/>
-      <div className="notice">
+      <Notice>
         <span className="lbl">Use the GPU's own tools</span>
         Metal's <strong>GPU capture</strong> (from the Metal module) and Xcode's frame debugger give you
         real per-pass GPU timings and counters — the ground truth a CPU timer can't see. Chrome/WebGPU
         expose timestamp queries for the same purpose.
-      </div>
+      </Notice>
     </div>);
 }
 function Batching() {
@@ -115,12 +116,12 @@ fn vs(@location(0) pos : vec3<f32>,
 }`,
             },
         ]}/>
-      <div className="notice warn">
+      <Notice warn>
         <span className="lbl">Don't batch blindly</span>
         Batching only helps when objects share pipeline state (shader, blend, textures). Merging objects
         that need different state forces state changes mid-batch and defeats the purpose. Group by
         material first, then batch within each group.
-      </div>
+      </Notice>
     </div>);
 }
 function Culling() {
@@ -179,11 +180,11 @@ for obj, i in objects {
     }
 }
 // Now build draw commands ONLY for 'visible' — often a 5-10x cut.`}/>
-      <div className="notice">
+      <Notice>
         <span className="lbl">Order of operations</span>
         Cull first, then batch/instance what survives, then submit. Reversing that — building all the
         draws and hoping the GPU skips them — wastes exactly the CPU time you were trying to save.
-      </div>
+      </Notice>
     </div>);
 }
 export const optimization: Module = {

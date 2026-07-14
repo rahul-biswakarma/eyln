@@ -2,6 +2,7 @@ import type { Module } from "../../content/types";
 import { M, MBlock } from "../../components/math";
 import { Code, CodeTabs } from "../../components/code-block";
 import { IntegratorDemo } from "../../widgets/IntegratorDemo";
+import { Notice } from "../../components/ui";
 function GameLoop() {
     return (<div className="prose">
       <p>
@@ -48,11 +49,11 @@ for running {
     alpha := accumulator / FIXED_DT          // leftover, for interpolation
     render(alpha)                            // draw at the display's rate
 }`}/>
-      <div className="notice">
+      <Notice>
         <span className="lbl">Rule of thumb</span>
         Simulate at a <strong>fixed</strong> dt for stability and determinism; <strong>render</strong>{" "}
         as fast as the display allows, interpolating between the last two physics states.
-      </div>
+      </Notice>
     </div>);
 }
 function Integration() {
@@ -90,12 +91,12 @@ function Integration() {
       </p>
 
       <IntegratorDemo />
-      <div className="notice warn">
+      <Notice warn>
         <span className="lbl">See it break</span>
         Select <strong>explicit Euler</strong> and drag <strong>dt</strong> up. The ball gains
         height each bounce — energy created from nothing. Switch to <strong>semi-implicit</strong>{" "}
         at the same dt: stable. This is the single most useful physics lesson.
-      </div>
+      </Notice>
     </div>);
 }
 function Forces() {
@@ -200,13 +201,13 @@ ray_plane :: proc(origin, dir, plane_n: [3]f32, plane_d: f32) -> (hit: [3]f32, o
     t := -(linalg.dot(plane_n, origin) + plane_d) / denom
     return origin + dir * t, t >= 0
 }`}/>
-      <div className="notice">
+      <Notice>
         <span className="lbl">Why this matters for the capstone</span>
         Dropping a wall point onto terrain is a <strong>ray–plane</strong> (or ray–heightfield)
         test: you cast a ray from the camera through the mouse and find where it meets the ground.
         The <strong>Separating Axis Theorem</strong> generalizes AABB to arbitrary convex shapes — if
         there's any axis where the projections don't overlap, the shapes don't touch.
-      </div>
+      </Notice>
     </div>);
 }
 export const physics: Module = {

@@ -1,6 +1,7 @@
 import type { Module } from "../../content/types";
 import { M, MBlock } from "../../components/math";
 import { Code, CodeTabs } from "../../components/code-block";
+import { Notice } from "../../components/ui";
 function BinaryTrees() {
     return (<div className="prose">
       <p>
@@ -106,12 +107,12 @@ function isLeaf<T>(n: TreeNode<T>): boolean {
         subtlety: recursive DFS uses stack depth <M>{`O(h)`}</M>, while BFS's queue can hold an entire
         level, up to <M>{`O(n)`}</M> nodes in a wide, balanced tree.
       </p>
-      <div className="notice warn">
+      <Notice warn>
         <span className="lbl">Gotcha: recursion depth</span>
         Recursive DFS on a degenerate tree of height <M>{`n`}</M> can overflow the call stack. For
         adversarial or very deep inputs, convert to an explicit stack — the same algorithm, with a
         <code> stack.pop()</code> loop replacing the recursive calls.
-      </div>
+      </Notice>
     </div>);
 }
 function BST() {
@@ -171,17 +172,17 @@ function insert(root: TreeNode<number> | null, key: number): TreeNode<number> {
         replace "usually" with "always," which is why they back general-purpose ordered maps where the input
         distribution is unknown or hostile.
       </p>
-      <div className="notice">
+      <Notice>
         <span className="lbl">In-order = sorted</span>
         Because of the invariant, an in-order traversal of a BST emits its keys in ascending order. This is
         the quickest way to sanity-check that a tree really is a valid BST.
-      </div>
-      <div className="notice warn">
+      </Notice>
+      <Notice warn>
         <span className="lbl">Gotcha: sorted input is the worst case</span>
         Inserting already-sorted (or reverse-sorted) data into a plain BST produces the degenerate stick.
         Real systems either shuffle, use a balanced variant, or use a tree that self-balances — the topic
         of the next lesson.
-      </div>
+      </Notice>
     </div>);
 }
 function Balanced() {
@@ -284,12 +285,12 @@ function rotateLeft(x: TreeNode<number>): TreeNode<number> {
   y.left = x;             // x becomes y's left child
   return y;
 }`}/>
-      <div className="notice">
+      <Notice>
         <span className="lbl">When to reach for a balanced tree</span>
         Choose a balanced BST over a hash table when you need <strong>ordered</strong> operations: "give me
         the smallest key &gt; 50", range scans, or in-order iteration. If you only need point lookups, a
         hash table's <M>{`O(1)`}</M> average beats <M>{`O(\\log n)`}</M>.
-      </div>
+      </Notice>
     </div>);
 }
 function Heaps() {
@@ -393,16 +394,16 @@ function Heaps() {
         the full height, whereas bottom-up heapify sifts <em>down</em>, letting the many cheap leaf-level
         nodes dominate the count in our favor.
       </p>
-      <div className="notice">
+      <Notice>
         <span className="lbl">Heapsort falls out for free</span>
         Repeatedly popping the max from a max-heap yields a sorted array. Build in <M>{`O(n)`}</M>, then do
         <M>{` n`}</M> pops at <M>{`O(\\log n)`}</M> each: <M>{`O(n \\log n)`}</M> total, in place.
-      </div>
-      <div className="notice warn">
+      </Notice>
+      <Notice warn>
         <span className="lbl">Gotcha: a heap is not sorted</span>
         The array backing a heap is <em>not</em> in sorted order — only the root is guaranteed extreme. You
         cannot binary-search it. If you need order, use a BST or sort the array.
-      </div>
+      </Notice>
     </div>);
 }
 function Tries() {
@@ -443,11 +444,11 @@ function Tries() {
         <code>pre</code>?" without scanning everything; a trie answers that by walking to the prefix node and
         enumerating its subtree.
       </p>
-      <div className="notice warn">
+      <Notice warn>
         <span className="lbl">Gotcha: memory</span>
         A naive trie with a fixed child array per node wastes space when the alphabet is large and words are
         sparse. Use a map (as above) or a compressed <em>radix tree</em> that merges single-child chains.
-      </div>
+      </Notice>
     </div>);
 }
 export const dsaTrees: Module = {

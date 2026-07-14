@@ -1,6 +1,7 @@
 import type { Module } from "../../content/types";
 import { Code, CodeTabs } from "../../components/code-block";
 import { M } from "../../components/math";
+import { Notice } from "../../components/ui";
 function WhyOdin() {
     return (<div className="prose">
       <p>
@@ -99,12 +100,12 @@ for i in 0..<len(world.pos) {
 }`,
             },
         ]}/>
-      <div className="notice">
+      <Notice>
         <span className="lbl">Why it matters here</span>
         A GPU vertex buffer is just a big <code>[]f32</code>. When your data is already laid out as
         contiguous floats, "uploading to the GPU" is a single <code>memcpy</code>. When it's an
         array of objects with pointers (like JS), you'd have to gather and repack it every frame.
-      </div>
+      </Notice>
     </div>);
 }
 function Memory() {
@@ -248,13 +249,13 @@ main :: proc() {
 
     // ... build pipeline, buffers, encode a frame ...
 }`}/>
-      <div className="notice">
+      <Notice>
         <span className="lbl">The lifetime rule</span>
         If you get an object from a method starting with <code>alloc</code>, <code>new</code>, or{" "}
         <code>copy</code>, you own it and must <code>release()</code> it (pair it with{" "}
         <code>defer</code> immediately). Everything else is autoreleased — the pool cleans it up.
         Set <code>OBJC_DEBUG_MISSING_POOLS=YES</code> to catch leaks from a missing pool.
-      </div>
+      </Notice>
       <p>
         Because there's no full Xcode on this machine (only Command Line Tools), you'll compile
         shaders <strong>at runtime from a source string</strong> rather than a precompiled{" "}
@@ -311,18 +312,18 @@ for running {
 
     mem.arena_free_all(&arena)   // reclaim the whole frame at once (resets bump pointer)
 }`}/>
-      <div className="notice">
+      <Notice>
         <span className="lbl">Match the allocator to the lifetime</span>
         Use an <strong>arena</strong> for per-frame scratch, the <strong>default heap</strong> for
         long-lived resources (textures, meshes), and <code>context.temp_allocator</code> for tiny
         throwaway work. Choosing by lifetime is what keeps a no-GC engine both fast and leak-free.
-      </div>
-      <div className="notice warn">
+      </Notice>
+      <Notice warn>
         <span className="lbl">The dangling-pointer trap</span>
         Never hold an arena pointer past <code>arena_free_all</code>. The memory is instantly reusable,
         so a stale reference reads whatever the next frame wrote there. Arena data lives exactly as long
         as the arena — treat it as scratch, and copy anything you need to keep.
-      </div>
+      </Notice>
     </div>);
 }
 export const odin: Module = {
