@@ -40,11 +40,23 @@ export interface ModuleDoc {
     /** Monotonic version; IndexedDB refetches when its cached copy is behind. */
     version: number;
     updatedAt: number;
-    /** Storage prefix for this version's lesson bodies: `content/{id}/v{version}`. */
-    contentPath: string;
 }
 
-/** Firestore: `challenges/{challengeId}` — metadata; body (prompt/tests) in Storage. */
+/**
+ * Firestore: `moduleContent/{moduleId}` — the heavy lesson bodies for a module,
+ * kept in a separate doc from the light `modules/{id}` catalog entry so listing
+ * courses doesn't pull every lesson. Well under Firestore's 1 MiB/doc limit
+ * (largest module ~55 KB). `version` mirrors the catalog doc's version.
+ */
+export interface ModuleContentDoc {
+    id: string;
+    version: number;
+    /** lessonId -> PM doc */
+    lessons: Record<string, PMDoc>;
+}
+
+/** Firestore: `challenges/{challengeId}` — metadata + inlined body (challenges
+ *  are tiny, ~2.5 KB max, so the full CodeChallenge is stored on the doc). */
 export interface ChallengeDoc {
     id: string;
     title: string;
@@ -55,18 +67,11 @@ export interface ChallengeDoc {
     tags: string[];
     version: number;
     updatedAt: number;
-    contentPath: string;
+    /** The full challenge (prompt, starter, tests, hint, solution) as a JSON
+     *  string — Firestore forbids nested arrays (tests[].args), so it can't be
+     *  stored as a live object. The client JSON.parses this on read. */
+    bodyJson: string;
 }
-
-/** Storage: `content/{moduleId}/v{version}/{lessonId}.json` */
-export interface LessonBody {
-    id: string;
-    moduleId: string;
-    doc: PMDoc;
-}
-
-/** Storage: `challenges/v{version}/{challengeId}.json` — the full challenge. */
-export type ChallengeBody = CodeChallenge;
 
 /** What IndexedDB caches per module: the doc's version + all lesson bodies. */
 export interface CachedModule {

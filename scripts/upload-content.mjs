@@ -1,21 +1,21 @@
-// Uploads extracted content (dist-content/) to Firestore + Firebase Storage.
+// Uploads extracted content (dist-content/) to Firestore (free tier — no Storage).
 //
-// Firestore:  tracks/{id}, modules/{id} (metadata + version), challenges/{id}
-// Storage:    content/{moduleId}/v{version}/{lessonId}.json,
-//             challenges/v{version}/{challengeId}.json
+// Firestore:
+//   tracks/{id}              track metadata
+//   modules/{id}             light catalog: metadata + version + lesson index
+//   moduleContent/{id}       heavy: { version, lessons: {lessonId: PMDoc} }
+//   challenges/{id}          metadata + inlined full challenge body
 //
-// Requires the Firebase Admin SDK with credentials. Set one of:
+// Requires the Firebase Admin SDK with credentials:
 //   GOOGLE_APPLICATION_CREDENTIALS=/path/to/service-account.json
-// and the storage bucket via CONTENT_STORAGE_BUCKET (defaults to
-// {projectId}.appspot.com). Version bumps are controlled by CONTENT_VERSION
-// (default 1) — bump it to publish an update the clients will re-sync.
+// Version bumps are controlled by CONTENT_VERSION (default 1) — bump it to
+// publish an update that clients will re-sync.
 //
 // Run: node scripts/upload-content.mjs [--dry-run]
 
 import { initializeApp, cert, applicationDefault } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
-import { getStorage } from "firebase-admin/storage";
-import { readFileSync, readdirSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -37,11 +37,10 @@ function readJSON(p) {
 
 function initAdmin() {
     const projectId = process.env.FIREBASE_PROJECT_ID || "forge-bdf5e";
-    const bucket = process.env.CONTENT_STORAGE_BUCKET || `${projectId}.appspot.com`;
     const credPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
     const credential = credPath ? cert(readJSON(credPath)) : applicationDefault();
-    initializeApp({ credential, projectId, storageBucket: bucket });
-    return { db: getFirestore(), bucket: getStorage().bucket() };
+    initializeApp({ credential, projectId });
+    return getFirestore();
 }
 
 async function main() {
@@ -51,7 +50,7 @@ async function main() {
     if (DRY) {
         console.log(`[dry-run] would upload ${catalog.length} modules, ${challengeManifest.length} challenges at v${VERSION}`);
     }
-    const { db, bucket } = DRY ? {} : initAdmin();
+    const db = DRY ? null : initAdmin();
     const now = Date.now();
 
     // tracks
@@ -60,35 +59,37 @@ async function main() {
         await db.collection("tracks").doc(t.id).set(t);
     }
 
-    // modules + lesson bodies
+    // modules: light catalog doc + heavy content doc (both under 1 MiB)
     for (const m of catalog) {
         const mod = readJSON(join(OUT_DIR, "modules", `${m.id}.json`));
-        const contentPath = `content/${m.id}/v${VERSION}`;
-        // upload each lesson body
-        for (const [lessonId, doc] of Object.entries(mod.docs)) {
-            const path = `${contentPath}/${lessonId}.json`;
-            const body = JSON.stringify({ id: lessonId, moduleId: m.id, doc });
-            if (DRY) { console.log(`  storage ${path} (${body.length}b)`); continue; }
-            await bucket.file(path).save(body, { contentType: "application/json" });
+        const contentBytes = JSON.stringify(mod.docs).length;
+        if (contentBytes > 1_000_000) {
+            console.error(`✗ ${m.id}: content ${contentBytes}b exceeds Firestore's ~1MiB doc limit`);
+            process.exit(1);
         }
-        const doc = {
+        if (DRY) {
+            console.log(`module ${m.id}: ${mod.lessons.length} lessons, content ${contentBytes}b`);
+            continue;
+        }
+        await db.collection("modules").doc(m.id).set({
             id: m.id, trackId: m.track, title: m.title, blurb: m.blurb, icon: m.icon,
             dependsOn: m.dependsOn ?? [], order: catalog.indexOf(m),
-            lessons: mod.lessons, version: VERSION, updatedAt: now, contentPath,
-        };
-        if (DRY) { console.log(`module ${m.id}: ${mod.lessons.length} lessons`); continue; }
-        await db.collection("modules").doc(m.id).set(doc);
+            lessons: mod.lessons, version: VERSION, updatedAt: now,
+        });
+        await db.collection("moduleContent").doc(m.id).set({
+            id: m.id, version: VERSION, lessons: mod.docs,
+        });
         console.log(`✓ ${m.id}`);
     }
 
-    // challenges + bodies
-    const chPath = `challenges/v${VERSION}`;
+    // challenges: metadata + inlined body. The body is stored as a JSON *string*
+    // (bodyJson) because Firestore forbids nested arrays (tests[].args is an
+    // array of arrays); the client JSON.parses it back.
     for (const c of challengeManifest) {
         const body = readJSON(join(OUT_DIR, "challenges", `${c.id}.json`));
         if (DRY) { console.log(`challenge ${c.id}`); continue; }
-        await bucket.file(`${chPath}/${c.id}.json`).save(JSON.stringify(body), { contentType: "application/json" });
         await db.collection("challenges").doc(c.id).set({
-            ...c, version: VERSION, updatedAt: now, contentPath: chPath,
+            ...c, version: VERSION, updatedAt: now, bodyJson: JSON.stringify(body),
         });
     }
     if (!DRY) console.log(`✓ ${challengeManifest.length} challenges`);

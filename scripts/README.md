@@ -42,7 +42,9 @@ pnpm content:upload            # publish at v1
   access (`GOOGLE_APPLICATION_CREDENTIALS`), or `gcloud auth application-default`.
 - **`CONTENT_VERSION`** (default 1): bump to publish an update; clients re-sync
   any module whose catalog `version` exceeds their cached copy.
-- **`CONTENT_STORAGE_BUCKET`** (default `{projectId}.appspot.com`).
+Content is stored entirely in **Firestore** (free Spark tier — no Storage/Blaze
+needed). Largest module is ~55 KB, well under Firestore's 1 MiB/doc limit; the
+script aborts if any module content doc would exceed it.
 
 Layout written:
 ```
