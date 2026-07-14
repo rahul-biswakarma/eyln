@@ -5,6 +5,9 @@ import type { Note, Reminder, OpenScore } from "./notes";
 import type { TutorTask } from "./tutor";
 import type { Book } from "./books";
 import type { Concept } from "./concepts";
+import type { Space } from "./spaces";
+import type { Project } from "./projects";
+import type { Conversation } from "./conversations";
 export interface CloudState {
     done: Record<string, boolean>;
     quizScores: Record<string, number>;
@@ -18,6 +21,9 @@ export interface CloudState {
     openScores: Record<string, OpenScore>;
     books: Book[];
     concepts: Concept[];
+    spaces: Space[];
+    projects: Project[];
+    conversations: Conversation[];
     tutorTasks: TutorTask[];
     scratchpad: string;
 }

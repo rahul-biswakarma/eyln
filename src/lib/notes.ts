@@ -30,6 +30,16 @@ export interface Note {
     vocabStatus?: VocabStatus;
     reviewCount?: number;  // times reviewed (spaced repetition)
     lastReviewedAt?: number;
+    // Collection linkage (source-oriented IA). A note belongs to at most one
+    // container: a curriculum module (moduleId), a custom space (spaceId),
+    // a book (bookId), or a project (projectId).
+    spaceId?: string;      // custom Learning Space
+    projectId?: string;    // Project
+    lesson?: string;       // free-text lesson/section label within a space
+    difficulty?: 1 | 2 | 3; // formula/artifact difficulty
+    resolved?: boolean;    // mistake: has it been resolved
+    why?: string;          // mistake: why it happened
+    correction?: string;   // mistake: the correct explanation
 }
 export interface Reminder {
     id: string;
@@ -50,7 +60,7 @@ interface NotesState {
     reminders: Reminder[];
     openScores: Record<string, OpenScore>;
     addNote: (n: Omit<Note, "id" | "createdAt" | "updatedAt">) => void;
-    updateNote: (id: string, patch: Partial<Pick<Note, "body" | "tags" | "type" | "bookId" | "conceptIds" | "linkedNoteIds" | "title" | "page" | "chapter" | "favorite" | "word" | "meaning" | "example" | "vocabStatus" | "reviewCount" | "lastReviewedAt">>) => void;
+    updateNote: (id: string, patch: Partial<Pick<Note, "body" | "tags" | "type" | "bookId" | "conceptIds" | "linkedNoteIds" | "title" | "page" | "chapter" | "favorite" | "word" | "meaning" | "example" | "vocabStatus" | "reviewCount" | "lastReviewedAt" | "spaceId" | "projectId" | "lesson" | "difficulty" | "resolved" | "why" | "correction">>) => void;
     deleteNote: (id: string) => void;
     linkNotes: (a: string, b: string) => void;
     /** Cycle a vocab note through its review, bumping the spaced-repetition counters. */

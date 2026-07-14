@@ -735,3 +735,21 @@
   background: var(--accent);
   color: var(--on-accent);
 }
+
+/* Save-conversation action (files the chat under its learning space). */
+.tp-save-convo { margin-top: 0.6rem; display: flex; justify-content: center; }
+.tp-save-convo-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--surface-inset);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-dim);
+  font-size: 0.78rem;
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+  transition: all var(--dur) var(--ease);
+}
+.tp-save-convo-btn:hover { color: var(--text); border-color: var(--border-bright); }
+.tp-save-convo-btn:disabled { color: var(--good); border-color: rgba(70,217,138,0.4); cursor: default; }

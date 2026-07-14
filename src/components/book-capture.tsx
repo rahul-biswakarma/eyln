@@ -10,7 +10,7 @@ type CaptureMode = "quote" | "vocab" | "note";
  * Note); choosing one swaps to a dedicated structured form inside the same panel.
  * Captures are stored as book-linked notes so they surface everywhere else.
  */
-export function BookCapture({ bookId, initialMode }: { bookId: string; initialMode?: CaptureMode }) {
+export function BookCapture({ bookId, initialMode, triggerLabel, triggerClassName }: { bookId: string; initialMode?: CaptureMode; triggerLabel?: string; triggerClassName?: string }) {
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<CaptureMode | null>(initialMode ?? null);
   const addNote = useNotes((s) => s.addNote);
@@ -62,8 +62,8 @@ export function BookCapture({ bookId, initialMode }: { bookId: string; initialMo
 
   return (
     <Dialog open={open} onOpenChange={(o) => (o ? setOpen(true) : close())}>
-      <button className="rw-capture-btn" onClick={() => setOpen(true)}>
-        <PlusIcon size={15} weight="bold" /> Capture
+      <button className={triggerClassName ?? "rw-capture-btn"} onClick={() => setOpen(true)}>
+        <PlusIcon size={13} weight="bold" /> {triggerLabel ?? "Capture"}
       </button>
       <DialogContent showCloseButton>
         {mode === null ? (

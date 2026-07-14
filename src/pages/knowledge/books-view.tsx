@@ -1,15 +1,15 @@
 import { useMemo, useState } from "react";
 import {
   BookOpenIcon, StarIcon, TrashIcon, CaretLeftIcon, QuotesIcon, TranslateIcon, NotePencilIcon,
-  MagnifyingGlassIcon, FireIcon, CalendarBlankIcon, ClockIcon, DotsThreeIcon, SparkleIcon,
-  CircleNotchIcon, FlagCheckeredIcon, PlayIcon, CheckCircleIcon, ArrowRightIcon,
+  MagnifyingGlassIcon, ClockIcon, DotsThreeIcon, SparkleIcon,
+  CircleNotchIcon, PlayIcon, CheckCircleIcon, ArrowRightIcon,
 } from "@phosphor-icons/react";
 import { useBooks, type Book, type ReadingStatus } from "../../lib/books";
 import { useNotes, type Note, type VocabStatus } from "../../lib/notes";
 import { relativeTime } from "../../lib/stats";
 import {
   capturesForBook, bookStats, favoriteQuote, readingTimeline, groupNotesByPage, searchReading,
-  cleanQuote, relativeDay, formatDate, type BookCaptures, type BookStats, type ReadingEvent, type SearchHit,
+  cleanQuote, relativeDay, formatDate, type BookCaptures, type BookStats, type SearchHit,
 } from "../../lib/reading";
 import { BookSearch } from "../../components/book-search";
 import { BookCapture } from "../../components/book-capture";
@@ -58,7 +58,7 @@ function Stars({ value, onSet }: { value: number; onSet?: (r: number) => void })
   );
 }
 
-export function BooksView({ now }: { now: number }) {
+export function BooksView({ now, focusId, onConsumeFocus }: { now: number; focusId?: string | null; onConsumeFocus?: () => void }) {
   const books = useBooks((s) => s.books);
   const addBook = useBooks((s) => s.addBook);
   const notes = useNotes((s) => s.notes);
@@ -73,15 +73,17 @@ export function BooksView({ now }: { now: number }) {
 
   const searchHits = useMemo(() => (query.trim() ? searchReading(query, books, notes) : []), [query, books, notes]);
 
-  const selected = selectedId ? books.find((b) => b.id === selectedId) ?? null : null;
-  if (selected) return <BookDetail book={selected} now={now} onBack={() => setSelectedId(null)} />;
-
-  const filtered = statusFilter === "all" ? books : books.filter((b) => b.status === statusFilter);
   const counts = useMemo(() => {
     const m = new Map<string, BookCaptures>();
     for (const b of books) m.set(b.id, capturesForBook(b.id, notes));
     return m;
   }, [books, notes]);
+
+  const effectiveId = focusId ?? selectedId;
+  const selected = effectiveId ? books.find((b) => b.id === effectiveId) ?? null : null;
+  if (selected) return <BookDetail book={selected} now={now} onBack={() => { setSelectedId(null); onConsumeFocus?.(); }} />;
+
+  const filtered = statusFilter === "all" ? books : books.filter((b) => b.status === statusFilter);
 
   return (
     <div className="rw-library">
@@ -200,79 +202,164 @@ function BookDetail({ book, now, onBack }: { book: Book; now: number; onBack: ()
   const captures = useMemo(() => capturesForBook(book.id, notes), [book.id, notes]);
   const stats = useMemo(() => bookStats(book, captures, now), [book, captures, now]);
 
+  const [activeSubTab, setActiveSubTab] = useState("overview");
+
+  const readingSessions = useMemo(() => {
+    const sessionDays = new Set(captures.all.map((n) => new Date(n.createdAt).toDateString()));
+    if (book.startedAt) sessionDays.add(new Date(book.startedAt).toDateString());
+    if (book.finishedAt) sessionDays.add(new Date(book.finishedAt).toDateString());
+    return sessionDays.size;
+  }, [captures.all, book.startedAt, book.finishedAt]);
+
+  const journeyDays = book.startedAt && book.finishedAt ? Math.max(1, Math.ceil((book.finishedAt - book.startedAt) / (24 * 60 * 60 * 1000))) : null;
+
   return (
     <div className="rw-detail">
       <button className="rw-back" onClick={onBack}><CaretLeftIcon size={14} /> Library</button>
 
       <header className="rw-hero">
-        <CoverArt book={book} size="lg" />
+        <div className="rw-hero-left">
+          <CoverArt book={book} size="lg" />
+        </div>
         <div className="rw-hero-main">
           <h1>{book.title}</h1>
           <span className="rw-hero-sub">{[book.author, book.year].filter(Boolean).join(" · ")}</span>
 
-          <div className="rw-hero-controls">
-            <select className="rw-select" value={book.status} onChange={(e) => {
-              const status = e.target.value as ReadingStatus;
-              const patch: Parameters<typeof updateBook>[1] = { status };
-              if (status === "reading" && !book.startedAt) patch.startedAt = now;
-              if (status === "finished" && !book.finishedAt) patch.finishedAt = now;
-              updateBook(book.id, patch);
-            }}>
-              {STATUS_ORDER.map((s) => <option key={s} value={s}>{STATUS_LABEL[s]}</option>)}
-            </select>
+          <div className="rw-hero-meta-row">
             <Stars value={book.rating ?? 0} onSet={(r) => updateBook(book.id, { rating: r })} />
+            <span className="dot">•</span>
             <Popover>
-              <PopoverTrigger asChild><button className="rw-icon-btn" aria-label="More"><DotsThreeIcon size={16} weight="bold" /></button></PopoverTrigger>
-              <PopoverContent align="end" style={{ width: 150 }}>
+              <PopoverTrigger asChild>
+                <button className={`rw-hero-status-badge status-${book.status} clickable`}>
+                  {STATUS_LABEL[book.status]}
+                </button>
+              </PopoverTrigger>
+              <PopoverContent align="start" style={{ width: 160 }}>
                 <div className="rw-menu">
-                  <button className="danger" onClick={() => { deleteBook(book.id); onBack(); }}><TrashIcon size={12} /> Delete book</button>
+                  {STATUS_ORDER.map((s) => (
+                    <button
+                      key={s}
+                      className={book.status === s ? "active" : ""}
+                      onClick={() => {
+                        const patch: Parameters<typeof updateBook>[1] = { status: s };
+                        if (s === "reading" && !book.startedAt) patch.startedAt = now;
+                        if (s === "finished" && !book.finishedAt) patch.finishedAt = now;
+                        updateBook(book.id, patch);
+                      }}
+                    >
+                      {STATUS_ICON[s]}
+                      {STATUS_LABEL[s]}
+                    </button>
+                  ))}
+                  <div className="rw-menu-divider" />
+                  <button className="danger" onClick={() => { deleteBook(book.id); onBack(); }}>
+                    <TrashIcon size={12} /> Delete book
+                  </button>
                 </div>
               </PopoverContent>
             </Popover>
           </div>
 
-          <ProgressEditor book={book} stats={stats} onSet={(currentPage, totalPages) => updateBook(book.id, { currentPage, totalPages })} />
+          <div className="rw-hero-stats-horizontal">
+            <span>📖 {stats.quoteCount} Quotes</span>
+            <span className="dot">•</span>
+            <span>📝 {stats.noteCount} Notes</span>
+            <span className="dot">•</span>
+            <span>🔤 {stats.vocabCount} Words</span>
+            <span className="dot">•</span>
+            <span>🔥 {readingSessions} Sessions</span>
+          </div>
+
+          <div className="rw-hero-last-read">
+            Last read · {relativeDay(book.updatedAt, now)}
+          </div>
+
+          {book.status === "finished" ? (
+            <div className="rw-hero-finished-summary">
+              <span className="journey-tag">Finished</span>
+              {book.startedAt && <span className="journey-date">Started {formatDate(book.startedAt)}</span>}
+              {book.finishedAt && <span className="journey-date">Finished {formatDate(book.finishedAt)}</span>}
+              {journeyDays && <span className="journey-days">{journeyDays} day reading journey</span>}
+            </div>
+          ) : (
+            <div className="rw-hero-progress-section">
+              <ProgressEditor book={book} stats={stats} onSet={(currentPage, totalPages) => updateBook(book.id, { currentPage, totalPages })} />
+            </div>
+          )}
         </div>
 
-        <div className="rw-quickstats">
-          <QuickStat icon={<QuotesIcon size={15} />} value={stats.quoteCount} label="Quotes" />
-          <QuickStat icon={<TranslateIcon size={15} />} value={stats.vocabCount} label="Words" />
-          <QuickStat icon={<NotePencilIcon size={15} />} value={stats.noteCount} label="Notes" />
-          <QuickStat icon={<FireIcon size={15} />} value={stats.streak} label="Day streak" />
-          {stats.estimatedFinish && (
-            <QuickStat icon={<FlagCheckeredIcon size={15} />} value={relativeDay(stats.estimatedFinish, now).replace("ago", "")} label="Est. finish" />
+        <div className="rw-hero-panel">
+          <div className="rw-hero-panel-row">
+            <span className="lbl">Status</span>
+            <span className="val">{STATUS_LABEL[book.status]}</span>
+          </div>
+
+          <div className="rw-hero-panel-row">
+            <span className="lbl">Rating</span>
+            <span className="val">
+              <Stars value={book.rating ?? 0} onSet={(r) => updateBook(book.id, { rating: r })} />
+            </span>
+          </div>
+
+          {book.startedAt && (
+            <div className="rw-hero-panel-row">
+              <span className="lbl">Started</span>
+              <span className="val">{formatDate(book.startedAt)}</span>
+            </div>
+          )}
+
+          {book.status === "finished" && book.finishedAt && (
+            <div className="rw-hero-panel-row">
+              <span className="lbl">Finished</span>
+              <span className="val">{formatDate(book.finishedAt)}</span>
+            </div>
+          )}
+
+          <div className="rw-hero-panel-row">
+            <span className="lbl">Pages</span>
+            <span className="val">{book.currentPage ?? 0} / {book.totalPages ?? 0}</span>
+          </div>
+
+          {stats.streak > 0 && (
+            <div className="rw-hero-panel-row">
+              <span className="lbl">Streak</span>
+              <span className="val">{stats.streak} days</span>
+            </div>
           )}
         </div>
       </header>
 
-      <Tabs defaultValue="overview" className="rw-tabs">
+      <Tabs value={activeSubTab} onValueChange={setActiveSubTab} className="rw-tabs">
         <div className="rw-tabs-row">
           <TabsList>
             <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="quotes">Quotes</TabsTrigger>
-            <TabsTrigger value="vocab">Vocabulary</TabsTrigger>
-            <TabsTrigger value="notes">Notes</TabsTrigger>
+            <TabsTrigger value="quotes">Quotes ({stats.quoteCount})</TabsTrigger>
+            <TabsTrigger value="vocab">Words ({stats.vocabCount})</TabsTrigger>
+            <TabsTrigger value="notes">Notes ({stats.noteCount})</TabsTrigger>
             <TabsTrigger value="timeline">Timeline</TabsTrigger>
           </TabsList>
-          <BookCapture bookId={book.id} />
+          {activeSubTab === "overview" && <BookCapture bookId={book.id} />}
+          {activeSubTab === "quotes" && <BookCapture bookId={book.id} initialMode="quote" triggerLabel="Add Quote" />}
+          {activeSubTab === "vocab" && <BookCapture bookId={book.id} initialMode="vocab" triggerLabel="Add Word" />}
+          {activeSubTab === "notes" && <BookCapture bookId={book.id} initialMode="note" triggerLabel="Add Note" />}
         </div>
 
-        <TabsContent value="overview"><OverviewTab book={book} captures={captures} stats={stats} now={now} /></TabsContent>
-        <TabsContent value="quotes"><QuotesTab book={book} captures={captures} now={now} /></TabsContent>
-        <TabsContent value="vocab"><VocabTab book={book} captures={captures} now={now} /></TabsContent>
-        <TabsContent value="notes"><NotesTab captures={captures} now={now} /></TabsContent>
-        <TabsContent value="timeline"><TimelineTab book={book} captures={captures} now={now} /></TabsContent>
+        <TabsContent value="overview">
+          <OverviewTab book={book} captures={captures} stats={stats} onSwitchTab={setActiveSubTab} />
+        </TabsContent>
+        <TabsContent value="quotes">
+          <QuotesTab book={book} captures={captures} now={now} />
+        </TabsContent>
+        <TabsContent value="vocab">
+          <VocabTab book={book} captures={captures} />
+        </TabsContent>
+        <TabsContent value="notes">
+          <NotesTab captures={captures} now={now} />
+        </TabsContent>
+        <TabsContent value="timeline">
+          <TimelineTab book={book} captures={captures} now={now} />
+        </TabsContent>
       </Tabs>
-    </div>
-  );
-}
-
-function QuickStat({ icon, value, label }: { icon: React.ReactNode; value: number | string; label: string }) {
-  return (
-    <div className="rw-quickstat">
-      <span className="rw-qs-ic">{icon}</span>
-      <span className="rw-qs-val">{value}</span>
-      <span className="rw-qs-lbl">{label}</span>
     </div>
   );
 }
@@ -281,86 +368,162 @@ function ProgressEditor({ book, stats, onSet }: { book: Book; stats: BookStats; 
   const [editing, setEditing] = useState(false);
   const [cur, setCur] = useState(String(book.currentPage ?? ""));
   const [tot, setTot] = useState(String(book.totalPages ?? ""));
+
   if (editing) {
     return (
       <div className="rw-progress-edit">
-        <input className="rw-input sm" placeholder="Page" value={cur} inputMode="numeric" onChange={(e) => setCur(e.target.value)} />
-        <span>/</span>
-        <input className="rw-input sm" placeholder="Total" value={tot} inputMode="numeric" onChange={(e) => setTot(e.target.value)} />
-        <button className="rw-mini-save" onClick={() => { onSet(parseInt(cur, 10) || 0, parseInt(tot, 10) || 0); setEditing(false); }}>Save</button>
+        <div className="rw-progress-edit-fields">
+          <div className="field">
+            <span className="lbl">Page</span>
+            <input className="rw-input" type="number" placeholder="Current" value={cur} onChange={(e) => setCur(e.target.value)} />
+          </div>
+          <div className="field-sep">/</div>
+          <div className="field">
+            <span className="lbl">Total</span>
+            <input className="rw-input" type="number" placeholder="Total" value={tot} onChange={(e) => setTot(e.target.value)} />
+          </div>
+        </div>
+        <div className="rw-progress-edit-actions">
+          <button className="rw-progress-save-btn" onClick={() => { onSet(parseInt(cur, 10) || 0, parseInt(tot, 10) || 0); setEditing(false); }}>Save</button>
+          <button className="rw-progress-cancel-btn" onClick={() => { setCur(String(book.currentPage ?? "")); setTot(String(book.totalPages ?? "")); setEditing(false); }}>Cancel</button>
+        </div>
       </div>
     );
   }
+
   return (
-    <button className="rw-hero-progress" onClick={() => setEditing(true)}>
-      {stats.progress != null ? (
-        <>
-          <div className="rw-progress-bar lg"><span style={{ width: `${Math.round(stats.progress * 100)}%` }} /></div>
-          <span className="rw-progress-lbl">{Math.round(stats.progress * 100)}% · {book.currentPage} / {book.totalPages} pages</span>
-        </>
-      ) : (
-        <span className="rw-progress-lbl muted">Set reading progress →</span>
-      )}
-    </button>
+    <div className="rw-progress-display">
+      <div className="rw-progress-display-header">
+        <span className="lbl">Progress</span>
+        <span className="pct">{stats.progress != null ? `${Math.round(stats.progress * 100)}%` : "0%"}</span>
+      </div>
+      <div className="rw-progress-bar-wrapper">
+        <div className="rw-progress-bar-bg">
+          <div className="rw-progress-bar-fill" style={{ width: `${stats.progress != null ? Math.round(stats.progress * 100) : 0}%` }} />
+        </div>
+      </div>
+      <div className="rw-progress-display-footer">
+        <span className="pages">{book.currentPage ?? 0} / {book.totalPages ?? 0} pages</span>
+        <button className="rw-progress-update-btn" onClick={() => setEditing(true)}>Update</button>
+      </div>
+    </div>
   );
 }
 
 // ── Overview tab ──────────────────────────────────────────────────────────
 
-function OverviewTab({ book, captures, stats, now }: { book: Book; captures: BookCaptures; stats: BookStats; now: number }) {
+function OverviewTab({ book, captures, stats, onSwitchTab }: { book: Book; captures: BookCaptures; stats: BookStats; onSwitchTab: (tab: string) => void }) {
   const fav = favoriteQuote(captures);
   const recentWords = captures.vocab.slice(0, 4);
   const recentNotes = captures.notes.slice(0, 3);
+
+  const readingSessions = useMemo(() => {
+    const sessionDays = new Set(captures.all.map((n) => new Date(n.createdAt).toDateString()));
+    if (book.startedAt) sessionDays.add(new Date(book.startedAt).toDateString());
+    if (book.finishedAt) sessionDays.add(new Date(book.finishedAt).toDateString());
+    return sessionDays.size;
+  }, [captures.all, book.startedAt, book.finishedAt]);
+
   return (
     <div className="rw-overview">
-      <section className="rw-panel">
-        <h4>Reading progress</h4>
-        {stats.progress != null ? (
-          <>
-            <div className="rw-progress-bar lg"><span style={{ width: `${Math.round(stats.progress * 100)}%` }} /></div>
-            <p className="rw-panel-line">{Math.round(stats.progress * 100)}% complete · {book.currentPage} of {book.totalPages} pages</p>
-          </>
-        ) : <p className="rw-panel-line muted">No progress tracked yet.</p>}
-        <div className="rw-dates">
-          <span><CalendarBlankIcon size={13} /> Started {book.startedAt ? formatDate(book.startedAt) : "—"}</span>
-          <span><FlagCheckeredIcon size={13} /> Finished {book.finishedAt ? formatDate(book.finishedAt) : "—"}</span>
-        </div>
-      </section>
+      <div className="rw-overview-grid">
+        {/* Left Column: Reading Summary */}
+        <section className="rw-overview-section reading-summary">
+          <h4>Reading Summary</h4>
+          <div className="summary-list">
+            <div className="summary-row">
+              <span className="lbl">Status</span>
+              <span className={`val status-${book.status}`}>{STATUS_LABEL[book.status]}</span>
+            </div>
+            <div className="summary-row">
+              <span className="lbl">Started</span>
+              <span className="val">{book.startedAt ? formatDate(book.startedAt) : "—"}</span>
+            </div>
+            <div className="summary-row">
+              <span className="lbl">Finished</span>
+              <span className="val">{book.finishedAt ? formatDate(book.finishedAt) : "—"}</span>
+            </div>
+            <div className="summary-row">
+              <span className="lbl">Pages</span>
+              <span className="val">
+                {book.currentPage != null && book.totalPages
+                  ? `${book.currentPage} of ${book.totalPages}`
+                  : "—"}
+              </span>
+            </div>
+            <div className="summary-row">
+              <span className="lbl">Reading Sessions</span>
+              <span className="val">{readingSessions}</span>
+            </div>
+            <div className="summary-row">
+              <span className="lbl">Streak</span>
+              <span className="val">{stats.streak} days</span>
+            </div>
+            <div className="summary-row">
+              <span className="lbl">Rating</span>
+              <span className="val">{book.rating ? `${book.rating} / 5` : "—"}</span>
+            </div>
+          </div>
+          {stats.progress != null && (
+            <div className="summary-progress-container">
+              <div className="rw-progress-bar lg"><span style={{ width: `${Math.round(stats.progress * 100)}%` }} /></div>
+              <span className="progress-percentage">{Math.round(stats.progress * 100)}% completed</span>
+            </div>
+          )}
+        </section>
 
-      {fav && (
-        <section className="rw-panel">
-          <h4><StarIcon size={13} weight="fill" /> Favorite quote</h4>
-          <blockquote className="rw-fav-quote">{cleanQuote(fav.body)}</blockquote>
-          {fav.page && <span className="rw-panel-meta">p. {fav.page}</span>}
-        </section>
-      )}
-
-      <div className="rw-overview-cols">
-        <section className="rw-panel">
-          <h4>Recently learned words</h4>
-          {recentWords.length ? recentWords.map((w) => (
-            <div key={w.id} className="rw-mini-word"><strong>{w.word ?? w.body}</strong>{w.meaning && <span>{w.meaning}</span>}</div>
-          )) : <p className="rw-panel-line muted">No words yet.</p>}
-        </section>
-        <section className="rw-panel">
-          <h4>Recent notes</h4>
-          {recentNotes.length ? recentNotes.map((n) => (
-            <div key={n.id} className="rw-mini-note">{n.title && <strong>{n.title}</strong>}<span>{n.body.slice(0, 90)}</span></div>
-          )) : <p className="rw-panel-line muted">No notes yet.</p>}
-        </section>
+        {/* Right Column: Favorite Quote */}
+        {fav && (
+          <section className="rw-overview-section favorite-quote-panel">
+            <h4>Favorite Quote</h4>
+            <div className="editorial-quote-container">
+              <StarIcon size={14} weight="fill" className="fav-star-icon" />
+              <blockquote className="editorial-quote">"{cleanQuote(fav.body)}"</blockquote>
+              <span className="editorial-quote-source">
+                {fav.page ? `Page ${fav.page}` : ""}
+                {fav.chapter ? ` · ${fav.chapter}` : ""}
+              </span>
+            </div>
+          </section>
+        )}
       </div>
 
-      <section className="rw-panel">
-        <h4>Reading statistics</h4>
-        <div className="rw-statgrid">
-          <div><span className="v">{stats.quoteCount}</span><span className="l">Quotes</span></div>
-          <div><span className="v">{stats.vocabCount}</span><span className="l">Words</span></div>
-          <div><span className="v">{stats.noteCount}</span><span className="l">Notes</span></div>
-          <div><span className="v">{stats.streak}</span><span className="l">Day streak</span></div>
-          <div><span className="v">{book.rating ?? "—"}</span><span className="l">Rating</span></div>
-          <div><span className="v">{relativeTime(book.updatedAt, now)}</span><span className="l">Last read</span></div>
-        </div>
-      </section>
+      <hr className="section-divider" />
+
+      {/* Previews Row */}
+      <div className="rw-overview-previews">
+        {/* Vocabulary Preview */}
+        <section className="rw-preview-section">
+          <div className="section-header-row">
+            <h4>Vocabulary Preview</h4>
+            <button className="view-all-link" onClick={() => onSwitchTab("vocab")}>View all →</button>
+          </div>
+          <div className="preview-list">
+            {recentWords.length ? recentWords.map((w) => (
+              <div key={w.id} className="vocab-preview-item">
+                <span className="word">{w.word ?? w.body}</span>
+                {w.meaning && <span className="meaning">{w.meaning}</span>}
+              </div>
+            )) : <p className="muted-text">No words learned yet.</p>}
+          </div>
+        </section>
+
+        {/* Notes Preview */}
+        <section className="rw-preview-section">
+          <div className="section-header-row">
+            <h4>Recent Reflections</h4>
+            <button className="view-all-link" onClick={() => onSwitchTab("notes")}>View all →</button>
+          </div>
+          <div className="preview-list">
+            {recentNotes.length ? recentNotes.map((n) => (
+              <div key={n.id} className="note-preview-item">
+                {n.title && <span className="title">{n.title}</span>}
+                <span className="snippet">{n.body.slice(0, 90)}...</span>
+              </div>
+            )) : <p className="muted-text">No notes captured yet.</p>}
+          </div>
+        </section>
+      </div>
     </div>
   );
 }
@@ -370,13 +533,13 @@ function OverviewTab({ book, captures, stats, now }: { book: Book; captures: Boo
 function QuotesTab({ book, captures, now }: { book: Book; captures: BookCaptures; now: number }) {
   if (captures.quotes.length === 0) return <EmptyTab icon={<QuotesIcon size={24} weight="duotone" />} title="No quotes yet" hint="Capture a passage worth keeping." bookId={book.id} mode="quote" />;
   return (
-    <div className="rw-cards-col">
-      {captures.quotes.map((q) => <QuoteCard key={q.id} note={q} now={now} allQuotes={captures.quotes} />)}
+    <div className="rw-kindle-quotes-list">
+      {captures.quotes.map((q) => <QuoteRow key={q.id} note={q} now={now} allQuotes={captures.quotes} />)}
     </div>
   );
 }
 
-function QuoteCard({ note, now, allQuotes }: { note: Note; now: number; allQuotes: Note[] }) {
+function QuoteRow({ note, now, allQuotes }: { note: Note; now: number; allQuotes: Note[] }) {
   const updateNote = useNotes((s) => s.updateNote);
   const deleteNote = useNotes((s) => s.deleteNote);
   const [ai, setAi] = useState<string | null>(null);
@@ -393,17 +556,20 @@ function QuoteCard({ note, now, allQuotes }: { note: Note; now: number; allQuote
   };
 
   return (
-    <article className={`rw-quote-card ${note.favorite ? "fav" : ""}`}>
-      <QuotesIcon size={16} weight="fill" className="rw-quote-mark" />
-      <p className="rw-quote-text">{cleanQuote(note.body)}</p>
-      <div className="rw-quote-foot">
-        <div className="rw-quote-meta">
-          {note.page != null && <span>p. {note.page}</span>}
-          {note.chapter && <span>{note.chapter}</span>}
-          {(note.tags ?? []).filter((t) => t !== "quote").map((t) => <span key={t} className="rw-tag">#{t}</span>)}
-          <span className="rw-quote-date">{relativeDay(note.createdAt, now)}</span>
+    <article className={`rw-kindle-row ${note.favorite ? "fav" : ""}`}>
+      <div className="rw-kindle-meta">
+        <span className="location">
+          {note.chapter ? note.chapter : ""}
+          {note.page != null ? (note.chapter ? ` · Page ${note.page}` : `Page ${note.page}`) : ""}
+        </span>
+        <span className="date">{relativeDay(note.createdAt, now)}</span>
+      </div>
+      <p className="rw-kindle-text">"{cleanQuote(note.body)}"</p>
+      <div className="rw-kindle-foot">
+        <div className="tags">
+          {(note.tags ?? []).filter((t) => t !== "quote").map((t) => <span key={t} className="rw-inline-tag">#{t}</span>)}
         </div>
-        <div className="rw-quote-actions">
+        <div className="actions">
           <button className={`rw-icon-btn ${note.favorite ? "on" : ""}`} onClick={() => updateNote(note.id, { favorite: !note.favorite })} aria-label="Favorite">
             <StarIcon size={13} weight={note.favorite ? "fill" : "regular"} />
           </button>
@@ -438,41 +604,66 @@ function QuoteCard({ note, now, allQuotes }: { note: Note; now: number; allQuote
 const VOCAB_LABEL: Record<VocabStatus, string> = { learning: "Learning", review: "Needs Review", mastered: "Mastered" };
 const VOCAB_ORDER: VocabStatus[] = ["learning", "review", "mastered"];
 
-function VocabTab({ book, captures, now }: { book: Book; captures: BookCaptures; now: number }) {
+function VocabTab({ book, captures }: { book: Book; captures: BookCaptures }) {
   if (captures.vocab.length === 0) return <EmptyTab icon={<TranslateIcon size={24} weight="duotone" />} title="No words yet" hint="Add a word you learned from this book." bookId={book.id} mode="vocab" />;
   return (
-    <div className="rw-vocab-grid">
-      {captures.vocab.map((v) => <VocabCard key={v.id} note={v} now={now} />)}
+    <div className="rw-vocab-table-container">
+      <table className="rw-vocab-table">
+        <thead>
+          <tr>
+            <th>Word</th>
+            <th>Definition & Example</th>
+            <th>Location</th>
+            <th>Status</th>
+            <th className="actions-header"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {captures.vocab.map((v) => <VocabTableRow key={v.id} note={v} />)}
+        </tbody>
+      </table>
     </div>
   );
 }
 
-function VocabCard({ note, now }: { note: Note; now: number }) {
+function VocabTableRow({ note }: { note: Note }) {
   const reviewVocab = useNotes((s) => s.reviewVocab);
   const deleteNote = useNotes((s) => s.deleteNote);
   const status = note.vocabStatus ?? "learning";
+
   return (
-    <article className="rw-vocab-card">
-      <div className="rw-vocab-head">
-        <h4>{note.word ?? note.body}</h4>
+    <tr className="rw-vocab-row">
+      <td className="vocab-word-cell">
+        <strong>{note.word ?? note.body}</strong>
+      </td>
+      <td className="vocab-def-cell">
+        {note.meaning && <p className="meaning">{note.meaning}</p>}
+        {note.example && <p className="example">“{note.example}”</p>}
+      </td>
+      <td className="vocab-page-cell">
+        {note.page != null ? `Page ${note.page}` : "—"}
+      </td>
+      <td className="vocab-status-cell">
         <span className={`rw-vocab-status s-${status}`}>{VOCAB_LABEL[status]}</span>
-      </div>
-      {note.meaning && <p className="rw-vocab-meaning">{note.meaning}</p>}
-      {note.example && <p className="rw-vocab-example">“{note.example}”</p>}
-      <div className="rw-vocab-foot">
-        <span className="rw-vocab-meta">
-          {note.page != null && <>p. {note.page} · </>}
-          {note.reviewCount ? `${note.reviewCount} reviews` : "not reviewed"}
-          {note.lastReviewedAt ? ` · ${relativeDay(note.lastReviewedAt, now)}` : ""}
-        </span>
-      </div>
-      <div className="rw-vocab-review">
-        {VOCAB_ORDER.map((s) => (
-          <button key={s} className={`rw-seg-btn ${status === s ? "active" : ""}`} onClick={() => reviewVocab(note.id, s)}>{VOCAB_LABEL[s]}</button>
-        ))}
-        <button className="rw-icon-btn" onClick={() => deleteNote(note.id)} aria-label="Delete"><TrashIcon size={12} /></button>
-      </div>
-    </article>
+      </td>
+      <td className="vocab-actions-cell">
+        <div className="vocab-row-actions">
+          <Popover>
+            <PopoverTrigger asChild>
+              <button className="rw-icon-btn" aria-label="Review status"><ClockIcon size={13} /></button>
+            </PopoverTrigger>
+            <PopoverContent align="end" style={{ width: 140 }}>
+              <div className="rw-menu">
+                {VOCAB_ORDER.map((s) => (
+                  <button key={s} className={status === s ? "active" : ""} onClick={() => reviewVocab(note.id, s)}>{VOCAB_LABEL[s]}</button>
+                ))}
+              </div>
+            </PopoverContent>
+          </Popover>
+          <button className="rw-icon-btn danger" onClick={() => deleteNote(note.id)} aria-label="Delete"><TrashIcon size={12} /></button>
+        </div>
+      </td>
+    </tr>
   );
 }
 
@@ -483,20 +674,22 @@ function NotesTab({ captures, now }: { captures: BookCaptures; now: number }) {
   const groups = useMemo(() => groupNotesByPage(captures.notes), [captures.notes]);
   if (captures.notes.length === 0) return <EmptyTab icon={<NotePencilIcon size={24} weight="duotone" />} title="No notes yet" hint="Reflections and ideas grouped by page appear here." bookId={captures.all[0]?.bookId ?? ""} mode="note" />;
   return (
-    <div className="rw-notes">
+    <div className="rw-notes-notebook">
       {groups.map((g) => (
-        <section key={g.label} className="rw-note-group">
-          <h5 className="rw-note-group-label">{g.label}</h5>
-          {g.notes.map((n) => (
-            <div key={n.id} className="rw-note-card">
-              {n.title && <span className="rw-note-title">{n.title}</span>}
-              <p className="rw-note-body">{n.body}</p>
-              <div className="rw-note-foot">
-                <span className="rw-note-date">{relativeDay(n.createdAt, now)}</span>
-                <button className="rw-icon-btn" onClick={() => deleteNote(n.id)} aria-label="Delete"><TrashIcon size={12} /></button>
+        <section key={g.label} className="rw-notebook-group">
+          <h5 className="rw-notebook-group-label">{g.label}</h5>
+          <div className="rw-notebook-entries">
+            {g.notes.map((n) => (
+              <div key={n.id} className="rw-notebook-entry">
+                {n.title && <h4 className="entry-title">{n.title}</h4>}
+                <p className="entry-body">{n.body}</p>
+                <div className="entry-foot">
+                  <span className="entry-date">{relativeDay(n.createdAt, now)}</span>
+                  <button className="rw-icon-btn danger" onClick={() => deleteNote(n.id)} aria-label="Delete"><TrashIcon size={12} /></button>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </section>
       ))}
     </div>
@@ -505,26 +698,24 @@ function NotesTab({ captures, now }: { captures: BookCaptures; now: number }) {
 
 // ── Timeline tab ────────────────────────────────────────────────────────────
 
-const EVENT_ICON: Record<ReadingEvent["kind"], React.ReactNode> = {
-  started: <PlayIcon size={13} weight="fill" />,
-  quote: <QuotesIcon size={13} weight="fill" />,
-  vocab: <TranslateIcon size={13} weight="fill" />,
-  note: <NotePencilIcon size={13} weight="fill" />,
-  finished: <FlagCheckeredIcon size={13} weight="fill" />,
-};
-
 function TimelineTab({ book, captures, now }: { book: Book; captures: BookCaptures; now: number }) {
   const events = useMemo(() => readingTimeline(book, captures), [book, captures]);
   if (events.length === 0) return <EmptyTab icon={<ClockIcon size={24} weight="duotone" />} title="No history yet" hint="Your reading journey will replay here." bookId={book.id} mode="quote" />;
   return (
-    <div className="rw-timeline">
+    <div className="rw-github-timeline">
+      <div className="timeline-line"></div>
       {events.map((e, i) => (
-        <div key={i} className={`rw-tl-event k-${e.kind}`}>
-          <span className="rw-tl-ic">{EVENT_ICON[e.kind]}</span>
-          <div className="rw-tl-body">
-            <span className="rw-tl-label">{e.label}</span>
-            {e.detail && <span className="rw-tl-detail">{e.detail}</span>}
-            <span className="rw-tl-meta">{relativeDay(e.at, now)}{e.page != null ? ` · p. ${e.page}` : ""}</span>
+        <div key={i} className={`rw-timeline-node k-${e.kind}`}>
+          <div className="timeline-dot-wrapper">
+            <span className="timeline-dot"></span>
+          </div>
+          <div className="timeline-content">
+            <div className="timeline-header">
+              <span className="label">{e.label}</span>
+              <span className="time">{relativeDay(e.at, now)}</span>
+            </div>
+            {e.detail && <p className="detail">{e.detail}</p>}
+            {e.page != null && <span className="location">Page {e.page}</span>}
           </div>
         </div>
       ))}

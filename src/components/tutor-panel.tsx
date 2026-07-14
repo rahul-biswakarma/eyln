@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState, useMemo } from "react";
-import { SparkleIcon, XIcon, PaperPlaneRightIcon, ClipboardTextIcon, CircleNotchIcon, PushPinIcon, MagnifyingGlassIcon, TrashIcon, NotebookIcon, InfoIcon } from "@phosphor-icons/react";
+import { SparkleIcon, XIcon, PaperPlaneRightIcon, ClipboardTextIcon, CircleNotchIcon, PushPinIcon, MagnifyingGlassIcon, TrashIcon, NotebookIcon, InfoIcon, BookmarkSimpleIcon, CheckIcon } from "@phosphor-icons/react";
 import { isLLMEnabled, chat, generate, parseJSON, type ChatTurn } from "../lib/llm";
 import { buildLearnerContext } from "../lib/learnerContext";
 import { useTutor, type TutorTaskKind } from "../lib/tutor";
+import { useConversations } from "../lib/conversations";
 import { useUI } from "../lib/ui";
 import { useProgress } from "../lib/progress";
 import { useNotes, type Note } from "../lib/notes";
@@ -48,6 +49,8 @@ export function TutorPanel() {
     const [elapsedMinutes, setElapsedMinutes] = useState(0);
     const logRef = useRef<HTMLDivElement>(null);
     const addTasks = useTutor((s) => s.addTasks);
+    const addConversation = useConversations((s) => s.addConversation);
+    const [savedConvo, setSavedConvo] = useState(false);
     const sourceId = context?.sourceId;
     const title = context?.title ?? "";
     const moduleId = sourceId?.split("/")[0];
@@ -157,6 +160,16 @@ export function TutorPanel() {
             setLoading(false);
         }
     }
+    const handleSaveConversation = () => {
+        const turns = history.filter((t) => t.text.trim());
+        if (turns.length === 0) return;
+        // Title from the first learner question, else the lesson title.
+        const firstQ = turns.find((t) => t.role === "user")?.text.trim();
+        const convoTitle = (firstQ && firstQ.slice(0, 70)) || title || "Saved conversation";
+        addConversation({ title: convoTitle, turns, moduleId, lessonKey: sourceId });
+        setSavedConvo(true);
+        setTimeout(() => setSavedConvo(false), 2500);
+    };
     const handlePin = (block: Block) => {
         let body = block.content;
         if (block.type === "code") {
@@ -276,6 +289,12 @@ export function TutorPanel() {
             {captured > 0 && (<div className="tp-captured-v2">
                 <ClipboardTextIcon size={13} weight="duotone"/>
                 <span>Captured {captured} task{captured === 1 ? "" : "s"} to profile.</span>
+              </div>)}
+
+            {history.length > 0 && (<div className="tp-save-convo">
+                <button className="tp-save-convo-btn" onClick={handleSaveConversation} disabled={savedConvo}>
+                  {savedConvo ? <><CheckIcon size={13} weight="bold"/> Saved to this space</> : <><BookmarkSimpleIcon size={13}/> Save conversation</>}
+                </button>
               </div>)}
           </div>) : (<div className="kb-workspace">
             <div className="kb-search-box">

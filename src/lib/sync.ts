@@ -7,6 +7,9 @@ import { hydrateTutor } from "./tutor";
 import { hydrateScratchpad } from "./scratchpad";
 import { hydrateBooks } from "./books";
 import { hydrateConcepts } from "./concepts";
+import { hydrateSpaces } from "./spaces";
+import { hydrateProjects } from "./projects";
+import { hydrateConversations } from "./conversations";
 interface SyncState {
     loaded: boolean;
 }
@@ -25,6 +28,9 @@ async function loadForUser(uid: string) {
     hydrateNotes(data);
     hydrateBooks(data);
     hydrateConcepts(data);
+    hydrateSpaces(data);
+    hydrateProjects(data);
+    hydrateConversations(data);
     hydrateTutor(data ? { tasks: data.tutorTasks } : null);
     hydrateScratchpad(data?.scratchpad);
     useSync.setState({ loaded: true });
@@ -36,6 +42,9 @@ function clearAll() {
     hydrateNotes(null);
     hydrateBooks(null);
     hydrateConcepts(null);
+    hydrateSpaces(null);
+    hydrateProjects(null);
+    hydrateConversations(null);
     hydrateTutor(null);
     hydrateScratchpad(null);
     useSync.setState({ loaded: false });
