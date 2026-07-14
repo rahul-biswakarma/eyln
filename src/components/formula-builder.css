@@ -1,21 +1,6 @@
-.formula-builder {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-}
-
-.fb-field-wrap {
-  background: var(--surface-inset);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 0.2rem;
-  transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
-}
-
-.formula-builder.focused .fb-field-wrap {
-  border-color: var(--border-glow);
-  box-shadow: 0 0 10px rgba(255, 176, 0, 0.1);
-}
+/* Retained (rule 4): all rules below target the MathLive <math-field> custom
+   element / its shadow DOM. .fb-field is added to the library element via
+   el.classList.add("fb-field") — we can't attach Tailwind utilities there. */
 
 .fb-field {
   --hue: 38;
@@ -50,47 +35,4 @@ math-field::part(virtual-keyboard-toggle) {
 
 math-field::part(menu-toggle) {
   display: none !important;
-}
-
-
-.fb-palette {
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  gap: 0.25rem;
-}
-
-.fb-symbol {
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  color: var(--text-dim);
-  font-family: var(--display);
-  font-size: 0.86rem;
-  padding: 0.35rem 0.2rem;
-  cursor: pointer;
-  transition: all var(--dur) var(--ease);
-}
-
-.fb-symbol:hover {
-  color: var(--highlight);
-  border-color: var(--border-glow);
-  background: var(--accent-soft);
-}
-
-.fb-preview {
-  background: var(--surface-inset);
-  border: 1px dashed var(--border);
-  border-radius: var(--radius-sm);
-  padding: 0.7rem 0.9rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-}
-
-.fb-preview-lbl {
-  font-family: var(--mono);
-  font-size: 0.64rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--text-faint);
 }

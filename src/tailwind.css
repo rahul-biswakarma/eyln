@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+/**
+ * Design tokens → Tailwind theme.
+ * tokens.css remains the single source of truth (runtime CSS variables);
+ * here we expose those variables to Tailwind so utilities like `bg-surface`,
+ * `text-accent`, `rounded-lg`, `font-display` resolve to the same values and
+ * stay swappable at runtime.
+ */
+@theme {
+  /* Surfaces / backgrounds */
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-inset: var(--surface-inset);
+
+  /* Borders */
+  --color-border: var(--border);
+  --color-border-bright: var(--border-bright);
+  --color-border-glow: var(--border-glow);
+
+  /* Text */
+  --color-text: var(--text);
+  --color-text-dim: var(--text-dim);
+  --color-text-faint: var(--text-faint);
+
+  /* Accent */
+  --color-accent: var(--accent);
+  --color-accent-2: var(--accent-2);
+  --color-highlight: var(--highlight);
+  --color-on-accent: var(--on-accent);
+  --color-accent-soft: var(--accent-soft);
+
+  /* Status */
+  --color-good: var(--good);
+  --color-warn: var(--warn);
+  --color-bad: var(--bad);
+
+  /* Typography */
+  --font-sans: var(--sans);
+  --font-mono: var(--mono);
+  --font-display: var(--display);
+
+  /* Radii */
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-DEFAULT: 16px;
+  --radius-lg: 24px;
+  --radius-pill: 999px;
+
+  /* Shadows */
+  --shadow-card: 0 12px 44px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 34px 90px rgba(0, 0, 0, 0.62);
+
+  /* Motion */
+  --ease-brand: cubic-bezier(0.22, 0.61, 0.36, 1);
+}

@@ -1,61 +1,7 @@
-
-
-
-.auth-wrap {
-  position: relative;
-}
-
-.auth-btn {
-  width: 38px;
-  height: 38px;
-  flex: none;
-  padding: 0;
-  cursor: pointer;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  overflow: hidden;
-  background: var(--surface);
-  border: 1px solid var(--border-bright);
-  transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
-}
-
-.auth-btn:hover {
-  border-color: var(--border-glow);
-  box-shadow: 0 0 0 3px var(--accent-soft);
-}
-
-.auth-btn img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.auth-initial {
-  font-family: var(--display);
-  font-weight: 600;
-  color: var(--accent);
-  font-size: 0.9rem;
-}
-
-.auth-btn.skeleton {
-  background: var(--surface-2);
-  border-color: var(--border);
-}
-
-.auth-signin {
-  padding: 0.5rem 1.05rem;
-}
+/* Retained: keyframe animation, transform-origin, and ::before arrow pseudo-element
+   — these cannot be expressed cleanly as Tailwind utilities. */
 
 .auth-menu {
-  position: fixed;
-  z-index: 80;
-  width: 248px;
-  padding: 1.1rem;
-  display: grid;
-  gap: 0.7rem;
-  border: 1px solid var(--border-bright);
-  box-shadow: var(--shadow-lg), 0 0 0 1px rgba(255, 176, 0, 0.08);
   transform-origin: top right;
   animation: menu-pop 0.16s var(--ease) both;
 }
@@ -72,7 +18,6 @@
   }
 }
 
-
 .auth-menu::before {
   content: "";
   position: absolute;
@@ -84,32 +29,4 @@
   border-left: 1px solid var(--border-bright);
   border-top: 1px solid var(--border-bright);
   transform: rotate(45deg);
-}
-
-.auth-id {
-  line-height: 1.35;
-}
-
-.auth-name {
-  font-family: var(--display);
-  font-weight: 600;
-  color: var(--text);
-}
-
-.auth-email {
-  font-size: 0.76rem;
-  color: var(--text-faint);
-  font-family: var(--mono);
-  word-break: break-all;
-}
-
-.auth-synced {
-  font-size: 0.76rem;
-  color: var(--good);
-  font-family: var(--mono);
-}
-
-.auth-menu-btn {
-  width: 100%;
-  justify-content: center;
 }

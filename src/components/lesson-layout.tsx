@@ -148,10 +148,10 @@ export function LessonLayout({ data }: {
         setNoteOpen(true);
     }
     return (<div className="content lesson">
-      <div className="readbar"><i style={{ width: `${readPct * 100}%` }}/></div>
+      <div className="sticky top-[70px] z-20 h-[2px] bg-transparent"><i className="block h-full [background-image:var(--accent-line)] w-0 shadow-[0_0_12px_rgba(255,176,0,0.7)] transition-[width] duration-100 ease-linear" style={{ width: `${readPct * 100}%` }}/></div>
 
-      <div className="lesson-body-scrollable">
-        <header className="lesson-hero prose">
+      <div className="flex-1 overflow-y-auto pt-[2rem] px-[clamp(1.2rem,4vw,3rem)] pb-[6rem] w-full">
+        <header className="lesson-hero prose relative mb-[2.6rem] pt-[0.5rem] pb-[2rem] border-b border-border">
           <div className="crumbs">
             <Link to="/">Dashboard</Link>
             <span>/</span>
@@ -160,18 +160,18 @@ export function LessonLayout({ data }: {
             </Link>
           </div>
 
-          <div className="lh-kicker">Mission {lessonNumInModule} / {module.lessons.length}</div>
-          <h1 className="lh-title">{lesson.title}</h1>
-          <p className="lh-objective">{lesson.summary}</p>
+          <div className="font-mono text-[0.72rem] tracking-[0.2em] uppercase text-accent mt-[0.4rem] mb-[0.6rem]">Mission {lessonNumInModule} / {module.lessons.length}</div>
+          <h1 className="mt-0 mb-[0.7rem] text-[clamp(2rem,4vw,2.9rem)]">{lesson.title}</h1>
+          <p className="lh-objective text-text-dim text-[1.05rem] leading-[1.6] max-w-[60ch] mt-0 mb-[1.4rem]">{lesson.summary}</p>
 
-          <div className="lh-meta">
-            <span className="lh-chip"><ClockIcon size={14} weight="duotone"/> {lesson.minutes} min</span>
-            <span className="lh-chip"><GaugeIcon size={14} weight="duotone"/> {diff.label}</span>
-            {isInteractive && <span className="lh-chip interactive"><SparkleIcon size={14} weight="fill"/> Interactive</span>}
-            {isDone && <span className="lh-chip done"><CheckCircleIcon size={14} weight="fill"/> Completed</span>}
-            <span className="lh-actions">
+          <div className="flex items-center gap-[0.6rem] flex-wrap">
+            <span className="inline-flex items-center gap-[0.4rem] font-mono text-[0.74rem] text-text-dim bg-surface border border-border rounded-pill px-[0.75rem] py-[0.35rem] [&_svg]:text-text-faint"><ClockIcon size={14} weight="duotone"/> {lesson.minutes} min</span>
+            <span className="inline-flex items-center gap-[0.4rem] font-mono text-[0.74rem] text-text-dim bg-surface border border-border rounded-pill px-[0.75rem] py-[0.35rem] [&_svg]:text-text-faint"><GaugeIcon size={14} weight="duotone"/> {diff.label}</span>
+            {isInteractive && <span className="inline-flex items-center gap-[0.4rem] font-mono text-[0.74rem] text-[#7fb0ff] bg-surface border border-[rgba(127,176,255,0.3)] rounded-pill px-[0.75rem] py-[0.35rem] [&_svg]:text-[#7fb0ff]"><SparkleIcon size={14} weight="fill"/> Interactive</span>}
+            {isDone && <span className="inline-flex items-center gap-[0.4rem] font-mono text-[0.74rem] text-good bg-surface border border-[color-mix(in_srgb,var(--good)_40%,var(--border))] rounded-pill px-[0.75rem] py-[0.35rem] [&_svg]:text-good"><CheckCircleIcon size={14} weight="fill"/> Completed</span>}
+            <span className="ml-auto flex gap-[0.5rem]">
               <Tooltip content={isBookmarked ? "Remove bookmark" : "Bookmark this lesson"}>
-                <button className={"icon-btn" + (isBookmarked ? " on" : "")} onClick={() => toggleBookmark(key)} aria-label="Bookmark lesson">
+                <button className={"icon-btn" + (isBookmarked ? " text-accent! border-border-glow!" : "")} onClick={() => toggleBookmark(key)} aria-label="Bookmark lesson">
                   <BookmarkSimpleIcon size={16} weight={isBookmarked ? "fill" : "regular"}/>
                 </button>
               </Tooltip>
@@ -188,12 +188,12 @@ export function LessonLayout({ data }: {
           <Body />
         </div>
 
-        {hasQuestions && (<div className="prose lesson-section">
-            <Link className="qn-cta" to={questionaryPath(module.id)}>
-              <span className="qn-cta-ic"><ListChecksIcon size={22} weight="duotone"/></span>
-              <span className="qn-cta-body">
-                <span className="qn-cta-title">Practice in the Questionary</span>
-                <span className="qn-cta-sub">
+        {hasQuestions && (<div className="prose mt-[2.6rem]">
+            <Link className="group flex items-center gap-[1rem] px-[1.3rem] py-[1.1rem] rounded-[16px] border border-border [background:radial-gradient(120%_160%_at_0%_0%,color-mix(in_srgb,var(--accent)_9%,transparent),transparent_55%),var(--surface)] transition-[border-color,transform] duration-200 ease-brand hover:border-[color-mix(in_srgb,var(--accent)_45%,var(--border))] hover:-translate-y-px" to={questionaryPath(module.id)}>
+              <span className="flex-none grid place-items-center w-[42px] h-[42px] rounded-[12px] bg-[color-mix(in_srgb,var(--accent)_14%,transparent)] text-accent"><ListChecksIcon size={22} weight="duotone"/></span>
+              <span className="flex-1 min-w-0 flex flex-col gap-[0.15rem]">
+                <span className="font-display font-semibold text-text">Practice in the Questionary</span>
+                <span className="text-[0.85rem] text-text-dim leading-[1.45]">
                   Knowledge checks and exercises for {module.title} are collected on one page —
                   like an end-of-chapter problem set.
                 </span>
@@ -202,26 +202,26 @@ export function LessonLayout({ data }: {
             </Link>
           </div>)}
 
-        <div className="prose lesson-summary">
-          <div className={"ls-card" + (isDone ? " done" : "")}>
-            <div className="ls-icon"><CheckCircleIcon size={28} weight={isDone ? "fill" : "duotone"}/></div>
-            <div className="ls-body">
-              <h3>{isDone ? "Mission accomplished" : "Ready to lock it in?"}</h3>
-              <p>{isDone ? "You've completed this mission. Carry the momentum forward." : "Mark this mission complete once the concept clicks."}</p>
+        <div className="prose mt-[3rem]">
+          <div className={"flex items-center gap-[1.2rem] px-[1.6rem] py-[1.5rem] rounded-[18px] border " + (isDone ? "border-[color-mix(in_srgb,var(--good)_34%,var(--border))] [background:radial-gradient(120%_160%_at_100%_0%,rgba(70,217,138,0.12),transparent_55%),var(--surface)]" : "border-border [background:radial-gradient(120%_160%_at_100%_0%,rgba(255,138,0,0.10),transparent_55%),var(--surface)]")}>
+            <div className={"flex-none " + (isDone ? "text-good" : "text-accent")}><CheckCircleIcon size={28} weight={isDone ? "fill" : "duotone"}/></div>
+            <div className="flex-1 min-w-0">
+              <h3 className="mt-0 mb-[0.25rem] text-[1.15rem]">{isDone ? "Mission accomplished" : "Ready to lock it in?"}</h3>
+              <p className="m-0 text-text-dim text-[0.9rem]">{isDone ? "You've completed this mission. Carry the momentum forward." : "Mark this mission complete once the concept clicks."}</p>
             </div>
             <button className={"btn" + (isDone ? "" : " primary")} onClick={() => toggleDone(key)}>
               {isDone ? "Completed ✓" : "Mark complete"}
             </button>
           </div>
 
-          <div className="lesson-nav">
-            {prev ? (<Link className="prev" to={lessonPath(prev.module.id, prev.lesson.id)}>
-                <div className="k">← previous</div>
-                <div className="t">{prev.lesson.title}</div>
+          <div className="flex justify-between gap-[1rem] mt-[3.5rem] pt-[1.8rem] border-t border-border">
+            {prev ? (<Link className="flex-1 px-[1.3rem] py-[1.1rem] border border-border rounded bg-surface transition-[border-color,transform,background] duration-200 ease-brand hover:border-border-glow hover:bg-surface-2 hover:-translate-y-0.5" to={lessonPath(prev.module.id, prev.lesson.id)}>
+                <div className="text-[0.68rem] text-text-faint font-mono uppercase tracking-[0.1em]">← previous</div>
+                <div className="text-text font-display font-medium mt-[0.3rem]">{prev.lesson.title}</div>
               </Link>) : <span />}
-            {next ? (<Link className="next" to={lessonPath(next.module.id, next.lesson.id)}>
-                <div className="k">next mission</div>
-                <div className="t">{next.lesson.title} <ArrowRightIcon size={14} weight="bold"/></div>
+            {next ? (<Link className="flex-1 px-[1.3rem] py-[1.1rem] border border-border rounded bg-surface transition-[border-color,transform,background] duration-200 ease-brand hover:border-border-glow hover:bg-surface-2 hover:-translate-y-0.5 text-right" to={lessonPath(next.module.id, next.lesson.id)}>
+                <div className="text-[0.68rem] text-text-faint font-mono uppercase tracking-[0.1em]">next mission</div>
+                <div className="text-text font-display font-medium mt-[0.3rem]">{next.lesson.title} <ArrowRightIcon size={14} weight="bold"/></div>
               </Link>) : <span />}
           </div>
         </div>

@@ -1,9 +1,6 @@
-
-
-
-.mod-card .ic {
-  color: var(--mod-accent);
-}
+/* Retained: rules that depend on the per-instance --mod-accent variable
+   (color-mix hover glow, gradients) and pseudo/media behavior that don't map
+   to utilities. Static text/layout classes were converted to Tailwind. */
 
 .mod-card {
   --mod-accent: var(--accent);
@@ -27,7 +24,6 @@
     0 0 34px color-mix(in srgb, var(--mod-accent) 16%, transparent);
 }
 
-
 .mod-idx {
   position: absolute;
   top: 4px;
@@ -47,53 +43,6 @@
   display: block;
   color: var(--mod-accent);
   margin-bottom: 16px;
-}
-
-.mod-name {
-  margin: 0 0 8px;
-  font-family: var(--display);
-  font-size: 1.35rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  line-height: 1.2;
-}
-
-.mod-desc {
-  margin: 0 0 24px;
-  color: var(--text-dim);
-  font-size: 0.9rem;
-  line-height: 1.6;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.mod-meta {
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.04em;
-  color: var(--text-faint);
-  margin-bottom: 24px;
-}
-
-.mod-meta .dot {
-  margin: 0 0.4em;
-  opacity: 0.5;
-}
-
-.mod-progress {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 24px;
-}
-
-.mod-pct {
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  color: var(--text-dim);
-  flex: none;
 }
 
 .mod-cta {

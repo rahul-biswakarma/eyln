@@ -13,7 +13,6 @@
 @import "./components/auth-button.css";
 @import "./components/sidebar.css";
 @import "./components/lesson-layout.css";
-@import "./components/math.css";
 @import "./components/code-block.css";
 @import "./components/knowledge-card.css";
 @import "./components/note-panel.css";
@@ -23,7 +22,6 @@
 @import "./components/module-card.css";
 @import "./components/track-card.css";
 @import "./components/stat-card.css";
-@import "./components/progress-ring.css";
 
 @import "./pages/dashboard/dashboard.css";
 @import "./pages/curriculum/curriculum.css";

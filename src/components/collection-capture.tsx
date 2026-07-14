@@ -5,6 +5,7 @@ import {
 } from "@phosphor-icons/react";
 import { Dialog, DialogContent, DialogTitle } from "./ui";
 import { useNotes } from "../lib/notes";
+import { rwCaptureSheet, rwCaptureChoice, rwForm, rwInput, rwFormSave, rwFormBack, rwSeg, rwSegBtn, rwCaptureBtn } from "./capture-styles";
 
 /** Where the capture is happening — determines linkage + which kinds are offered. */
 export type CaptureContext =
@@ -35,7 +36,7 @@ const PROJECT_MODES: ModeDef[] = [
  * the container (moduleId / spaceId / projectId) — no manual categorization.
  */
 export function CollectionCapture({
-  context, initialMode, triggerLabel = "Capture", triggerClassName = "rw-capture-btn",
+  context, initialMode, triggerLabel = "Capture", triggerClassName = rwCaptureBtn,
 }: {
   context: CaptureContext;
   initialMode?: Mode;
@@ -97,11 +98,11 @@ export function CollectionCapture({
         {mode === null ? (
           <>
             <DialogTitle>Capture in {containerName}</DialogTitle>
-            <div className="rw-capture-sheet">
+            <div className={rwCaptureSheet}>
               {modes.map((m) => (
-                <button key={m.mode} className="rw-capture-choice" onClick={() => setMode(m.mode)}>
-                  <span className="ic">{m.icon}</span>
-                  <span className="txt"><span className="t">{m.label}</span><span className="d">{m.desc}</span></span>
+                <button key={m.mode} className={rwCaptureChoice} onClick={() => setMode(m.mode)}>
+                  <span className="grid place-items-center text-accent">{m.icon}</span>
+                  <span className="flex flex-1 flex-col"><span className="text-[0.9rem] font-medium text-text">{m.label}</span><span className="text-[0.74rem] text-text-faint">{m.desc}</span></span>
                   <CaretRightIcon size={14} />
                 </button>
               ))}
@@ -158,37 +159,37 @@ function CaptureForm({ mode, onSave, onBack }: { mode: Mode; onSave: (f: SaveFie
   return (
     <>
       <DialogTitle>{MODE_TITLE[mode]}</DialogTitle>
-      <div className="rw-form">
+      <div className={rwForm}>
         {mode !== "reference" && (
-          <input className="rw-input" placeholder="Title (optional)" value={title} onChange={(e) => setTitle(e.target.value)} />
+          <input className={rwInput} placeholder="Title (optional)" value={title} onChange={(e) => setTitle(e.target.value)} />
         )}
-        <textarea className="rw-input" rows={mode === "code" ? 6 : 4} autoFocus placeholder={bodyPlaceholder} value={body} onChange={(e) => setBody(e.target.value)} />
+        <textarea className={rwInput} rows={mode === "code" ? 6 : 4} autoFocus placeholder={bodyPlaceholder} value={body} onChange={(e) => setBody(e.target.value)} />
 
         {mode === "mistake" && (
           <>
-            <textarea className="rw-input" rows={2} placeholder="Why did it happen? (optional)" value={why} onChange={(e) => setWhy(e.target.value)} />
-            <textarea className="rw-input" rows={2} placeholder="Correct explanation (optional)" value={correction} onChange={(e) => setCorrection(e.target.value)} />
+            <textarea className={rwInput} rows={2} placeholder="Why did it happen? (optional)" value={why} onChange={(e) => setWhy(e.target.value)} />
+            <textarea className={rwInput} rows={2} placeholder="Correct explanation (optional)" value={correction} onChange={(e) => setCorrection(e.target.value)} />
           </>
         )}
 
         {mode === "formula" && (
-          <div className="rw-seg">
+          <div className={rwSeg}>
             {[1, 2, 3].map((d) => (
-              <button key={d} className={`rw-seg-btn ${difficulty === d ? "active" : ""}`} onClick={() => setDifficulty(d as 1 | 2 | 3)}>
+              <button key={d} className={rwSegBtn(difficulty === d)} onClick={() => setDifficulty(d as 1 | 2 | 3)}>
                 {d === 1 ? "Easy" : d === 2 ? "Medium" : "Hard"}
               </button>
             ))}
           </div>
         )}
 
-        {showLesson && <input className="rw-input" placeholder="Lesson / section (optional)" value={lesson} onChange={(e) => setLesson(e.target.value)} />}
-        {showTags && <input className="rw-input" placeholder="Tags, comma separated" value={tags} onChange={(e) => setTags(e.target.value)} />}
+        {showLesson && <input className={rwInput} placeholder="Lesson / section (optional)" value={lesson} onChange={(e) => setLesson(e.target.value)} />}
+        {showTags && <input className={rwInput} placeholder="Tags, comma separated" value={tags} onChange={(e) => setTags(e.target.value)} />}
 
-        <button className="rw-form-save" disabled={!valid} onClick={() => onSave({ title, body, lesson, tags: parseTags(tags), why, correction, difficulty })}>
+        <button className={rwFormSave} disabled={!valid} onClick={() => onSave({ title, body, lesson, tags: parseTags(tags), why, correction, difficulty })}>
           Save
         </button>
       </div>
-      {onBack && <button className="rw-form-back" onClick={onBack}>← Back to capture</button>}
+      {onBack && <button className={rwFormBack} onClick={onBack}>← Back to capture</button>}
     </>
   );
 }

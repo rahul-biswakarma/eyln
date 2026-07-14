@@ -2,6 +2,7 @@ import { useState } from "react";
 import { QuotesIcon, TranslateIcon, NotePencilIcon, StarIcon, PlusIcon, CaretRightIcon } from "@phosphor-icons/react";
 import { Dialog, DialogContent, DialogTitle } from "./ui";
 import { useNotes, type VocabStatus } from "../lib/notes";
+import { rwCaptureSheet, rwCaptureChoice, rwForm, rwInput, rwRow, rwFormSave, rwFormBack, rwSeg, rwSegBtn, rwCaptureBtn, rwFavToggle } from "./capture-styles";
 
 type CaptureMode = "quote" | "vocab" | "note";
 
@@ -62,27 +63,27 @@ export function BookCapture({ bookId, initialMode, triggerLabel, triggerClassNam
 
   return (
     <Dialog open={open} onOpenChange={(o) => (o ? setOpen(true) : close())}>
-      <button className={triggerClassName ?? "rw-capture-btn"} onClick={() => setOpen(true)}>
+      <button className={triggerClassName ?? rwCaptureBtn} onClick={() => setOpen(true)}>
         <PlusIcon size={13} weight="bold" /> {triggerLabel ?? "Capture"}
       </button>
       <DialogContent showCloseButton>
         {mode === null ? (
           <>
             <DialogTitle>Capture from this book</DialogTitle>
-            <div className="rw-capture-sheet">
-              <button className="rw-capture-choice" onClick={() => setMode("quote")}>
-                <span className="ic"><QuotesIcon size={18} weight="duotone" /></span>
-                <span className="txt"><span className="t">Quote</span><span className="d">A passage worth keeping</span></span>
+            <div className={rwCaptureSheet}>
+              <button className={rwCaptureChoice} onClick={() => setMode("quote")}>
+                <span className="grid place-items-center text-accent"><QuotesIcon size={18} weight="duotone" /></span>
+                <span className="flex flex-1 flex-col"><span className="text-[0.9rem] font-medium text-text">Quote</span><span className="text-[0.74rem] text-text-faint">A passage worth keeping</span></span>
                 <CaretRightIcon size={14} />
               </button>
-              <button className="rw-capture-choice" onClick={() => setMode("vocab")}>
-                <span className="ic"><TranslateIcon size={18} weight="duotone" /></span>
-                <span className="txt"><span className="t">Vocabulary</span><span className="d">A word you learned</span></span>
+              <button className={rwCaptureChoice} onClick={() => setMode("vocab")}>
+                <span className="grid place-items-center text-accent"><TranslateIcon size={18} weight="duotone" /></span>
+                <span className="flex flex-1 flex-col"><span className="text-[0.9rem] font-medium text-text">Vocabulary</span><span className="text-[0.74rem] text-text-faint">A word you learned</span></span>
                 <CaretRightIcon size={14} />
               </button>
-              <button className="rw-capture-choice" onClick={() => setMode("note")}>
-                <span className="ic"><NotePencilIcon size={18} weight="duotone" /></span>
-                <span className="txt"><span className="t">Note</span><span className="d">A reflection or idea</span></span>
+              <button className={rwCaptureChoice} onClick={() => setMode("note")}>
+                <span className="grid place-items-center text-accent"><NotePencilIcon size={18} weight="duotone" /></span>
+                <span className="flex flex-1 flex-col"><span className="text-[0.9rem] font-medium text-text">Note</span><span className="text-[0.74rem] text-text-faint">A reflection or idea</span></span>
                 <CaretRightIcon size={14} />
               </button>
             </div>
@@ -111,9 +112,9 @@ function FormShell({ title, onBack, children }: { title: string; onBack?: () => 
   return (
     <>
       <DialogTitle>{title}</DialogTitle>
-      <div className="rw-form">{children}</div>
+      <div className={rwForm}>{children}</div>
       {onBack && (
-        <button className="rw-form-back" onClick={onBack}>← Back to capture</button>
+        <button className={rwFormBack} onClick={onBack}>← Back to capture</button>
       )}
     </>
   );
@@ -127,16 +128,16 @@ function QuoteForm({ onSave, onBack }: { onSave: (f: { quote: string; page?: num
   const [favorite, setFavorite] = useState(false);
   return (
     <FormShell title="Capture quote" onBack={onBack}>
-      <textarea className="rw-input" rows={4} autoFocus placeholder="Paste the passage…" value={quote} onChange={(e) => setQuote(e.target.value)} />
-      <div className="rw-row">
-        <input className="rw-input" placeholder="Page" value={page} onChange={(e) => setPage(e.target.value)} inputMode="numeric" />
-        <input className="rw-input" placeholder="Chapter (optional)" value={chapter} onChange={(e) => setChapter(e.target.value)} />
+      <textarea className={rwInput} rows={4} autoFocus placeholder="Paste the passage…" value={quote} onChange={(e) => setQuote(e.target.value)} />
+      <div className={rwRow}>
+        <input className={rwInput} placeholder="Page" value={page} onChange={(e) => setPage(e.target.value)} inputMode="numeric" />
+        <input className={rwInput} placeholder="Chapter (optional)" value={chapter} onChange={(e) => setChapter(e.target.value)} />
       </div>
-      <input className="rw-input" placeholder="Tags, comma separated" value={tags} onChange={(e) => setTags(e.target.value)} />
-      <button className={`rw-fav-toggle ${favorite ? "on" : ""}`} onClick={() => setFavorite((v) => !v)}>
+      <input className={rwInput} placeholder="Tags, comma separated" value={tags} onChange={(e) => setTags(e.target.value)} />
+      <button className={rwFavToggle(favorite)} onClick={() => setFavorite((v) => !v)}>
         <StarIcon size={14} weight={favorite ? "fill" : "regular"} /> {favorite ? "Favorite" : "Mark favorite"}
       </button>
-      <button className="rw-form-save" disabled={!quote.trim()} onClick={() => onSave({ quote, page: toPage(page), chapter, tags: parseTags(tags), favorite })}>Save quote</button>
+      <button className={rwFormSave} disabled={!quote.trim()} onClick={() => onSave({ quote, page: toPage(page), chapter, tags: parseTags(tags), favorite })}>Save quote</button>
     </FormShell>
   );
 }
@@ -151,18 +152,18 @@ function VocabForm({ onSave, onBack }: { onSave: (f: { word: string; meaning: st
   const LABEL: Record<VocabStatus, string> = { learning: "Learning", review: "Needs review", mastered: "Mastered" };
   return (
     <FormShell title="Add vocabulary" onBack={onBack}>
-      <input className="rw-input" autoFocus placeholder="Word" value={word} onChange={(e) => setWord(e.target.value)} />
-      <textarea className="rw-input" rows={2} placeholder="Meaning" value={meaning} onChange={(e) => setMeaning(e.target.value)} />
-      <textarea className="rw-input" rows={2} placeholder="Example sentence (optional)" value={example} onChange={(e) => setExample(e.target.value)} />
-      <div className="rw-row">
-        <input className="rw-input" placeholder="Page" value={page} onChange={(e) => setPage(e.target.value)} inputMode="numeric" />
+      <input className={rwInput} autoFocus placeholder="Word" value={word} onChange={(e) => setWord(e.target.value)} />
+      <textarea className={rwInput} rows={2} placeholder="Meaning" value={meaning} onChange={(e) => setMeaning(e.target.value)} />
+      <textarea className={rwInput} rows={2} placeholder="Example sentence (optional)" value={example} onChange={(e) => setExample(e.target.value)} />
+      <div className={rwRow}>
+        <input className={rwInput} placeholder="Page" value={page} onChange={(e) => setPage(e.target.value)} inputMode="numeric" />
       </div>
-      <div className="rw-seg">
+      <div className={rwSeg}>
         {STATUSES.map((s) => (
-          <button key={s} className={`rw-seg-btn ${status === s ? "active" : ""}`} onClick={() => setStatus(s)}>{LABEL[s]}</button>
+          <button key={s} className={rwSegBtn(status === s)} onClick={() => setStatus(s)}>{LABEL[s]}</button>
         ))}
       </div>
-      <button className="rw-form-save" disabled={!word.trim()} onClick={() => onSave({ word, meaning, example, page: toPage(page), status })}>Save word</button>
+      <button className={rwFormSave} disabled={!word.trim()} onClick={() => onSave({ word, meaning, example, page: toPage(page), status })}>Save word</button>
     </FormShell>
   );
 }
@@ -174,13 +175,13 @@ function NoteForm({ onSave, onBack }: { onSave: (f: { title?: string; content: s
   const [page, setPage] = useState("");
   return (
     <FormShell title="Add note" onBack={onBack}>
-      <input className="rw-input" autoFocus placeholder="Title (optional)" value={title} onChange={(e) => setTitle(e.target.value)} />
-      <textarea className="rw-input" rows={5} placeholder="Your reflection…" value={content} onChange={(e) => setContent(e.target.value)} />
-      <div className="rw-row">
-        <input className="rw-input" placeholder="Linked page" value={page} onChange={(e) => setPage(e.target.value)} inputMode="numeric" />
-        <input className="rw-input" placeholder="Tags, comma separated" value={tags} onChange={(e) => setTags(e.target.value)} />
+      <input className={rwInput} autoFocus placeholder="Title (optional)" value={title} onChange={(e) => setTitle(e.target.value)} />
+      <textarea className={rwInput} rows={5} placeholder="Your reflection…" value={content} onChange={(e) => setContent(e.target.value)} />
+      <div className={rwRow}>
+        <input className={rwInput} placeholder="Linked page" value={page} onChange={(e) => setPage(e.target.value)} inputMode="numeric" />
+        <input className={rwInput} placeholder="Tags, comma separated" value={tags} onChange={(e) => setTags(e.target.value)} />
       </div>
-      <button className="rw-form-save" disabled={!content.trim()} onClick={() => onSave({ title, content, tags: parseTags(tags), page: toPage(page) })}>Save note</button>
+      <button className={rwFormSave} disabled={!content.trim()} onClick={() => onSave({ title, content, tags: parseTags(tags), page: toPage(page) })}>Save note</button>
     </FormShell>
   );
 }

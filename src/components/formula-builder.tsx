@@ -41,8 +41,8 @@ export function FormulaBuilder({ value, onChange, }: {
         if (el && el.value !== value)
             el.value = value;
     }, [value]);
-    return (<div className={`formula-builder ${focused ? "focused" : ""}`}>
-        <div className="fb-field-wrap">
+    return (<div className="flex flex-col gap-[0.6rem]">
+        <div className={"bg-surface-inset border rounded-sm p-[0.2rem] transition-[border-color,box-shadow] duration-200 ease-brand " + (focused ? "border-border-glow shadow-[0_0_10px_rgba(255,176,0,0.1)]" : "border-border")}>
             <math-field ref={(el) => {
             fieldRef.current = el;
             if (el) {
@@ -53,8 +53,8 @@ export function FormulaBuilder({ value, onChange, }: {
         }} math-virtual-keyboard-policy="manual" smart-fence="true" onInput={(e) => onChange((e.target as MathfieldElement).value)} onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}/>
         </div>
 
-        <div className="fb-palette">
-            {PALETTE.map((item) => (<button key={item.label} type="button" className="fb-symbol" onMouseDown={(e) => e.preventDefault()} onClick={() => {
+        <div className="grid grid-cols-8 gap-[0.25rem]">
+            {PALETTE.map((item) => (<button key={item.label} type="button" className="bg-surface-2 border border-border rounded-xs text-text-dim font-display text-[0.86rem] py-[0.35rem] px-[0.2rem] cursor-pointer transition-all duration-200 ease-brand hover:text-highlight hover:border-border-glow hover:bg-accent-soft" onMouseDown={(e) => e.preventDefault()} onClick={() => {
                 const el = fieldRef.current;
                 if (!el)
                     return;
@@ -66,8 +66,8 @@ export function FormulaBuilder({ value, onChange, }: {
             </button>))}
         </div>
 
-        {value.trim() && (<div className="fb-preview">
-            <span className="fb-preview-lbl">Preview</span>
+        {value.trim() && (<div className="bg-surface-inset border border-dashed border-border rounded-sm py-[0.7rem] px-[0.9rem] flex flex-col gap-[0.3rem]">
+            <span className="font-mono text-[0.64rem] uppercase tracking-[0.06em] text-text-faint">Preview</span>
             <MBlock>{value}</MBlock>
         </div>)}
     </div>);

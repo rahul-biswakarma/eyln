@@ -5,6 +5,7 @@ import { router } from "./router";
 import { initAuthListener } from "./lib/auth";
 import { initSync } from "./lib/sync";
 import "katex/dist/katex.min.css";
+import "./tailwind.css";
 import "./theme.css";
 initAuthListener();
 initSync();

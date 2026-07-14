@@ -1,48 +1,6 @@
-
-
-
-.practice-shell {
-  display: grid;
-  grid-template-columns: 264px 1fr;
-  height: calc(100vh - 70px);
-}
-
-.practice-main {
-  min-width: 0;
-  padding: 1rem clamp(1rem, 2.5vw, 1.6rem) 1rem 1.25rem;
-  display: flex;
-  height: 100%;
-  min-height: 0;
-  overflow: hidden;
-}
-
-@media (max-width: 860px) {
-  .practice-shell {
-    grid-template-columns: 1fr;
-    height: auto;
-  }
-
-  .practice-sidebar {
-    display: none;
-  }
-
-  .practice-main {
-    height: auto;
-    overflow: visible;
-  }
-}
-
-
-.practice-sidebar {
-  border-right: 1px solid var(--border);
-  padding: 1.4rem 1rem;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 1.4rem;
-}
-
-
+/* RETAINED: overrides Radix base .TabsList/.TabsTrigger from styles/radix.css,
+   which is unlayered library CSS. Tailwind utilities live in a lower cascade
+   layer and would lose to those base rules, so these overrides stay as CSS. */
 .track-switch.TabsList {
   display: flex;
   gap: 0.3rem;
@@ -82,247 +40,22 @@
   box-shadow: none;
 }
 
-
-.track-panel {
-  position: relative;
-  overflow: hidden;
-  isolation: isolate;
-  flex: none;
-  padding: 1.4rem 1.3rem;
-  border-radius: 18px;
-  border: 1px solid var(--border);
-  background: linear-gradient(180deg, rgba(255, 176, 0, 0.05), transparent 42%), var(--surface);
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.28);
-  transition: transform var(--dur) var(--ease), border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
-}
-
+/* RETAINED: color-mix() + transform hover state; base .track-panel styles are
+   utilities on the element, only the dynamic hover values remain in CSS. */
 .track-panel:hover {
   transform: translateY(-2px);
   border-color: color-mix(in srgb, var(--accent) 30%, var(--border-bright));
   box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4), 0 0 30px rgba(255, 138, 0, 0.14);
 }
 
-
-.tp-grid {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  opacity: 0.5;
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-  background-size: 22px 22px;
-  mask-image: radial-gradient(circle at 80% 0%, #000, transparent 70%);
-}
-
-.tp-eyebrow {
-  font-family: var(--mono);
-  font-size: 0.64rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--accent);
-}
-
-.tp-name {
-  font-family: var(--display);
-  font-size: 1.5rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  margin: 0.25rem 0 1.2rem;
-}
-
-.tp-segments {
-  display: flex;
-  gap: 3px;
-}
-
-.tp-seg {
-  flex: 1;
-  height: 6px;
-  border-radius: 2px;
-  background: var(--surface-inset);
-  transition: background 0.4s var(--ease), box-shadow 0.4s var(--ease);
-}
-
-.tp-seg.done {
-  background: var(--accent-grad);
-  box-shadow: 0 0 8px rgba(255, 176, 0, 0.45);
-}
-
+/* RETAINED: color-mix() cannot be expressed as a token utility. */
 .tp-seg.current {
   background: color-mix(in srgb, var(--accent) 45%, var(--surface-inset));
 }
 
-.tp-pct-row {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  margin-top: 0.6rem;
-}
 
-.tp-pct {
-  font-family: var(--display);
-  font-size: 1.15rem;
-  font-weight: 600;
-  color: var(--text);
-}
-
-.tp-mission {
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  color: var(--text-faint);
-  letter-spacing: 0.03em;
-}
-
-.tp-now {
-  display: flex;
-  flex-direction: column;
-  gap: 0.7rem;
-  margin: 1.3rem 0;
-}
-
-.tp-slot {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-}
-
-.tp-k {
-  font-family: var(--mono);
-  font-size: 0.62rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--text-faint);
-}
-
-.tp-v {
-  font-family: var(--display);
-  font-size: 0.98rem;
-  font-weight: 500;
-  color: var(--text);
-}
-
-.tp-v.muted {
-  color: var(--text-dim);
-}
-
-.tp-cta {
-  width: 100%;
-  margin-top: 1.3rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-  cursor: pointer;
-  background: var(--accent-grad);
-  color: var(--on-accent);
-  border: none;
-  border-radius: var(--radius-sm);
-  padding: 0.65rem 1rem;
-  font-family: var(--display);
-  font-weight: 600;
-  font-size: 0.9rem;
-  box-shadow: 0 6px 20px rgba(255, 138, 0, 0.28);
-  transition: filter var(--dur) var(--ease), transform var(--dur) var(--ease), gap var(--dur) var(--ease);
-}
-
-.tp-cta:hover {
-  filter: brightness(1.06);
-  gap: 0.6rem;
-  transform: translateY(-1px);
-}
-
-.ps-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.9rem;
-  flex: none;
-}
-
-.ps-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
-}
-
-.ps-group-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-family: var(--mono);
-  font-size: 0.64rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--text-faint);
-  padding: 0.2rem 0.7rem 0.4rem;
-}
-
-.ps-group-count {
-  color: var(--accent);
-  opacity: 0.8;
-}
-
-.ps-item {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  text-align: left;
-  cursor: pointer;
-  width: 100%;
-  padding: 0.5rem 0.7rem;
-  border-radius: var(--radius-sm);
-  background: transparent;
-  border: none;
-  color: var(--text-dim);
-  font-size: 0.85rem;
-  position: relative;
-  transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
-}
-
-.ps-item:hover {
-  background: var(--surface);
-  color: var(--text);
-}
-
-.ps-item.active {
-  background: var(--accent-soft);
-  color: var(--highlight);
-}
-
-.ps-item-title {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.pi-check {
-  color: var(--good);
-  flex: none;
-}
-
-.pi-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  flex: none;
-}
-
-.pi-dot.easy {
-  background: var(--good);
-}
-
-.pi-dot.medium {
-  background: var(--warn);
-}
-
-.pi-dot.hard {
-  background: var(--bad);
-}
-
-
+/* RETAINED (below): all rules owned by src/components/code-challenge.tsx,
+   which is outside this migration's scope. */
 .mission {
   position: relative;
   flex: 1;
@@ -339,10 +72,6 @@
 }
 
 @media (max-width: 900px) {
-  .practice-page {
-    height: auto;
-  }
-
   .mission-body {
     grid-template-columns: 1fr;
     height: auto;
@@ -738,6 +467,7 @@
   margin-top: 0.5rem;
 }
 
+/* RETAINED: @keyframes consumed by .mission-complete / .mc-* above. */
 @keyframes pop-in {
   from {
     opacity: 0;

@@ -7,8 +7,8 @@ export function ProgressRing({ value, size = 40, stroke = 4, showText = true }: 
     const r = (size - stroke) / 2;
     const c = 2 * Math.PI * r;
     const off = c * (1 - Math.max(0, Math.min(1, value)));
-    return (<div className="ring" style={{ width: size, height: size }}>
-      <svg width={size} height={size}>
+    return (<div className="relative grid flex-none place-items-center" style={{ width: size, height: size }}>
+      <svg width={size} height={size} className="-rotate-90">
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--border)" strokeWidth={stroke}/>
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="url(#ringgrad)" strokeWidth={stroke} strokeLinecap="round" strokeDasharray={c} strokeDashoffset={off} style={{ transition: "stroke-dashoffset 0.5s ease" }}/>
         <defs>
@@ -18,6 +18,6 @@ export function ProgressRing({ value, size = 40, stroke = 4, showText = true }: 
           </linearGradient>
         </defs>
       </svg>
-      {showText && <span className="rtxt">{Math.round(value * 100)}</span>}
+      {showText && <span className="absolute font-display text-[0.6rem] font-bold text-text">{Math.round(value * 100)}</span>}
     </div>);
 }

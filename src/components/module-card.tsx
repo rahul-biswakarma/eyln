@@ -35,17 +35,17 @@ export function ModuleCard({ module, highlight }: {
 
       <span className="mod-ic"><ModuleIcon id={module.id} size={22}/></span>
 
-      <h3 className="mod-name">{module.title}</h3>
-      <p className="mod-desc">{module.blurb}</p>
+      <h3 className="mb-2 font-display text-[1.35rem] font-semibold leading-[1.2] tracking-[-0.01em]">{module.title}</h3>
+      <p className="mb-6 line-clamp-2 text-[0.9rem] leading-[1.6] text-text-dim">{module.blurb}</p>
 
-      <div className="mod-meta">
-        {diff.label} <span className="dot">·</span> {module.lessons.length} lessons{" "}
-        <span className="dot">·</span> {formatMinutes(minutes)}
+      <div className="mb-6 font-mono text-[0.72rem] tracking-[0.04em] text-text-faint">
+        {diff.label} <span className="mx-[0.4em] opacity-50">·</span> {module.lessons.length} lessons{" "}
+        <span className="mx-[0.4em] opacity-50">·</span> {formatMinutes(minutes)}
       </div>
 
-      {started && (<div className="mod-progress">
+      {started && (<div className="mb-6 flex items-center gap-3">
           <div className="pbar"><i style={{ width: `${Math.max(pctLabel, 4)}%` }}/></div>
-          <span className="mod-pct">{complete ? "Complete" : `${pctLabel}%`}</span>
+          <span className="flex-none font-mono text-[0.7rem] text-text-dim">{complete ? "Complete" : `${pctLabel}%`}</span>
         </div>)}
 
       <span className="mod-cta">

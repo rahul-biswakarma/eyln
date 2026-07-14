@@ -10,7 +10,7 @@ export function MBlock({ children }: {
     children: string;
 }) {
     const html = useMemo(() => katex.renderToString(children, { throwOnError: false, displayMode: true }), [children]);
-    return <div className="math-block" dangerouslySetInnerHTML={{ __html: html }}/>;
+    return <div className="overflow-x-auto py-[0.4rem]" dangerouslySetInnerHTML={{ __html: html }}/>;
 }
 export function FormattedText({ text }: {
     text: string;

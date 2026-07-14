@@ -16,6 +16,7 @@ import { BookCapture } from "../../components/book-capture";
 import { Tabs, TabsList, TabsTrigger, TabsContent, Popover, PopoverTrigger, PopoverContent } from "../../components/ui";
 import { generate, isLLMEnabled } from "../../lib/llm";
 import type { BookMetadata } from "../../lib/book-metadata";
+import * as rw from "./rw-styles";
 
 const STATUS_LABEL: Record<ReadingStatus, string> = {
   reading: "Reading", finished: "Finished", want: "Want to Read", paused: "Paused",
@@ -47,9 +48,9 @@ function CoverArt({ book, size = "sm" }: { book: Book; size?: "sm" | "md" | "lg"
 
 function Stars({ value, onSet }: { value: number; onSet?: (r: number) => void }) {
   return (
-    <span className="rw-stars">
+    <span className={rw.stars}>
       {[1, 2, 3, 4, 5].map((r) => (
-        <button key={r} className={`rw-star ${value >= r ? "on" : ""}`} disabled={!onSet}
+        <button key={r} className={rw.star(value >= r)} disabled={!onSet}
           onClick={() => onSet?.(value === r ? 0 : r)} aria-label={`${r} stars`}>
           <StarIcon size={14} weight={value >= r ? "fill" : "regular"} />
         </button>
@@ -86,41 +87,41 @@ export function BooksView({ now, focusId, onConsumeFocus }: { now: number; focus
   const filtered = statusFilter === "all" ? books : books.filter((b) => b.status === statusFilter);
 
   return (
-    <div className="rw-library">
-      <header className="rw-lib-header">
+    <div className={rw.library}>
+      <header className={rw.libHeader}>
         <div className="rw-lib-title">
-          <h1>Books</h1>
-          <span className="rw-lib-sub">{books.length} {books.length === 1 ? "book" : "books"} in your library</span>
+          <h1 className={rw.libTitleH1}>Books</h1>
+          <span className={rw.libSub}>{books.length} {books.length === 1 ? "book" : "books"} in your library</span>
         </div>
         <BookSearch onPick={handlePickMetadata} placeholder="Add a book by title or author…" />
       </header>
 
-      <div className="rw-lib-search">
+      <div className={rw.libSearch}>
         <MagnifyingGlassIcon size={15} />
-        <input placeholder="Search across books, quotes, words and notes…" value={query} onChange={(e) => setQuery(e.target.value)} />
+        <input className={rw.libSearchInput} placeholder="Search across books, quotes, words and notes…" value={query} onChange={(e) => setQuery(e.target.value)} />
       </div>
 
       {query.trim() ? (
         <SearchResults hits={searchHits} onOpen={(id) => { setQuery(""); setSelectedId(id); }} />
       ) : (
         <>
-          <div className="rw-filters">
-            <button className={`rw-filter ${statusFilter === "all" ? "active" : ""}`} onClick={() => setStatusFilter("all")}>All</button>
+          <div className={rw.filters}>
+            <button className={rw.filter(statusFilter === "all")} onClick={() => setStatusFilter("all")}>All</button>
             {STATUS_ORDER.map((s) => (
-              <button key={s} className={`rw-filter ${statusFilter === s ? "active" : ""}`} onClick={() => setStatusFilter(s)}>
+              <button key={s} className={rw.filter(statusFilter === s)} onClick={() => setStatusFilter(s)}>
                 {STATUS_ICON[s]} {STATUS_LABEL[s]}
               </button>
             ))}
           </div>
 
           {filtered.length === 0 ? (
-            <div className="rw-empty">
+            <div className={rw.empty}>
               <BookOpenIcon size={26} weight="duotone" />
-              <h4>{books.length === 0 ? "Start your library" : "Nothing here yet"}</h4>
-              <p>{books.length === 0 ? "Search a title above to add your first book with its cover." : "No books with this status."}</p>
+              <h4 className={rw.emptyH4}>{books.length === 0 ? "Start your library" : "Nothing here yet"}</h4>
+              <p className={rw.emptyP}>{books.length === 0 ? "Search a title above to add your first book with its cover." : "No books with this status."}</p>
             </div>
           ) : (
-            <div className="rw-grid">
+            <div className={rw.grid}>
               {filtered.map((b) => {
                 const caps = counts.get(b.id)!;
                 const st = bookStats(b, caps, now);
@@ -136,34 +137,34 @@ export function BooksView({ now, focusId, onConsumeFocus }: { now: number; focus
 
 function LibraryCard({ book, stats, now, onOpen }: { book: Book; stats: BookStats; now: number; onOpen: () => void }) {
   return (
-    <button className="rw-card" onClick={onOpen}>
+    <button className={rw.card} onClick={onOpen}>
       <CoverArt book={book} size="md" />
-      <div className="rw-card-body">
+      <div className={rw.cardBody}>
         <div className="rw-card-head">
-          <h3>{book.title}</h3>
-          {book.author && <span className="rw-card-author">{book.author}</span>}
+          <h3 className={rw.cardHeadH3}>{book.title}</h3>
+          {book.author && <span className={rw.cardAuthor}>{book.author}</span>}
         </div>
 
         {stats.progress != null && (
-          <div className="rw-progress">
-            <div className="rw-progress-bar"><span style={{ width: `${Math.round(stats.progress * 100)}%` }} /></div>
-            <span className="rw-progress-lbl">
+          <div className={rw.progress}>
+            <div className={rw.progressBar}><span className={rw.progressBarFill} style={{ width: `${Math.round(stats.progress * 100)}%` }} /></div>
+            <span className={rw.progressLbl}>
               {Math.round(stats.progress * 100)}%
               {book.currentPage != null && book.totalPages ? ` · ${book.currentPage} / ${book.totalPages} pages` : ""}
             </span>
           </div>
         )}
 
-        <div className="rw-card-meta">
-          <span className={`rw-status rw-status-${book.status}`}>{STATUS_ICON[book.status]} {STATUS_LABEL[book.status]}</span>
+        <div className={rw.cardMeta}>
+          <span className={rw.status(book.status)}>{STATUS_ICON[book.status]} {STATUS_LABEL[book.status]}</span>
           {book.rating ? <Stars value={book.rating} /> : null}
         </div>
 
-        <div className="rw-card-stats">
-          <span><QuotesIcon size={12} /> {stats.quoteCount}</span>
-          <span><TranslateIcon size={12} /> {stats.vocabCount}</span>
-          <span><NotePencilIcon size={12} /> {stats.noteCount}</span>
-          <span className="rw-card-when"><ClockIcon size={12} /> {relativeTime(book.updatedAt, now)}</span>
+        <div className={rw.cardStats}>
+          <span className={rw.cardStatItem}><QuotesIcon size={12} /> {stats.quoteCount}</span>
+          <span className={rw.cardStatItem}><TranslateIcon size={12} /> {stats.vocabCount}</span>
+          <span className={rw.cardStatItem}><NotePencilIcon size={12} /> {stats.noteCount}</span>
+          <span className={rw.cardWhen}><ClockIcon size={12} /> {relativeTime(book.updatedAt, now)}</span>
         </div>
       </div>
     </button>
@@ -171,19 +172,19 @@ function LibraryCard({ book, stats, now, onOpen }: { book: Book; stats: BookStat
 }
 
 function SearchResults({ hits, onOpen }: { hits: SearchHit[]; onOpen: (bookId: string) => void }) {
-  if (hits.length === 0) return <div className="rw-empty"><MagnifyingGlassIcon size={24} weight="duotone" /><h4>No matches</h4><p>Nothing found across your books, quotes, words or notes.</p></div>;
+  if (hits.length === 0) return <div className={rw.empty}><MagnifyingGlassIcon size={24} weight="duotone" /><h4 className={rw.emptyH4}>No matches</h4><p className={rw.emptyP}>Nothing found across your books, quotes, words or notes.</p></div>;
   const ICON: Record<SearchHit["kind"], React.ReactNode> = {
     book: <BookOpenIcon size={14} />, quote: <QuotesIcon size={14} />, vocab: <TranslateIcon size={14} />, note: <NotePencilIcon size={14} />,
   };
   return (
-    <div className="rw-search-results">
+    <div className={rw.searchResults}>
       {hits.map((h, i) => (
-        <button key={i} className="rw-search-hit" onClick={() => onOpen(h.bookId)}>
-          <span className="rw-hit-ic">{ICON[h.kind]}</span>
-          <span className="rw-hit-body">
-            <span className="rw-hit-kind">{h.kind}</span>
-            <span className="rw-hit-text">{h.text}</span>
-            {h.kind !== "book" && <span className="rw-hit-book">{h.bookTitle}</span>}
+        <button key={i} className={rw.searchHit} onClick={() => onOpen(h.bookId)}>
+          <span className={rw.hitIc}>{ICON[h.kind]}</span>
+          <span className={rw.hitBody}>
+            <span className={rw.hitKind}>{h.kind}</span>
+            <span className={rw.hitText}>{h.text}</span>
+            {h.kind !== "book" && <span className={rw.hitBook}>{h.bookTitle}</span>}
           </span>
           <ArrowRightIcon size={13} />
         </button>
@@ -214,16 +215,16 @@ function BookDetail({ book, now, onBack }: { book: Book; now: number; onBack: ()
   const journeyDays = book.startedAt && book.finishedAt ? Math.max(1, Math.ceil((book.finishedAt - book.startedAt) / (24 * 60 * 60 * 1000))) : null;
 
   return (
-    <div className="rw-detail">
-      <button className="rw-back" onClick={onBack}><CaretLeftIcon size={14} /> Library</button>
+    <div className={rw.detail}>
+      <button className={rw.back} onClick={onBack}><CaretLeftIcon size={14} /> Library</button>
 
-      <header className="rw-hero">
+      <header className={rw.hero}>
         <div className="rw-hero-left">
           <CoverArt book={book} size="lg" />
         </div>
-        <div className="rw-hero-main">
-          <h1>{book.title}</h1>
-          <span className="rw-hero-sub">{[book.author, book.year].filter(Boolean).join(" · ")}</span>
+        <div className={rw.heroMain}>
+          <h1 className={rw.heroMainH1}>{book.title}</h1>
+          <span className={rw.heroSub}>{[book.author, book.year].filter(Boolean).join(" · ")}</span>
 
           <div className="rw-hero-meta-row">
             <Stars value={book.rating ?? 0} onSet={(r) => updateBook(book.id, { rating: r })} />
@@ -235,11 +236,11 @@ function BookDetail({ book, now, onBack }: { book: Book; now: number; onBack: ()
                 </button>
               </PopoverTrigger>
               <PopoverContent align="start" style={{ width: 160 }}>
-                <div className="rw-menu">
+                <div className={rw.menu}>
                   {STATUS_ORDER.map((s) => (
                     <button
                       key={s}
-                      className={book.status === s ? "active" : ""}
+                      className={`${rw.menuBtn()}${book.status === s ? " active" : ""}`}
                       onClick={() => {
                         const patch: Parameters<typeof updateBook>[1] = { status: s };
                         if (s === "reading" && !book.startedAt) patch.startedAt = now;
@@ -252,7 +253,7 @@ function BookDetail({ book, now, onBack }: { book: Book; now: number; onBack: ()
                     </button>
                   ))}
                   <div className="rw-menu-divider" />
-                  <button className="danger" onClick={() => { deleteBook(book.id); onBack(); }}>
+                  <button className={rw.menuBtn(true)} onClick={() => { deleteBook(book.id); onBack(); }}>
                     <TrashIcon size={12} /> Delete book
                   </button>
                 </div>
@@ -330,13 +331,13 @@ function BookDetail({ book, now, onBack }: { book: Book; now: number; onBack: ()
       </header>
 
       <Tabs value={activeSubTab} onValueChange={setActiveSubTab} className="rw-tabs">
-        <div className="rw-tabs-row">
-          <TabsList>
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="quotes">Quotes ({stats.quoteCount})</TabsTrigger>
-            <TabsTrigger value="vocab">Words ({stats.vocabCount})</TabsTrigger>
-            <TabsTrigger value="notes">Notes ({stats.noteCount})</TabsTrigger>
-            <TabsTrigger value="timeline">Timeline</TabsTrigger>
+        <div className={rw.tabsRow}>
+          <TabsList className={rw.tabsList}>
+            <TabsTrigger className={rw.tabsTrigger} value="overview">Overview</TabsTrigger>
+            <TabsTrigger className={rw.tabsTrigger} value="quotes">Quotes ({stats.quoteCount})</TabsTrigger>
+            <TabsTrigger className={rw.tabsTrigger} value="vocab">Words ({stats.vocabCount})</TabsTrigger>
+            <TabsTrigger className={rw.tabsTrigger} value="notes">Notes ({stats.noteCount})</TabsTrigger>
+            <TabsTrigger className={rw.tabsTrigger} value="timeline">Timeline</TabsTrigger>
           </TabsList>
           {activeSubTab === "overview" && <BookCapture bookId={book.id} />}
           {activeSubTab === "quotes" && <BookCapture bookId={book.id} initialMode="quote" triggerLabel="Add Quote" />}
@@ -344,19 +345,19 @@ function BookDetail({ book, now, onBack }: { book: Book; now: number; onBack: ()
           {activeSubTab === "notes" && <BookCapture bookId={book.id} initialMode="note" triggerLabel="Add Note" />}
         </div>
 
-        <TabsContent value="overview">
+        <TabsContent className={rw.tabsContent} value="overview">
           <OverviewTab book={book} captures={captures} stats={stats} onSwitchTab={setActiveSubTab} />
         </TabsContent>
-        <TabsContent value="quotes">
+        <TabsContent className={rw.tabsContent} value="quotes">
           <QuotesTab book={book} captures={captures} now={now} />
         </TabsContent>
-        <TabsContent value="vocab">
+        <TabsContent className={rw.tabsContent} value="vocab">
           <VocabTab book={book} captures={captures} />
         </TabsContent>
-        <TabsContent value="notes">
+        <TabsContent className={rw.tabsContent} value="notes">
           <NotesTab captures={captures} now={now} />
         </TabsContent>
-        <TabsContent value="timeline">
+        <TabsContent className={rw.tabsContent} value="timeline">
           <TimelineTab book={book} captures={captures} now={now} />
         </TabsContent>
       </Tabs>
@@ -375,12 +376,12 @@ function ProgressEditor({ book, stats, onSet }: { book: Book; stats: BookStats; 
         <div className="rw-progress-edit-fields">
           <div className="field">
             <span className="lbl">Page</span>
-            <input className="rw-input" type="number" placeholder="Current" value={cur} onChange={(e) => setCur(e.target.value)} />
+            <input className={rw.input} type="number" placeholder="Current" value={cur} onChange={(e) => setCur(e.target.value)} />
           </div>
           <div className="field-sep">/</div>
           <div className="field">
             <span className="lbl">Total</span>
-            <input className="rw-input" type="number" placeholder="Total" value={tot} onChange={(e) => setTot(e.target.value)} />
+            <input className={rw.input} type="number" placeholder="Total" value={tot} onChange={(e) => setTot(e.target.value)} />
           </div>
         </div>
         <div className="rw-progress-edit-actions">
@@ -425,8 +426,8 @@ function OverviewTab({ book, captures, stats, onSwitchTab }: { book: Book; captu
   }, [captures.all, book.startedAt, book.finishedAt]);
 
   return (
-    <div className="rw-overview">
-      <div className="rw-overview-grid">
+    <div className={rw.overview}>
+      <div className={rw.overviewGrid}>
         {/* Left Column: Reading Summary */}
         <section className="rw-overview-section reading-summary">
           <h4>Reading Summary</h4>
@@ -466,7 +467,7 @@ function OverviewTab({ book, captures, stats, onSwitchTab }: { book: Book; captu
           </div>
           {stats.progress != null && (
             <div className="summary-progress-container">
-              <div className="rw-progress-bar lg"><span style={{ width: `${Math.round(stats.progress * 100)}%` }} /></div>
+              <div className={rw.progressBarLg}><span className={rw.progressBarFill} style={{ width: `${Math.round(stats.progress * 100)}%` }} /></div>
               <span className="progress-percentage">{Math.round(stats.progress * 100)}% completed</span>
             </div>
           )}
@@ -491,7 +492,7 @@ function OverviewTab({ book, captures, stats, onSwitchTab }: { book: Book; captu
       <hr className="section-divider" />
 
       {/* Previews Row */}
-      <div className="rw-overview-previews">
+      <div className={rw.overviewGrid}>
         {/* Vocabulary Preview */}
         <section className="rw-preview-section">
           <div className="section-header-row">
@@ -567,28 +568,28 @@ function QuoteRow({ note, now, allQuotes }: { note: Note; now: number; allQuotes
       <p className="rw-kindle-text">"{cleanQuote(note.body)}"</p>
       <div className="rw-kindle-foot">
         <div className="tags">
-          {(note.tags ?? []).filter((t) => t !== "quote").map((t) => <span key={t} className="rw-inline-tag">#{t}</span>)}
+          {(note.tags ?? []).filter((t) => t !== "quote").map((t) => <span key={t} className={rw.tag}>#{t}</span>)}
         </div>
         <div className="actions">
-          <button className={`rw-icon-btn ${note.favorite ? "on" : ""}`} onClick={() => updateNote(note.id, { favorite: !note.favorite })} aria-label="Favorite">
+          <button className={rw.iconBtn(note.favorite)} onClick={() => updateNote(note.id, { favorite: !note.favorite })} aria-label="Favorite">
             <StarIcon size={13} weight={note.favorite ? "fill" : "regular"} />
           </button>
           {isLLMEnabled() && (
             <Popover>
-              <PopoverTrigger asChild><button className="rw-icon-btn" aria-label="AI actions"><SparkleIcon size={13} weight="fill" /></button></PopoverTrigger>
+              <PopoverTrigger asChild><button className={rw.iconBtn()} aria-label="AI actions"><SparkleIcon size={13} weight="fill" /></button></PopoverTrigger>
               <PopoverContent align="end" style={{ width: 170 }}>
-                <div className="rw-menu">
-                  <button onClick={() => runAI("explain")}>Explain quote</button>
-                  <button onClick={() => runAI("connect")}>Connect to another</button>
-                  <button onClick={() => runAI("themes")}>Summarize themes</button>
+                <div className={rw.menu}>
+                  <button className={rw.menuBtn()} onClick={() => runAI("explain")}>Explain quote</button>
+                  <button className={rw.menuBtn()} onClick={() => runAI("connect")}>Connect to another</button>
+                  <button className={rw.menuBtn()} onClick={() => runAI("themes")}>Summarize themes</button>
                 </div>
               </PopoverContent>
             </Popover>
           )}
           <Popover>
-            <PopoverTrigger asChild><button className="rw-icon-btn" aria-label="More"><DotsThreeIcon size={15} weight="bold" /></button></PopoverTrigger>
+            <PopoverTrigger asChild><button className={rw.iconBtn()} aria-label="More"><DotsThreeIcon size={15} weight="bold" /></button></PopoverTrigger>
             <PopoverContent align="end" style={{ width: 120 }}>
-              <div className="rw-menu"><button className="danger" onClick={() => deleteNote(note.id)}><TrashIcon size={12} /> Delete</button></div>
+              <div className={rw.menu}><button className={rw.menuBtn(true)} onClick={() => deleteNote(note.id)}><TrashIcon size={12} /> Delete</button></div>
             </PopoverContent>
           </Popover>
         </div>
@@ -644,23 +645,23 @@ function VocabTableRow({ note }: { note: Note }) {
         {note.page != null ? `Page ${note.page}` : "—"}
       </td>
       <td className="vocab-status-cell">
-        <span className={`rw-vocab-status s-${status}`}>{VOCAB_LABEL[status]}</span>
+        <span className={rw.vocabStatus(status)}>{VOCAB_LABEL[status]}</span>
       </td>
       <td className="vocab-actions-cell">
         <div className="vocab-row-actions">
           <Popover>
             <PopoverTrigger asChild>
-              <button className="rw-icon-btn" aria-label="Review status"><ClockIcon size={13} /></button>
+              <button className={rw.iconBtn()} aria-label="Review status"><ClockIcon size={13} /></button>
             </PopoverTrigger>
             <PopoverContent align="end" style={{ width: 140 }}>
-              <div className="rw-menu">
+              <div className={rw.menu}>
                 {VOCAB_ORDER.map((s) => (
-                  <button key={s} className={status === s ? "active" : ""} onClick={() => reviewVocab(note.id, s)}>{VOCAB_LABEL[s]}</button>
+                  <button key={s} className={`${rw.menuBtn()}${status === s ? " active" : ""}`} onClick={() => reviewVocab(note.id, s)}>{VOCAB_LABEL[s]}</button>
                 ))}
               </div>
             </PopoverContent>
           </Popover>
-          <button className="rw-icon-btn danger" onClick={() => deleteNote(note.id)} aria-label="Delete"><TrashIcon size={12} /></button>
+          <button className={`${rw.iconBtn()} danger`} onClick={() => deleteNote(note.id)} aria-label="Delete"><TrashIcon size={12} /></button>
         </div>
       </td>
     </tr>
@@ -685,7 +686,7 @@ function NotesTab({ captures, now }: { captures: BookCaptures; now: number }) {
                 <p className="entry-body">{n.body}</p>
                 <div className="entry-foot">
                   <span className="entry-date">{relativeDay(n.createdAt, now)}</span>
-                  <button className="rw-icon-btn danger" onClick={() => deleteNote(n.id)} aria-label="Delete"><TrashIcon size={12} /></button>
+                  <button className={`${rw.iconBtn()} danger`} onClick={() => deleteNote(n.id)} aria-label="Delete"><TrashIcon size={12} /></button>
                 </div>
               </div>
             ))}
@@ -725,10 +726,10 @@ function TimelineTab({ book, captures, now }: { book: Book; captures: BookCaptur
 
 function EmptyTab({ icon, title, hint, bookId, mode }: { icon: React.ReactNode; title: string; hint: string; bookId: string; mode: "quote" | "vocab" | "note" }) {
   return (
-    <div className="rw-empty">
+    <div className={rw.empty}>
       {icon}
-      <h4>{title}</h4>
-      <p>{hint}</p>
+      <h4 className={rw.emptyH4}>{title}</h4>
+      <p className={rw.emptyP}>{hint}</p>
       {bookId && <BookCapture bookId={bookId} initialMode={mode} />}
     </div>
   );

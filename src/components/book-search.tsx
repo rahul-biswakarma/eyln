@@ -52,11 +52,12 @@ export function BookSearch({
   };
 
   return (
-    <div className="book-search">
-      <div className="book-search-input">
+    <div className="book-search relative">
+      <div className="flex items-center gap-2 bg-surface-inset border border-border rounded-sm px-[0.7rem] text-text-dim focus-within:border-accent">
         {loading ? <CircleNotchIcon size={14} className="spin animate-spin" /> : <MagnifyingGlassIcon size={14} />}
         <input
           type="text"
+          className="flex-1 bg-transparent border-none text-text py-[0.6rem] text-[0.85rem] focus:outline-none"
           placeholder={placeholder}
           value={query}
           autoFocus={autoFocus}
@@ -65,17 +66,21 @@ export function BookSearch({
         />
       </div>
       {open && results.length > 0 && (
-        <div className="book-search-results">
+        <div className="absolute z-30 top-[calc(100%+4px)] left-0 right-0 bg-surface-2 border border-border-bright rounded-sm shadow-card overflow-x-hidden overflow-y-auto max-h-[340px]">
           {results.map((r) => (
-            <button key={r.key} className="book-search-result" onClick={() => pick(r)}>
+            <button
+              key={r.key}
+              className="flex gap-[0.7rem] items-center w-full text-left bg-transparent border-b border-b-border py-[0.55rem] px-[0.7rem] cursor-pointer transition-colors duration-200 ease-brand last:border-b-0 hover:bg-accent-soft"
+              onClick={() => pick(r)}
+            >
               {r.coverUrl ? (
-                <img src={r.coverUrl} alt="" loading="lazy" />
+                <img src={r.coverUrl} alt="" loading="lazy" className="w-8 h-[46px] object-cover rounded-[3px] shrink-0 shadow-card" />
               ) : (
-                <span className="book-search-nocover"><BookOpenIcon size={16} weight="duotone" /></span>
+                <span className="grid place-items-center w-8 h-[46px] rounded-[3px] bg-surface-inset text-text-faint shrink-0"><BookOpenIcon size={16} weight="duotone" /></span>
               )}
-              <span className="book-search-meta">
-                <span className="title">{r.title}</span>
-                <span className="sub">{[r.author, r.year].filter(Boolean).join(" · ")}</span>
+              <span className="flex flex-col min-w-0">
+                <span className="text-[0.82rem] text-text whitespace-nowrap overflow-hidden text-ellipsis">{r.title}</span>
+                <span className="text-[0.72rem] text-text-dim">{[r.author, r.year].filter(Boolean).join(" · ")}</span>
               </span>
             </button>
           ))}

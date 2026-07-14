@@ -87,20 +87,20 @@ export function CaptureWorkspace({ onClose, onSave, }: {
             bookId: linkedBookId || undefined,
         });
     };
-    return createPortal(<div className="capture-overlay" onClick={onClose}>
-      <div className="capture-workspace" onClick={(e) => e.stopPropagation()}>
-        <div className="capture-header">
-          <span className="capture-kicker">Capture Knowledge</span>
-          <button className="capture-close" onClick={onClose} aria-label="Close">
+    return createPortal(<div className="fixed inset-0 z-[1000] flex items-start justify-center pt-[min(14vh,140px)] bg-[rgba(6,6,9,0.6)] backdrop-blur-[6px]" onClick={onClose}>
+      <div className="w-[min(600px,92vw)] max-h-[calc(100vh-min(14vh,140px)-2rem)] overflow-y-auto bg-surface border border-border-bright rounded-[20px] shadow-[0_30px_90px_rgba(0,0,0,0.55),0_0_0_1px_rgba(255,255,255,0.02)] pt-[1.6rem] pr-[1.7rem] pb-[1.4rem] pl-[1.7rem] animate-[capture-rise_0.22s_var(--ease)_both]" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-[0.3rem]">
+          <span className="font-mono text-[0.68rem] uppercase tracking-[0.12em] text-accent">Capture Knowledge</span>
+          <button className="bg-transparent border-none text-text-faint cursor-pointer w-[26px] h-[26px] grid place-items-center rounded-full transition duration-200 ease-brand hover:text-text hover:bg-[rgba(255,255,255,0.06)]" onClick={onClose} aria-label="Close">
             <XIcon size={15}/>
           </button>
         </div>
-        <p className="capture-prompt">What would you like to remember?</p>
+        <p className="font-display text-[1.3rem] font-semibold text-text mt-[0.1rem] mx-0 mb-[1.1rem]">What would you like to remember?</p>
 
-        <div className="capture-input-wrap">
-          {kind === "formula" ? (<FormulaBuilder value={formula} onChange={setFormula}/>) : (<textarea ref={textareaRef} className="capture-input" placeholder="Type, paste, or drag content here..." value={text} onChange={(e) => setText(e.target.value)} rows={4}/>)}
+        <div className="flex flex-col gap-[0.5rem]">
+          {kind === "formula" ? (<FormulaBuilder value={formula} onChange={setFormula}/>) : (<textarea ref={textareaRef} className="w-full bg-surface-inset border border-border rounded py-[0.85rem] px-[1rem] font-sans text-[0.96rem] leading-[1.55] text-text outline-none resize-none transition-[border-color,box-shadow] duration-200 ease-brand focus:border-border-glow focus:shadow-[0_0_0_3px_var(--accent-soft)]" placeholder="Type, paste, or drag content here..." value={text} onChange={(e) => setText(e.target.value)} rows={4}/>)}
 
-          {(kind === "quote" || kind === "vocab") && (<input type="text" className="capture-source" placeholder={kind === "quote" ? "Source — book, page (optional)" : "Source (optional)"} value={source} onChange={(e) => setSource(e.target.value)}/>)}
+          {(kind === "quote" || kind === "vocab") && (<input type="text" className="w-full bg-surface-inset border border-border rounded-sm py-[0.55rem] px-[0.8rem] font-sans text-[0.84rem] text-text outline-none focus:border-border-glow" placeholder={kind === "quote" ? "Source — book, page (optional)" : "Source (optional)"} value={source} onChange={(e) => setSource(e.target.value)}/>)}
 
           {(detected === "quote" || detected === "vocab") && (<div className="capture-book-picker">
               <select className="capture-book-select" value={bookId} onChange={(e) => setBookId(e.target.value)}>
@@ -114,33 +114,33 @@ export function CaptureWorkspace({ onClose, onSave, }: {
                     setBookId(id);
                     setNewBookTitle("");
                   }}/>
-                  <input type="text" className="capture-source" placeholder="…or type a title manually" value={newBookTitle} onChange={(e) => setNewBookTitle(e.target.value)}/>
+                  <input type="text" className="w-full bg-surface-inset border border-border rounded-sm py-[0.55rem] px-[0.8rem] font-sans text-[0.84rem] text-text outline-none focus:border-border-glow" placeholder="…or type a title manually" value={newBookTitle} onChange={(e) => setNewBookTitle(e.target.value)}/>
                 </div>)}
             </div>)}
         </div>
 
-        <div className="capture-footer-row">
-          <div className="capture-detect">
-            {detected && (<span className="capture-detect-pill">
+        <div className="flex items-center justify-between gap-[0.8rem] mt-[0.8rem]">
+          <div className="min-h-[22px]">
+            {detected && (<span className="inline-flex items-center gap-[0.35rem] font-mono text-[0.72rem] text-highlight bg-accent-soft border border-border-glow rounded-pill py-[0.25rem] px-[0.65rem] animate-[fade_0.15s_var(--ease)_both]">
                 <MagicWandIcon size={11} weight="fill"/> Detected as {KIND_LABEL[detected]}
               </span>)}
           </div>
-          <div className="capture-actions">
-            <button className="capture-save-btn" onClick={handleSave} disabled={!canSave}>
+          <div className="flex items-center gap-[0.5rem]">
+            <button className="bg-accent text-on-accent border-none rounded-sm py-[0.5rem] px-[1.1rem] text-[0.86rem] font-semibold cursor-pointer transition duration-200 ease-brand enabled:hover:bg-highlight disabled:opacity-40 disabled:cursor-not-allowed" onClick={handleSave} disabled={!canSave}>
               Save
             </button>
           </div>
         </div>
 
-        <div className="capture-shortcuts">
-          {GROUPS.map((group) => (<div key={group.title} className="capture-group">
-              <span className="capture-group-title">{group.title}</span>
-              <div className="capture-cards">
-                {CAPTURE_SHORTCUTS.filter((s) => group.kinds.includes(s.kind)).map((s) => (<button key={s.kind} className={`capture-card ${kind === s.kind ? "active" : ""}`} onClick={() => openShortcut(s.kind)}>
-                    <span className="capture-card-ic">{SHORTCUT_ICON[s.icon]}</span>
-                    <span className="capture-card-text">
-                      <span className="capture-card-label">{s.label}</span>
-                      <span className="capture-card-desc">{s.desc}</span>
+        <div className="flex flex-col gap-[1rem] mt-[1.3rem] pt-[1.2rem] border-t border-border">
+          {GROUPS.map((group) => (<div key={group.title} className="flex flex-col gap-[0.5rem]">
+              <span className="font-mono text-[0.64rem] uppercase tracking-[0.1em] text-text-faint">{group.title}</span>
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-[0.6rem]">
+                {CAPTURE_SHORTCUTS.filter((s) => group.kinds.includes(s.kind)).map((s) => (<button key={s.kind} className={`flex items-start gap-[0.6rem] border rounded-sm py-[0.7rem] px-[0.8rem] text-left cursor-pointer transition-[transform,border-color,background] duration-200 ease-brand hover:-translate-y-px ${kind === s.kind ? "border-border-glow bg-accent-soft" : "border-border bg-surface-2 hover:border-border-bright hover:bg-surface"}`} onClick={() => openShortcut(s.kind)}>
+                    <span className="text-accent shrink-0 mt-[0.1rem]">{SHORTCUT_ICON[s.icon]}</span>
+                    <span className="flex flex-col gap-[0.15rem] min-w-0">
+                      <span className="text-[0.84rem] font-medium text-text">{s.label}</span>
+                      <span className="text-[0.72rem] text-text-faint leading-[1.35]">{s.desc}</span>
                     </span>
                   </button>))}
               </div>

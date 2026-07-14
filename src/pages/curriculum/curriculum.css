@@ -1,15 +1,6 @@
-
-
-
-.track-section {
-  --track-accent: var(--accent);
-  margin-top: 3rem;
-}
-
-.track-section:first-of-type {
-  margin-top: 1rem;
-}
-
+/* RETAINED: these rules use color-mix(), a linear/radial gradient built from the
+   per-instance `--track-accent` CSS var (set inline in curriculum.tsx), and a
+   ::before underline accent — none of which map cleanly to static utilities. */
 .track-header {
   display: flex;
   align-items: center;
@@ -71,11 +62,4 @@
   .track-header .track-count {
     display: none;
   }
-}
-
-
-.mod-grid {
-  display: grid;
-  gap: 1.25rem;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
 }

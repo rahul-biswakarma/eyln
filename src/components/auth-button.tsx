@@ -53,29 +53,29 @@ export function AuthButton() {
     if (!isFirebaseEnabled())
         return null;
     if (!ready)
-        return <div className="auth-btn skeleton" aria-hidden/>;
+        return <div className="w-[38px] h-[38px] flex-none p-0 grid place-items-center rounded-full overflow-hidden bg-surface-2 border border-border" aria-hidden/>;
     if (!user) {
-        return (<button className="btn auth-signin" onClick={signIn} title="Sign in to sync your progress">
+        return (<button className="btn py-2 px-[1.05rem]" onClick={signIn} title="Sign in to sync your progress">
         Sign in
       </button>);
     }
     const initial = (user.name ?? user.email ?? "?").charAt(0).toUpperCase();
-    return (<div className="auth-wrap">
-      <button ref={btnRef} className="auth-btn" onClick={() => setOpen((o) => !o)} title={user.email ?? "Account"} aria-haspopup="menu" aria-expanded={open}>
-        {user.photoURL ? (<img src={user.photoURL} alt="" referrerPolicy="no-referrer"/>) : (<span className="auth-initial">{initial}</span>)}
+    return (<div className="relative">
+      <button ref={btnRef} className="w-[38px] h-[38px] flex-none p-0 cursor-pointer grid place-items-center rounded-full overflow-hidden bg-surface border border-border-bright transition-[border-color,box-shadow] duration-200 ease-brand hover:border-border-glow hover:shadow-[0_0_0_3px_var(--accent-soft)]" onClick={() => setOpen((o) => !o)} title={user.email ?? "Account"} aria-haspopup="menu" aria-expanded={open}>
+        {user.photoURL ? (<img className="w-full h-full object-cover" src={user.photoURL} alt="" referrerPolicy="no-referrer"/>) : (<span className="font-display font-semibold text-accent text-[0.9rem]">{initial}</span>)}
       </button>
 
       {open &&
-            createPortal(<div ref={menuRef} className="auth-menu card" role="menu" style={{ top: pos.top, right: pos.right }}>
-            <div className="auth-id">
-              <div className="auth-name">{user.name ?? "Signed in"}</div>
-              {user.email && <div className="auth-email">{user.email}</div>}
+            createPortal(<div ref={menuRef} className="auth-menu card fixed z-[80] w-[248px] p-[1.1rem] grid gap-[0.7rem] border border-border-bright shadow-[var(--shadow-lg),0_0_0_1px_rgba(255,176,0,0.08)]" role="menu" style={{ top: pos.top, right: pos.right }}>
+            <div className="leading-[1.35]">
+              <div className="font-display font-semibold text-text">{user.name ?? "Signed in"}</div>
+              {user.email && <div className="text-[0.76rem] text-text-faint font-mono break-all">{user.email}</div>}
             </div>
-            <div className="auth-synced">✓ Progress synced to the cloud</div>
-            <Link className="btn primary auth-menu-btn" to="/profile" onClick={() => setOpen(false)}>
+            <div className="text-[0.76rem] text-good font-mono">✓ Progress synced to the cloud</div>
+            <Link className="btn primary w-full justify-center" to="/profile" onClick={() => setOpen(false)}>
               View profile
             </Link>
-            <button className="btn auth-menu-btn" onClick={() => { setOpen(false); void signOut(); }}>
+            <button className="btn w-full justify-center" onClick={() => { setOpen(false); void signOut(); }}>
               Sign out
             </button>
           </div>, document.body)}

@@ -1,63 +1,25 @@
+/*
+ * Retained styles for the shared "knowledge card" surface.
+ *
+ * NOTE: this file is NOT private to knowledge-card.tsx. The classes below are
+ * rendered by quiz.tsx, exercise.tsx and lesson-layout.tsx (which are outside
+ * the scope of this migration and cannot be edited here), or are complex rules
+ * (@keyframes, color-mix(), radial/linear gradients, ::after pseudo-elements,
+ * and parent-tone → child descendant selectors) that don't map cleanly to
+ * utilities. The layout-only classes used solely by knowledge-card.tsx
+ * (kc-wrap, kc-segs, kc-seg, kc-stack, kc-ghost, kc-eyebrow, kc-question,
+ * kc-area, kc-footer, kc-actions-*) were converted to Tailwind utilities and
+ * removed.
+ *
+ * `--kc-accent` is now set inline on the card wrapper in knowledge-card.tsx
+ * ([--kc-accent:var(--track-accent,var(--accent))]) and consumed by the
+ * descendant rules below.
+ */
 
 
-
-.kc-wrap {
-  --kc-accent: var(--track-accent, var(--accent));
-  margin: 0.6rem 0 0.4rem;
-}
-
-
-.kc-segs {
-  display: flex;
-  gap: 5px;
-  margin-bottom: 1.4rem;
-}
-
-.kc-seg {
-  flex: 1;
-  height: 4px;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--text) 8%, transparent);
-  transition: background 0.5s var(--ease), box-shadow 0.5s var(--ease);
-}
-
-.kc-seg.done {
-  background: var(--kc-accent);
-  box-shadow: 0 0 10px color-mix(in srgb, var(--kc-accent) 45%, transparent);
-}
-
-.kc-seg.current {
-  background: color-mix(in srgb, var(--kc-accent) 45%, transparent);
-}
-
-
-.kc-stack {
-  position: relative;
-}
-
-.kc-ghost {
-  position: absolute;
-  inset: 10px 0 auto;
-  height: 100%;
-  border-radius: 22px;
-  border: 1px solid var(--border);
-  background: var(--surface-2);
-  pointer-events: none;
-  z-index: 0;
-  transform-origin: 50% 92%;
-}
-
-.kc-ghost.g1 {
-  transform: rotate(-1.6deg) translateY(4px);
-  opacity: 0.5;
-}
-
-.kc-ghost.g2 {
-  transform: rotate(1.4deg) translateY(8px);
-  opacity: 0.3;
-}
-
-
+/* .kc-card: rendered by knowledge-card.tsx but retained — complex gradient +
+   color-mix + rise/shake @keyframes, and used as a DOM query hook by
+   lesson-layout.tsx. */
 .kc-card {
   position: relative;
   z-index: 1;
@@ -103,6 +65,8 @@
   }
 }
 
+/* .kc-glow + tone rules: radial gradients, color-mix, and parent-tone
+   descendant selectors driving the glow opacity/color. */
 .kc-glow {
   position: absolute;
   inset: -60% 30% auto;
@@ -136,33 +100,9 @@
   background: radial-gradient(closest-side, color-mix(in srgb, var(--bad) 20%, transparent), transparent);
 }
 
-.kc-eyebrow {
-  position: relative;
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--kc-accent);
-  margin-bottom: 1rem;
-}
 
-.kc-question {
-  position: relative;
-  font-family: var(--display);
-  font-weight: 500;
-  letter-spacing: -0.01em;
-  font-size: clamp(1.35rem, 2.6vw, 1.7rem);
-  line-height: 1.32;
-  color: var(--text);
-  margin-bottom: 1.8rem;
-  max-width: 30ch;
-}
-
-.kc-area {
-  position: relative;
-}
-
-
+/* .kc-notebook*: rendered by exercise.tsx. Includes ::placeholder and the
+   .kc-notebook-rule::after animated underline pseudo-element. */
 .kc-notebook {
   position: relative;
   cursor: text;
@@ -251,6 +191,8 @@
 }
 
 
+/* .kc-options / .kc-opt / .kc-radio: rendered by quiz.tsx. color-mix borders
+   and parent-hover → .kc-radio descendant selectors. */
 .kc-options {
   display: flex;
   flex-direction: column;
@@ -331,6 +273,8 @@
 }
 
 
+/* .kc-feedback / .kc-fb-head: rendered by quiz.tsx and exercise.tsx.
+   color-mix borders, kc-fade @keyframes, and parent-tone descendant selectors. */
 .kc-feedback {
   position: relative;
   margin-top: 1.4rem;
@@ -385,6 +329,8 @@
   line-height: 1.6;
 }
 
+/* .kc-hint: rendered by exercise.tsx. color-mix background, kc-fade @keyframes,
+   and a descendant svg color rule. */
 .kc-hint {
   position: relative;
   display: flex;
@@ -406,6 +352,7 @@
   margin-top: 2px;
 }
 
+/* .kc-coach*: rendered by quiz.tsx. */
 .kc-coach {
   margin-top: 0.8rem;
 }
@@ -429,22 +376,8 @@
 }
 
 
-.kc-footer {
-  position: relative;
-  margin-top: 1.8rem;
-}
-
-.kc-actions-primary {
-  display: flex;
-}
-
-.kc-actions-sub {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  margin-top: 0.7rem;
-}
-
+/* .kc-btn*: rendered by quiz.tsx and exercise.tsx. accent gradient, color-mix
+   shadow, and :hover/:disabled states. */
 .kc-btn {
   display: inline-flex;
   align-items: center;
@@ -507,6 +440,8 @@
 }
 
 
+/* .kc-solved*: rendered by exercise.tsx. color-mix background/border,
+   kc-fade @keyframes. */
 .kc-solved {
   display: flex;
   align-items: center;
@@ -554,6 +489,8 @@
 }
 
 
+/* .kc-complete*: rendered by quiz.tsx. radial/linear gradients, color-mix,
+   drop-shadow, kc-rise @keyframes, and a `> i` child meter fill. */
 .kc-complete {
   position: relative;
   overflow: hidden;

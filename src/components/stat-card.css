@@ -1,33 +1,5 @@
-
-
-.stat-card .label {
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  color: var(--text-faint);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.stat-card .value {
-  font-family: var(--display);
-  font-size: 2.1rem;
-  font-weight: 600;
-  letter-spacing: -0.03em;
-  margin-top: 0.5rem;
-  color: var(--text);
-}
-
-.stat-card .foot {
-  margin-top: 0.4rem;
-  font-size: 0.78rem;
-  color: var(--text-faint);
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
+/* Retained: .delta is used by dashboard.tsx; .urgent is a StatCard className
+   modifier. Element styles (.label/.value/.foot) are now Tailwind utilities. */
 
 .delta {
   font-size: 0.74rem;
@@ -52,7 +24,6 @@
   box-shadow: inset 0 0 10px rgba(255, 176, 0, 0.05), 0 0 12px rgba(255, 176, 0, 0.08);
 }
 
-.stat-card.urgent .value {
+.stat-card.urgent .stat-card-value {
   color: var(--accent);
 }
-

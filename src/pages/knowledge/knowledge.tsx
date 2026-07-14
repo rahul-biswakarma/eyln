@@ -17,6 +17,7 @@ import { relativeTime } from "../../lib/stats";
 import { groupByTimeline } from "../../lib/timeline";
 import { noteKind, notePreviewLine, noteCodeBlock, noteFormula, NOTE_KIND_META, type NoteKind } from "../../lib/note-kind";
 import { searchKnowledge, type KnowledgeResult } from "../../lib/knowledge-search";
+import * as rw from "./rw-styles";
 import { ModuleIcon } from "../../components/module-icon";
 import { M, MBlock } from "../../components/math";
 import { Code as ShikiCode } from "../../components/code-block";
@@ -175,59 +176,59 @@ export function Knowledge() {
       dueAt: Date.now() + days * 24 * 60 * 60 * 1000
     });
   };
-  return (<div className="notebook-shell">
+  return (<div className={rw.shell}>
 
-    <div className="nb-workspace">
+    <div className={rw.workspace}>
 
-      <aside className="nb-sidebar">
-        <span className="sidebar-group-title">Workspace</span>
-        <nav className="sidebar-links">
-          {WORKSPACE_ITEMS.map((item) => (<button key={item.tab} className={`sidebar-link ${activeTab === item.tab ? "active" : ""}`} onClick={() => { setFocusTarget(null); setActiveTab(item.tab); }}>
-            {item.icon} {item.label} <span className="badge">{item.count(notes, activeReminders.length)}</span>
-          </button>))}
+      <aside className={rw.sidebar}>
+        <span className={rw.sidebarGroupTitle}>Workspace</span>
+        <nav className={rw.sidebarLinks}>
+          {WORKSPACE_ITEMS.map((item) => { const a = activeTab === item.tab; return (<button key={item.tab} className={rw.sidebarLink(a)} onClick={() => { setFocusTarget(null); setActiveTab(item.tab); }}>
+            {item.icon} {item.label} <span className={rw.sidebarBadge(a)}>{item.count(notes, activeReminders.length)}</span>
+          </button>); })}
         </nav>
 
-        <span className="sidebar-group-title">Collections</span>
-        <nav className="sidebar-links">
-          <button className={`sidebar-link ${activeTab === "spaces" ? "active" : ""}`} onClick={() => { setFocusTarget(null); setActiveTab("spaces"); }}>
+        <span className={rw.sidebarGroupTitle}>Collections</span>
+        <nav className={rw.sidebarLinks}>
+          <button className={rw.sidebarLink(activeTab === "spaces")} onClick={() => { setFocusTarget(null); setActiveTab("spaces"); }}>
             <GraduationCapIcon size={16} /> Learning Spaces
           </button>
-          <button className={`sidebar-link ${activeTab === "books" ? "active" : ""}`} onClick={() => { setFocusTarget(null); setActiveTab("books"); }}>
-            <BookOpenIcon size={16} /> Books <span className="badge">{books.length}</span>
+          <button className={rw.sidebarLink(activeTab === "books")} onClick={() => { setFocusTarget(null); setActiveTab("books"); }}>
+            <BookOpenIcon size={16} /> Books <span className={rw.sidebarBadge(activeTab === "books")}>{books.length}</span>
           </button>
-          <button className={`sidebar-link ${activeTab === "projects" ? "active" : ""}`} onClick={() => { setFocusTarget(null); setActiveTab("projects"); }}>
-            <StackIcon size={16} /> Projects <span className="badge">{projects.length}</span>
+          <button className={rw.sidebarLink(activeTab === "projects")} onClick={() => { setFocusTarget(null); setActiveTab("projects"); }}>
+            <StackIcon size={16} /> Projects <span className={rw.sidebarBadge(activeTab === "projects")}>{projects.length}</span>
           </button>
-          <button className={`sidebar-link ${activeTab === "scratchpad" ? "active" : ""}`} onClick={() => { setFocusTarget(null); setActiveTab("scratchpad"); }}>
+          <button className={rw.sidebarLink(activeTab === "scratchpad")} onClick={() => { setFocusTarget(null); setActiveTab("scratchpad"); }}>
             <CodeIcon size={16} /> Scratchpad
           </button>
         </nav>
 
-        <span className="sidebar-group-title">Explore</span>
-        <nav className="sidebar-links">
-          <button className={`sidebar-link ${activeTab === "graph" ? "active" : ""}`} onClick={() => { setFocusTarget(null); setActiveTab("graph"); }}>
+        <span className={rw.sidebarGroupTitle}>Explore</span>
+        <nav className={rw.sidebarLinks}>
+          <button className={rw.sidebarLink(activeTab === "graph")} onClick={() => { setFocusTarget(null); setActiveTab("graph"); }}>
             <GraphIcon size={16} /> Knowledge Graph
           </button>
-          <button className={`sidebar-link ${activeTab === "bookmarks" ? "active" : ""}`} onClick={() => { setFocusTarget(null); setActiveTab("bookmarks"); }}>
-            <BookmarkSimpleIcon size={16} /> Bookmarks <span className="badge">{bookmarkList.length}</span>
+          <button className={rw.sidebarLink(activeTab === "bookmarks")} onClick={() => { setFocusTarget(null); setActiveTab("bookmarks"); }}>
+            <BookmarkSimpleIcon size={16} /> Bookmarks <span className={rw.sidebarBadge(activeTab === "bookmarks")}>{bookmarkList.length}</span>
           </button>
         </nav>
       </aside>
 
 
-      <main className="nb-content">
+      <main className={rw.content}>
 
-        {globalQuery.trim() ? (<div className="nb-gs-results">
-          {globalResults.length === 0 ? (<div className="nb-empty-state">
+        {globalQuery.trim() ? (<div className={rw.gsResults}>
+          {globalResults.length === 0 ? (<div className={rw.empty}>
             <MagnifyingGlassIcon size={24} weight="duotone" />
-            <h4>No matches</h4>
-            <p>Nothing found across your learning spaces, books, projects, notes or conversations.</p>
-          </div>) : globalResults.map((r, i) => (<button key={i} className="rw-search-hit" onClick={() => openResult(r)}>
-            <span className="rw-hit-ic"><ResultIcon kind={r.kind} /></span>
-            <span className="rw-hit-body">
-              <span className="rw-hit-kind">{r.kind}</span>
-              <span className="rw-hit-text">{r.title}</span>
-              {r.detail && <span className="rw-hit-book">{r.detail}</span>}
+            <h4 className={rw.emptyH4}>No matches</h4>
+            <p className={rw.emptyP}>Nothing found across your learning spaces, books, projects, notes or conversations.</p>
+          </div>) : globalResults.map((r, i) => (<button key={i} className={rw.searchHit} onClick={() => openResult(r)}>
+            <span className={rw.hitIc}><ResultIcon kind={r.kind} /></span>
+            <span className={rw.hitBody}>
+              <span className={rw.hitKind}>{r.kind}</span>
+              <span className={rw.hitText}>{r.title}</span>
+              {r.detail && <span className={rw.hitBook}>{r.detail}</span>}
             </span>
             <ArrowRightIcon size={13} />
           </button>))}

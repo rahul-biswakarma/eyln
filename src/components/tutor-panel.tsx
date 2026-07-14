@@ -189,88 +189,88 @@ export function TutorPanel() {
         });
     };
     if (!open) {
-        return (<button className="tutor-rail-floating" onClick={openTutor} aria-label="Open Companion Workspace">
-        <SparkleIcon size={15} weight="fill" className="glow-icon"/>
-        <span className="tr-label">Companion</span>
+        return (<button className="fixed bottom-6 right-6 z-[99] flex items-center gap-[0.6rem] px-[1.15rem] py-3 rounded-pill border border-border-bright bg-[rgba(19,22,29,0.76)] backdrop-blur-[16px] text-accent font-mono text-[0.7rem] font-medium tracking-[0.08em] uppercase cursor-pointer shadow-[0_10px_40px_rgba(0,0,0,0.4),var(--accent-soft)_0_0_20px] transition-all duration-300 ease-brand hover:bg-surface-2 hover:-translate-y-0.5 hover:border-accent hover:shadow-[0_14px_44px_rgba(0,0,0,0.5),0_0_12px_rgba(255,176,0,0.35)]" onClick={openTutor} aria-label="Open Companion Workspace">
+        <SparkleIcon size={15} weight="fill" className="[filter:drop-shadow(0_0_3px_var(--accent))]"/>
+        <span>Companion</span>
       </button>);
     }
-    return (<aside className="tutor-panel-workspace" aria-label="AI Companion Workspace">
-      
-      <header className="comp-header">
-        <div className="comp-header-left">
-          <span className="comp-kicker">{moduleTitle}</span>
-          <h2 className="comp-title">{ctx.title}</h2>
-          <div className="comp-meta">
+    return (<aside className="sticky top-[70px] flex-none w-[380px] h-[calc(100vh-70px)] flex flex-col bg-surface border-l border-border z-[60] animate-[tp-slide_0.28s_var(--ease)_both] max-[1100px]:fixed max-[1100px]:top-0 max-[1100px]:right-0 max-[1100px]:h-[100dvh] max-[1100px]:z-[61] max-[1100px]:shadow-[-30px_0_80px_rgba(0,0,0,0.5)]" aria-label="AI Companion Workspace">
+
+      <header className="flex justify-between items-start gap-4 pt-[1.6rem] px-[1.6rem] pb-[1.2rem] shrink-0">
+        <div>
+          <span className="block font-mono text-[0.64rem] tracking-[0.12em] uppercase text-accent mb-1">{moduleTitle}</span>
+          <h2 className="font-display text-[1.15rem] font-semibold text-text m-0 mb-[0.4rem] leading-[1.2]">{ctx.title}</h2>
+          <div className="flex items-center gap-[0.4rem] text-[0.74rem] text-text-faint">
             <span>{masteryPct}% Mastered</span>
-            <span className="dot">•</span>
+            <span className="text-border-bright">•</span>
             <span>Currently reading: {currentParagraph || "Opening Section"}</span>
           </div>
         </div>
-        <button className="comp-close-btn" onClick={closeTutor} aria-label="Collapse companion">
+        <button className="grid place-items-center p-[0.2rem] rounded-[4px] bg-transparent border-none text-text-faint cursor-pointer transition-all duration-200 ease-brand hover:text-text hover:bg-[rgba(255,255,255,0.05)]" onClick={closeTutor} aria-label="Collapse companion">
           <XIcon size={15}/>
         </button>
       </header>
 
-      
-      <div className="comp-switcher">
-        <button className={`switcher-tab ${activeTab === "mentor" ? "active" : ""}`} onClick={() => setActiveTab("mentor")}>
+
+      <div className="flex gap-[0.35rem] pt-0 px-[1.6rem] pb-4 border-b border-border shrink-0">
+        <button className={`flex-1 flex items-center justify-center gap-[0.4rem] bg-transparent border-none font-sans text-[0.8rem] py-[0.45rem] px-0 cursor-pointer rounded-xs transition-all duration-200 ease-brand ${activeTab === "mentor" ? "text-highlight bg-accent-soft font-medium" : "text-text-faint hover:text-text-dim hover:bg-[rgba(255,255,255,0.03)]"}`} onClick={() => setActiveTab("mentor")}>
           <SparkleIcon size={13} weight="fill"/>
           <span>Mentor</span>
         </button>
-        <button className={`switcher-tab ${activeTab === "notes" ? "active" : ""}`} onClick={() => setActiveTab("notes")}>
+        <button className={`flex-1 flex items-center justify-center gap-[0.4rem] bg-transparent border-none font-sans text-[0.8rem] py-[0.45rem] px-0 cursor-pointer rounded-xs transition-all duration-200 ease-brand ${activeTab === "notes" ? "text-highlight bg-accent-soft font-medium" : "text-text-faint hover:text-text-dim hover:bg-[rgba(255,255,255,0.03)]"}`} onClick={() => setActiveTab("notes")}>
           <NotebookIcon size={13}/>
           <span>Knowledge Base</span>
-          {lessonNotes.length > 0 && <span className="tab-badge">{lessonNotes.length}</span>}
+          {lessonNotes.length > 0 && <span className="font-mono text-[0.68rem] bg-accent-soft text-accent py-[0.05rem] px-[0.35rem] rounded-pill">{lessonNotes.length}</span>}
         </button>
       </div>
 
-      
-      <div className="comp-workspace-scrollable" ref={logRef}>
-        {activeTab === "mentor" ? (<div className="mentor-workspace">
-            {history.length === 0 ? (<div className="mentor-welcome">
-                <div className="welcome-intro">
-                  <span className="greeting-text">{greeting}.</span>
-                  <p>
+
+      <div className="flex-1 overflow-y-auto p-[1.6rem] flex flex-col min-h-0" ref={logRef}>
+        {activeTab === "mentor" ? (<div>
+            {history.length === 0 ? (<div className="flex flex-col gap-[1.6rem]">
+                <div className="flex flex-col gap-[0.6rem]">
+                  <span className="font-display text-[1.4rem] font-semibold text-text">{greeting}.</span>
+                  <p className="text-[0.9rem] text-text-dim leading-[1.5] m-0">
                     You're currently reading <strong>{ctx.title}</strong>.
                     {currentParagraph && (<>
                         {" "}I noticed you're reviewing <strong>{currentParagraph}</strong>.
                       </>)}
                   </p>
-                  <p className="prompt-lead">What would you like to explore next?</p>
+                  <p className="font-sans text-[0.76rem] text-text-faint uppercase tracking-[0.04em] leading-[1.5] m-0 mt-[0.4rem]">What would you like to explore next?</p>
                 </div>
 
-                <div className="action-cards-grid">
-                  {ACTION_CARDS.map((card) => (<button key={card.key} className="action-card" onClick={() => ask(card.label, card.prompt)} disabled={loading}>
-                      <span className="card-label">{card.label}</span>
-                      <span className="card-desc">{card.desc}</span>
+                <div className="grid grid-cols-1 gap-2">
+                  {ACTION_CARDS.map((card) => (<button key={card.key} className="flex flex-col gap-[0.2rem] bg-surface border border-border rounded-sm py-[0.8rem] px-4 text-left cursor-pointer outline-none transition-all duration-200 ease-brand hover:border-border-bright hover:bg-surface-2 hover:-translate-y-px" onClick={() => ask(card.label, card.prompt)} disabled={loading}>
+                      <span className="font-display text-[0.88rem] font-medium text-text">{card.label}</span>
+                      <span className="text-[0.76rem] text-text-faint">{card.desc}</span>
                     </button>))}
                 </div>
-              </div>) : (<div className="tp-notebook-stream">
-                {history.map((turn, turnIdx) => (<div key={turnIdx} className={`tp-notebook-turn ${turn.role}`}>
-                    {turn.role === "user" ? (<div className="tp-user-query">
-                        <span className="query-decor"/>
-                        <span className="query-text">{turn.text}</span>
-                      </div>) : (<div className="tp-model-response">
+              </div>) : (<div className="flex flex-col gap-8">
+                {history.map((turn, turnIdx) => (<div key={turnIdx} className="flex flex-col gap-4">
+                    {turn.role === "user" ? (<div className="flex items-start gap-[0.6rem] mb-2">
+                        <span className="w-[3px] h-4 bg-accent rounded-[2px] shrink-0 mt-[0.2rem]"/>
+                        <span className="text-[0.94rem] font-medium text-text">{turn.text}</span>
+                      </div>) : (<div className="relative flex flex-col gap-4 p-[1.2rem] bg-surface border border-border rounded-sm">
                         {parseMarkdown(turn.text).map((block, blockIdx) => {
                             const rawBody = block.type === "code"
                                 ? `\`\`\`${block.lang || "ts"}\n${block.content}\n\`\`\``
                                 : (block.type === "math" ? `$$\n${block.content}\n$$` : block.content);
                             const isPinned = lessonNotes.some((n) => n.body.trim() === rawBody.trim());
-                            return (<div key={blockIdx} className={`tp-notebook-block ${block.type}`}>
-                              {block.type !== "heading" && (<div className="tp-block-actions">
+                            return (<div key={blockIdx} className={`group relative leading-[1.6] text-[0.9rem]${block.type === "text" ? " text-text-dim" : ""}`}>
+                              {block.type !== "heading" && (<div className="absolute right-0 top-0 flex gap-[0.3rem] opacity-0 group-hover:opacity-100 transition-opacity duration-150 ease-[ease] z-10">
                                   <Tooltip content={isPinned ? "Already Pinned" : "Pin to Knowledge"}>
-                                    <button className={"action-btn" + (isPinned ? " pinned" : "")} onClick={() => handlePin(block)}>
+                                    <button className={`grid place-items-center p-1 border rounded-[4px] cursor-pointer transition-all duration-100 ease-[ease] ${isPinned ? "bg-accent-soft border-border-glow text-accent" : "bg-surface-2 border-border text-text-faint hover:text-text hover:border-border-bright"}`} onClick={() => handlePin(block)}>
                                       <PushPinIcon size={11} weight={isPinned ? "fill" : "regular"}/>
                                     </button>
                                   </Tooltip>
                                   <Tooltip content="Copy content">
-                                    <button className="action-btn" onClick={() => navigator.clipboard.writeText(block.content)}>
+                                    <button className="grid place-items-center p-1 border border-border rounded-[4px] cursor-pointer transition-all duration-100 ease-[ease] bg-surface-2 text-text-faint hover:text-text hover:border-border-bright" onClick={() => navigator.clipboard.writeText(block.content)}>
                                       <ClipboardTextIcon size={11}/>
                                     </button>
                                   </Tooltip>
                                 </div>)}
-                              <div className="block-inner">
-                                {block.type === "heading" && (<h4 className="nb-heading">{block.content}</h4>)}
+                              <div>
+                                {block.type === "heading" && (<h4 className="font-display text-base font-semibold text-text mx-0 mt-[0.8rem] mb-[0.4rem]">{block.content}</h4>)}
                                 {block.type === "code" && (<ShikiCode code={block.content} lang={block.lang as any}/>)}
                                 {block.type === "math" && (<MBlock>{block.content}</MBlock>)}
                                 {block.type === "text" && (<FormattedText text={block.content}/>)}
@@ -281,106 +281,106 @@ export function TutorPanel() {
                   </div>))}
               </div>)}
 
-            {loading && (<div className="tp-notebook-loading">
+            {loading && (<div className="flex items-center gap-2 text-[0.8rem] text-text-faint py-[0.4rem] px-[0.8rem]">
                 <CircleNotchIcon size={14} className="spin animate-spin"/>
                 <span>Companion is drafting concept…</span>
               </div>)}
 
-            {captured > 0 && (<div className="tp-captured-v2">
+            {captured > 0 && (<div className="inline-flex items-center gap-[0.4rem] text-[0.74rem] text-good bg-[rgba(70,217,138,0.06)] border border-[rgba(70,217,138,0.15)] py-[0.3rem] px-[0.6rem] rounded-[4px] self-start">
                 <ClipboardTextIcon size={13} weight="duotone"/>
                 <span>Captured {captured} task{captured === 1 ? "" : "s"} to profile.</span>
               </div>)}
 
-            {history.length > 0 && (<div className="tp-save-convo">
-                <button className="tp-save-convo-btn" onClick={handleSaveConversation} disabled={savedConvo}>
+            {history.length > 0 && (<div className="mt-[0.6rem] flex justify-center">
+                <button className="inline-flex items-center gap-[0.4rem] bg-surface-inset border border-border rounded-sm text-text-dim text-[0.78rem] py-[0.4rem] px-[0.8rem] cursor-pointer transition-all duration-200 ease-brand hover:text-text hover:border-border-bright disabled:text-good disabled:border-[rgba(70,217,138,0.4)] disabled:cursor-default" onClick={handleSaveConversation} disabled={savedConvo}>
                   {savedConvo ? <><CheckIcon size={13} weight="bold"/> Saved to this space</> : <><BookmarkSimpleIcon size={13}/> Save conversation</>}
                 </button>
               </div>)}
-          </div>) : (<div className="kb-workspace">
-            <div className="kb-search-box">
-              <MagnifyingGlassIcon size={13} className="search-icon"/>
-              <input type="text" placeholder="Search all notes & timeline..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}/>
+          </div>) : (<div>
+            <div className="relative mb-[1.2rem]">
+              <MagnifyingGlassIcon size={13} className="absolute left-[0.6rem] top-1/2 -translate-y-1/2 text-text-faint"/>
+              <input type="text" className="w-full bg-surface-inset border border-border rounded-sm py-[0.4rem] pr-[0.6rem] pl-[1.8rem] font-sans text-[0.82rem] text-text outline-none transition-[border] duration-150 focus:border-border-glow" placeholder="Search all notes & timeline..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}/>
             </div>
 
-            <div className="kb-timeline-list">
-              <span className="kb-section-title">Timeline & Learning Journey</span>
-              
-              
-              <div className="kb-timeline-milestone">
-                <span className="time-lbl">Today</span>
-                <div className="milestone-content">
-                  <div className="milestone-dot"/>
-                  <span className="milestone-title">Started lesson session</span>
-                  <span className="milestone-desc">Reviewed "{ctx.title}" for {elapsedMinutes} minutes</span>
+            <div className="flex flex-col gap-[0.8rem]">
+              <span className="block font-mono text-[0.64rem] uppercase text-text-faint tracking-[0.08em] mt-[0.6rem]">Timeline & Learning Journey</span>
+
+
+              <div className="kb-timeline-milestone relative flex gap-[0.8rem] pl-[0.4rem]">
+                <span className="font-mono text-[0.68rem] text-text-faint w-[2.4rem] text-right shrink-0 pt-[0.15rem]">Today</span>
+                <div className="flex-1 flex flex-col gap-[0.1rem] relative pl-4">
+                  <div className="absolute left-[-3px] top-[0.35rem] w-[7px] h-[7px] rounded-full bg-accent shadow-[0_0_8px_var(--accent)]"/>
+                  <span className="font-display text-[0.84rem] font-medium text-text">Started lesson session</span>
+                  <span className="text-[0.74rem] text-text-faint">Reviewed "{ctx.title}" for {elapsedMinutes} minutes</span>
                 </div>
               </div>
 
-              
-              {searchQuery ? (searchResults.length === 0 ? (<div className="kb-empty-state">No matching notes found.</div>) : (searchResults.map((note) => (<NoteItem key={note.id} note={note} onDelete={() => deleteNote(note.id)} onUpdate={(text) => updateNote(note.id, { body: text })}/>)))) : lessonNotes.length === 0 ? (<div className="kb-onboarding">
-                  <InfoIcon size={16}/>
-                  <h4>Interactive engineering ledger</h4>
-                  <p>
+
+              {searchQuery ? (searchResults.length === 0 ? (<div>No matching notes found.</div>) : (searchResults.map((note) => (<NoteItem key={note.id} note={note} onDelete={() => deleteNote(note.id)} onUpdate={(text) => updateNote(note.id, { body: text })}/>)))) : lessonNotes.length === 0 ? (<div className="flex flex-col items-center text-center gap-[0.4rem] p-[1.4rem] border border-dashed border-border rounded-sm my-2">
+                  <InfoIcon size={16} className="text-accent"/>
+                  <h4 className="font-display text-[0.86rem] font-medium m-0 text-text">Interactive engineering ledger</h4>
+                  <p className="text-[0.76rem] text-text-faint leading-[1.4] m-0">
                     I automatically sync with your current page context. As you read, pin derivation boxes, mathematical formulas, or custom notes using the workspace tools.
                   </p>
                 </div>) : (lessonNotes.map((note) => (<NoteItem key={note.id} note={note} onDelete={() => deleteNote(note.id)} onUpdate={(text) => updateNote(note.id, { body: text })}/>)))}
 
-              
-              <span className="kb-section-title">Past Milestones</span>
-              <div className="kb-timeline-milestone historical">
-                <span className="time-lbl">Yesterday</span>
-                <div className="milestone-content">
-                  <div className="milestone-dot"/>
-                  <span className="milestone-title">Bookmarked lesson</span>
-                  <span className="milestone-desc">Saved "{ctx.title}" to favorites</span>
+
+              <span className="block font-mono text-[0.64rem] uppercase text-text-faint tracking-[0.08em] mt-[0.6rem]">Past Milestones</span>
+              <div className="kb-timeline-milestone historical relative flex gap-[0.8rem] pl-[0.4rem]">
+                <span className="font-mono text-[0.68rem] text-text-faint w-[2.4rem] text-right shrink-0 pt-[0.15rem]">Yesterday</span>
+                <div className="flex-1 flex flex-col gap-[0.1rem] relative pl-4">
+                  <div className="absolute left-[-3px] top-[0.35rem] w-[7px] h-[7px] rounded-full bg-text-faint"/>
+                  <span className="font-display text-[0.84rem] font-medium text-text">Bookmarked lesson</span>
+                  <span className="text-[0.74rem] text-text-faint">Saved "{ctx.title}" to favorites</span>
                 </div>
               </div>
-              <div className="kb-timeline-milestone historical">
-                <span className="time-lbl">2 days ago</span>
-                <div className="milestone-content">
-                  <div className="milestone-dot"/>
-                  <span className="milestone-title">Completed knowledge test</span>
-                  <span className="milestone-desc">Scored 85% on vectors quiz</span>
+              <div className="kb-timeline-milestone historical relative flex gap-[0.8rem] pl-[0.4rem]">
+                <span className="font-mono text-[0.68rem] text-text-faint w-[2.4rem] text-right shrink-0 pt-[0.15rem]">2 days ago</span>
+                <div className="flex-1 flex flex-col gap-[0.1rem] relative pl-4">
+                  <div className="absolute left-[-3px] top-[0.35rem] w-[7px] h-[7px] rounded-full bg-text-faint"/>
+                  <span className="font-display text-[0.84rem] font-medium text-text">Completed knowledge test</span>
+                  <span className="text-[0.74rem] text-text-faint">Scored 85% on vectors quiz</span>
                 </div>
               </div>
             </div>
           </div>)}
       </div>
 
-      
-      <div className="comp-context-tray">
-        <div className="tray-item">
-          <span className="lbl">Reading</span>
-          <span className="val">{currentParagraph || "Paragraph 1"}</span>
+
+      <div className="flex flex-wrap gap-x-[1.2rem] gap-y-[0.6rem] border-t border-border py-[0.6rem] px-4 bg-[rgba(11,11,14,0.3)] shrink-0">
+        <div className="flex flex-col gap-[0.1rem]">
+          <span className="font-mono text-[0.58rem] uppercase text-text-faint tracking-[0.05em]">Reading</span>
+          <span className="text-[0.76rem] text-text-dim">{currentParagraph || "Paragraph 1"}</span>
         </div>
-        {selectedText && (<div className="tray-item highlight">
-            <span className="lbl">Selected text</span>
-            <span className="val truncate">“{selectedText}”</span>
+        {selectedText && (<div className="flex flex-col gap-[0.1rem]">
+            <span className="font-mono text-[0.58rem] uppercase text-text-faint tracking-[0.05em]">Selected text</span>
+            <span className="text-[0.76rem] text-accent italic truncate">“{selectedText}”</span>
           </div>)}
-        <div className="tray-item">
-          <span className="lbl">Exercise</span>
-          <span className="val">{currentExercise ? `Exercise ${currentExercise.slice(-1)}` : "Not Started"}</span>
+        <div className="flex flex-col gap-[0.1rem]">
+          <span className="font-mono text-[0.58rem] uppercase text-text-faint tracking-[0.05em]">Exercise</span>
+          <span className="text-[0.76rem] text-text-dim">{currentExercise ? `Exercise ${currentExercise.slice(-1)}` : "Not Started"}</span>
         </div>
-        <div className="tray-item">
-          <span className="lbl">Active Session</span>
-          <span className="val">{elapsedMinutes}m</span>
+        <div className="flex flex-col gap-[0.1rem]">
+          <span className="font-mono text-[0.58rem] uppercase text-text-faint tracking-[0.05em]">Active Session</span>
+          <span className="text-[0.76rem] text-text-dim">{elapsedMinutes}m</span>
         </div>
       </div>
 
-      
-      <div className="comp-input-area">
-        {!enabled ? (<div className="tp-disabled-inline">
+
+      <div className="pt-[0.8rem] px-4 pb-4 border-t border-border bg-surface shrink-0">
+        {!enabled ? (<div>
             Configure Firebase settings to enable Companion.
-          </div>) : (<div className="comp-input-wrapper">
-            <div className="comp-input-indicator">
-              <span className="indicator-dot animate-pulse">●</span>
+          </div>) : (<div className="flex flex-col gap-[0.35rem]">
+            <div className="flex items-center gap-[0.3rem] font-mono text-[0.6rem] text-text-faint uppercase tracking-[0.05em]">
+              <span className="text-accent animate-pulse">●</span>
               <span>Syncing context</span>
             </div>
-            <div className="comp-input-row">
-              <input type="text" value={input} placeholder="Ask about this lesson..." onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => {
+            <div className="flex items-center gap-2 bg-surface-inset border border-border rounded-pill py-[0.2rem] pr-[0.4rem] pl-[0.8rem]">
+              <input type="text" className="flex-1 bg-transparent border-0 text-text font-sans text-[0.84rem] outline-none py-[0.4rem] px-0 min-w-0 placeholder:text-text-faint" value={input} placeholder="Ask about this lesson..." onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => {
                 if (e.key === "Enter")
                     ask(input);
             }} disabled={loading}/>
-              <button className="send-btn" onClick={() => ask(input)} disabled={loading || !input.trim()} aria-label="Send query">
+              <button onClick={() => ask(input)} disabled={loading || !input.trim()} aria-label="Send query">
                 {loading ? <CircleNotchIcon size={14} className="spin animate-spin"/> : <PaperPlaneRightIcon size={14}/>}
               </button>
             </div>
@@ -404,19 +404,19 @@ function NoteItem({ note, onDelete, onUpdate }: {
     };
     if (isPinned) {
         const blocks = parseMarkdown(note.body);
-        return (<div className="kb-pinned-note">
-        <div className="note-header">
-          <span className="note-lbl">
+        return (<div className="flex flex-col gap-2 bg-surface border border-border rounded-sm p-[0.9rem] transition-[border-color] duration-200 ease-brand hover:border-border-bright">
+        <div className="flex justify-between items-center">
+          <span className="inline-flex items-center gap-1 font-mono text-[0.62rem] uppercase text-accent">
             <PushPinIcon size={10} weight="fill"/> Pinned Concept
           </span>
-          <button className="note-delete-btn" onClick={onDelete} aria-label="Delete note">
+          <button className="grid place-items-center bg-transparent border-none text-text-faint cursor-pointer p-[0.15rem] rounded-[4px] hover:text-[#ff5c5c] hover:bg-[rgba(255,92,92,0.05)]" onClick={onDelete} aria-label="Delete note">
             <TrashIcon size={11}/>
           </button>
         </div>
-        <div className="note-body">
-          {blocks.map((block, idx) => (<div key={idx} className={`tp-notebook-block ${block.type}`}>
-              <div className="block-inner">
-                {block.type === "heading" && <h4 className="nb-heading">{block.content}</h4>}
+        <div>
+          {blocks.map((block, idx) => (<div key={idx} className={`group relative leading-[1.6] text-[0.9rem]${block.type === "text" ? " text-text-dim" : ""}`}>
+              <div>
+                {block.type === "heading" && <h4 className="font-display text-base font-semibold text-text mx-0 mt-[0.8rem] mb-[0.4rem]">{block.content}</h4>}
                 {block.type === "code" && <ShikiCode code={block.content} lang={block.lang as any}/>}
                 {block.type === "math" && <MBlock>{block.content}</MBlock>}
                 {block.type === "text" && <FormattedText text={block.content}/>}
@@ -425,25 +425,25 @@ function NoteItem({ note, onDelete, onUpdate }: {
         </div>
       </div>);
     }
-    return (<div className="kb-user-note">
-      <div className="note-header">
-        <span className="note-lbl">Personal Note</span>
-        <button className="note-delete-btn" onClick={onDelete} aria-label="Delete note">
+    return (<div className="flex flex-col gap-2 bg-surface border border-border rounded-sm p-[0.9rem] transition-[border-color] duration-200 ease-brand hover:border-border-bright">
+      <div className="flex justify-between items-center">
+        <span className="inline-flex items-center gap-1 font-mono text-[0.62rem] uppercase text-text-faint">Personal Note</span>
+        <button className="grid place-items-center bg-transparent border-none text-text-faint cursor-pointer p-[0.15rem] rounded-[4px] hover:text-[#ff5c5c] hover:bg-[rgba(255,92,92,0.05)]" onClick={onDelete} aria-label="Delete note">
           <TrashIcon size={11}/>
         </button>
       </div>
-      {note.selectionText && (<blockquote className="note-quote">
+      {note.selectionText && (<blockquote className="border-l-2 border-border-bright pl-[0.6rem] m-0 mb-[0.4rem] text-[0.78rem] italic text-text-faint">
           “{note.selectionText}”
         </blockquote>)}
-      <div className="note-body">
-        {editing ? (<div className="note-edit-area">
-            <textarea value={val} onChange={(e) => setVal(e.target.value)} rows={3} autoFocus/>
-            <div className="edit-buttons">
-              <button className="edit-btn cancel" onClick={() => { setVal(note.body); setEditing(false); }}>Cancel</button>
-              <button className="edit-btn save" onClick={handleSave}>Save</button>
+      <div>
+        {editing ? (<div>
+            <textarea className="w-full bg-surface-inset border border-border rounded-sm p-[0.45rem] font-sans text-[0.82rem] text-text outline-none resize-y" value={val} onChange={(e) => setVal(e.target.value)} rows={3} autoFocus/>
+            <div className="flex justify-end gap-[0.4rem] mt-[0.4rem]">
+              <button className="text-[0.74rem] py-[0.2rem] px-[0.5rem] rounded-[4px] cursor-pointer border-0 bg-transparent text-text-faint" onClick={() => { setVal(note.body); setEditing(false); }}>Cancel</button>
+              <button className="text-[0.74rem] py-[0.2rem] px-[0.5rem] rounded-[4px] cursor-pointer border-0 bg-accent text-on-accent" onClick={handleSave}>Save</button>
             </div>
-          </div>) : (<p onClick={() => setEditing(true)} className="note-text">
-            {note.body || <span className="placeholder">Empty note. Click to edit...</span>}
+          </div>) : (<p onClick={() => setEditing(true)} className="text-[0.84rem] text-text m-0 leading-[1.5] whitespace-pre-wrap cursor-pointer">
+            {note.body || <span>Empty note. Click to edit...</span>}
           </p>)}
       </div>
     </div>);

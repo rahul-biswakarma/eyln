@@ -88,9 +88,9 @@ export function Questionary() {
     const keyConcepts = lessonsWithWork.slice(0, 6);
     const diff = moduleDifficulty(module);
     const minutes = moduleMinutes(module);
-    return (<div className="content chapter-review">
-      
-      <header className="cr-hero">
+    return (<div className="content mx-auto max-w-[780px] px-[clamp(1.2rem,4vw,2rem)] pt-[clamp(1.6rem,4vw,3.2rem)] pb-24" style={{ "--cr-accent": "var(--track-accent, var(--accent))" } as React.CSSProperties}>
+
+      <header className="pb-[2.4rem] border-b border-border">
         <div className="crumbs">
           <Link to="/">Dashboard</Link>
           <span>/</span>
@@ -99,61 +99,61 @@ export function Questionary() {
           </Link>
         </div>
 
-        <div className="cr-kicker">Chapter Review</div>
-        <h1 className="cr-title">{module.title}</h1>
-        <p className="cr-lede">
+        <div className="font-mono text-[0.72rem] tracking-[0.22em] uppercase text-[var(--cr-accent)] mt-[1.4rem] mb-[0.7rem]">Chapter Review</div>
+        <h1 className="font-display font-semibold tracking-[-0.02em] text-[clamp(2.1rem,5vw,3.1rem)] leading-[1.05] m-0">{module.title}</h1>
+        <p className="text-text-dim text-[1.08rem] leading-[1.6] max-w-[60ch] mt-4">
           Consolidate everything from this chapter — work the exercises, pass the knowledge
           checks, and take on the challenge to prove you’ve mastered it.
         </p>
 
-        <div className="cr-facts">
-          <span className="cr-fact"><ClockIcon size={15} weight="duotone"/> {minutes} min</span>
-          <span className="cr-fact"><GaugeIcon size={15} weight="duotone"/> {diff.label}</span>
-          <span className="cr-fact"><BookOpenIcon size={15} weight="duotone"/> {lessonsWithWork.length} lessons</span>
-          {totalEx > 0 && <span className="cr-fact"><BarbellIcon size={15} weight="duotone"/> {totalEx} exercises</span>}
-          {totalQ > 0 && <span className="cr-fact"><BrainIcon size={15} weight="duotone"/> {totalQ} questions</span>}
+        <div className="flex flex-wrap gap-[1.3rem] mt-[1.6rem]">
+          <span className="inline-flex items-center gap-[0.42rem] text-[0.86rem] text-text-dim font-mono [&_svg]:text-[var(--cr-accent)] [&_svg]:opacity-90"><ClockIcon size={15} weight="duotone"/> {minutes} min</span>
+          <span className="inline-flex items-center gap-[0.42rem] text-[0.86rem] text-text-dim font-mono [&_svg]:text-[var(--cr-accent)] [&_svg]:opacity-90"><GaugeIcon size={15} weight="duotone"/> {diff.label}</span>
+          <span className="inline-flex items-center gap-[0.42rem] text-[0.86rem] text-text-dim font-mono [&_svg]:text-[var(--cr-accent)] [&_svg]:opacity-90"><BookOpenIcon size={15} weight="duotone"/> {lessonsWithWork.length} lessons</span>
+          {totalEx > 0 && <span className="inline-flex items-center gap-[0.42rem] text-[0.86rem] text-text-dim font-mono [&_svg]:text-[var(--cr-accent)] [&_svg]:opacity-90"><BarbellIcon size={15} weight="duotone"/> {totalEx} exercises</span>}
+          {totalQ > 0 && <span className="inline-flex items-center gap-[0.42rem] text-[0.86rem] text-text-dim font-mono [&_svg]:text-[var(--cr-accent)] [&_svg]:opacity-90"><BrainIcon size={15} weight="duotone"/> {totalQ} questions</span>}
         </div>
       </header>
 
-      {lessonsWithWork.length === 0 ? (<div className="cr-empty">This chapter has no exercises or knowledge checks yet.</div>) : (<>
-          
-          <section className="cr-progress">
+      {lessonsWithWork.length === 0 ? (<div className="text-text-dim py-12 text-center">This chapter has no exercises or knowledge checks yet.</div>) : (<>
+
+          <section className="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-x-8 gap-y-[1.4rem] py-8 border-b border-border">
             <Meter label="Chapter" value={chapterMeter} tone="amber"/>
             {totalEx > 0 && <Meter label="Exercises" value={exMeter} tone="emerald" caption={`${doneEx}/${totalEx}`}/>}
             {quizLessons.length > 0 && (<Meter label="Knowledge Check" value={quizMeter} tone="violet" caption={`${Math.round(quizMeter * 100)}%`}/>)}
-            {boss && (<div className="cr-meter">
-                <div className="cr-meter-head">
-                  <span className="cr-meter-label">Challenge</span>
-                  <span className="cr-meter-cap">{bossSolved ? "solved" : "open"}</span>
+            {boss && (<div className="min-w-0">
+                <div className="flex items-baseline justify-between mb-2">
+                  <span className="text-[0.82rem] font-medium text-text">Challenge</span>
+                  <span className="font-mono text-[0.72rem] text-text-faint">{bossSolved ? "solved" : "open"}</span>
                 </div>
-                <div className={"cr-token" + (bossSolved ? " on" : "")}>
+                <div className={"grid place-items-center w-8 h-8 rounded-full border transition-[color,border-color] duration-200 ease-brand" + (bossSolved ? " text-accent border-[color-mix(in_srgb,var(--accent)_45%,transparent)]" : " text-text-faint border-border")}>
                   {bossSolved ? <CheckCircleIcon size={20} weight="fill"/> : <CircleIcon size={20} weight="duotone"/>}
                 </div>
               </div>)}
           </section>
 
-          
-          {keyConcepts.length > 0 && (<section className="cr-summary">
-              <div className="cr-section-label">What this chapter covered</div>
-              <ul className="cr-concepts">
-                {keyConcepts.map((l) => (<li key={l.id}>
+
+          {keyConcepts.length > 0 && (<section className="py-[2.4rem] border-b border-border">
+              <div className="font-mono text-[0.7rem] tracking-[0.18em] uppercase text-text-faint mb-[1.1rem]">What this chapter covered</div>
+              <ul className="list-none p-0 m-0 grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-x-[1.6rem] gap-y-[0.7rem]">
+                {keyConcepts.map((l) => (<li key={l.id} className="flex items-center gap-[0.6rem] font-display font-medium text-[1.02rem] text-text m-0 [&_svg]:text-good [&_svg]:flex-none">
                     <CheckCircleIcon size={17} weight="fill"/> {l.title}
                   </li>))}
               </ul>
             </section>)}
 
-          
-          <section className="cr-sections">
-            <div className="cr-section-label">Section review</div>
+
+          <section className="pt-[2.4rem]">
+            <div className="font-mono text-[0.7rem] tracking-[0.18em] uppercase text-text-faint mb-[1.1rem]">Section review</div>
             {stats.map((stat, i) => (<SectionReview key={stat.lesson.id} module={module} stat={stat} index={i + 1}/>))}
           </section>
 
-          
+
           {boss && <ChallengeCard challenge={boss} solved={bossSolved}/>}
 
-          
-          {chapterComplete ? (<CompletionBanner module={module} scorePct={Math.round(chapterMeter * 100)} xp={xpEarned}/>) : (<section className="cr-footer">
-              <div className="cr-footer-note">
+
+          {chapterComplete ? (<CompletionBanner module={module} scorePct={Math.round(chapterMeter * 100)} xp={xpEarned}/>) : (<section className="pt-12 flex flex-col items-start gap-[1.2rem]">
+              <div className="flex items-center gap-[0.55rem] text-text-dim text-[0.92rem] [&_svg]:text-[var(--cr-accent)]">
                 <SparkleIcon size={18} weight="duotone"/>
                 Keep going — finish the exercises and knowledge checks to complete this chapter.
               </div>
@@ -171,12 +171,17 @@ function Meter({ label, value, tone, caption, }: {
     caption?: string;
 }) {
     const pct = Math.round(Math.max(0, Math.min(1, value)) * 100);
-    return (<div className={"cr-meter " + tone}>
-      <div className="cr-meter-head">
-        <span className="cr-meter-label">{label}</span>
-        <span className="cr-meter-cap">{caption ?? `${pct}%`}</span>
+    const toneBg: Record<"amber" | "emerald" | "violet", string> = {
+        amber: "bg-[var(--accent-grad)]",
+        emerald: "bg-[linear-gradient(90deg,#2FBF71,#46D98A)]",
+        violet: "bg-[linear-gradient(90deg,#7C5CFF,#A98CFF)]",
+    };
+    return (<div className="min-w-0">
+      <div className="flex items-baseline justify-between mb-2">
+        <span className="text-[0.82rem] font-medium text-text">{label}</span>
+        <span className="font-mono text-[0.72rem] text-text-faint">{caption ?? `${pct}%`}</span>
       </div>
-      <div className="cr-bar"><i style={{ width: `${pct}%` }}/></div>
+      <div className="h-1.5 rounded-pill bg-[color-mix(in_srgb,var(--text)_8%,transparent)] overflow-hidden"><i className={"block h-full rounded-pill transition-[width] duration-[900ms] ease-brand " + toneBg[tone]} style={{ width: `${pct}%` }}/></div>
     </div>);
 }
 function SectionReview({ module, stat, index, }: {
@@ -186,34 +191,34 @@ function SectionReview({ module, stat, index, }: {
 }) {
     const { lesson, key, exCount, quizCount, complete } = stat;
     const [open, setOpen] = useState(!complete);
-    return (<div className={"cr-block" + (complete ? " complete" : "") + (open ? " open" : "")}>
-      <button className="cr-block-head" onClick={() => setOpen((o) => !o)} aria-expanded={open}>
-        <span className={"cr-block-num" + (complete ? " done" : "")}>
+    return (<div className="border-t border-border [&:last-of-type]:border-b [&:last-of-type]:border-border">
+      <button className="w-full bg-transparent border-0 cursor-pointer text-left flex items-center gap-4 py-6 px-1 text-text transition-[background] duration-200 ease-brand hover:bg-[color-mix(in_srgb,var(--text)_3%,transparent)]" onClick={() => setOpen((o) => !o)} aria-expanded={open}>
+        <span className={"flex-none grid place-items-center w-8 h-8 rounded-full font-mono text-[0.9rem] font-semibold border" + (complete ? " text-good border-[color-mix(in_srgb,var(--good)_45%,transparent)]" : " text-[var(--cr-accent)] border-[color-mix(in_srgb,var(--cr-accent)_35%,var(--border))]")}>
           {complete ? <CheckCircleIcon size={20} weight="fill"/> : index}
         </span>
-        <span className="cr-block-titles">
-          <span className="cr-block-title">{lesson.title}</span>
-          <span className="cr-block-sub">
+        <span className="flex-1 min-w-0 flex flex-col gap-[0.15rem]">
+          <span className={"font-display font-semibold text-[1.12rem]" + (complete ? " text-text-dim" : "")}>{lesson.title}</span>
+          <span className="text-[0.82rem] text-text-faint font-mono">
             {exCount > 0 && `${exCount} exercise${exCount === 1 ? "" : "s"}`}
             {exCount > 0 && quizCount > 0 && " · "}
             {quizCount > 0 && `${quizCount} quiz question${quizCount === 1 ? "" : "s"}`}
           </span>
         </span>
-        <span className="cr-block-cta">
+        <span className="flex-none inline-flex items-center gap-[0.4rem] text-[0.82rem] text-text-dim">
           {complete ? "Reviewed" : open ? "Hide" : "Begin review"}
-          <CaretDownIcon size={15} weight="bold" className="cr-caret"/>
+          <CaretDownIcon size={15} weight="bold" className={"transition-transform duration-200 ease-brand" + (open ? " rotate-180" : "")}/>
         </span>
       </button>
 
-      {open && (<div className="cr-block-body">
+      {open && (<div className="pt-[0.4rem] pb-8 animate-[cr-rise_300ms_var(--ease)]">
           {exCount > 0 && <ExerciseFlow module={module} lesson={lesson}/>}
 
-          {quizCount > 0 && (<div className="cr-kc">
-              <div className="cr-group-label"><BrainIcon size={14} weight="duotone"/> Knowledge Check</div>
+          {quizCount > 0 && (<div className="mt-[1.8rem] mb-[0.4rem]">
+              <div className="flex items-center gap-[0.45rem] font-mono text-[0.72rem] tracking-[0.14em] uppercase text-text-faint mt-[0.4rem] mb-4 [&_svg]:text-[var(--cr-accent)]"><BrainIcon size={14} weight="duotone"/> Knowledge Check</div>
               <Quiz id={key} quiz={lesson.quiz!} lessonTitle={lesson.title} lessonSummary={lesson.summary}/>
             </div>)}
 
-          <Link className="cr-block-link" to={lessonPath(module.id, lesson.id)}>
+          <Link className="inline-flex items-center gap-[0.4rem] mt-[1.4rem] text-[0.82rem] text-text-faint hover:text-[var(--cr-accent)]" to={lessonPath(module.id, lesson.id)}>
             <PencilSimpleLineIcon size={13} weight="duotone"/> Revisit the lesson
           </Link>
         </div>)}
@@ -243,16 +248,16 @@ function ExerciseFlow({ module, lesson }: {
     }
     const active = allDone ? null : exercises[cursor];
     const undoneRemaining = exercises.filter((_, i) => !isDone(i) && i !== cursor).length;
-    return (<div className="cr-exflow">
-      <div className="cr-group-label"><BarbellIcon size={14} weight="duotone"/> Exercises · {doneCount}/{exercises.length}</div>
+    return (<div className="mb-[1.8rem]">
+      <div className="flex items-center gap-[0.45rem] font-mono text-[0.72rem] tracking-[0.14em] uppercase text-text-faint mt-[0.4rem] mb-4 [&_svg]:text-[var(--cr-accent)]"><BarbellIcon size={14} weight="duotone"/> Exercises · {doneCount}/{exercises.length}</div>
 
-      
-      {exercises.map((ex, i) => isDone(i) ? (<div key={ex.id} className="cr-ex-done">
+
+      {exercises.map((ex, i) => isDone(i) ? (<div key={ex.id} className="flex items-center gap-[0.6rem] py-[0.7rem] px-[0.9rem] mb-2 rounded-sm bg-[color-mix(in_srgb,var(--good)_8%,transparent)] animate-[cr-rise_260ms_var(--ease)] [&_svg]:text-good [&_svg]:flex-none">
             <CheckCircleIcon size={17} weight="fill"/>
-            <span className="cr-ex-done-txt">{ex.prompt}</span>
+            <span className="flex-1 min-w-0 text-[0.86rem] text-text-dim overflow-hidden text-ellipsis whitespace-nowrap">{ex.prompt}</span>
           </div>) : null)}
 
-      {active ? (<div className="cr-ex-active" key={active.id}>
+      {active ? (<div className="animate-[cr-rise_300ms_var(--ease)]" key={active.id}>
           <Exercise ex={active} logId={keyOf(active.id)} step={cursor} total={exercises.length} onResult={(passed) => {
                 recordExercise(keyOf(active.id), passed);
                 if (passed) {
@@ -261,7 +266,7 @@ function ExerciseFlow({ module, lesson }: {
                         setCursor(nxt);
                 }
             }} onSkip={undoneRemaining > 0 ? () => setCursor(nextUndone(cursor)) : undefined}/>
-        </div>) : (<div className="cr-ex-allclear">
+        </div>) : (<div className="flex items-center gap-2 text-good text-[0.9rem] mb-[0.4rem]">
           <CheckCircleIcon size={18} weight="fill"/> All exercises complete.
         </div>)}
     </div>);
@@ -270,30 +275,35 @@ function ChallengeCard({ challenge, solved }: {
     challenge: CodeChallenge;
     solved: boolean;
 }) {
-    return (<section className={"cr-challenge" + (solved ? " solved" : "")}>
-      <div className="cr-section-label">Challenge problem</div>
-      <div className="cr-boss">
-        <div className="cr-boss-glow" aria-hidden/>
-        <div className="cr-boss-head">
-          <span className="cr-boss-badge">
+    const diffCls: Record<"Easy" | "Medium" | "Hard", string> = {
+        Easy: "text-good bg-[color-mix(in_srgb,var(--good)_14%,transparent)]",
+        Medium: "text-warn bg-[color-mix(in_srgb,var(--warn)_14%,transparent)]",
+        Hard: "text-bad bg-[color-mix(in_srgb,var(--bad)_14%,transparent)]",
+    };
+    return (<section className="pt-12 pb-4">
+      <div className="font-mono text-[0.7rem] tracking-[0.18em] uppercase text-text-faint mb-[1.1rem]">Challenge problem</div>
+      <div className={"cr-boss relative overflow-hidden rounded-lg border py-[1.8rem] px-[1.9rem]" + (solved ? " border-[color-mix(in_srgb,var(--good)_30%,var(--border))]" : " border-[color-mix(in_srgb,var(--accent)_24%,var(--border))]")}>
+        <div className="absolute -top-[40%] right-[40%] bottom-auto -left-[10%] h-[260px] bg-[radial-gradient(closest-side,color-mix(in_srgb,var(--accent)_22%,transparent),transparent)] blur-[20px] pointer-events-none" aria-hidden/>
+        <div className="relative flex items-center gap-[0.9rem]">
+          <span className={"flex-none grid place-items-center w-[46px] h-[46px] rounded-[14px]" + (solved ? " bg-[color-mix(in_srgb,var(--good)_16%,transparent)] text-good" : " bg-[color-mix(in_srgb,var(--accent)_16%,transparent)] text-accent")}>
             {solved ? <TrophyIcon size={22} weight="fill"/> : <BarbellIcon size={22} weight="duotone"/>}
           </span>
           <div>
-            <div className="cr-boss-kicker">Boss level · combine the whole chapter</div>
-            <h3 className="cr-boss-title">{challenge.title}</h3>
+            <div className="font-mono text-[0.68rem] tracking-[0.14em] uppercase text-text-faint">Boss level · combine the whole chapter</div>
+            <h3 className="font-display font-semibold text-[1.35rem] mt-[0.1rem]">{challenge.title}</h3>
           </div>
-          {solved && <span className="cr-boss-solved"><CheckCircleIcon size={16} weight="fill"/> Solved</span>}
+          {solved && <span className="ml-auto inline-flex items-center gap-[0.35rem] text-[0.78rem] text-good font-mono"><CheckCircleIcon size={16} weight="fill"/> Solved</span>}
         </div>
 
-        <div className="cr-boss-meta">
-          <span className={"cr-diff " + challenge.difficulty.toLowerCase()}>{challenge.difficulty}</span>
-          <span className="dot">·</span>
+        <div className="relative flex items-center gap-2 flex-wrap my-[1.1rem] text-[0.82rem] text-text-dim font-mono">
+          <span className={"font-semibold py-[0.1rem] px-2 rounded-xs " + diffCls[challenge.difficulty]}>{challenge.difficulty}</span>
+          <span className="text-text-faint">·</span>
           <ClockIcon size={13} weight="duotone"/> {EST_MINUTES[challenge.difficulty]} min
-          <span className="dot">·</span>
+          <span className="text-text-faint">·</span>
           <LightningIcon size={13} weight="duotone"/> {xpForChallenge(challenge)} XP
         </div>
 
-        <div className="cr-boss-prompt" dangerouslySetInnerHTML={{ __html: challenge.prompt }}/>
+        <div className="relative text-text-dim leading-[1.6] mb-[1.4rem] [&_code]:font-mono [&_code]:text-[0.9em] [&_code]:text-text" dangerouslySetInnerHTML={{ __html: challenge.prompt }}/>
 
         <Link className="btn primary" to={`/practice?c=${challenge.id}`}>
           {solved ? "Revisit challenge" : "Take on the challenge"} <ArrowRightIcon size={15} weight="bold"/>
@@ -306,20 +316,20 @@ function CompletionBanner({ module, scorePct, xp, }: {
     scorePct: number;
     xp: number;
 }) {
-    return (<section className="cr-complete" role="status">
-      <div className="cr-complete-glow" aria-hidden/>
-      <div className="cr-complete-icon"><TrophyIcon size={40} weight="duotone"/></div>
-      <div className="cr-complete-kicker">Chapter complete</div>
-      <h2 className="cr-complete-title">{module.title}</h2>
+    return (<section className="cr-complete relative overflow-hidden mt-12 py-12 px-8 text-center rounded-lg border border-[color-mix(in_srgb,var(--accent)_24%,var(--border))] animate-[cr-rise_500ms_var(--ease)]" role="status">
+      <div className="absolute -top-[60%] right-[20%] bottom-auto left-[20%] h-[320px] bg-[radial-gradient(closest-side,color-mix(in_srgb,var(--accent)_24%,transparent),transparent)] blur-[30px] pointer-events-none" aria-hidden/>
+      <div className="relative text-accent"><TrophyIcon size={40} weight="duotone"/></div>
+      <div className="relative font-mono text-[0.72rem] tracking-[0.22em] uppercase text-accent mt-[0.6rem] mb-[0.3rem]">Chapter complete</div>
+      <h2 className="relative font-display font-semibold text-[1.9rem] m-0">{module.title}</h2>
 
-      <div className="cr-complete-stats">
-        <div className="cr-cstat">
-          <div className="cr-cstat-val">{scorePct}%</div>
-          <div className="cr-cstat-lbl">Overall score</div>
+      <div className="relative flex justify-center gap-12 my-[1.8rem]">
+        <div>
+          <div className="font-display font-semibold text-[2.2rem] text-text leading-none">{scorePct}%</div>
+          <div className="font-mono text-[0.7rem] tracking-[0.12em] uppercase text-text-faint mt-[0.4rem]">Overall score</div>
         </div>
-        <div className="cr-cstat">
-          <div className="cr-cstat-val">+{xp}</div>
-          <div className="cr-cstat-lbl">XP earned</div>
+        <div>
+          <div className="font-display font-semibold text-[2.2rem] text-text leading-none">+{xp}</div>
+          <div className="font-mono text-[0.7rem] tracking-[0.12em] uppercase text-text-faint mt-[0.4rem]">XP earned</div>
         </div>
       </div>
 
@@ -339,7 +349,7 @@ function NextChapterLink({ module }: {
         return undefined;
     }, [module]);
     if (!next) {
-        return (<div className="cr-complete-next">
+        return (<div className="relative inline-flex items-center gap-2 text-text-dim text-[0.92rem]">
         <ListChecksIcon size={16} weight="duotone"/> You’ve reached the end of this track — outstanding work.
       </div>);
     }

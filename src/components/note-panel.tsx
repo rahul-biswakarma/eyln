@@ -42,13 +42,13 @@ export function NotePanel({ lessonKey, moduleId, lessonTitle, selection, onClose
             <span style={{ fontStyle: "italic" }}>“{selection}”</span>
           </div>)}
 
-        <label className="fld-lbl">Note</label>
+        <label className="block font-mono text-[0.68rem] uppercase tracking-[0.12em] text-text-faint mb-[0.4rem]">Note</label>
         <textarea rows={5} value={body} autoFocus placeholder="Why is this interesting / what do you want to remember?" onChange={(e) => setBody(e.target.value)} style={{ width: "100%", marginBottom: "1rem" }}/>
 
-        <label className="fld-lbl">Tags (comma-separated)</label>
+        <label className="block font-mono text-[0.68rem] uppercase tracking-[0.12em] text-text-faint mb-[0.4rem]">Tags (comma-separated)</label>
         <input type="text" value={tagsRaw} placeholder="matrices, gotcha" onChange={(e) => setTagsRaw(e.target.value)} style={{ width: "100%", marginBottom: "1rem" }}/>
 
-        <label className="fld-lbl">Remind me to review</label>
+        <label className="block font-mono text-[0.68rem] uppercase tracking-[0.12em] text-text-faint mb-[0.4rem]">Remind me to review</label>
         <div className="chip-row" style={{ marginBottom: "1.2rem" }}>
           <span className={"chip" + (remindMs === null ? " active" : "")} onClick={() => setRemindMs(null)}>
             No reminder
