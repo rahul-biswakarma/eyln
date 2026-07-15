@@ -26,9 +26,9 @@ fn fs(@builtin(position) frag : vec4<f32>) -> @location(0) vec4<f32> {
 }
 `;
 }
-export function ShaderEditor() {
+export function ShaderEditor({ initialSrc }: { initialSrc?: string } = {}) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const [src, setSrc] = useState(DEFAULT_FRAG);
+    const [src, setSrc] = useState(initialSrc?.trim() || DEFAULT_FRAG);
     const [status, setStatus] = useState<string>("compiling…");
     const rebuildRef = useRef<((body: string) => Promise<void>) | null>(null);
     useEffect(() => {

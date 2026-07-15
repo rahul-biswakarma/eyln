@@ -2,7 +2,8 @@ import { Link } from "react-router-dom";
 import { lessonPath } from "../../content/registry";
 import { useProgress } from "../../lib/progress";
 import { useNotes, dueReminders } from "../../lib/notes";
-import { computeStats, formatMinutes, recentActivity, relativeTime } from "../../lib/stats";
+import { computeStats, computeXp, formatMinutes, recentActivity, relativeTime } from "../../lib/stats";
+import { computeStreak } from "../../lib/coach";
 import { StatCard, Delta } from "../../components/stat-card";
 import { Sparkline } from "../../components/sparkline";
 import { RoadmapRail } from "../../components/roadmap-rail";
@@ -18,7 +19,9 @@ export function Dashboard() {
     const lastVisited = useProgress((s) => s.lastVisited);
     const solvedChallenges = useProgress((s) => s.solvedChallenges);
     const exercisesDone = useProgress((s) => s.exercisesDone);
+    const bestStreak = useProgress((s) => s.bestStreak);
     const s = computeStats(done, quizScores);
+    const xp = computeXp({ done, quizScores, exercisesDone, solvedChallenges });
     const notes = useNotes((s) => s.notes);
     const reminders = useNotes((s) => s.reminders);
     const bookmarks = useNotes((s) => s.bookmarks);
@@ -32,6 +35,7 @@ export function Dashboard() {
     })();
     const activity = recentActivity(lastVisited, done);
     const now = Date.now();
+    const streak = computeStreak(lastVisited, now);
     const next = s.nextRef;
     const series = s.perModuleDone.reduce<number[]>((acc, n) => {
         acc.push((acc[acc.length - 1] ?? 0) + n);
@@ -74,6 +78,8 @@ export function Dashboard() {
         </div>
 
         <div className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-4 mb-[1.2rem]">
+          <StatCard label="XP earned" value={xp.toLocaleString()} foot={<span>lessons · exercises · quizzes · challenges</span>}/>
+          <StatCard label="Study streak" value={`${streak}d`} foot={<span>{bestStreak > 0 ? `best ${bestStreak}d` : "start today"}</span>}/>
           <StatCard label="Notebook entries" value={String(notes.length)} foot={<span>{totalBookmarks} bookmarked</span>}/>
           <StatCard label="Review queue" value={String(dueCount)} foot={<span>{dueCount > 0 ? `${dueCount} items overdue` : "all caught up"}</span>} urgent={dueCount > 0}/>
           <StatCard label="Coding builds" value={`${solvedCount} solved`} foot={<span>{solvedCount} challenges · {exercisesCount} practice Qs</span>}/>
@@ -88,7 +94,7 @@ export function Dashboard() {
                   <h2 className="font-display mt-[0.5rem] mx-0 mb-[0.4rem] text-[1.55rem]">{next.lesson.title}</h2>
                   <div className="text-text-dim text-[0.92rem]">{next.lesson.summary}</div>
                 </div>
-                <span className="col-start-2 row-start-3 justify-self-start mt-[1.4rem] inline-flex items-center gap-2 bg-[var(--accent-grad)] border-none text-on-accent px-[1.3rem] py-[0.7rem] rounded-pill font-semibold font-display shadow-[0_6px_22px_rgba(255,138,0,0.32)] transition-[filter,transform] duration-200 ease-brand hover:brightness-[1.06] hover:translate-x-[2px] hover:text-on-accent">{next.lesson.minutes}m →</span>
+                <span className="col-start-2 row-start-3 justify-self-start mt-[1.4rem] inline-flex items-center gap-2 bg-[image:var(--accent-grad)] border-none text-on-accent px-[1.3rem] py-[0.7rem] rounded-pill font-semibold font-display shadow-[0_6px_22px_rgba(255,138,0,0.32)] transition-[filter,transform] duration-200 ease-brand hover:brightness-[1.06] hover:translate-x-[2px] hover:text-on-accent">{next.lesson.minutes}m →</span>
               </Card>) : (<Card grad className="grid grid-cols-[auto_1fr] grid-rows-[auto_1fr_auto] gap-x-[1.3rem] gap-y-[0.2rem] p-[1.9rem]">
                 <span className="row-[1/2] col-start-1 text-[1.6rem] w-[62px] h-[62px] flex-none grid place-items-center rounded bg-[rgba(11,11,14,0.45)] border border-border-glow shadow-[inset_0_0_22px_rgba(255,176,0,0.16)] [&_svg]:text-accent">🏆</span>
                 <div className="col-start-2 row-[1/3] min-w-0 self-start">

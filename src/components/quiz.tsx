@@ -59,7 +59,7 @@ export function Quiz({ id, quiz, lessonTitle, lessonSummary, }: {
         <div className="relative font-mono text-text-dim text-[0.82rem] mt-[0.4rem]">{correctCount} / {total} correct</div>
         <div className="relative font-display text-[3rem] font-bold text-accent mt-[0.7rem] leading-none">{pct}%</div>
         <div className="relative font-mono text-[0.68rem] tracking-[0.14em] uppercase text-text-faint mt-[0.35rem]">estimated mastery</div>
-        <div className="relative h-[6px] rounded-[999px] bg-[color-mix(in_srgb,var(--text)_8%,transparent)] overflow-hidden max-w-[280px] mx-auto mt-[1.3rem]"><i className="block h-full bg-[var(--accent-grad)] rounded-[999px] transition-[width] duration-[800ms] ease-brand" style={{ width: `${pct}%` }}/></div>
+        <div className="relative h-[6px] rounded-[999px] bg-[color-mix(in_srgb,var(--text)_8%,transparent)] overflow-hidden max-w-[280px] mx-auto mt-[1.3rem]"><i className="block h-full bg-[image:var(--accent-grad)] rounded-[999px] transition-[width] duration-[800ms] ease-brand" style={{ width: `${pct}%` }}/></div>
       </div>);
     }
     return (<KnowledgeCard key={step} eyebrow={`Question ${step + 1} of ${total}`} step={step} total={total} question={q.q} tone={answered ? (isWrong ? "wrong" : "right") : "neutral"} shake={shake} ghosts={Math.min(2, total - step - 1)} feedback={answered ? (<div className={"relative mt-[1.4rem] p-[1rem_1.15rem] rounded-[14px] border animate-[kc-fade_0.3s_var(--ease)_both] " + (isWrong ? "bg-[rgba(255,92,92,0.06)] border-[color-mix(in_srgb,var(--bad)_28%,var(--border))]" : "bg-[rgba(70,217,138,0.08)] border-[color-mix(in_srgb,var(--good)_28%,var(--border))]")}>
@@ -69,7 +69,7 @@ export function Quiz({ id, quiz, lessonTitle, lessonSummary, }: {
             </div>
             <p className="m-0 text-text-dim text-[0.9rem] leading-[1.6]">{q.explain}</p>
             {isWrong && (<ExplainMistake question={q.q} chosen={q.choices?.[chosen] ?? ""} correctAnswer={q.choices?.[q.answer] ?? ""} staticExplain={q.explain} lessonTitle={lessonTitle} lessonSummary={lessonSummary}/>)}
-          </div>) : undefined} footer={<KnowledgeFooter primary={<button className="inline-flex items-center justify-center gap-[0.45rem] cursor-pointer font-sans font-medium text-[0.92rem] rounded-pill border-0 flex-1 py-[0.95rem] px-[1.4rem] text-on-accent bg-[var(--accent-grad)] shadow-[0_8px_26px_color-mix(in_srgb,var(--accent-2)_26%,transparent)] transition duration-200 ease-brand enabled:hover:-translate-y-px disabled:opacity-40 disabled:cursor-default disabled:shadow-none" onClick={next} disabled={!answered}>
+          </div>) : undefined} footer={<KnowledgeFooter primary={<button className="inline-flex items-center justify-center gap-[0.45rem] cursor-pointer font-sans font-medium text-[0.92rem] rounded-pill border-0 flex-1 py-[0.95rem] px-[1.4rem] text-on-accent bg-[image:var(--accent-grad)] shadow-[0_8px_26px_color-mix(in_srgb,var(--accent-2)_26%,transparent)] transition duration-200 ease-brand enabled:hover:-translate-y-px disabled:opacity-40 disabled:cursor-default disabled:shadow-none" onClick={next} disabled={!answered}>
               {step + 1 >= total ? "Finish" : "Continue"} <ArrowRightIcon size={15} weight="bold"/>
             </button>}/>}>
       <div className="flex flex-col gap-[0.6rem]">

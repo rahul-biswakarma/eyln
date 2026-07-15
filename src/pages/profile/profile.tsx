@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { SparkleIcon, WrenchIcon, GearIcon, BlueprintIcon, MedalIcon, CrownIcon, SealCheckIcon, LockIcon, CheckIcon, XIcon, type Icon } from "@phosphor-icons/react";
 import { useProgress } from "../../lib/progress";
 import { useAuth } from "../../lib/auth";
-import { computeStats } from "../../lib/stats";
+import { computeStats, computeXp } from "../../lib/stats";
 import { badgeState, levelFor } from "../../lib/badges";
 import { useTutor, TUTOR_KIND_META, type TutorTaskKind } from "../../lib/tutor";
 import { Tooltip, Button, Card, ProgressBar } from "../../components/ui";
@@ -12,11 +12,15 @@ const BADGE_ICON: Record<string, Icon> = {
 export function Profile() {
     const done = useProgress((s) => s.done);
     const quizScores = useProgress((s) => s.quizScores);
+    const exercisesDone = useProgress((s) => s.exercisesDone);
+    const solvedChallenges = useProgress((s) => s.solvedChallenges);
+    const bestStreak = useProgress((s) => s.bestStreak);
     const reset = useProgress((s) => s.reset);
     const user = useAuth((s) => s.user);
     const signOut = useAuth((s) => s.signOut);
     const navigate = useNavigate();
     const s = computeStats(done, quizScores);
+    const xp = computeXp({ done, quizScores, exercisesDone, solvedChallenges });
     const level = levelFor(s.lessonsDone);
     const badges = badgeState(s.lessonsDone);
     const earnedCount = badges.filter((b) => b.earned).length;
@@ -39,7 +43,7 @@ export function Profile() {
           </div>
           <div>
             <div className="font-display text-[1.5rem] font-semibold text-text">Level {level}</div>
-            <div className="text-text-dim text-[0.85rem] font-mono mt-[0.3rem]">{s.lessonsDone} lessons cleared · {earnedCount}/{badges.length} badges</div>
+            <div className="text-text-dim text-[0.85rem] font-mono mt-[0.3rem]">{xp.toLocaleString()} XP · {s.lessonsDone} lessons cleared · {earnedCount}/{badges.length} badges</div>
           </div>
         </Card>
 
@@ -58,6 +62,11 @@ export function Profile() {
             <div className="label">Avg quiz</div>
             <div className="value">{s.avgQuizScore === null ? "—" : `${s.avgQuizScore}%`}</div>
             <div className="foot">{s.avgQuizScore === null ? "no quizzes yet" : "keep it up"}</div>
+          </Card>
+          <Card className="stat-card">
+            <div className="label">Best streak</div>
+            <div className="value">{bestStreak}d</div>
+            <div className="foot">{bestStreak > 0 ? "day high-water mark" : "start today"}</div>
           </Card>
         </div>
       </div>

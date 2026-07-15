@@ -1,4 +1,33 @@
 import { modules, allLessons, moduleProgress, lessonKey, type LessonRef } from "../content/registry";
+import { totalXpEarned } from "../content/challenges";
+
+/**
+ * The single source of truth for XP rates across the app. Challenge XP comes
+ * from XP_BY_DIFFICULTY (via totalXpEarned); these cover the lesson-side work.
+ * The dashboard, profile, and chapter-review all compute XP from these — no
+ * more divergent formulas.
+ */
+export const XP_RATES = { lesson: 25, exercise: 20, quiz: 15 } as const;
+
+export interface XpInputs {
+    done: Record<string, boolean>;
+    quizScores: Record<string, number>;
+    exercisesDone: Record<string, boolean>;
+    solvedChallenges: Record<string, number>;
+}
+
+/** Total XP earned across the whole curriculum. Idempotent — derived, not accumulated. */
+export function computeXp(p: XpInputs): number {
+    const lessons = allLessons.filter((r) => p.done[lessonKey(r.module.id, r.lesson.id)]).length;
+    const exercises = Object.values(p.exercisesDone).filter(Boolean).length;
+    const quiz = Object.values(p.quizScores).reduce((s, v) => s + Math.round(v * XP_RATES.quiz), 0);
+    return (
+        lessons * XP_RATES.lesson +
+        exercises * XP_RATES.exercise +
+        quiz +
+        totalXpEarned(p.solvedChallenges)
+    );
+}
 export interface DashStats {
     lessonsDone: number;
     totalLessons: number;

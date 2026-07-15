@@ -42,7 +42,7 @@ export function TrackCard({ track }: {
             <span>{complete ? "Complete" : "In progress"}</span>
             <span>{doneCount}/{lessons.length}</span>
           </div>
-          <div className="mb-[0.6rem] h-[5px] rounded-[3px] bg-surface-inset overflow-hidden relative">
+          <div className="mb-[0.6rem] h-[5px] rounded-[3px] bg-[color-mix(in_srgb,var(--text)_8%,transparent)] overflow-hidden relative">
             <i className="block h-full rounded-[3px] transition-[width] duration-[600ms] ease-brand" style={{ width: `${Math.max(pct * 100, 6)}%`, background: track.accent, boxShadow: `0 0 10px ${track.accent}80` }}/>
           </div>
         </>) : (<div className="py-2 text-[0.82rem]" style={{ color: track.accent }}>
