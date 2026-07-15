@@ -25,7 +25,7 @@ export function TopNav() {
       </Link>
 
       <nav className="my-0 ml-[1rem] mr-auto flex items-center gap-[0.4rem]">
-        {NAV.map((n) => (<NavLink key={n.to} to={n.to} end={n.end} className={({ isActive }) => `relative inline-flex items-center gap-[0.45rem] px-[0.9rem] py-[0.55rem] text-[0.9rem] font-medium transition-colors duration-200 ease-brand after:content-[''] after:absolute after:left-[0.9rem] after:right-[0.9rem] after:bottom-[-2px] after:h-[2px] after:rounded-[2px] after:bg-[var(--accent-line)] after:origin-center after:transition-transform after:duration-200 after:ease-brand after:shadow-[0_0_12px_rgba(255,176,0,0.7)] ${isActive ? "text-text after:scale-x-100" : "text-text-dim hover:text-text after:scale-x-0"}`}>
+        {NAV.map((n) => (<NavLink key={n.to} to={n.to} end={n.end} className={({ isActive }) => `relative inline-flex items-center gap-[0.45rem] px-[0.9rem] py-[0.55rem] text-[0.9rem] font-medium transition-colors duration-200 ease-brand after:content-[''] after:absolute after:left-[0.9rem] after:right-[0.9rem] after:bottom-[-2px] after:h-[2px] after:rounded-[2px] after:bg-[image:var(--accent-line)] after:origin-center after:transition-transform after:duration-200 after:ease-brand after:shadow-[0_0_12px_rgba(255,176,0,0.7)] ${isActive ? "text-text after:scale-x-100" : "text-text-dim hover:text-text after:scale-x-0"}`}>
             {n.label}
           </NavLink>))}
       </nav>
@@ -37,7 +37,7 @@ export function TopNav() {
         </button>
         <Link to="/profile" className="flex items-center gap-[0.55rem] pl-[14px] pr-[5px] py-[5px] rounded-pill bg-surface border border-border text-[0.78rem] text-text-dim font-mono tracking-[0.04em]" title="Your profile">
           <span>Lv</span>
-          <span className="grid place-items-center w-[28px] h-[28px] rounded-[8px] font-bold text-on-accent bg-[var(--accent-grad)] text-[0.78rem] font-display">{level}</span>
+          <span className="grid place-items-center w-[28px] h-[28px] rounded-[8px] font-bold text-on-accent bg-[image:var(--accent-grad)] text-[0.78rem] font-display">{level}</span>
         </Link>
         <AuthButton />
       </div>

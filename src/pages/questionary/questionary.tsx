@@ -173,7 +173,7 @@ function Meter({ label, value, tone, caption, }: {
 }) {
     const pct = Math.round(Math.max(0, Math.min(1, value)) * 100);
     const toneBg: Record<"amber" | "emerald" | "violet", string> = {
-        amber: "bg-[var(--accent-grad)]",
+        amber: "bg-[image:var(--accent-grad)]",
         emerald: "bg-[linear-gradient(90deg,#2FBF71,#46D98A)]",
         violet: "bg-[linear-gradient(90deg,#7C5CFF,#A98CFF)]",
     };

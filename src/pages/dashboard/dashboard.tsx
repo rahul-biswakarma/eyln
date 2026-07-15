@@ -88,7 +88,7 @@ export function Dashboard() {
                   <h2 className="font-display mt-[0.5rem] mx-0 mb-[0.4rem] text-[1.55rem]">{next.lesson.title}</h2>
                   <div className="text-text-dim text-[0.92rem]">{next.lesson.summary}</div>
                 </div>
-                <span className="col-start-2 row-start-3 justify-self-start mt-[1.4rem] inline-flex items-center gap-2 bg-[var(--accent-grad)] border-none text-on-accent px-[1.3rem] py-[0.7rem] rounded-pill font-semibold font-display shadow-[0_6px_22px_rgba(255,138,0,0.32)] transition-[filter,transform] duration-200 ease-brand hover:brightness-[1.06] hover:translate-x-[2px] hover:text-on-accent">{next.lesson.minutes}m →</span>
+                <span className="col-start-2 row-start-3 justify-self-start mt-[1.4rem] inline-flex items-center gap-2 bg-[image:var(--accent-grad)] border-none text-on-accent px-[1.3rem] py-[0.7rem] rounded-pill font-semibold font-display shadow-[0_6px_22px_rgba(255,138,0,0.32)] transition-[filter,transform] duration-200 ease-brand hover:brightness-[1.06] hover:translate-x-[2px] hover:text-on-accent">{next.lesson.minutes}m →</span>
               </Card>) : (<Card grad className="grid grid-cols-[auto_1fr] grid-rows-[auto_1fr_auto] gap-x-[1.3rem] gap-y-[0.2rem] p-[1.9rem]">
                 <span className="row-[1/2] col-start-1 text-[1.6rem] w-[62px] h-[62px] flex-none grid place-items-center rounded bg-[rgba(11,11,14,0.45)] border border-border-glow shadow-[inset_0_0_22px_rgba(255,176,0,0.16)] [&_svg]:text-accent">🏆</span>
                 <div className="col-start-2 row-[1/3] min-w-0 self-start">

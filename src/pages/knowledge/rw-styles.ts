@@ -35,8 +35,8 @@ export const cardWhen = "ml-auto inline-flex items-center gap-[0.25rem]";
 
 // ── Progress bars ───────────────────────────────────────────────
 export const progress = "flex flex-col gap-[0.3rem]";
-export const progressBar = "h-[4px] bg-surface-inset rounded-pill overflow-hidden";
-export const progressBarLg = "h-[6px] bg-surface-inset rounded-pill overflow-hidden";
+export const progressBar = "h-[4px] bg-[color-mix(in_srgb,var(--text)_8%,transparent)] rounded-pill overflow-hidden";
+export const progressBarLg = "h-[6px] bg-[color-mix(in_srgb,var(--text)_8%,transparent)] rounded-pill overflow-hidden";
 export const progressBarFill = "block h-full bg-accent rounded-pill transition-[width] duration-200 ease-brand";
 export const progressLbl = "text-[0.72rem] text-text-dim";
 export const progressLblMuted = "text-[0.72rem] text-text-faint";
