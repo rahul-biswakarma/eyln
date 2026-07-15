@@ -4,6 +4,7 @@ import { ArrowLeftIcon, ArrowRightIcon, CheckCircleIcon, CircleIcon, CaretDownIc
 import type { Lesson, Module } from "../../content/types";
 import { getModule, modulesForTrack, moduleHasQuestionary, lessonPath, lessonKey, questionaryPath, moduleDifficulty, moduleMinutes, trackIdOf, } from "../../content/registry";
 import { challengesForModule, xpForChallenge, EST_MINUTES } from "../../content/challenges";
+import { XP_RATES } from "../../lib/stats";
 import type { CodeChallenge } from "../../content/types";
 import { Quiz } from "../../components/quiz";
 import { Exercise } from "../../components/exercise";
@@ -83,8 +84,8 @@ export function Questionary() {
     const exercisesComplete = totalEx === 0 || doneEx === totalEx;
     const quizzesComplete = quizLessons.length === 0 || attemptedQuizzes.length === quizLessons.length;
     const chapterComplete = exercisesComplete && quizzesComplete && challengeMeter === 1;
-    const xpEarned = doneEx * 20 +
-        Math.round(attemptedQuizzes.reduce((sum, s) => sum + s.quizScore * s.quizCount, 0) * 15) +
+    const xpEarned = doneEx * XP_RATES.exercise +
+        Math.round(attemptedQuizzes.reduce((sum, s) => sum + s.quizScore, 0) * XP_RATES.quiz) +
         (bossSolved && boss ? xpForChallenge(boss) : 0);
     const keyConcepts = lessonsWithWork.slice(0, 6);
     const diff = moduleDifficulty(module);

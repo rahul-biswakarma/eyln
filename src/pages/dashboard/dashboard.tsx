@@ -2,7 +2,8 @@ import { Link } from "react-router-dom";
 import { lessonPath } from "../../content/registry";
 import { useProgress } from "../../lib/progress";
 import { useNotes, dueReminders } from "../../lib/notes";
-import { computeStats, formatMinutes, recentActivity, relativeTime } from "../../lib/stats";
+import { computeStats, computeXp, formatMinutes, recentActivity, relativeTime } from "../../lib/stats";
+import { computeStreak } from "../../lib/coach";
 import { StatCard, Delta } from "../../components/stat-card";
 import { Sparkline } from "../../components/sparkline";
 import { RoadmapRail } from "../../components/roadmap-rail";
@@ -18,7 +19,9 @@ export function Dashboard() {
     const lastVisited = useProgress((s) => s.lastVisited);
     const solvedChallenges = useProgress((s) => s.solvedChallenges);
     const exercisesDone = useProgress((s) => s.exercisesDone);
+    const bestStreak = useProgress((s) => s.bestStreak);
     const s = computeStats(done, quizScores);
+    const xp = computeXp({ done, quizScores, exercisesDone, solvedChallenges });
     const notes = useNotes((s) => s.notes);
     const reminders = useNotes((s) => s.reminders);
     const bookmarks = useNotes((s) => s.bookmarks);
@@ -32,6 +35,7 @@ export function Dashboard() {
     })();
     const activity = recentActivity(lastVisited, done);
     const now = Date.now();
+    const streak = computeStreak(lastVisited, now);
     const next = s.nextRef;
     const series = s.perModuleDone.reduce<number[]>((acc, n) => {
         acc.push((acc[acc.length - 1] ?? 0) + n);
@@ -74,6 +78,8 @@ export function Dashboard() {
         </div>
 
         <div className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-4 mb-[1.2rem]">
+          <StatCard label="XP earned" value={xp.toLocaleString()} foot={<span>lessons · exercises · quizzes · challenges</span>}/>
+          <StatCard label="Study streak" value={`${streak}d`} foot={<span>{bestStreak > 0 ? `best ${bestStreak}d` : "start today"}</span>}/>
           <StatCard label="Notebook entries" value={String(notes.length)} foot={<span>{totalBookmarks} bookmarked</span>}/>
           <StatCard label="Review queue" value={String(dueCount)} foot={<span>{dueCount > 0 ? `${dueCount} items overdue` : "all caught up"}</span>} urgent={dueCount > 0}/>
           <StatCard label="Coding builds" value={`${solvedCount} solved`} foot={<span>{solvedCount} challenges · {exercisesCount} practice Qs</span>}/>

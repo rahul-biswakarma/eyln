@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState, useMemo } from "react";
-import { SparkleIcon, XIcon, PaperPlaneRightIcon, ClipboardTextIcon, CircleNotchIcon, PushPinIcon, MagnifyingGlassIcon, TrashIcon, NotebookIcon, InfoIcon, BookmarkSimpleIcon, CheckIcon } from "@phosphor-icons/react";
-import { isLLMEnabled, chat, generate, parseJSON, type ChatTurn } from "../lib/llm";
+import { Link } from "react-router-dom";
+import { SparkleIcon, XIcon, PaperPlaneRightIcon, ClipboardTextIcon, CircleNotchIcon, PushPinIcon, MagnifyingGlassIcon, TrashIcon, NotebookIcon, InfoIcon, BookmarkSimpleIcon, CheckIcon, CheckCircleIcon, XCircleIcon, ArrowRightIcon, CubeIcon } from "@phosphor-icons/react";
+import { isLLMEnabled, streamChat, generate, parseJSON, type ChatTurn } from "../lib/llm";
+import { TUTOR_TOOLS, executeToolCall, type ToolBlock } from "../lib/tutor-tools";
+import { getWidget } from "../content/pm/widget-registry";
+import { ShaderEditor } from "../widgets/ShaderEditor";
 import { buildLearnerContext } from "../lib/learnerContext";
 import { useTutor, type TutorTaskKind } from "../lib/tutor";
 import { useConversations } from "../lib/conversations";
@@ -8,6 +12,7 @@ import { useUI } from "../lib/ui";
 import { useProgress } from "../lib/progress";
 import { useNotes, type Note } from "../lib/notes";
 import { getModule, moduleProgress } from "../content/registry";
+import { recentActivity, relativeTime } from "../lib/stats";
 import { MBlock, FormattedText } from "./math";
 import { Code as ShikiCode } from "./code-block";
 import { Tooltip } from "./ui";
@@ -18,6 +23,10 @@ interface ExtractJSON {
         text: string;
         topic?: string;
     }[];
+}
+/** A chat turn plus any interactive tool blocks the tutor rendered inline. */
+interface Message extends ChatTurn {
+    tools?: ToolBlock[];
 }
 const ACTION_CARDS = [
     { key: "explain", label: "Explain section", desc: "Deconstruct the current paragraph intuition", prompt: "Explain the current paragraph context simply but precisely. Focus on building intuition first. Keep the response compact and readable." },
@@ -36,12 +45,13 @@ export function TutorPanel() {
     const currentExercise = useUI((s) => s.currentExercise);
     const selectedText = useUI((s) => s.selectedText);
     const done = useProgress((s) => s.done);
+    const lastVisited = useProgress((s) => s.lastVisited);
     const allNotes = useNotes((s) => s.notes);
     const deleteNote = useNotes((s) => s.deleteNote);
     const addNote = useNotes((s) => s.addNote);
     const updateNote = useNotes((s) => s.updateNote);
     const [activeTab, setActiveTab] = useState<"mentor" | "notes">("mentor");
-    const [history, setHistory] = useState<ChatTurn[]>([]);
+    const [history, setHistory] = useState<Message[]>([]);
     const [input, setInput] = useState("");
     const [loading, setLoading] = useState(false);
     const [captured, setCaptured] = useState(0);
@@ -57,6 +67,17 @@ export function TutorPanel() {
     const lessonNotes = useMemo(() => {
         return allNotes.filter((n) => n.lessonKey === sourceId);
     }, [allNotes, sourceId]);
+    // Real recent milestones from the learner's own history — no fabricated data.
+    const milestones = useMemo(() => {
+        const now = Date.now();
+        return recentActivity(lastVisited, done, 4).map((a) => ({
+            id: a.ref.module.id + "/" + a.ref.lesson.id,
+            title: a.done ? `Completed "${a.ref.lesson.title}"` : `Studied "${a.ref.lesson.title}"`,
+            detail: a.ref.module.title,
+            when: relativeTime(a.when, now),
+            done: a.done,
+        }));
+    }, [lastVisited, done]);
     const searchResults = useMemo(() => {
         if (!searchQuery.trim())
             return [];
@@ -106,6 +127,7 @@ export function TutorPanel() {
         buildLearnerContext(),
         "When explaining concepts, write editorial, structured notebook sections with headings (###), formulas ($ or $$), code blocks, or ASCII/diagram layouts.",
         "Do not use chat bubbles or greeting boilerplate. Respond directly as an expert companion.",
+        "You can make the lesson interactive with tools: render_shader (a live editable WGSL shader), inline_quiz (a single MCQ the learner answers in place), embed_widget (a course teaching widget), and go_to_lesson (a navigable link). Prefer a tool when the learner asks to see, visualize, try, be quizzed, or be pointed somewhere — call it in addition to a brief line of text, not instead of a full explanation.",
     ].filter(Boolean).join("\n");
     async function captureInsights(turns: ChatTurn[]) {
         try {
@@ -142,19 +164,49 @@ export function TutorPanel() {
         if (selectedText && !promptText) {
             actualPrompt += `\n\n(Highlighted Text: "${selectedText}")`;
         }
-        const next: ChatTurn[] = [...history, { role: "user", text: q }];
-        setHistory(next);
+        const next: Message[] = [...history, { role: "user", text: q }];
+        // Placeholder model turn we stream text into by index.
+        const modelIdx = next.length;
+        setHistory([...next, { role: "model", text: "" }]);
         setInput("");
         setLoading(true);
+        const appendDelta = (delta: string) => {
+            setHistory((h) => {
+                const copy = [...h];
+                const m = copy[modelIdx];
+                if (m)
+                    copy[modelIdx] = { ...m, text: m.text + delta };
+                return copy;
+            });
+        };
         try {
             const apiHistory: ChatTurn[] = [...history, { role: "user", text: actualPrompt }];
-            const reply = await chat(apiHistory, { system, temperature: 0.4 });
-            const withReply: ChatTurn[] = [...next, { role: "model", text: reply }];
-            setHistory(withReply);
-            void captureInsights(withReply);
+            const { functionCalls } = await streamChat(apiHistory, appendDelta, { system, temperature: 0.4, tools: TUTOR_TOOLS });
+            // Single tool-hop: execute any tool calls and attach renderable blocks.
+            const tools: ToolBlock[] = [];
+            for (const call of functionCalls) {
+                const result = executeToolCall(call);
+                if ("kind" in result)
+                    tools.push(result);
+            }
+            let finalText = "";
+            setHistory((h) => {
+                const copy = [...h];
+                const m = copy[modelIdx];
+                if (m) {
+                    finalText = m.text;
+                    copy[modelIdx] = { ...m, tools: tools.length ? tools : undefined };
+                }
+                return copy;
+            });
+            void captureInsights([...history, { role: "user", text: q }, { role: "model", text: finalText }]);
         }
         catch (e) {
-            setHistory([...next, { role: "model", text: e instanceof Error ? e.message : String(e) }]);
+            setHistory((h) => {
+                const copy = [...h];
+                copy[modelIdx] = { role: "model", text: e instanceof Error ? e.message : String(e) };
+                return copy;
+            });
         }
         finally {
             setLoading(false);
@@ -277,6 +329,7 @@ export function TutorPanel() {
                               </div>
                             </div>);
                         })}
+                        {turn.tools?.map((tool, ti) => (<ToolBlockView key={ti} tool={tool} onNavigate={closeTutor}/>))}
                       </div>)}
                   </div>))}
               </div>)}
@@ -325,23 +378,17 @@ export function TutorPanel() {
                 </div>) : (lessonNotes.map((note) => (<NoteItem key={note.id} note={note} onDelete={() => deleteNote(note.id)} onUpdate={(text) => updateNote(note.id, { body: text })}/>)))}
 
 
-              <span className="block font-mono text-[0.64rem] uppercase text-text-faint tracking-[0.08em] mt-[0.6rem]">Past Milestones</span>
-              <div className="relative flex gap-[0.8rem] pl-[0.4rem] before:content-[''] before:absolute before:left-[3.25rem] before:top-[1.1rem] before:bottom-[-0.8rem] before:w-px before:border-l before:border-dashed before:border-border">
-                <span className="font-mono text-[0.68rem] text-text-faint w-[2.4rem] text-right shrink-0 pt-[0.15rem]">Yesterday</span>
-                <div className="flex-1 flex flex-col gap-[0.1rem] relative pl-4">
-                  <div className="absolute left-[-3px] top-[0.35rem] w-[7px] h-[7px] rounded-full bg-text-faint"/>
-                  <span className="font-display text-[0.84rem] font-medium text-text">Bookmarked lesson</span>
-                  <span className="text-[0.74rem] text-text-faint">Saved "{ctx.title}" to favorites</span>
-                </div>
-              </div>
-              <div className="relative flex gap-[0.8rem] pl-[0.4rem]">
-                <span className="font-mono text-[0.68rem] text-text-faint w-[2.4rem] text-right shrink-0 pt-[0.15rem]">2 days ago</span>
-                <div className="flex-1 flex flex-col gap-[0.1rem] relative pl-4">
-                  <div className="absolute left-[-3px] top-[0.35rem] w-[7px] h-[7px] rounded-full bg-text-faint"/>
-                  <span className="font-display text-[0.84rem] font-medium text-text">Completed knowledge test</span>
-                  <span className="text-[0.74rem] text-text-faint">Scored 85% on vectors quiz</span>
-                </div>
-              </div>
+              {milestones.length > 0 && (<>
+                <span className="block font-mono text-[0.64rem] uppercase text-text-faint tracking-[0.08em] mt-[0.6rem]">Recent Milestones</span>
+                {milestones.map((m) => (<div key={m.id} className="relative flex gap-[0.8rem] pl-[0.4rem]">
+                  <span className="font-mono text-[0.68rem] text-text-faint w-[2.4rem] text-right shrink-0 pt-[0.15rem]">{m.when}</span>
+                  <div className="flex-1 flex flex-col gap-[0.1rem] relative pl-4">
+                    <div className={"absolute left-[-3px] top-[0.35rem] w-[7px] h-[7px] rounded-full " + (m.done ? "bg-good" : "bg-text-faint")}/>
+                    <span className="font-display text-[0.84rem] font-medium text-text">{m.title}</span>
+                    <span className="text-[0.74rem] text-text-faint">{m.detail}</span>
+                  </div>
+                </div>))}
+              </>)}
             </div>
           </div>)}
       </div>
@@ -446,5 +493,75 @@ function NoteItem({ note, onDelete, onUpdate }: {
             {note.body || <span>Empty note. Click to edit...</span>}
           </p>)}
       </div>
+    </div>);
+}
+/** Renders an inline tool result the tutor produced — shader, quiz, widget, or nav. */
+function ToolBlockView({ tool, onNavigate }: { tool: ToolBlock; onNavigate: () => void }) {
+    if (tool.kind === "shader") {
+        return (<div className="flex flex-col gap-[0.4rem] mt-2">
+          <span className="font-mono text-[0.62rem] uppercase tracking-[0.1em] text-accent">Live shader · {tool.description}</span>
+          <ShaderEditor initialSrc={tool.wgsl}/>
+        </div>);
+    }
+    if (tool.kind === "quiz") {
+        return <InlineQuiz tool={tool}/>;
+    }
+    if (tool.kind === "widget") {
+        const Widget = getWidget(tool.ref);
+        if (!Widget)
+            return null;
+        return (<div className="flex flex-col gap-[0.4rem] mt-2">
+          {tool.label && <span className="font-mono text-[0.62rem] uppercase tracking-[0.1em] text-accent flex items-center gap-[0.35rem]"><CubeIcon size={11} weight="fill"/> {tool.label}</span>}
+          <Widget />
+        </div>);
+    }
+    // nav
+    return (<Link to={tool.path} onClick={onNavigate} className="flex items-center justify-between gap-2 mt-2 bg-surface border border-border rounded-sm py-[0.7rem] px-4 no-underline transition-all duration-200 ease-brand hover:border-border-bright hover:bg-surface-2">
+      <div className="flex flex-col">
+        <span className="font-mono text-[0.6rem] uppercase tracking-[0.1em] text-accent">Go to lesson</span>
+        <span className="font-display text-[0.9rem] font-medium text-text">{tool.title}</span>
+      </div>
+      <ArrowRightIcon size={16} className="text-accent"/>
+    </Link>);
+}
+function InlineQuiz({ tool }: { tool: Extract<ToolBlock, { kind: "quiz" }> }) {
+    const logAttempt = useProgress((s) => s.logAttempt);
+    const recordQuiz = useProgress((s) => s.recordQuiz);
+    const [picked, setPicked] = useState<number | null>(null);
+    const answered = picked !== null;
+    const correct = picked === tool.answerIndex;
+    // Stable-ish id for this tutor-generated question so attempts are logged.
+    const idRef = useRef("tutor-quiz/" + tool.question.slice(0, 40).replace(/\s+/g, "-"));
+    function choose(i: number) {
+        if (answered)
+            return;
+        setPicked(i);
+        const isRight = i === tool.answerIndex;
+        logAttempt(idRef.current, { answer: tool.choices[i], correct: isRight, feedback: tool.explain, at: Date.now() });
+        recordQuiz(idRef.current, isRight ? 1 : 0);
+    }
+    return (<div className="flex flex-col gap-[0.6rem] mt-2 bg-surface border border-border rounded-sm p-[1rem]">
+      <span className="font-mono text-[0.62rem] uppercase tracking-[0.1em] text-accent">Quick check</span>
+      <span className="text-[0.9rem] font-medium text-text">{tool.question}</span>
+      <div className="flex flex-col gap-[0.4rem]">
+        {tool.choices.map((c, i) => {
+            const isCorrect = answered && i === tool.answerIndex;
+            const isWrongPick = answered && i === picked && i !== tool.answerIndex;
+            let state = "border-border text-text-dim";
+            if (isCorrect)
+                state = "border-[color-mix(in_srgb,var(--good)_55%,var(--border))] bg-[rgba(70,217,138,0.1)] text-text";
+            else if (isWrongPick)
+                state = "border-[color-mix(in_srgb,var(--bad)_55%,var(--border))] bg-[rgba(255,92,92,0.08)] text-text";
+            return (<button key={i} onClick={() => choose(i)} disabled={answered} className={"flex items-center gap-[0.6rem] text-left w-full py-[0.6rem] px-[0.8rem] rounded-[10px] border text-[0.86rem] transition duration-200 ease-brand disabled:cursor-default " + state + (answered ? "" : " cursor-pointer hover:border-border-bright hover:text-text")}>
+              <span className="flex-none">
+                {isCorrect ? <CheckCircleIcon size={16} weight="fill" className="text-good"/> : isWrongPick ? <XCircleIcon size={16} weight="fill" className="text-bad"/> : <span className="inline-block w-4 h-4 rounded-full border border-border-bright"/>}
+              </span>
+              <span>{c}</span>
+            </button>);
+        })}
+      </div>
+      {answered && (<div className={"text-[0.82rem] leading-[1.5] mt-[0.2rem] " + (correct ? "text-good" : "text-text-dim")}>
+        <span className="font-medium">{correct ? "Correct. " : "Not quite. "}</span>{tool.explain}
+      </div>)}
     </div>);
 }

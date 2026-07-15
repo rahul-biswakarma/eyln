@@ -11,7 +11,7 @@ export interface CoachSignals {
     next: LessonRef | undefined;
     daysIdle: number | null;
 }
-function computeStreak(lastVisited: Record<string, number>, now: number): number {
+export function computeStreak(lastVisited: Record<string, number>, now: number): number {
     const days = new Set<number>();
     for (const ts of Object.values(lastVisited)) {
         days.add(Math.floor(ts / DAY));

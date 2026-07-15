@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { getCurrentUid, writeCloudState } from "./db";
+import { computeStreak } from "./coach";
 function save(patch: Record<string, unknown>) {
     writeCloudState(getCurrentUid(), patch);
 }
@@ -17,6 +18,8 @@ interface ProgressState {
     attempts: Record<string, Attempt[]>;
     lastVisited: Record<string, number>;
     solvedChallenges: Record<string, number>;
+    /** High-water mark of the daily study streak — the one streak fact that isn't derivable from lastVisited. */
+    bestStreak: number;
     toggleDone: (lessonId: string) => void;
     setDone: (lessonId: string, value: boolean) => void;
     recordQuiz: (quizId: string, score: number) => void;
@@ -33,6 +36,7 @@ const EMPTY_PROGRESS = {
     attempts: {},
     lastVisited: {},
     solvedChallenges: {},
+    bestStreak: 0,
 };
 export const useProgress = create<ProgressState>()((set) => ({
     ...EMPTY_PROGRESS,
@@ -85,8 +89,13 @@ export const useProgress = create<ProgressState>()((set) => ({
     visit: (key) => {
         set((s) => {
             const lastVisited = { ...s.lastVisited, [key]: Date.now() };
-            save({ lastVisited });
-            return { lastVisited };
+            const streak = computeStreak(lastVisited, Date.now());
+            const bestStreak = Math.max(s.bestStreak, streak);
+            const patch = bestStreak !== s.bestStreak
+                ? { lastVisited, bestStreak }
+                : { lastVisited };
+            save(patch);
+            return patch;
         });
     },
     reset: () => {

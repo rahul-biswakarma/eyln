@@ -26,6 +26,7 @@ export interface CloudState {
     conversations: Conversation[];
     tutorTasks: TutorTask[];
     scratchpad: string;
+    bestStreak: number;
 }
 let currentUid: string | null = null;
 let pendingPatch: Partial<CloudState> = {};
